@@ -281,7 +281,7 @@ defmodule MyApp.Lenses.EtherscanLens do
   import Lux.Python
 
   def after_focus(response) do
-    # Import required Python packages
+    # Import required Python **packages**
     {:ok, %{success: true}} = Lux.Python.import_package("eth_abi")
     {:ok, %{success: true}} = Lux.Python.import_package("eth_utils")
 

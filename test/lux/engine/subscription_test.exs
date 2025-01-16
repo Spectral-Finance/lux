@@ -30,8 +30,11 @@ defmodule Lux.Engine.SubscriptionTest do
       subscription = Subscription.new(%{type: "test.event"}, "specter1")
       {key, value} = Subscription.to_ets_record(subscription)
 
-      assert {%{type: "test.event"}, subscription.id} = key
-      assert {[], "specter1"} = value
+      {pattern, id} = key
+      assert pattern == %{type: "test.event"}
+      assert id == subscription.id
+
+      assert value == {[], "specter1"}
     end
   end
 end

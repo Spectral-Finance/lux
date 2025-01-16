@@ -14,6 +14,11 @@ defmodule Lux.Engine.SubscriptionRegistry do
   """
   @spec init(atom()) :: table_ref()
   def init(table_name) when is_atom(table_name) do
+    # Delete the table if it already exists (cleanup from previous test)
+    if table_exists?(table_name) do
+      :ets.delete(table_name)
+    end
+
     :ets.new(table_name, [
       :named_table,
       :set,
@@ -24,10 +29,16 @@ defmodule Lux.Engine.SubscriptionRegistry do
 
   @doc """
   Cleans up the subscription registry by deleting the ETS table.
+  Returns true if the table was deleted, false if it didn't exist.
   """
-  @spec cleanup(table_ref()) :: true
+  @spec cleanup(table_ref()) :: boolean()
   def cleanup(table_ref) do
-    :ets.delete(table_ref)
+    if table_exists?(table_ref) do
+      :ets.delete(table_ref)
+      true
+    else
+      false
+    end
   end
 
   @doc """
@@ -69,6 +80,7 @@ defmodule Lux.Engine.SubscriptionRegistry do
         :ets.delete(table_ref, {pattern, sub_id})
       end
     end)
+
     :ok
   end
 
@@ -81,5 +93,12 @@ defmodule Lux.Engine.SubscriptionRegistry do
         actual_value -> actual_value == expected_value
       end
     end)
+  end
+
+  defp table_exists?(table_ref) do
+    case :ets.info(table_ref) do
+      :undefined -> false
+      _ -> true
+    end
   end
 end

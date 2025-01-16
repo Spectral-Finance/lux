@@ -4,10 +4,10 @@ defmodule Lux.Engine.Subscription do
   """
 
   @type t :: %__MODULE__{
-    id: String.t(),
-    pattern: map(),
-    specter_id: String.t()
-  }
+          id: String.t(),
+          pattern: map(),
+          specter_id: String.t()
+        }
 
   defstruct [:id, :pattern, :specter_id]
 
@@ -28,7 +28,8 @@ defmodule Lux.Engine.Subscription do
   """
   def to_ets_record(%__MODULE__{} = subscription) do
     key = {subscription.pattern, subscription.id}
-    value = {[], subscription.specter_id}  # Empty list for future match_spec
+    # Empty list for future match_spec
+    value = {[], subscription.specter_id}
     {key, value}
   end
 end
