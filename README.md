@@ -275,11 +275,7 @@ defmodule MyApp.Lenses.EtherscanLens do
   use Lux.Lens,
     name: "Etherscan Lens",
     description: "Fetches and decodes contract events",
-    url: "https://api.etherscan.io/api",
-    auth: %{
-      type: :api_key,
-      key: System.get_env("ETHERSCAN_API_KEY")
-    }
+    url: "https://api.etherscan.io/v2/api"
 
   require Lux.Python
   import Lux.Python
