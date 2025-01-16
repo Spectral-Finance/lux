@@ -358,6 +358,29 @@ mix setup
 mix test
 ```
 
+### Setup
+
+```sh
+asdf install
+mix deps.get
+mix deps.compile
+```
+
+### Setup Python environment
+
+```sh
+cd priv/python
+poetry shell
+poetry install
+```
+
+### Setup environment variables
+
+At minimum, the following environment variables must be set:
+1. Copy `.env.example` to `.env`
+2. Fill in your API keys in `.env`
+3. The application will automatically load these in development
+
 ## Contributing
 
 We welcome contributions! Here's how you can help:

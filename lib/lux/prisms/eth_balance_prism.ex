@@ -56,6 +56,8 @@ defmodule Lux.Prisms.EthBalancePrism do
   require Lux.Python
   import Lux.Python
 
+  alias Lux.Config
+
   def handler(%{address: address} = input, _ctx) do
     network = Map.get(input, :network, "mainnet")
 
@@ -72,10 +74,12 @@ defmodule Lux.Prisms.EthBalancePrism do
   end
 
   defp check_balance(address, network) do
+    api_key = Config.alchemy_api_key()
+
     result =
-      python variables: %{address: address, network: network} do
+      python variables: %{address: address, network: network, api_key: api_key} do
         ~PY"""
-        def get_balance(address, network):
+        def get_balance(address, network, api_key):
             from web3 import Web3
 
             try:
@@ -83,11 +87,11 @@ defmodule Lux.Prisms.EthBalancePrism do
                 if network == "test":
                     w3 = Web3(Web3.EthereumTesterProvider())
                 else:
-                    # Network endpoints (in production, use environment variables)
+                    # Network endpoints with API key
                     NETWORKS = {
-                        "mainnet": "https://eth-mainnet.g.alchemy.com/v2/demo",
-                        "goerli": "https://eth-goerli.g.alchemy.com/v2/demo",
-                        "sepolia": "https://eth-sepolia.g.alchemy.com/v2/demo"
+                        "mainnet": f"https://eth-mainnet.g.alchemy.com/v2/{api_key}",
+                        "goerli": f"https://eth-goerli.g.alchemy.com/v2/{api_key}",
+                        "sepolia": f"https://eth-sepolia.g.alchemy.com/v2/{api_key}"
                     }
                     if network not in NETWORKS:
                         return {
@@ -95,8 +99,11 @@ defmodule Lux.Prisms.EthBalancePrism do
                         }
                     w3 = Web3(Web3.HTTPProvider(NETWORKS[network]))
 
+                # Convert address to checksum address
+                checksum_address = w3.to_checksum_address(address)
+
                 # Get balance in Wei
-                balance_wei = w3.eth.get_balance(address)
+                balance_wei = w3.eth.get_balance(checksum_address)
 
                 # Convert to ETH
                 balance_eth = Web3.from_wei(balance_wei, 'ether')
@@ -112,7 +119,7 @@ defmodule Lux.Prisms.EthBalancePrism do
                 }
 
         # Call the function with our variables
-        result = get_balance(address, network)
+        result = get_balance(address, network, api_key)
         result  # Return the result
         """
       end
