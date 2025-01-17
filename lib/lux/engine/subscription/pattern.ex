@@ -1,183 +1,148 @@
 defmodule Lux.Engine.Subscription.Pattern do
   @moduledoc """
-  Enhanced pattern matching for subscriptions with support for:
-  - Wildcards and glob patterns
-  - Regular expressions
-  - Pattern priorities
-  - Nested matching
-  - Value transformations
+  Provides pattern matching for signal subscriptions based on core signal attributes:
+  - schema_id
+  - sender
+  - recipient
+
+  Supports wildcards (* and ?) and regex patterns for flexible matching.
   """
 
   require Logger
+  alias Lux.Signal
 
   @type t :: %__MODULE__{
           pattern: map(),
-          priority: integer(),
+          priority: non_neg_integer(),
           wildcards: map(),
-          regex_patterns: map(),
-          transformations: map()
+          regex_patterns: map()
         }
 
   defstruct pattern: %{},
             priority: 0,
             wildcards: %{},
-            regex_patterns: %{},
-            transformations: %{}
+            regex_patterns: %{}
 
   @doc """
-  Creates a new pattern with the given specifications.
+  Creates a new pattern from a map and options.
+  The pattern map can include exact values, wildcards (* and ?), and regex patterns
+  for schema_id, sender and recipient.
   """
-  def new(pattern, opts \\ []) do
-    {wildcards, pattern} = extract_wildcards(pattern)
-    {regex_patterns, pattern} = extract_regex_patterns(pattern)
+  def new(pattern_map, opts \\ []) do
+    priority = Keyword.get(opts, :priority, 0)
+
+    # Only allow matching on core signal attributes
+    filtered_map = Map.take(pattern_map, [:schema_id, :sender, :recipient])
+
+    {wildcards, remaining} = extract_wildcards(filtered_map)
+    {regex_patterns, pattern} = extract_regex_patterns(remaining)
 
     %__MODULE__{
       pattern: pattern,
-      priority: Keyword.get(opts, :priority, 0),
+      priority: priority,
       wildcards: wildcards,
-      regex_patterns: regex_patterns,
-      transformations: Keyword.get(opts, :transformations, %{})
+      regex_patterns: regex_patterns
     }
   end
 
   @doc """
-  Checks if a signal matches the pattern.
+  Checks if a signal matches the pattern based on core attributes.
   Returns {:ok, priority} if matched, :nomatch otherwise.
   """
-  def match?(%__MODULE__{} = pattern, signal) when is_map(signal) do
-    Logger.debug("Matching signal: #{inspect(signal)}")
-    Logger.debug("Against pattern: #{inspect(pattern)}")
+  def match?(pattern, %Signal{} = signal) do
+    signal_map = %{
+      schema_id: signal.schema_id,
+      sender: signal.sender,
+      recipient: signal.recipient
+    }
 
-    with :ok <- match_exact(pattern.pattern, signal),
-         :ok <- match_wildcards(pattern.wildcards, signal),
-         :ok <- match_regex(pattern.regex_patterns, signal) do
-      Logger.debug("All patterns matched!")
+    Logger.debug("Checking if signal matches pattern",
+      signal: signal_map,
+      pattern: pattern.pattern,
+      wildcards: pattern.wildcards,
+      regex_patterns: pattern.regex_patterns
+    )
+
+    with :ok <- match_exact(pattern.pattern, signal_map),
+         :ok <- match_wildcards(pattern.wildcards, signal_map),
+         :ok <- match_regex(pattern.regex_patterns, signal_map) do
       {:ok, pattern.priority}
     else
-      result ->
-        Logger.debug("Pattern did not match: #{inspect(result)}")
-        :nomatch
+      _ -> :nomatch
     end
-  end
-
-  @doc """
-  Applies any transformations defined in the pattern to the signal.
-  """
-  def apply_transformations(%__MODULE__{transformations: trans}, signal) do
-    Enum.reduce(trans, signal, fn {key, transformer}, acc ->
-      case Map.get(signal, key) do
-        nil -> acc
-        value -> Map.put(acc, key, transformer.(value))
-      end
-    end)
   end
 
   # Private helpers
 
   defp match_exact(pattern, signal) do
-    # If pattern is empty, it matches everything
-    if pattern == %{} do
-      :ok
-    else
-      # Check if any of the pattern fields match
-      pattern_matches =
-        Enum.any?(pattern, fn {key, value} ->
-          case Map.get(signal, key) do
-            ^value -> true
-            _ -> false
-          end
-        end)
+    pattern_matches =
+      Enum.all?(pattern, fn {key, value} ->
+        case Map.get(signal, key) do
+          nil -> false
+          ^value -> true
+          _ -> false
+        end
+      end)
 
-      if pattern_matches, do: :ok, else: :nomatch
-    end
+    if pattern_matches, do: :ok, else: :nomatch
   end
 
   defp match_wildcards(wildcards, signal) do
-    Logger.debug("Matching wildcards: #{inspect(wildcards)}")
+    wildcards_match =
+      Enum.all?(wildcards, fn {key, pattern} ->
+        case Map.get(signal, key) do
+          nil -> false
+          value -> match_wildcard_pattern?(to_string(pattern), to_string(value))
+        end
+      end)
 
-    if Enum.all?(wildcards, fn {key, pattern} ->
-         case Map.get(signal, key) do
-           nil ->
-             Logger.debug("Key #{key} not found in signal")
-             false
-
-           value when is_binary(value) ->
-             result = match_wildcard_pattern?(pattern, to_string(value))
-
-             Logger.debug(
-               "Matching #{inspect(value)} against #{inspect(pattern)}: #{inspect(result)}"
-             )
-
-             result
-
-           value ->
-             Logger.debug("Value #{inspect(value)} is not a string")
-             false
-         end
-       end) do
-      :ok
-    else
-      :nomatch
-    end
+    if wildcards_match, do: :ok, else: :nomatch
   end
 
   defp match_regex(regex_patterns, signal) do
-    if Enum.all?(regex_patterns, fn {key, regex} ->
-         case Map.get(signal, key) do
-           nil -> false
-           value when is_binary(value) -> Regex.match?(regex, value)
-           _ -> false
-         end
-       end) do
-      :ok
-    else
-      :nomatch
+    regex_matches =
+      Enum.all?(regex_patterns, fn {key, regex} ->
+        case Map.get(signal, key) do
+          nil -> false
+          value -> Regex.match?(regex, to_string(value))
+        end
+      end)
+
+    if regex_matches, do: :ok, else: :nomatch
+  end
+
+  defp match_wildcard_pattern?(pattern, value) do
+    pattern
+    |> String.split("*", trim: true)
+    |> case do
+      [] -> true
+      parts -> parts |> Enum.join(".*") |> Regex.compile!() |> Regex.match?(value)
     end
   end
 
-  defp match_wildcard_pattern?(pattern, value) when is_binary(pattern) and is_binary(value) do
-    pattern_chars = String.graphemes(pattern)
-    value_chars = String.graphemes(value)
-    do_match_wildcard(pattern_chars, value_chars)
-  end
-
-  defp match_wildcard_pattern?(_, _), do: false
-
-  defp do_match_wildcard([], []), do: true
-  defp do_match_wildcard(["*" | p_rest], value), do: do_match_wildcard_star(p_rest, value)
-  defp do_match_wildcard(["?" | p_rest], [_ | v_rest]), do: do_match_wildcard(p_rest, v_rest)
-  defp do_match_wildcard([x | p_rest], [x | v_rest]), do: do_match_wildcard(p_rest, v_rest)
-  defp do_match_wildcard(_, _), do: false
-
-  defp do_match_wildcard_star([], _), do: true
-  defp do_match_wildcard_star(pattern, []), do: do_match_wildcard(pattern, [])
-
-  defp do_match_wildcard_star(pattern, [_ | v_rest] = value) do
-    do_match_wildcard(pattern, value) or do_match_wildcard_star(pattern, v_rest)
-  end
-
   defp extract_wildcards(pattern) do
-    {wildcards, remaining} =
-      Enum.split_with(pattern, fn {_key, value} ->
-        is_binary(value) and (String.contains?(value, "*") or String.contains?(value, "?"))
-      end)
-
-    {Map.new(wildcards), Map.new(remaining)}
+    Enum.reduce(pattern, {%{}, %{}}, fn
+      {key, value}, {wildcards, remaining} ->
+        if String.contains?(to_string(value), ["*", "?"]) do
+          {Map.put(wildcards, key, value), remaining}
+        else
+          {wildcards, Map.put(remaining, key, value)}
+        end
+    end)
   end
 
   defp extract_regex_patterns(pattern) do
-    {regexes, remaining} =
-      Enum.split_with(pattern, fn {_key, value} ->
-        is_binary(value) and String.starts_with?(value, "~r/")
-      end)
+    Enum.reduce(pattern, {%{}, %{}}, fn
+      {key, "~r/" <> rest}, {regexes, remaining} ->
+        pattern = String.slice(rest, 0, String.length(rest) - 1)
 
-    regexes =
-      Enum.map(regexes, fn {key, pattern} ->
-        # Extract the pattern between ~r/ and the last /
-        [_, regex_str] = Regex.run(~r/^~r\/(.+)\/$/, pattern)
-        {key, Regex.compile!(regex_str)}
-      end)
+        case Regex.compile(pattern) do
+          {:ok, regex} -> {Map.put(regexes, key, regex), remaining}
+          {:error, _} -> {regexes, Map.put(remaining, key, "~r/" <> rest)}
+        end
 
-    {Map.new(regexes), Map.new(remaining)}
+      {key, value}, {regexes, remaining} ->
+        {regexes, Map.put(remaining, key, value)}
+    end)
   end
 end

@@ -10,3 +10,5 @@ end
 config :lux, :api_keys,
   alchemy: env!("ALCHEMY_API_KEY", :string!, "fake_alchemy_api_key"),
   openai: env!("OPENAI_API_KEY", :string!, "fake_openai_api_key")
+
+config :lux, :config_env, config_env()

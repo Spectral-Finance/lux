@@ -2,6 +2,8 @@ defmodule Lux.Application do
   @moduledoc false
   use Application
 
+  @config_env Application.compile_env(:lux, :config_env)
+
   @impl true
   def start(_type, _args) do
     children = [
@@ -13,5 +15,17 @@ defmodule Lux.Application do
 
     opts = [strategy: :one_for_one, name: Lux.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  if @config_env == :dev do
+    IO.inspect("OMGOMGOMGOMG")
+
+    def oberver do
+      Mix.ensure_application!(:wx)
+      Mix.ensure_application!(:runtime_tools)
+      Mix.ensure_application!(:observer)
+
+      :observer.start()
+    end
   end
 end

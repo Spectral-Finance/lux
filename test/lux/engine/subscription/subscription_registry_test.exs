@@ -2,6 +2,7 @@ defmodule Lux.Engine.SubscriptionRegistryTest do
   use ExUnit.Case
   alias Lux.Engine.SubscriptionRegistry
   alias Lux.Engine.Subscription.Pattern
+  alias Lux.Signal
 
   setup %{test: test_name} do
     registry_name = :"test_registry_#{test_name}"
@@ -15,28 +16,39 @@ defmodule Lux.Engine.SubscriptionRegistryTest do
 
   describe "register/3" do
     test "registers a pattern for a specter", %{registry: registry} do
-      pattern = Pattern.new(%{type: "test.event"})
+      pattern = Pattern.new(%{schema_id: "test.event"})
       assert :ok = SubscriptionRegistry.register(registry, "specter1", pattern)
     end
 
     test "allows multiple patterns for different specters", %{registry: registry} do
-      pattern1 = Pattern.new(%{type: "test.event1"})
-      pattern2 = Pattern.new(%{type: "test.event2"})
+      pattern1 = Pattern.new(%{schema_id: "test.event1"})
+      pattern2 = Pattern.new(%{schema_id: "test.event2"})
 
       assert :ok = SubscriptionRegistry.register(registry, "specter1", pattern1)
       assert :ok = SubscriptionRegistry.register(registry, "specter2", pattern2)
     end
 
     test "updates existing pattern for same specter", %{registry: registry} do
-      pattern1 = Pattern.new(%{type: "test.event1"})
-      pattern2 = Pattern.new(%{type: "test.event2"})
+      pattern1 = Pattern.new(%{schema_id: "test.event1"})
+      pattern2 = Pattern.new(%{schema_id: "test.event2"})
 
       SubscriptionRegistry.register(registry, "specter1", pattern1)
       SubscriptionRegistry.register(registry, "specter1", pattern2)
 
       # Only pattern2 should match now
-      signal1 = %{type: "test.event1"}
-      signal2 = %{type: "test.event2"}
+      signal1 = %Signal{
+        schema_id: "test.event1",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
+      signal2 = %Signal{
+        schema_id: "test.event2",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
 
       assert [] = SubscriptionRegistry.find_matching_specters(registry, signal1)
       assert ["specter1"] = SubscriptionRegistry.find_matching_specters(registry, signal2)
@@ -45,12 +57,18 @@ defmodule Lux.Engine.SubscriptionRegistryTest do
 
   describe "unregister/2" do
     test "removes all patterns for a specter", %{registry: registry} do
-      pattern = Pattern.new(%{type: "test.event"})
+      pattern = Pattern.new(%{schema_id: "test.event"})
       SubscriptionRegistry.register(registry, "specter1", pattern)
 
       assert :ok = SubscriptionRegistry.unregister(registry, "specter1")
 
-      signal = %{type: "test.event"}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       assert [] = SubscriptionRegistry.find_matching_specters(registry, signal)
     end
 
@@ -61,39 +79,68 @@ defmodule Lux.Engine.SubscriptionRegistryTest do
 
   describe "find_matching_specters/2" do
     test "finds specters with exact matching patterns", %{registry: registry} do
-      pattern = Pattern.new(%{type: "test.event", value: 42})
+      pattern = Pattern.new(%{schema_id: "test.event", sender: "test"})
       SubscriptionRegistry.register(registry, "specter1", pattern)
 
-      signal = %{type: "test.event", value: 42}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       assert ["specter1"] = SubscriptionRegistry.find_matching_specters(registry, signal)
     end
 
     test "finds specters with wildcard patterns", %{registry: registry} do
-      pattern = Pattern.new(%{type: "test.*", value: "*"})
+      pattern = Pattern.new(%{schema_id: "test.*", sender: "*"})
       SubscriptionRegistry.register(registry, "specter1", pattern)
 
-      signal = %{type: "test.event", value: "anything"}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "anything",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       assert ["specter1"] = SubscriptionRegistry.find_matching_specters(registry, signal)
     end
 
     test "finds specters with regex patterns", %{registry: registry} do
-      pattern = Pattern.new(%{id: "~r/^[0-9]{3}$/"})
+      pattern = Pattern.new(%{schema_id: "~r/test\\.\\w+/"})
       SubscriptionRegistry.register(registry, "specter1", pattern)
 
-      signal = %{id: "123"}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       assert ["specter1"] = SubscriptionRegistry.find_matching_specters(registry, signal)
     end
 
     test "returns empty list for non-matching signal", %{registry: registry} do
-      pattern = Pattern.new(%{type: "test.event"})
+      pattern = Pattern.new(%{schema_id: "test.event"})
       SubscriptionRegistry.register(registry, "specter1", pattern)
 
-      signal = %{type: "other.event"}
+      signal = %Signal{
+        schema_id: "other.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       assert [] = SubscriptionRegistry.find_matching_specters(registry, signal)
     end
 
     test "raises error for unknown registry", %{registry: _registry} do
-      signal = %{type: "test.event"}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
 
       assert_raise ArgumentError, ~r/unknown registry/, fn ->
         SubscriptionRegistry.find_matching_specters(:unknown_registry, signal)
@@ -101,13 +148,19 @@ defmodule Lux.Engine.SubscriptionRegistryTest do
     end
 
     test "finds multiple matching specters", %{registry: registry} do
-      pattern1 = Pattern.new(%{type: "test.*"})
-      pattern2 = Pattern.new(%{type: "test.event"})
+      pattern1 = Pattern.new(%{schema_id: "test.*"})
+      pattern2 = Pattern.new(%{schema_id: "test.event"})
 
       SubscriptionRegistry.register(registry, "specter1", pattern1)
       SubscriptionRegistry.register(registry, "specter2", pattern2)
 
-      signal = %{type: "test.event"}
+      signal = %Signal{
+        schema_id: "test.event",
+        sender: "test",
+        recipient: "specter1",
+        payload: %{}
+      }
+
       matches = SubscriptionRegistry.find_matching_specters(registry, signal)
 
       assert length(matches) == 2
