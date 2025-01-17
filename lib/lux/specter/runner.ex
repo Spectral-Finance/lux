@@ -77,9 +77,6 @@ defmodule Lux.Specter.Runner do
     case Lux.Specter.unschedule_beam(specter, beam_module) do
       {:ok, updated_specter} ->
         {:reply, :ok, %{state | specter: updated_specter}}
-
-      error ->
-        {:reply, error, state}
     end
   end
 

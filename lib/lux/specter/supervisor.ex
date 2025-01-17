@@ -53,9 +53,6 @@ defmodule Lux.Specter.Supervisor do
           {:ok, %Lux.Specter{id: ^specter_id} = _specter, pid} -> {:ok, pid}
           _ -> nil
         end)
-
-      _ ->
-        {:error, :supervisor_error}
     end
   end
 end

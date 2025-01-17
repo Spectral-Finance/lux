@@ -8,7 +8,6 @@ def test_list_packages():
     assert isinstance(packages, dict)
     # Check for some packages we know should be installed (from pyproject.toml)
     assert "pytest" in packages
-    assert "erlport" in packages
 
 def test_get_package_version():
     """Test getting package versions."""

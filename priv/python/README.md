@@ -4,20 +4,20 @@ This directory contains the Python components of the Lux framework. It's structu
 
 ## Development Setup
 
-1. Install Poetry (if not already installed):
+1. Install Poetry and (if not already installed):
    ```bash
    curl -sSL https://install.python-poetry.org | python3 -
+   poetry self add poetry-plugin-shell
    ```
 
-2. Install dependencies:
+2. Activate the virtual environment:
    ```bash
-   cd priv/python
-   poetry install
+   poetry shell --directory=priv/python
    ```
 
-3. Activate the virtual environment:
+3. Install dependencies:
    ```bash
-   poetry shell
+   poetry install --directory=priv/python
    ```
 
 ## Running Tests

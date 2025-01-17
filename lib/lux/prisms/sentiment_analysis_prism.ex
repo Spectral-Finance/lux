@@ -96,7 +96,7 @@ defmodule Lux.Prisms.SentimentAnalysisPrism do
          {:ok, result} <- analyze_sentiment(text, language) do
       {:ok, result}
     else
-      {:ok, %{success: false, error: error}} ->
+      {:ok, %{"success" => false, "error" => error}} ->
         {:error, "Failed to import NLTK: #{error}"}
 
       {:error, reason} ->

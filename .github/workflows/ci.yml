@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+
+      - name: Set up Python venv
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.0.0
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+          installer-parallel: true
+
+      - name: Cache Mix deps
+        uses: actions/cache@v3
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-
+
+      - name: Cache Poetry deps
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Mix Dependencies
+        run: mix deps.get
+
+      - name: Install Python dependencies
+        run: poetry install --directory priv/python
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      # - name: Run Credo
+      #   run: mix credo
+
+      - name: Run Dialyzer
+        run: mix dialyzer
+
+      - name: Run Elixir Tests
+        run: mix test
+
+      - name: Run Python Tests
+        run: mix python.test
+
+      # - name: Generate Docs
+      #   run: mix docs
