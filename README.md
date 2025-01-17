@@ -362,8 +362,7 @@ mix test
 
 ```sh
 asdf install
-mix deps.get
-mix deps.compile
+mix setup
 ```
 
 ### Setup Python environment
@@ -376,10 +375,27 @@ poetry install
 
 ### Setup environment variables
 
-At minimum, the following environment variables must be set:
-1. Copy `.env.example` to `.env`
-2. Fill in your API keys in `.env`
-3. The application will automatically load these in development
+The application uses environment-specific configuration files:
+- `dev.envrc` for development
+- `test.envrc` for testing
+- `prod.envrc` for production
+
+1. Create the appropriate `.envrc` file for your environment.
+
+```sh
+# For development
+cp dev.envrc dev.override.envrc
+
+# For testing
+cp test.envrc test.override.envrc
+```
+
+These files are optional and can be used for local-specific configurations that shouldn't be committed to version control.
+- `dev.override.envrc`
+- `test.override.envrc`
+- `prod.override.envrc`
+
+3. Fill in required API keys in your environment file
 
 ## Contributing
 
