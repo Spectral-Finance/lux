@@ -1,5 +1,7 @@
 import Config
 
+config :logger, :default_handler, level: :info
+
 config :venomous, :snake_manager, %{
   # TTL whenever python process is inactive
   snake_ttl_minutes: 10,

@@ -61,5 +61,11 @@
   
   Follow the official Phoenix guides for best practices in routing, controllers, contexts, views, and other Phoenix components.
 
-  Read the readme to understand how the frame
+  Read the readme to understand how the framework works.
+
+  Testing and agentic behaviour:
+  - when writing tests and debugging code, try to focus on fixing one test at the time. 
+  - Before trying to fix the test, always write at least 2 paragraphas about what the issue might be and what exactly is happening in the originalcode and test you are debugging
+  - consider adding debugging logs to the code when you have difficulty understanding what is happening in the code and test you are debugging. Logger.debug/1 is good if you think that the debug should stay there for enahnacing developer experience. For temporary debugging logs, you should prefer dbg over IO.inspect.
+  - prefer small tests and changes over large rewrites.
   

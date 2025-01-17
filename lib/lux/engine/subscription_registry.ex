@@ -1,104 +1,79 @@
 defmodule Lux.Engine.SubscriptionRegistry do
   @moduledoc """
-  Registry for storing and querying signal subscriptions using ETS.
+  Registry for managing signal subscriptions and pattern matching.
   """
 
-  alias Lux.Engine.Subscription
+  use GenServer
   require Logger
+  alias Lux.Engine.Subscription.Pattern
 
-  @type table_ref :: atom() | :ets.tid()
-
-  @doc """
-  Initializes a subscription registry ETS table with a custom name.
-  Returns the table reference.
-  """
-  @spec init(atom()) :: table_ref()
-  def init(table_name) when is_atom(table_name) do
-    # Delete the table if it already exists (cleanup from previous test)
-    if table_exists?(table_name) do
-      :ets.delete(table_name)
-    end
-
-    :ets.new(table_name, [
-      :named_table,
-      :set,
-      :public,
-      read_concurrency: true
-    ])
+  def start_link(opts) do
+    name = Keyword.fetch!(opts, :name)
+    GenServer.start_link(__MODULE__, opts, name: via_tuple(name))
   end
 
-  @doc """
-  Cleans up the subscription registry by deleting the ETS table.
-  Returns true if the table was deleted, false if it didn't exist.
-  """
-  @spec cleanup(table_ref()) :: boolean()
-  def cleanup(table_ref) do
-    if table_exists?(table_ref) do
-      :ets.delete(table_ref)
-      true
-    else
-      false
-    end
+  def register(registry, specter_id, pattern) do
+    GenServer.call(via_tuple(registry), {:register, specter_id, pattern})
   end
 
-  @doc """
-  Registers a subscription in the registry.
-  """
-  @spec register(table_ref(), Subscription.t()) :: :ok
-  def register(table_ref, %Subscription{} = subscription) do
-    {key, value} = Subscription.to_ets_record(subscription)
-    :ets.insert(table_ref, {key, value})
-    :ok
+  def unregister(registry, specter_id) do
+    GenServer.call(via_tuple(registry), {:unregister, specter_id})
   end
 
-  @doc """
-  Finds all specter IDs that have subscriptions matching the given signal.
-  """
-  @spec find_matching_specters(table_ref(), map()) :: [String.t()]
-  def find_matching_specters(table_ref, signal) when is_map(signal) do
-    table_ref
-    |> :ets.tab2list()
-    |> Enum.flat_map(fn {{pattern, _sub_id}, {_match_spec, specter_id}} ->
-      if matches_pattern?(signal, pattern) do
-        [specter_id]
-      else
-        []
-      end
-    end)
-    |> Enum.uniq()
+  def find_matching_specters(registry, signal) do
+    GenServer.call(via_tuple(registry), {:find_matching_specters, signal})
   end
 
-  @doc """
-  Removes all subscriptions for a given specter.
-  """
-  @spec unregister_specter(table_ref(), String.t()) :: :ok
-  def unregister_specter(table_ref, target_specter_id) when is_binary(target_specter_id) do
-    table_ref
-    |> :ets.tab2list()
-    |> Enum.each(fn {{pattern, sub_id}, {_match_spec, specter_id}} ->
-      if specter_id == target_specter_id do
-        :ets.delete(table_ref, {pattern, sub_id})
-      end
-    end)
-
-    :ok
+  def init(opts) do
+    name = Keyword.fetch!(opts, :name)
+    {registry, _} = extract_registry_name(name)
+    subscriptions = :ets.new(:"#{registry}_subscriptions", [:set, :protected])
+    {:ok, %{name: name, subscriptions: subscriptions}}
   end
 
-  # Private helpers
-
-  defp matches_pattern?(signal, pattern) do
-    Enum.all?(pattern, fn {key, expected_value} ->
-      case Map.get(signal, key) do
-        nil -> false
-        actual_value -> actual_value == expected_value
-      end
-    end)
+  def handle_call({:register, specter_id, pattern}, _from, state) do
+    Logger.debug("Registering pattern: #{inspect(pattern)} for specter: #{inspect(specter_id)}")
+    :ets.insert(state.subscriptions, {specter_id, pattern})
+    {:reply, :ok, state}
   end
 
-  defp table_exists?(table_ref) do
-    case :ets.info(table_ref) do
-      :undefined -> false
-      _ -> true
-    end
+  def handle_call({:unregister, specter_id}, _from, state) do
+    :ets.delete(state.subscriptions, specter_id)
+    {:reply, :ok, state}
   end
+
+  def handle_call({:find_matching_specters, signal}, _from, state) do
+    Logger.debug("Finding matches for signal: #{inspect(signal)}")
+
+    matches =
+      :ets.foldl(
+        fn {specter_id, pattern}, acc ->
+          Logger.debug(
+            "Checking pattern: #{inspect(pattern.pattern)} for specter: #{inspect(specter_id)}"
+          )
+
+          case Pattern.match?(pattern, signal) do
+            {:ok, _priority} ->
+              Logger.debug("Pattern matched!")
+              [specter_id | acc]
+
+            :nomatch ->
+              Logger.debug("Pattern did not match")
+              acc
+          end
+        end,
+        [],
+        state.subscriptions
+      )
+
+    {:reply, matches, state}
+  end
+
+  defp via_tuple(name) do
+    {registry, process_name} = extract_registry_name(name)
+    {:via, Registry, {registry, process_name}}
+  end
+
+  defp extract_registry_name({registry, name}), do: {registry, "subscription_registry_#{name}"}
+  defp extract_registry_name(name) when is_atom(name), do: {name, "subscription_registry"}
 end

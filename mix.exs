@@ -17,7 +17,7 @@ defmodule Lux.MixProject do
   def application do
     [
       mod: {Lux.Application, []},
-      extra_applications: [:logger]
+      extra_applications: [:logger, :crypto]
     ]
   end
 
@@ -29,12 +29,18 @@ defmodule Lux.MixProject do
     [
       {:bandit, "~> 1.0"},
       {:req, "~> 0.5.0"},
-      {:stream_data, "~> 1.0", only: :test},
-      {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:venomous, "~> 0.7.5"},
-      {:mock, "~> 0.3.0", only: :test},
       {:crontab, "~> 1.1"},
-      {:dotenvy, "~> 0.8.0", only: [:dev, :test]}
+      {:dotenvy, "~> 0.8.0"},
+      {:phoenix_pubsub, "~> 2.1"},
+      {:telemetry, "~> 1.2"},
+      # Test and dev dependencies
+      {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
+      {:ex_machina, "~> 2.7", only: :test},
+      {:faker, "~> 0.17", only: :test},
+      {:mock, "~> 0.3.0", only: :test},
+      {:mox, "~> 1.0", only: :test},
+      {:stream_data, "~> 1.0", only: :test}
     ]
   end
 end
