@@ -37,10 +37,4 @@ lux-*.tar
 
 # Environment variables
 .env
-<<<<<<< HEAD
-prod.override.envrc
-dev.override.envrc
-test.override.envrc
-=======
 *.override.envrc
->>>>>>> 43c7337 (feat: update env variable files)
