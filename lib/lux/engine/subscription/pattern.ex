@@ -8,6 +8,8 @@ defmodule Lux.Engine.Subscription.Pattern do
   - Value transformations
   """
 
+  require Logger
+
   @type t :: %__MODULE__{
           pattern: map(),
           priority: integer(),
@@ -43,12 +45,18 @@ defmodule Lux.Engine.Subscription.Pattern do
   Returns {:ok, priority} if matched, :nomatch otherwise.
   """
   def match?(%__MODULE__{} = pattern, signal) when is_map(signal) do
+    Logger.debug("Matching signal: #{inspect(signal)}")
+    Logger.debug("Against pattern: #{inspect(pattern)}")
+
     with :ok <- match_exact(pattern.pattern, signal),
          :ok <- match_wildcards(pattern.wildcards, signal),
          :ok <- match_regex(pattern.regex_patterns, signal) do
+      Logger.debug("All patterns matched!")
       {:ok, pattern.priority}
     else
-      _ -> :nomatch
+      result ->
+        Logger.debug("Pattern did not match: #{inspect(result)}")
+        :nomatch
     end
   end
 
@@ -85,11 +93,26 @@ defmodule Lux.Engine.Subscription.Pattern do
   end
 
   defp match_wildcards(wildcards, signal) do
+    Logger.debug("Matching wildcards: #{inspect(wildcards)}")
+
     if Enum.all?(wildcards, fn {key, pattern} ->
          case Map.get(signal, key) do
-           nil -> false
-           value when is_binary(value) -> match_wildcard_pattern?(pattern, to_string(value))
-           _ -> false
+           nil ->
+             Logger.debug("Key #{key} not found in signal")
+             false
+
+           value when is_binary(value) ->
+             result = match_wildcard_pattern?(pattern, to_string(value))
+
+             Logger.debug(
+               "Matching #{inspect(value)} against #{inspect(pattern)}: #{inspect(result)}"
+             )
+
+             result
+
+           value ->
+             Logger.debug("Value #{inspect(value)} is not a string")
+             false
          end
        end) do
       :ok
@@ -112,32 +135,31 @@ defmodule Lux.Engine.Subscription.Pattern do
     end
   end
 
-  defp match_wildcard_pattern?("*", _value), do: true
+  defp match_wildcard_pattern?(pattern, value) when is_binary(pattern) and is_binary(value) do
+    pattern_chars = String.graphemes(pattern)
+    value_chars = String.graphemes(value)
+    do_match_wildcard(pattern_chars, value_chars)
+  end
 
-  defp match_wildcard_pattern?("?" <> rest, <<_::utf8, value_rest::binary>>),
-    do: match_wildcard_pattern?(rest, value_rest)
+  defp match_wildcard_pattern?(_, _), do: false
 
-  defp match_wildcard_pattern?("", ""), do: true
+  defp do_match_wildcard([], []), do: true
+  defp do_match_wildcard(["*" | p_rest], value), do: do_match_wildcard_star(p_rest, value)
+  defp do_match_wildcard(["?" | p_rest], [_ | v_rest]), do: do_match_wildcard(p_rest, v_rest)
+  defp do_match_wildcard([x | p_rest], [x | v_rest]), do: do_match_wildcard(p_rest, v_rest)
+  defp do_match_wildcard(_, _), do: false
 
-  defp match_wildcard_pattern?(pattern, value) do
-    pattern_parts = String.split(pattern, "*")
+  defp do_match_wildcard_star([], _), do: true
+  defp do_match_wildcard_star(pattern, []), do: do_match_wildcard(pattern, [])
 
-    case pattern_parts do
-      [prefix, suffix] ->
-        String.starts_with?(value, prefix) and String.ends_with?(value, suffix)
-
-      [exact] ->
-        exact == value
-
-      _ ->
-        false
-    end
+  defp do_match_wildcard_star(pattern, [_ | v_rest] = value) do
+    do_match_wildcard(pattern, value) or do_match_wildcard_star(pattern, v_rest)
   end
 
   defp extract_wildcards(pattern) do
     {wildcards, remaining} =
       Enum.split_with(pattern, fn {_key, value} ->
-        is_binary(value) and String.contains?(value, ["*", "?"])
+        is_binary(value) and (String.contains?(value, "*") or String.contains?(value, "?"))
       end)
 
     {Map.new(wildcards), Map.new(remaining)}
