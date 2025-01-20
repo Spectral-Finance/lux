@@ -53,6 +53,7 @@ defmodule MyApp.Specters.TradingAgent do
   def new do
     Lux.Specter.new(%{
       name: "Trading Agent",
+      module: __MODULE__,
       description: "Analyzes market data and executes trades",
       goal: "Maximize portfolio returns while managing risk",
       prisms: [
@@ -64,7 +65,7 @@ defmodule MyApp.Specters.TradingAgent do
   end
 
   # Handle incoming market signals
-  def handle_signal(specter, %{schema_id: MyApp.Schemas.MarketSignal} = signal) do
+  def handle_signal(_specter, %{schema_id: MyApp.Schemas.MarketSignal} = signal) do
     case signal.payload.action do
       "buy" -> 
         {:ok, [{MyApp.Prisms.OrderExecution, Map.put(signal.payload, :type, :market_buy)}]}
@@ -80,7 +81,8 @@ defmodule MyApp.Specters.TradingAgent do
 end
 
 # Start and interact with your specter
-{:ok, pid} = MyApp.Specters.TradingAgent.start_link()
+specter = MyApp.Specters.TradingAgent.new()
+{:ok, pid} = Lux.Runner.start_link(specter)
 ```
 
 ## Core Concepts
