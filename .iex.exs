@@ -1,4 +1,4 @@
-defmodule IexHelpers do
+defmodule LuxHelpers do
   @moduledoc """
   Helper functions for debugging and inspecting the system in IEx.
   """
@@ -119,5 +119,6 @@ defmodule IexHelpers do
   end
 end
 
+require IEx.Helpers
 # Import helpers into IEx session
-import IexHelpers
+import LuxHelpers

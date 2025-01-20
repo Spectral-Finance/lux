@@ -302,7 +302,7 @@ defmodule MyApp.Prisms.SentimentAnalyzer do
   require Lux.Python
   import Lux.Python
 
-  def handler(%{text: text, language: lang}, _ctx) do
+  def handler(%Lux.Signal{schema_id: "free_text", payload: %{text: text, language: lang}}, _ctx) do
     # Import required Python packages
     {:ok, %{success: true}} = Lux.Python.import_package("nltk")
     

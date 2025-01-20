@@ -12,3 +12,5 @@ config :lux, :api_keys,
   openai: env!("OPENAI_API_KEY", :string!, "fake_openai_api_key")
 
 config :lux, :config_env, config_env()
+
+config :lux, :signals_queue_implementation, Lux.Engine.SignalsQueue.BasicQueueImpl
