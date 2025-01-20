@@ -99,6 +99,7 @@ defmodule Lux.Specter.RunnerTest do
     test "processes signal", %{pid: pid} do
       signal = %Lux.Signal{schema_id: TestSignalSchema, payload: %{}}
       Runner.handle_signal(pid, signal)
+      Process.sleep(100)
       # Signal is handled asynchronously, so we just ensure it doesn't crash
       assert Process.alive?(pid)
     end

@@ -10,6 +10,7 @@ defmodule Lux.Specter do
   @type t :: %__MODULE__{
           id: String.t(),
           name: String.t(),
+          module: module(),
           description: String.t(),
           goal: String.t(),
           prisms: [Lux.Prism.t()],
@@ -36,6 +37,7 @@ defmodule Lux.Specter do
 
   defstruct id: nil,
             name: "",
+            module: nil,
             description: "",
             goal: "",
             prisms: [],
@@ -174,6 +176,7 @@ defmodule Lux.Specter do
     struct(__MODULE__, %{
       id: Map.get(attrs, :id, Lux.UUID.generate()),
       name: Map.get(attrs, :name, "Anonymous Specter"),
+      module: Map.get(attrs, :module),
       description: Map.get(attrs, :description, ""),
       goal: Map.get(attrs, :goal, ""),
       llm_config: llm_config,
@@ -295,6 +298,6 @@ defmodule Lux.Specter do
   end
 
   def handle_signal(specter, signal) do
-    apply(specter, :handle_signal, [specter, signal])
+    apply(specter.module, :handle_signal, [specter, signal])
   end
 end
