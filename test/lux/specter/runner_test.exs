@@ -3,6 +3,14 @@ defmodule Lux.Specter.RunnerTest do
   alias Lux.Specter.Runner
 
   # Test modules
+  defmodule TestAgent do
+    use Lux.Specter
+
+    def new do
+      Lux.Specter.new(%{name: "Test Specter", module: __MODULE__})
+    end
+  end
+
   defmodule TestPrism do
     use Lux.Prism,
       name: "Test Prism",
@@ -91,16 +99,20 @@ defmodule Lux.Specter.RunnerTest do
 
   describe "handle_signal/2" do
     setup do
-      specter = Lux.Specter.new(%{name: "Test Specter"})
-      {:ok, pid} = Runner.start_link(specter)
+      specter = TestAgent.new()
+      {:ok, pid} = start_supervised({Runner, specter})
       {:ok, pid: pid}
     end
 
     test "processes signal", %{pid: pid} do
+      :erlang.trace(pid, true, [:receive])
+
       signal = %Lux.Signal{schema_id: TestSignalSchema, payload: %{}}
       Runner.handle_signal(pid, signal)
-      Process.sleep(100)
-      # Signal is handled asynchronously, so we just ensure it doesn't crash
+
+      assert_receive {:trace, ^pid, :receive, {_, {:handle_signal, received_signal}}}, 5000
+
+      assert received_signal == signal
       assert Process.alive?(pid)
     end
   end
