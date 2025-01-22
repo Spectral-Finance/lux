@@ -1,0 +1,42 @@
+sequenceDiagram
+
+    %% Phase 1: Market Research (Ideation)
+    box Market Research (Ideation)
+    participant MRA as Macro Analysis Agent
+    participant FA as Fundamental Analysis Agent
+    participant QA as Quantitative Agent
+    end
+
+    %% Strategy & Execution Participants
+    box CEO Agent
+    %% participant CEO as Strategy & Implementation
+    participant PM as Portfolio Management
+    participant RM as Risk Management
+    participant TE as Trade Execution
+    end
+    
+    participant PAA as Performance Analysis Agent
+
+    %% Phase 1 Flows: Research & Idea Inputs
+    loop Until resolution
+        MRA-->QA: Discuss Research Findings
+    end
+
+    MRA->>PM: Provide macro research findings
+    FA->>PM: Provide fundamental analysis insights
+    QA->>PM: Provide quantitative signals & models
+
+    %% Phase 2: Strategy Development & Risk Assessment
+    PM->>RM: Request risk analysis & stress testing for idea
+    RM-->>PM: Return risk assessment results
+    PM->>PM: Aggregate inputs & develop investment strategy
+
+    %% Phase 3: Trade Execution
+    PM->>TE: Instruct on order execution for approved trade
+    note left of RM: Align goals, assess risk tolerance, <br>construct portfolio, and set allocations
+    TE->>TE: Execute trades & handle order flow
+
+    %% Phase 4: Performance & Risk Analysis
+    TE->>PAA: Update on trade execution & positions
+    PAA-->>PM: Provide risk assessments & performance feedback
+    note over PAA,PM: Feedback loop for refining strategy <br>and adjusting positions as needed
