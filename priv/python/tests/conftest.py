@@ -1,6 +1,7 @@
 """Pytest configuration and shared fixtures."""
 import pytest
 
+
 @pytest.fixture
 def sample_struct_data():
     """Sample data for testing struct conversion."""
@@ -8,11 +9,9 @@ def sample_struct_data():
         "__class__": "user",
         "name": "Alice",
         "role": "admin",
-        "metadata": {
-            "last_login": "2023-01-01",
-            "preferences": {"theme": "dark"}
-        }
+        "metadata": {"last_login": "2023-01-01", "preferences": {"theme": "dark"}},
     }
+
 
 @pytest.fixture
 def sample_web3_data():
@@ -26,8 +25,9 @@ def sample_web3_data():
         "gas_price": 20_000_000_000,
         "gas_limit": 21000,
         "nonce": 42,
-        "status": "confirmed"
+        "status": "confirmed",
     }
+
 
 @pytest.fixture
 def complex_nested_data():
@@ -35,23 +35,19 @@ def complex_nested_data():
     return {
         "__class__": "order",
         "id": "123",
-        "customer": {
-            "__class__": "user",
-            "name": "Bob",
-            "role": "customer"
-        },
+        "customer": {"__class__": "user", "name": "Bob", "role": "customer"},
         "items": [
             {
                 "__class__": "item",
                 "id": 1,
                 "quantity": 2,
-                "metadata": {"color": "blue"}
+                "metadata": {"color": "blue"},
             },
             {
                 "__class__": "item",
                 "id": 2,
                 "quantity": 1,
-                "metadata": {"size": "large"}
-            }
-        ]
-    } 
+                "metadata": {"size": "large"},
+            },
+        ],
+    }
