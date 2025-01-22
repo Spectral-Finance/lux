@@ -224,6 +224,5 @@ def conduct_interview(role: str, max_follow_up_questions: int = 3):
 
 if __name__ == "__main__":
     roles_to_interview = ["Quantitative Strategist Agent", "Market Analyst Agent"]
-
     for r in roles_to_interview:
         conduct_interview(r)
