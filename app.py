@@ -1,33 +1,42 @@
 import os
+import logging
 from flask import Flask, render_template, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+from dotenv import load_dotenv
+from twitter_api import TwitterAPI
 
-class Base(DeclarativeBase):
-    pass
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
-db = SQLAlchemy(model_class=Base)
+# Load environment variables
+load_dotenv()
+
+# Initialize Flask app
 app = Flask(__name__)
-app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-db.init_app(app)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", "default_secret_key")
+
+# Initialize Twitter API client
+twitter_api = TwitterAPI(
+    api_key=os.environ.get("TWITTER_API_KEY"),
+    api_secret=os.environ.get("TWITTER_API_SECRET"),
+    access_token=os.environ.get("TWITTER_ACCESS_TOKEN"),
+    access_token_secret=os.environ.get("TWITTER_ACCESS_TOKEN_SECRET")
+)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/search', methods=['POST'])
+@app.route('/search')
 def search():
-    keyword = request.form.get('keyword')
-    if not keyword:
-        return jsonify({'error': 'Keyword is required'}), 400
+    query = request.args.get('q', '')
     
-    # We'll implement the Twitter search here
-    return jsonify({'message': f'Searching for {keyword}'})
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    if not query:
+        return jsonify({'error': 'Search query is required'}), 400
+    
+    try:
+        tweets = twitter_api.search_tweets(query)
+        return jsonify({'tweets': tweets})
+    except Exception as e:
+        logger.error(f"Error searching tweets: {str(e)}")
+        return jsonify({'error': str(e)}), 500

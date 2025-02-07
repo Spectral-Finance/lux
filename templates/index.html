@@ -5,16 +5,34 @@
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">Twitter Keyword Search</h2>
-                <form id="searchForm" class="mb-4">
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Enter keyword to search" required>
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </div>
-                </form>
-                <div id="results" class="mt-4"></div>
+                <h5 class="card-title mb-4">Search Twitter</h5>
+                <div class="input-group mb-3">
+                    <input type="text" id="searchInput" class="form-control" 
+                           placeholder="Enter keywords to search..." 
+                           aria-label="Search keywords">
+                    <button class="btn btn-primary" type="button" id="searchButton">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <div id="loadingSpinner" class="text-center my-4 d-none">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div id="errorAlert" class="alert alert-danger mt-3 d-none" role="alert">
+        </div>
+
+        <div id="resultsContainer" class="mt-4">
+            <!-- Tweet results will be inserted here -->
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/search.js') }}"></script>
 {% endblock %}
