@@ -1,0 +1,285 @@
+# Lenses Guide
+
+Lenses provide a way to interact with external systems and APIs in a structured, composable way. They handle authentication, data transformation, and error handling for external integrations.
+
+## Overview
+
+A Lens consists of:
+- A URL endpoint
+- HTTP method and parameters
+- Authentication configuration
+- Schema validation
+- Response transformation
+
+## Creating a Lens
+
+Here's a basic example of a Lens:
+
+```elixir
+defmodule MyApp.Lenses.WeatherAPI do
+  use Lux.Lens,
+    name: "OpenWeather API",
+    description: "Fetches weather data from OpenWeather",
+    url: "https://api.openweathermap.org/data/2.5/weather",
+    method: :get,
+    schema: %{
+      type: :object,
+      properties: %{
+        q: %{
+          type: :string,
+          description: "City name"
+        },
+        units: %{
+          type: :string,
+          description: "Temperature units. For temperature in Fahrenheit use units=imperial and for temperature in Celsius use units=metric",
+          enum: ["metric", "imperial"]
+        },
+        appid: %{type: :string, description: "API key"}
+      },
+      required: ["q", "appid"]
+    }
+
+  def after_focus(%{"main" => %{"temp" => temp}} = response) do
+    {:ok, %{
+      temperature: temp,
+      raw_data: response
+    }}
+  end
+
+  def after_focus(%{"error" => error}) do
+    {:error, error}
+  end
+end
+```
+
+## Using Lenses
+
+Lenses can be used directly or within Beams:
+
+```elixir
+# Direct usage
+{:ok, weather} = MyApp.Lenses.WeatherAPI.focus(%{
+  q: "London",
+  units: "metric",
+  appid: Lux.Config.open_weather_api_key
+})
+
+# Access results
+weather.temperature  # 20.5
+weather.raw_data    # Full API response
+```
+
+## Authentication Types
+
+Lenses support several authentication methods that are automatically applied when making requests:
+
+### API Key Authentication
+```elixir
+defmodule MyApp.Lenses.APIKeyAuth do
+  use Lux.Lens,
+    name: "API Key Example",
+    url: "https://api.example.com/data",
+    auth: %{
+      type: :api_key,
+      key: System.get_env("API_KEY")
+    }
+end
+```
+
+When using API key authentication, the key is automatically added as a Bearer token in the Authorization header.
+
+### Basic Authentication
+```elixir
+defmodule MyApp.Lenses.BasicAuth do
+  use Lux.Lens,
+    name: "Basic Auth Example",
+    url: "https://api.example.com/secure",
+    auth: %{
+      type: :basic,
+      username: System.get_env("API_USER"),
+      password: System.get_env("API_PASS")
+    }
+end
+```
+
+Basic authentication automatically encodes the username and password in Base64 format and adds them to the Authorization header.
+
+### OAuth Authentication
+```elixir
+defmodule MyApp.Lenses.OAuthExample do
+  use Lux.Lens,
+    name: "OAuth Example",
+    url: "https://api.example.com/oauth",
+    auth: %{
+      type: :oauth,
+      token: System.get_env("OAUTH_TOKEN")
+    }
+end
+```
+
+OAuth authentication adds the token as a Bearer token in the Authorization header.
+
+### Custom Authentication
+```elixir
+defmodule MyApp.Lenses.CustomAuth do
+  use Lux.Lens,
+    name: "Custom Auth Example",
+    url: "https://api.example.com/custom",
+    auth: %{
+      type: :custom,
+      auth_function: &__MODULE__.authenticate/1
+    }
+
+  def authenticate(lens) do
+    # Add custom headers or modify request
+    headers = [{"X-Custom-Auth", "value"}]
+    %{lens | headers: headers}
+  end
+end
+```
+
+Custom authentication allows you to implement your own authentication logic by providing a function that modifies the lens before the request is made.
+
+## Response Transformation
+
+### Basic Transformation
+```elixir
+defmodule MyApp.Lenses.UserAPI do
+  use Lux.Lens,
+    name: "User API",
+    url: "https://api.example.com/users"
+
+  def after_focus(%{"data" => users}) do
+    transformed = Enum.map(users, fn user ->
+      %{
+        id: user["id"],
+        name: user["name"],
+        email: user["email"]
+      }
+    end)
+    {:ok, %{users: transformed}}
+  end
+end
+```
+
+### Error Handling
+```elixir
+defmodule MyApp.Lenses.RobustAPI do
+  use Lux.Lens,
+    name: "Robust API",
+    url: "https://api.example.com/data"
+
+  def after_focus(%{"error" => error}) do
+    {:error, "API Error: #{error}"}
+  end
+
+  def after_focus(%{"data" => nil}) do
+    {:error, "No data available"}
+  end
+
+  def after_focus(%{"data" => data}) do
+    {:ok, data}
+  end
+
+  def after_focus(response) do
+    {:error, "Unexpected response format: #{inspect(response)}"}
+  end
+end
+```
+
+## Best Practices
+
+1. **Authentication**
+   - Use environment variables for credentials
+   - Keep sensitive data out of version control
+   - Use appropriate auth type for the API
+   - Handle authentication errors gracefully
+
+2. **Error Handling**
+   - Handle common HTTP errors
+   - Transform API-specific errors
+   - Provide meaningful error messages
+   - Include request context in errors
+
+3. **Response Transformation**
+   - Clean and normalize data
+   - Remove unnecessary fields
+   - Convert types appropriately
+   - Handle missing or null values
+
+4. **Testing**
+   - Mock HTTP requests
+   - Test authentication
+   - Test error cases
+   - Test transformations
+
+Example test:
+```elixir
+defmodule MyApp.Lenses.WeatherAPITest do
+  use ExUnit.Case, async: true
+
+  setup do
+    Req.Test.verify_on_exit!()
+    :ok
+  end
+
+  describe "focus/1" do
+    test "fetches weather data successfully" do
+      Req.Test.expect(Lux.Lens, fn conn ->
+        assert conn.params == %{"q" => "London", "units" => "metric", "appid" => "test_key"}
+
+        Req.Test.json(conn, %{
+          "main" => %{"temp" => 20.5},
+          "weather" => [%{"description" => "clear sky"}]
+        })
+      end)
+
+      {:ok, result} = MyApp.Lenses.WeatherAPI.focus(%{
+        q: "London",
+        units: "metric",
+        appid: "test_key"
+      })
+
+      assert result.temperature == 20.5
+    end
+
+    test "handles API errors" do
+      Req.Test.expect(Lux.Lens, fn conn ->
+        Req.Test.json(conn, %{"error" => "City not found"})
+      end)
+
+      assert {:error, _} = MyApp.Lenses.WeatherAPI.focus(%{
+        q: "NonexistentCity",
+        units: "metric",
+        appid: "test_key"
+      })
+    end
+  end
+end
+```
+
+## Advanced Topics
+
+### Retry Logic
+```elixir
+defmodule MyApp.Lenses.RetryingAPI do
+  use Lux.Lens,
+    name: "Retrying API",
+    url: "https://api.example.com/data",
+    retry: %{
+      max_attempts: 3,
+      base_delay: 1000,
+      max_delay: 5000,
+      exponential: true
+    }
+
+  def should_retry?({:error, %{status: status}}) do
+    status in [500, 502, 503, 504]
+  end
+  def should_retry?(_), do: false
+
+  def after_focus(response) do
+    {:ok, response}
+  end
+end
+``` 
