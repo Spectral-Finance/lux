@@ -1,0 +1,38 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+
+/* Node Editor Styles */
+.node {
+  cursor: move;
+  transition: filter 0.2s ease;
+}
+
+.node.selected .node-body {
+  stroke-width: 3px;
+}
+
+.node-glow {
+  transition: opacity 0.3s ease;
+}
+
+.port {
+  cursor: pointer;
+  transition: r 0.2s ease, filter 0.2s ease;
+}
+
+.port:hover {
+  filter: url(#port-glow);
+}
+
+.edge-path {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.edge-path:hover {
+  stroke: #999;
+  stroke-width: 3px;
+  cursor: pointer;
+}
