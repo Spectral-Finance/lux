@@ -6,6 +6,10 @@
 .project
 .pydevproject
 .settings/
+_build/
+deps/
+priv/
+
 
 # Environment variables
 .env
