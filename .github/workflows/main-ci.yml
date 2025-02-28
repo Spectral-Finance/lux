@@ -1,25 +1,44 @@
-name: Full CI
+name: Main CI
 
 on:
   push:
     branches: [main]
-    paths:
-      - '.github/**'
-      - '.tool-versions'
-      - 'dev.envrc'
-      - 'test.envrc'
+    paths-ignore:
+      - 'lux/**'
+      - 'lux_app/**'
+      - '**.md'
+      - '.vscode/**'
   pull_request:
     branches: [main]
-    paths:
-      - '.github/**'
-      - '.tool-versions'
-      - 'dev.envrc'
-      - 'test.envrc'
-  workflow_dispatch:
+    paths-ignore:
+      - 'lux/**'
+      - 'lux_app/**'
+      - '**.md'
+      - '.vscode/**'
 
 jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      lux: ${{ steps.filter.outputs.lux }}
+      lux_app: ${{ steps.filter.outputs.lux_app }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lux:
+              - 'lux/**'
+            lux_app:
+              - 'lux_app/**'
+
   lux:
     name: Build and Test Lux
+    needs: changes
+    if: ${{ needs.changes.outputs.lux == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -115,12 +134,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-lux-
 
-      - name: Install Mix Dependencies
-        run: mix deps.get
-
-      - name: Create PLT directory
-        run: mkdir -p priv/plts
-
       - name: Restore PLT cache
         uses: actions/cache/restore@v4
         id: plt_cache
@@ -131,6 +144,12 @@ jobs:
           key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-dialyzer-lux-
+
+      - name: Install Mix Dependencies
+        run: mix deps.get
+
+      - name: Create PLT directory
+        run: mkdir -p priv/plts
 
       - name: Compile
         run: mix compile
@@ -175,11 +194,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MIX_ENV: test
 
-      # - name: Generate Docs
-      #   run: mix docs
-
   lux_app:
     name: Build and Test Lux App
+    needs: changes
+    if: ${{ needs.changes.outputs.lux_app == 'true' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -232,10 +250,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-lux-app-
 
-      - name: Cache Dialyzer PLTs
-        uses: actions/cache@v4
+      - name: Restore PLT cache
+        uses: actions/cache/restore@v4
+        id: plt_cache_app
         with:
-          path: lux_app/priv/plts
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
           key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-dialyzer-lux-app-
@@ -245,6 +266,28 @@ jobs:
 
       - name: Create PLT directory
         run: mkdir -p priv/plts
+
+      - name: Compile
+        run: mix compile
+
+      - name: Build PLT
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        uses: actions/cache/save@v4
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+
+      - name: Run Dialyzer
+        run: mix dialyzer --format github
+
+      - name: Install Python dependencies
+        run: poetry install --directory priv/python
 
       - name: Install Node.js dependencies
         run: cd assets && npm ci
@@ -269,4 +312,4 @@ jobs:
       - name: Build assets
         run: |
           mix assets.deploy
-          mix phx.digest
+          mix phx.digest 

@@ -1,0 +1,7 @@
+# Override environment variables for development
+# Copy this file to dev.override.envrc and customize
+# This file should not be committed to version control
+
+# Docker-specific settings
+# POSTGRES_HOST=postgres
+# POSTGRES_PORT=5432  # Use a different port if 5432 is already in use 

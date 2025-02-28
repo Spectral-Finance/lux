@@ -1,0 +1,95 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Run weekly on Sunday at midnight
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  scan-elixir:
+    name: Scan Elixir Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Install Mix Dependencies for Lux
+        working-directory: lux
+        run: mix deps.get
+
+      - name: Install Mix Dependencies for Lux App
+        working-directory: lux_app
+        run: mix deps.get
+
+      - name: Run Mix Audit for Lux
+        working-directory: lux
+        run: |
+          mix deps.get
+          mix hex.audit
+
+      - name: Run Mix Audit for Lux App
+        working-directory: lux_app
+        run: |
+          mix deps.get
+          mix hex.audit
+
+  scan-python:
+    name: Scan Python Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.0.0
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+          installer-parallel: true
+
+      - name: Install Python dependencies
+        working-directory: lux/priv/python
+        run: poetry install
+
+      - name: Run Safety Check
+        working-directory: lux/priv/python
+        run: |
+          pip install safety
+          poetry export -f requirements.txt | safety check --full-report
+
+  scan-node:
+    name: Scan Node.js Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Install Node.js dependencies for Lux
+        working-directory: lux
+        run: cd priv/node && npm install
+
+      - name: Install Node.js dependencies for Lux App
+        working-directory: lux_app
+        run: cd assets && npm ci
+
+      - name: Run npm audit for Lux
+        working-directory: lux
+        run: cd priv/node && npm audit
+
+      - name: Run npm audit for Lux App
+        working-directory: lux_app
+        run: cd assets && npm audit 
