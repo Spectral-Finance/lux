@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  lux:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lux_dev
+    volumes:
+      # Optional: Mount a local directory to persist data or work on local files
+      # - ./local_workspace:/workspace/local
+      # ports:
+      # Expose ports if needed for web services
+      # - "4000:4000"
+    environment:
+      - TERM=xterm-256color
+    tty: true
+    stdin_open: true
+    command: /bin/bash

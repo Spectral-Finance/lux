@@ -223,33 +223,78 @@ setup-linux: ## Install Linux-specific dependencies
 		exit 1; \
 	fi
 	@if [ -f /etc/debian_version ]; then \
-		echo "Detected Debian/Ubuntu system."; \
-		echo "The following packages will be installed:"; \
-		echo "  - build-essential"; \
-		echo "  - autoconf"; \
-		echo "  - m4"; \
-		echo "  - libncurses5-dev"; \
-		echo "  - libwxgtk3.0-gtk3-dev"; \
-		echo "  - libwxgtk-webview3.0-gtk3-dev"; \
-		echo "  - libgl1-mesa-dev"; \
-		echo "  - libglu1-mesa-dev"; \
-		echo "  - libpng-dev"; \
-		echo "  - libssh-dev"; \
-		echo "  - unixodbc-dev"; \
-		echo "  - xsltproc"; \
-		echo "  - fop"; \
-		echo "  - libxml2-utils"; \
-		echo "  - libncurses-dev"; \
-		echo "  - openjdk-11-jdk"; \
-		echo ""; \
-		echo "Continue? [y/N] "; \
-		read -r response; \
-		if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
-			sudo apt-get update && \
-			sudo apt-get install -y build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk; \
+		if grep -q "Ubuntu" /etc/os-release; then \
+			echo "Detected Ubuntu system."; \
+			echo "The following packages will be installed:"; \
+			echo "  - build-essential"; \
+			echo "  - autoconf"; \
+			echo "  - m4"; \
+			echo "  - libncurses-dev"; \
+			echo "  - libwxgtk3.2-dev"; \
+			echo "  - libwxgtk-webview3.2-dev"; \
+			echo "  - libgl1-mesa-dev"; \
+			echo "  - libglu1-mesa-dev"; \
+			echo "  - libpng-dev"; \
+			echo "  - libssh-dev"; \
+			echo "  - unixodbc-dev"; \
+			echo "  - xsltproc"; \
+			echo "  - fop"; \
+			echo "  - libxml2-utils"; \
+			echo "  - openjdk-11-jdk"; \
+			echo "  - libffi-dev"; \
+			echo "  - libsqlite3-dev"; \
+			echo "  - libbz2-dev"; \
+			echo "  - libreadline-dev"; \
+			echo "  - liblzma-dev"; \
+			echo ""; \
+			echo "Continue? [y/N] "; \
+			read -r response; \
+			if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
+				if command -v sudo > /dev/null 2>&1; then \
+					sudo apt-get update && \
+					sudo apt-get install -y build-essential autoconf m4 libncurses-dev libwxgtk3.2-dev libwxgtk-webview3.2-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils openjdk-11-jdk libffi-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev; \
+				else \
+					apt-get update && \
+					apt-get install -y build-essential autoconf m4 libncurses-dev libwxgtk3.2-dev libwxgtk-webview3.2-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils openjdk-11-jdk libffi-dev libsqlite3-dev libbz2-dev libreadline-dev liblzma-dev; \
+				fi; \
+			else \
+				echo "Setup cancelled."; \
+				exit 1; \
+			fi; \
 		else \
-			echo "Setup cancelled."; \
-			exit 1; \
+			echo "Detected Debian system."; \
+			echo "The following packages will be installed:"; \
+			echo "  - build-essential"; \
+			echo "  - autoconf"; \
+			echo "  - m4"; \
+			echo "  - libncurses5-dev"; \
+			echo "  - libwxgtk3.0-gtk3-dev"; \
+			echo "  - libwxgtk-webview3.0-gtk3-dev"; \
+			echo "  - libgl1-mesa-dev"; \
+			echo "  - libglu1-mesa-dev"; \
+			echo "  - libpng-dev"; \
+			echo "  - libssh-dev"; \
+			echo "  - unixodbc-dev"; \
+			echo "  - xsltproc"; \
+			echo "  - fop"; \
+			echo "  - libxml2-utils"; \
+			echo "  - libncurses-dev"; \
+			echo "  - openjdk-11-jdk"; \
+			echo ""; \
+			echo "Continue? [y/N] "; \
+			read -r response; \
+			if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
+				if command -v sudo > /dev/null 2>&1; then \
+					sudo apt-get update && \
+					sudo apt-get install -y build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk; \
+				else \
+					apt-get update && \
+					apt-get install -y build-essential autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libwxgtk-webview3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk; \
+				fi; \
+			else \
+				echo "Setup cancelled."; \
+				exit 1; \
+			fi; \
 		fi; \
 	elif [ -f /etc/redhat-release ]; then \
 		echo "Detected RHEL/CentOS system."; \
@@ -274,8 +319,13 @@ setup-linux: ## Install Linux-specific dependencies
 		echo "Continue? [y/N] "; \
 		read -r response; \
 		if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
-			sudo yum groupinstall -y "Development Tools" && \
-			sudo yum install -y autoconf ncurses-devel openssl-devel wxGTK3-devel wxGTK-webview3-devel mesa-libGL-devel mesa-libGLU-devel libpng-devel libssh-devel unixODBC-devel xsltproc fop libxml2-utils ncurses-devel java-11-openjdk-devel; \
+			if command -v sudo > /dev/null 2>&1; then \
+				sudo yum groupinstall -y "Development Tools" && \
+				sudo yum install -y autoconf ncurses-devel openssl-devel wxGTK3-devel wxGTK-webview3-devel mesa-libGL-devel mesa-libGLU-devel libpng-devel libssh-devel unixODBC-devel xsltproc fop libxml2-utils ncurses-devel java-11-openjdk-devel; \
+			else \
+				yum groupinstall -y "Development Tools" && \
+				yum install -y autoconf ncurses-devel openssl-devel wxGTK3-devel wxGTK-webview3-devel mesa-libGL-devel mesa-libGLU-devel libpng-devel libssh-devel unixODBC-devel xsltproc fop libxml2-utils ncurses-devel java-11-openjdk-devel; \
+			fi; \
 		else \
 			echo "Setup cancelled."; \
 			exit 1; \
@@ -300,6 +350,7 @@ setup-deps: ## Install project dependencies
 	fi
 	@mix local.hex --force
 	@mix local.rebar --force
+	@mix deps.get
 	@mix setup 
 
 test: ## Run test suite

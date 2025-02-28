@@ -30,6 +30,52 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Core Concepts](guides/core_concepts.md) (docs coming soon) - Learn about Agents, Signals, Prisms, and Beams
 - [Language Support](guides/language_support.md) (docs coming soon) - Language integration details
 
+## Docker Setup
+
+### Prerequisites
+- Docker installed on your system
+- Docker Compose (optional, for easier management)
+
+### Using Docker
+
+Lux provides a Docker setup for easy development and testing. This eliminates the need to manually install dependencies on your local machine.
+
+#### Building the Docker Image
+
+```bash
+# Navigate to the Lux repository
+cd lux
+
+# Build the Docker image
+docker build -t lux-dev .
+```
+
+#### Running the Container
+
+```bash
+# Run the container interactively
+docker run -it --name lux_dev lux-dev
+
+# Or using Docker Compose
+docker-compose up -d
+docker exec -it lux_dev bash
+```
+
+#### Running Tests Inside the Container
+
+Once inside the container, you can run tests:
+
+```bash
+cd /workspace/lux
+make test
+```
+
+The Docker environment comes with all necessary dependencies pre-installed, including:
+- Erlang and Elixir (via asdf)
+- Python with required packages (web3, nltk, eth-tester, py-evm)
+- Node.js
+- All system dependencies for development
+
 ### Core Concepts
 - [Agents](guides/agents.livemd) - Building intelligent autonomous agents
 - [Signals](guides/signals.livemd) - Type-safe communication between agents
