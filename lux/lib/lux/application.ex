@@ -5,6 +5,8 @@ defmodule Lux.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Start the Ecto repository
+      Lux.Repo,
       {Venomous.SnakeSupervisor, [strategy: :one_for_one, max_restarts: 0, max_children: 50]},
       {Venomous.PetSnakeSupervisor, [strategy: :one_for_one, max_children: 10]},
       {Task.Supervisor, name: Lux.ScheduledTasksSupervisor},

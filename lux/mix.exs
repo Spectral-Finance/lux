@@ -58,7 +58,9 @@ defmodule Lux.MixProject do
       "coveralls.detail": "coveralls.detail",
       "coveralls.post": "coveralls.post",
       "coveralls.html": "coveralls.html",
-      "coveralls.github": "coveralls.github"
+      "coveralls.github": "coveralls.github",
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup"]
     ]
   end
 
@@ -74,6 +76,10 @@ defmodule Lux.MixProject do
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
+      # Ecto dependencies
+      {:ecto, "~> 3.10"},
+      {:ecto_sql, "~> 3.10"},
+      {:postgrex, "~> 0.17"},
       # test and dev dependencies
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},

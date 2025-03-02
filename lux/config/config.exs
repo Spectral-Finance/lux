@@ -1,5 +1,8 @@
 import Config
 
+# Specify Ecto repositories
+config :lux, ecto_repos: [Lux.Repo]
+
 # Erlport python options
 config :lux, :open_ai_models,
   cheapest: "gpt-4o-mini",

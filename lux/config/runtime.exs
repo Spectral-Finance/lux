@@ -12,6 +12,19 @@ end
 
 config :lux, env: config_env()
 
+# Configure the database
+config :lux, Lux.Repo,
+  database: env!("LUX_POSTGRES_DB", :string!, "lux_#{config_env()}"),
+  username: env!("LUX_POSTGRES_USER", :string!, "postgres"),
+  password: env!("LUX_POSTGRES_PASSWORD", :string!, "postgres"),
+  hostname: env!("LUX_POSTGRES_HOST", :string!, "localhost"),
+  port: env!("LUX_POSTGRES_PORT", :integer!, 5432)
+
+# Use sandbox for testing
+if config_env() == :test do
+  config :lux, Lux.Repo, pool: Ecto.Adapters.SQL.Sandbox
+end
+
 if config_env() in [:dev, :test] do
   config :lux, :api_keys,
     alchemy: env!("ALCHEMY_API_KEY", :string!),

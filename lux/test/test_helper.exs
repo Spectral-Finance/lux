@@ -1,5 +1,11 @@
 ExUnit.start(exclude: [:skip, :integration, :unit])
 
+# Start the Ecto repository
+Application.ensure_all_started(:lux)
+
+# Configure the database for testing
+Ecto.Adapters.SQL.Sandbox.mode(Lux.Repo, :manual)
+
 defmodule UnitAPICase do
   @moduledoc false
   use ExUnit.CaseTemplate
