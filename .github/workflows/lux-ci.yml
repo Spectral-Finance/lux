@@ -24,7 +24,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: lux_test
+          POSTGRES_DB: lux_dev
         ports:
           - 5432:5432
         options: >-
