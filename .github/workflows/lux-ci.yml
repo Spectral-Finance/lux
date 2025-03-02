@@ -186,7 +186,7 @@ jobs:
       # Setup database for tests
       - name: Setup database environment
         run: |
-          cp ../.github/workflows/test.envrc ../test.envrc
+          cp ../../.github/workflows/test.envrc ../../test.envrc
           echo "LUX_POSTGRES_DB=lux_test" >> $GITHUB_ENV
           echo "LUX_POSTGRES_USER=postgres" >> $GITHUB_ENV
           echo "LUX_POSTGRES_PASSWORD=postgres" >> $GITHUB_ENV
