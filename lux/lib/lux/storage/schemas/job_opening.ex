@@ -7,6 +7,19 @@ defmodule Lux.Storage.Schemas.JobOpening do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @typedoc """
+  Type that represents a JobOpening schema struct.
+  """
+  @type t :: %__MODULE__{
+    id: Ecto.UUID.t() | nil,
+    name: String.t() | nil,
+    description: String.t() | nil,
+    status: String.t() | nil,
+    company_contract_address: String.t() | nil,
+    inserted_at: DateTime.t() | nil,
+    updated_at: DateTime.t() | nil
+  }
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "job_openings" do
