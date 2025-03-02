@@ -17,6 +17,22 @@ jobs:
     defaults:
       run:
         working-directory: lux
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: lux_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -167,8 +183,25 @@ jobs:
       - name: Run Credo
         run: mix credo
 
+      # Setup database for tests
+      - name: Setup database environment
+        run: |
+          cp ../.github/workflows/test.envrc ../test.envrc
+          echo "LUX_POSTGRES_DB=lux_test" >> $GITHUB_ENV
+          echo "LUX_POSTGRES_USER=postgres" >> $GITHUB_ENV
+          echo "LUX_POSTGRES_PASSWORD=postgres" >> $GITHUB_ENV
+          echo "LUX_POSTGRES_HOST=localhost" >> $GITHUB_ENV
+          echo "LUX_POSTGRES_PORT=5432" >> $GITHUB_ENV
+
+      - name: Run database migrations
+        run: mix ecto.migrate -r Lux.Repo
+
       - name: Run Elixir Tests
-        run: mix test.unit
+        run: |
+          # Run unit tests
+          mix test.unit
+          # Run storage and schema tests
+          mix test test/lux/storage_test.exs test/lux/storage/schemas/job_opening_test.exs test/lux/storage/job_opening_storage_test.exs
 
       - name: Run Python Tests
         run: mix python.test
