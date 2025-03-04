@@ -1,61 +1,77 @@
 defmodule Mix.Tasks.Telegram.CompleteExample do
+  use Mix.Task
+
+  @shortdoc "Run the Telegram complete example"
   @moduledoc """
-  Mix task to run the complete Telegram example that demonstrates all features.
+  Run the Telegram complete example.
 
   ## Usage
 
   ```
-  mix telegram.complete_example CHAT_ID BOT_TOKEN [WEBHOOK_URL]
+  mix telegram.complete_example CHAT_ID BOT_TOKEN [SECTION]
   ```
 
   Where:
-  - CHAT_ID is the Telegram chat ID to send messages to
-  - BOT_TOKEN is your Telegram Bot API token
-  - WEBHOOK_URL (optional) is the URL for webhook examples
+  - `CHAT_ID` is the ID of the chat to send messages to
+  - `BOT_TOKEN` is your Telegram Bot API token
+  - `SECTION` (optional) is the specific section to run (e.g., "polls", "stickers", "game")
 
   ## Examples
 
-  ```bash
-  # Run without webhook examples
-  mix telegram.complete_example "YOUR_CHAT_ID" "YOUR_BOT_TOKEN"
+  ```
+  # Run the complete example
+  mix telegram.complete_example 123456789 YOUR_BOT_TOKEN
 
-  # Run with webhook examples
-  mix telegram.complete_example "YOUR_CHAT_ID" "YOUR_BOT_TOKEN" "https://your-domain.com/webhook"
+  # Run only the polls section
+  mix telegram.complete_example 123456789 YOUR_BOT_TOKEN polls
   ```
   """
 
-  use Mix.Task
-
-  @shortdoc "Runs the complete Telegram example"
-
-  @impl Mix.Task
+  @impl true
   def run(args) do
     # Start the application
     Mix.Task.run("app.start")
 
     case args do
-      [chat_id, token | rest] ->
-        # Get webhook URL if provided
-        webhook_url = List.first(rest)
-        skip_webhook = webhook_url == nil
+      [chat_id, token, section] ->
+        run_section(chat_id, token, section)
 
-        # Run the example with the provided parameters
-        Lux.Examples.TelegramCompleteExample.run(chat_id, token,
-          webhook_url: webhook_url,
-          skip_webhook: skip_webhook
-        )
+      [chat_id, token] ->
+        Lux.Examples.TelegramCompleteExample.run(chat_id, token)
 
-      [chat_id] ->
-        # No token provided, show usage
-        Mix.shell().error("Error: No bot token provided")
-        Mix.shell().info("Usage: mix telegram.complete_example CHAT_ID BOT_TOKEN [WEBHOOK_URL]")
-        System.halt(1)
+      _ ->
+        Mix.shell().error("Usage: mix telegram.complete_example CHAT_ID BOT_TOKEN [SECTION]")
+    end
+  end
 
-      [] ->
-        # No chat ID or token provided, show usage
-        Mix.shell().error("Error: No chat ID or bot token provided")
-        Mix.shell().info("Usage: mix telegram.complete_example CHAT_ID BOT_TOKEN [WEBHOOK_URL]")
-        System.halt(1)
+  defp run_section(chat_id, token, section) do
+    # Store the token in the application environment
+    Application.put_env(:lux, :api_keys, [telegram_bot: token])
+
+    case section do
+      "polls" ->
+        IO.puts("Running only the polls section...")
+        Lux.Examples.TelegramCompleteExample.demonstrate_polls_and_quizzes(chat_id)
+
+      "stickers" ->
+        IO.puts("Running only the stickers section...")
+        Lux.Examples.TelegramCompleteExample.demonstrate_sticker_features(chat_id)
+
+      "game" ->
+        IO.puts("Running only the game section...")
+        Lux.Examples.TelegramCompleteExample.demonstrate_game_features(chat_id)
+
+      "live_location" ->
+        IO.puts("Running only the live location section...")
+        Lux.Examples.TelegramCompleteExample.demonstrate_live_location(chat_id)
+
+      "interactive" ->
+        IO.puts("Running only the interactive elements section...")
+        Lux.Examples.TelegramCompleteExample.demonstrate_interactive_elements(chat_id)
+
+      _ ->
+        Mix.shell().error("Unknown section: #{section}")
+        Mix.shell().info("Available sections: polls, stickers, game, live_location, interactive")
     end
   end
 end

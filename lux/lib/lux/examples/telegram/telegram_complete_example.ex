@@ -12,6 +12,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
   """
 
   alias Lux.Lenses.TelegramBotLens
+  alias Lux.Lenses.TelegramInteractiveFeatures
 
   @doc """
   Runs all examples sequentially, demonstrating each feature of the TelegramBotLens.
@@ -281,7 +282,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     end
 
     # Send poll
-    case TelegramBotLens.send_poll(chat_id,
+    case TelegramInteractiveFeatures.send_poll(chat_id,
       "What's your favorite programming language?",
       ["Elixir", "Python", "JavaScript", "Rust", "Go"],
       %{is_anonymous: true}
@@ -339,7 +340,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     IO.puts("3. The bot will respond with inline results")
 
     # Set up an example inline query handler
-    TelegramBotLens.set_inline_handler(fn query ->
+    TelegramInteractiveFeatures.set_inline_handler(fn query ->
       search_term = query["query"]
       IO.puts("\nReceived inline query: #{search_term}")
 
@@ -348,7 +349,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
         String.contains?(search_term, "photo") ->
           # Photo result
           [
-            TelegramBotLens.create_photo_result(
+            TelegramInteractiveFeatures.create_photo_result(
               "1",
               "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grosser_Panda.JPG/330px-Grosser_Panda.JPG",
               "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Grosser_Panda.JPG/330px-Grosser_Panda.JPG",
@@ -363,10 +364,10 @@ defmodule Lux.Examples.TelegramCompleteExample do
         String.contains?(search_term, "article") ->
           # Article result
           [
-            TelegramBotLens.create_article_result(
+            TelegramInteractiveFeatures.create_article_result(
               "1",
               "Sample Article",
-              TelegramBotLens.create_text_content(
+              TelegramInteractiveFeatures.create_text_content(
                 "*Article Result*\nYou searched for: #{search_term}",
                 %{parse_mode: "Markdown"}
               ),
@@ -380,18 +381,18 @@ defmodule Lux.Examples.TelegramCompleteExample do
         true ->
           # Default text result
           [
-            TelegramBotLens.create_article_result(
+            TelegramInteractiveFeatures.create_article_result(
               "1",
               "Search Result",
-              TelegramBotLens.create_text_content(
+              TelegramInteractiveFeatures.create_text_content(
                 "You searched for: #{search_term}"
               ),
               %{description: "Click to send the search result"}
             ),
-            TelegramBotLens.create_article_result(
+            TelegramInteractiveFeatures.create_article_result(
               "2",
               "Formatted Result",
-              TelegramBotLens.create_text_content(
+              TelegramInteractiveFeatures.create_text_content(
                 "*Bold text*\n_Your search:_ #{search_term}",
                 %{parse_mode: "Markdown"}
               ),
@@ -416,7 +417,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     IO.puts("\n📊 Demonstrating Enhanced Polls and Quizzes...")
 
     # Regular poll with multiple answers
-    case TelegramBotLens.send_poll(chat_id,
+    case TelegramInteractiveFeatures.send_poll(chat_id,
       "What programming languages do you use? (select all that apply)",
       ["Elixir", "Python", "JavaScript", "Rust", "Go"],
       %{
@@ -430,8 +431,8 @@ defmodule Lux.Examples.TelegramCompleteExample do
         IO.puts("✅ Multiple-answer poll sent (ID: #{poll_message_id})")
 
         # Stop the poll after a delay
-        Process.sleep(5000)
-        case TelegramBotLens.stop_poll(chat_id, poll_message_id) do
+        Process.sleep(2000)
+        case TelegramInteractiveFeatures.stop_poll(chat_id, poll_message_id) do
           {:ok, _} ->
             IO.puts("✅ Poll stopped successfully")
           {:error, error} ->
@@ -443,7 +444,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     end
 
     # Quiz poll
-    case TelegramBotLens.send_quiz(chat_id,
+    case TelegramInteractiveFeatures.send_quiz(chat_id,
       "What is the primary programming language used in the Lux project?",
       ["Python", "JavaScript", "Elixir", "Rust"],
       2,  # Elixir is the correct answer (0-based index)
@@ -469,7 +470,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     IO.puts("3. Make sure the game is properly configured in @BotFather")
 
     # First send the game
-    case TelegramBotLens.send_game(chat_id, "TEST") do
+    case TelegramInteractiveFeatures.send_game(chat_id, "TEST") do
       {:ok, message} ->
         message_id = message["message_id"]
         IO.puts("✅ Game message sent (ID: #{message_id})")
@@ -480,7 +481,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
             bot_id = bot_info["id"]
 
             # Set a game score
-            case TelegramBotLens.set_game_score(bot_id, 100, %{
+            case TelegramInteractiveFeatures.set_game_score(bot_id, 100, %{
               chat_id: chat_id,
               message_id: message_id,
               force: true  # Force update even if score is lower
@@ -489,36 +490,22 @@ defmodule Lux.Examples.TelegramCompleteExample do
                 IO.puts("✅ Game score set successfully")
 
                 # Get high scores
-                case TelegramBotLens.get_game_high_scores(bot_id, %{
+                case TelegramInteractiveFeatures.get_game_high_scores(bot_id, %{
                   chat_id: chat_id,
                   message_id: message_id
                 }) do
                   {:ok, scores} ->
-                    IO.puts("✅ High scores retrieved:")
-                    if length(scores) > 0 do
-                      Enum.each(scores, fn score ->
-                        IO.puts("  #{score["user"]["first_name"]}: #{score["score"]} points")
-                      end)
-                    else
-                      IO.puts("  No high scores yet")
-                    end
+                    IO.puts("✅ High scores retrieved (#{length(scores)} entries)")
                   {:error, error} ->
                     IO.puts("❌ Failed to get high scores: #{inspect(error)}")
                 end
 
               {:error, error} ->
                 IO.puts("❌ Failed to set game score: #{inspect(error)}")
-                if is_binary(error) and String.contains?(error, "GAME_SHORT_NAME_INVALID") do
-                  IO.puts("\nℹ️ This error means the game 'TEST' is not properly configured.")
-                  IO.puts("Please make sure to:")
-                  IO.puts("1. Talk to @BotFather")
-                  IO.puts("2. Use /newgame to create a game named 'TEST'")
-                  IO.puts("3. Set up the game URL when prompted")
-                end
             end
 
           {:error, error} ->
-            IO.puts("❌ Failed to get bot information: #{inspect(error)}")
+            IO.puts("❌ Failed to get bot info: #{inspect(error)}")
         end
 
       {:error, error} ->
@@ -538,7 +525,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     IO.puts("\n📍 Demonstrating Live Location Features...")
 
     # Send a live location
-    case TelegramBotLens.send_live_location(chat_id,
+    case TelegramInteractiveFeatures.send_live_location(chat_id,
       37.7749,  # San Francisco latitude
       -122.4194,  # San Francisco longitude
       60,  # Update for 60 seconds
@@ -552,8 +539,8 @@ defmodule Lux.Examples.TelegramCompleteExample do
         IO.puts("✅ Live location sent (ID: #{message_id})")
 
         # Update the location after a delay
-        Process.sleep(5000)
-        case TelegramBotLens.edit_live_location(chat_id, message_id,
+        Process.sleep(2000)
+        case TelegramInteractiveFeatures.edit_live_location(chat_id, message_id,
           37.7750,  # Slightly different latitude
           -122.4195,  # Slightly different longitude
           %{heading: 180}  # New heading
@@ -563,7 +550,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
 
             # Stop the live location
             Process.sleep(2000)
-            case TelegramBotLens.stop_live_location(chat_id, message_id) do
+            case TelegramInteractiveFeatures.stop_live_location(chat_id, message_id) do
               {:ok, _} ->
                 IO.puts("✅ Live location stopped")
               {:error, error} ->
@@ -585,7 +572,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
 
     # Send a sticker using a known sticker ID
     sticker_id = "CAACAgUAAxkBAAEyOo9nwmKWV2cbpTTvvYb-3i3_COPWowACUAQAAi_32VWCTBgLkVLp0zYE"
-    case TelegramBotLens.send_sticker(chat_id, sticker_id) do
+    case TelegramInteractiveFeatures.send_sticker(chat_id, sticker_id) do
       {:ok, message} ->
         IO.puts("✅ Sticker sent by ID (ID: #{message["message_id"]})")
       {:error, error} ->
@@ -593,7 +580,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
         # Try with an alternative sticker if the first one fails
         alternative_sticker_id = "CAACAgIAAxkBAAEKqPJlWU_AAWm-AAHlOzBF7AABYzJ-AAHXpgACGxsAAVGRAAHoC8HlhLEwBA"
         IO.puts("Trying with an alternative sticker...")
-        case TelegramBotLens.send_sticker(chat_id, alternative_sticker_id) do
+        case TelegramInteractiveFeatures.send_sticker(chat_id, alternative_sticker_id) do
           {:ok, message} ->
             IO.puts("✅ Alternative sticker sent (ID: #{message["message_id"]})")
           {:error, error} ->
@@ -602,8 +589,8 @@ defmodule Lux.Examples.TelegramCompleteExample do
     end
 
     # Get information about a sticker set
-    sticker_set_name = "EmojiOne"  # This is a common sticker set
-    case TelegramBotLens.get_sticker_set(sticker_set_name) do
+    sticker_set_name = "EvilMinds"
+    case TelegramInteractiveFeatures.get_sticker_set(sticker_set_name) do
       {:ok, set_info} ->
         IO.puts("\n✅ Sticker set information retrieved:")
         IO.puts("  Name: #{set_info["name"]}")
@@ -613,7 +600,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
         # Send a sticker from the set
         if length(set_info["stickers"]) > 0 do
           sticker = Enum.at(set_info["stickers"], 0)
-          case TelegramBotLens.send_sticker(chat_id, sticker["file_id"]) do
+          case TelegramInteractiveFeatures.send_sticker(chat_id, sticker["file_id"]) do
             {:ok, message} ->
               IO.puts("✅ Sticker from set sent (ID: #{message["message_id"]})")
             {:error, error} ->
@@ -772,5 +759,128 @@ defmodule Lux.Examples.TelegramCompleteExample do
       {:error, error} ->
         IO.puts("❌ Failed to get webhook info: #{inspect(error)}")
     end
+  end
+
+  # Run the game examples
+  defp run_game_examples(chat_id, bot_id, delay) do
+    IO.puts("\n🎮 Running game examples...")
+
+    # Send a game
+    IO.puts("Sending a game...")
+    case TelegramInteractiveFeatures.send_game(chat_id, "TEST") do
+      {:ok, result} ->
+        message_id = result["result"]["message_id"]
+        IO.puts("Game sent with message ID: #{message_id}")
+
+        # Set a game score
+        IO.puts("Setting game score...")
+        case TelegramInteractiveFeatures.set_game_score(bot_id, 100, %{
+          chat_id: chat_id,
+          message_id: message_id
+        }) do
+          {:ok, _} ->
+            IO.puts("Game score set successfully")
+
+            # Get high scores
+            IO.puts("Getting high scores...")
+            case TelegramInteractiveFeatures.get_game_high_scores(bot_id, %{
+              chat_id: chat_id,
+              message_id: message_id
+            }) do
+              {:ok, result} ->
+                scores = result["result"]
+                IO.puts("Retrieved #{length(scores)} high scores")
+
+              error ->
+                IO.puts("Error getting high scores: #{inspect(error)}")
+            end
+
+          error ->
+            IO.puts("Error setting game score: #{inspect(error)}")
+        end
+
+      error ->
+        IO.puts("Error sending game: #{inspect(error)}")
+    end
+
+    :timer.sleep(delay)
+  end
+
+  # Run the poll examples
+  defp run_poll_examples(chat_id, delay) do
+    IO.puts("\n📊 Running poll examples...")
+
+    # Send a regular poll
+    IO.puts("Sending a regular poll...")
+    case TelegramInteractiveFeatures.send_poll(chat_id, "What's your favorite color?", [
+      "Red",
+      "Green",
+      "Blue",
+      "Yellow"
+    ]) do
+      {:ok, result} ->
+        poll_message_id = result["result"]["message_id"]
+        IO.puts("Poll sent with message ID: #{poll_message_id}")
+
+        # Send a quiz poll
+        IO.puts("Sending a quiz poll...")
+        case TelegramInteractiveFeatures.send_quiz(chat_id, "What is the capital of France?", [
+          "Paris",
+          "London",
+          "Berlin",
+          "Madrid"
+        ], 0) do
+          {:ok, result} ->
+            quiz_message_id = result["result"]["message_id"]
+            IO.puts("Quiz sent with message ID: #{quiz_message_id}")
+
+            # Stop the poll after a delay
+            :timer.sleep(delay)
+            IO.puts("Stopping the poll...")
+            case TelegramInteractiveFeatures.stop_poll(chat_id, poll_message_id) do
+              {:ok, _} ->
+                IO.puts("Poll stopped successfully")
+
+              error ->
+                IO.puts("Error stopping poll: #{inspect(error)}")
+            end
+
+          error ->
+            IO.puts("Error sending quiz: #{inspect(error)}")
+        end
+
+      error ->
+        IO.puts("Error sending poll: #{inspect(error)}")
+    end
+
+    :timer.sleep(delay)
+  end
+
+  # Run the sticker examples
+  defp run_sticker_examples(chat_id, delay) do
+    IO.puts("\n🎭 Running sticker examples...")
+
+    # Send a sticker
+    IO.puts("Sending a sticker...")
+    case TelegramInteractiveFeatures.send_sticker(chat_id, "CAACAgIAAxkBAAEBbGJkQZ6aCcJyYpLYVwvTTDv8XrTe2QACWgADUomRI_j-5eQq9Z0vLwQ") do
+      {:ok, _} ->
+        IO.puts("Sticker sent successfully")
+
+        # Get a sticker set
+        IO.puts("Getting sticker set info...")
+        case TelegramInteractiveFeatures.get_sticker_set("EvilMinds") do
+          {:ok, result} ->
+            stickers = result["result"]["stickers"]
+            IO.puts("Retrieved sticker set with #{length(stickers)} stickers")
+
+          error ->
+            IO.puts("Error getting sticker set: #{inspect(error)}")
+        end
+
+      error ->
+        IO.puts("Error sending sticker: #{inspect(error)}")
+    end
+
+    :timer.sleep(delay)
   end
 end
