@@ -18,6 +18,7 @@ The Lux project includes several Telegram bot examples:
 2. **Webhook Echo Bot** - An echo bot that uses webhooks instead of polling
 3. **Game Bot** - A bot that demonstrates Telegram's game platform
 4. **Example Bot** - A basic template for creating new bots
+5. **Group Management Bot** - A comprehensive example demonstrating group and channel management features
 
 ## Running the Examples
 
@@ -65,6 +66,39 @@ A basic template for creating new bots.
 docker exec -it lux_dev bash -c "cd /workspace/lux/lux && mix telegram.example YOUR_BOT_TOKEN"
 ```
 
+### 5. Group Management Bot
+
+A comprehensive example demonstrating Telegram's group and channel management features.
+
+```bash
+docker exec -it lux_dev bash -c "cd /workspace/lux/lux && mix telegram.group_management_example CHAT_ID YOUR_BOT_TOKEN"
+```
+
+Parameters:
+- `CHAT_ID`: Unique identifier for the target chat
+- `YOUR_BOT_TOKEN`: Your Telegram Bot API token
+
+You can also run specific sections of the example:
+
+```bash
+docker exec -it lux_dev bash -c "cd /workspace/lux/lux && mix telegram.group_management_example CHAT_ID YOUR_BOT_TOKEN SECTION [USER_ID]"
+```
+
+Where `SECTION` can be one of:
+- `member` - Member management features (requires USER_ID)
+- `permission` - Permission management features
+- `moderation` - Content moderation features
+- `spam` - Spam protection features
+- `settings` - Group settings management
+- `channel` - Channel post management
+- `admin` - Admin action logging
+- `utility` - Utility functions
+
+Example:
+```bash
+docker exec -it lux_dev bash -c "cd /workspace/lux/lux && mix telegram.group_management_example 123456789 YOUR_BOT_TOKEN permission"
+```
+
 ## Troubleshooting
 
 ### Webhook Issues
@@ -85,6 +119,7 @@ Error fetching updates: %{"description" => "Conflict: can't use getUpdates metho
 1. **Bot not responding**: Make sure your token is correct and the bot is running.
 2. **Webhook errors**: Ensure ngrok is running and the URL is correctly set.
 3. **Application crashes**: Check the logs for error messages.
+4. **Permission errors**: For group management features, ensure your bot has the necessary admin privileges in the group.
 
 ## Webhook vs. Polling
 

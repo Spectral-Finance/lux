@@ -24,6 +24,15 @@ The Telegram integration module provides a complete solution for building Telegr
 - Inline query processing
 - Interactive keyboards
 
+### Group Management Features
+- Member management (add, remove, restrict, promote)
+- Permission management for groups and channels
+- Content moderation (delete messages, clean up history)
+- Spam protection (restrict new users, set slow mode)
+- Group settings management (title, description, photo)
+- Channel post management
+- Admin action logging
+
 ## Installation
 
 The Telegram integration is part of the Lux framework. Ensure you have the following in your `mix.exs`:
@@ -90,6 +99,58 @@ TelegramBotLens.set_inline_handler(fn query ->
 end)
 ```
 
+### Group Management Features
+
+```elixir
+alias Lux.Lenses.TelegramGroupManagementFeatures
+
+# Ban a user from a group
+TelegramGroupManagementFeatures.ban_chat_member(chat_id, user_id)
+
+# Restrict a user in a group
+TelegramGroupManagementFeatures.restrict_chat_member(
+  chat_id,
+  user_id,
+  %{
+    can_send_messages: false,
+    until_date: :os.system_time(:second) + 3600 # 1 hour
+  }
+)
+
+# Promote a user to admin
+TelegramGroupManagementFeatures.promote_chat_member(
+  chat_id,
+  user_id,
+  %{
+    can_delete_messages: true,
+    can_restrict_members: true
+  }
+)
+
+# Set chat permissions for all members
+TelegramGroupManagementFeatures.set_chat_permissions(
+  chat_id,
+  %{
+    can_send_messages: true,
+    can_send_media_messages: true,
+    can_send_polls: false
+  }
+)
+
+# Create an invite link
+TelegramGroupManagementFeatures.create_chat_invite_link(
+  chat_id,
+  %{
+    name: "Special Invite",
+    expire_date: :os.system_time(:second) + 86400, # 24 hours
+    member_limit: 10
+  }
+)
+
+# Set slow mode
+TelegramGroupManagementFeatures.set_chat_slow_mode_delay(chat_id, 30) # 30 seconds
+```
+
 ## Example Bots
 
 The module includes several example bots demonstrating different features:
@@ -107,6 +168,11 @@ mix telegram.webhook_echo_bot YOUR_BOT_TOKEN [MAX_RUNTIME] [PORT]
 ### Game Bot
 ```bash
 mix telegram.game_bot YOUR_BOT_TOKEN
+```
+
+### Group Management Example
+```bash
+mix telegram.group_management_example CHAT_ID YOUR_BOT_TOKEN [SECTION] [USER_ID]
 ```
 
 ### Complete Example
