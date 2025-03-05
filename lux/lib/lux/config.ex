@@ -54,6 +54,18 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Telegram Bot API token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec telegram_bot_token() :: api_key()
+  def telegram_bot_token do
+    case Application.get_env(:lux, :env) do
+      :test -> get_required_key(:api_keys, :integration_telegram_bot)
+      _ -> get_required_key(:api_keys, :telegram_bot)
+    end
+  end
+
+  @doc """
   Gets the Hyperliquid account's private key from configuration.
   Raises if the key is not configured.
   """
