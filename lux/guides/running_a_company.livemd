@@ -163,7 +163,7 @@ defmodule ContentTeam.Agents.Researcher do
     goal: "Provide well-researched, accurate information for content creation",
     prisms: [ContentTools.ResearchPrism],
     llm_config: %{
-      temperature: 0.3  # Lower temperature for more focused research
+      temperature: 0.3  # Lower temperature for more focused research,
     }
 
   # Implement the task handler for research assignments
@@ -427,6 +427,7 @@ Let's start the company and create a blog post:
 ```elixir
 # Start the company
 {:ok, company_pid} = Lux.Company.start_link(ContentTeam.Company)
+{:ok, objectives} = Lux.Company.list_objectives(company_pid)
 
 # Create a blog post
 {:ok, objective_id} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
@@ -443,6 +444,8 @@ Let's start the company and create a blog post:
 # - Overall progress
 # - Any completed artifacts
 # - Error information (if any)
+
+{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
 ```
 
 ## Monitoring and Debugging
