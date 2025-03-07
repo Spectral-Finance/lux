@@ -250,7 +250,7 @@ defmodule Lux.Company.ExecutionEngine.Supervisor do
 
   defp valid_objective_id?(id) when is_binary(id) do
     # Only allow alphanumeric characters and underscores
-    String.match?(id, ~r/^[a-zA-Z0-9_]+$/)
+    String.match?(id, ~r/^[a-zA-Z0-9_-]+$/)
   end
 
   defp valid_objective_id?(_), do: false
