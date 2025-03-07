@@ -26,6 +26,8 @@ defmodule Lux.Prism do
   """
   use Lux.Types
 
+  require Logger
+
   @typedoc """
   A schema is either a map of key-value pairs that describe the structure of the data,
   or a module that implements the Lux.SignalSchema behaviour.
@@ -35,16 +37,12 @@ defmodule Lux.Prism do
   @typedoc """
   A handler is a function or a module that handles the data.
   """
-  @type handler :: function() | mfa() | binary()
-
-  @typedoc """
-  A validator is a function or a module that validates the data.
-  """
-  @type validator :: function() | mfa() | binary()
+  @type handler :: function() | mfa() | {atom(), binary()}
 
   defstruct [
     :id,
     :name,
+    :module_name,
     :handler,
     :description,
     :examples,
@@ -55,6 +53,7 @@ defmodule Lux.Prism do
   @type t :: %__MODULE__{
           id: String.t(),
           name: String.t(),
+          module_name: String.t(),
           handler: handler(),
           description: nullable(String.t()),
           examples: nullable([String.t()]),
@@ -70,6 +69,7 @@ defmodule Lux.Prism do
     %__MODULE__{
       id: attrs[:id] || "",
       name: attrs[:name] || "",
+      module_name: attrs[:module_name] || "",
       handler: attrs[:handler] || nil,
       description: attrs[:description] || "",
       examples: attrs[:examples] || [],
@@ -96,10 +96,13 @@ defmodule Lux.Prism do
       # Register compile-time attributes
       Module.register_attribute(__MODULE__, :prism_config, persist: false)
       Module.register_attribute(__MODULE__, :prism_struct, persist: false)
+      Module.register_attribute(__MODULE__, :prism_module_name, persist: false)
+
+      @prism_module_name __MODULE__ |> Module.split() |> Enum.join(".")
 
       # Store the configuration at compile time
       @prism_config %{
-        name: Keyword.get(unquote(opts), :name, __MODULE__ |> Module.split() |> Enum.join(".")),
+        name: Keyword.get(unquote(opts), :name, @prism_module_name),
         description: Keyword.get(unquote(opts), :description, ""),
         input_schema: Keyword.get(unquote(opts), :input_schema),
         output_schema: Keyword.get(unquote(opts), :output_schema),
@@ -111,6 +114,7 @@ defmodule Lux.Prism do
       @prism_struct Lux.Prism.new(
                       id: Lux.UUID.generate(),
                       name: @prism_config.name,
+                      module_name: @prism_module_name,
                       description: @prism_config.description,
                       input_schema: @prism_config.input_schema,
                       output_schema: @prism_config.output_schema,
@@ -138,11 +142,12 @@ defmodule Lux.Prism do
   end
 
   def view(path, ".py") do
-    Lux.Python.eval!(path,
-      variables: %{
-        __lux_function__: :view
-      }
-    )
+    with {:ok, prism} <- Lux.Python.eval(path, variables: %{__lux_function__: :view}),
+         :ok <- define_module_if_not_exists(prism, path) do
+      prism
+    else
+      {:error, reason} -> raise "Failed to load python prism: #{reason}"
+    end
   end
 
   def view(path, _ext) do
@@ -193,4 +198,47 @@ defmodule Lux.Prism do
   end
 
   def resolve_schema(schema), do: schema
+
+  defp define_module_if_not_exists(%__MODULE__{module_name: name, handler: {:python, _}}, path) do
+    module_name = name |> List.wrap() |> Module.concat()
+    case Code.ensure_loaded(module_name) do
+      {:module, defined_module} ->
+        if not Lux.prism?(defined_module) do
+          Logger.warning("Module #{module_name} already exists but is not a prism. Skipping module creation.")
+        end
+        :ok
+
+      {:error, :nofile} ->
+        Module.create(
+          module_name,
+          quote do
+            def view do
+              Lux.Python.eval!(unquote(path),
+                variables: %{
+                  __lux_function__: :view
+                }
+              )
+            end
+
+            def handler(input, context) do
+              Lux.Python.eval(unquote(path),
+                variables: %{
+                  __lux_function__: :handler,
+                  __lux_function_args__: [input, context]
+                }
+              )
+            end
+
+            def run(input, context \\ nil) do
+              Lux.Prism.run(__MODULE__, input, context)
+            end
+          end,
+          Macro.Env.location(__ENV__)
+        )
+
+        :ok
+    end
+  end
+
+  defp define_module_if_not_exists(_, _), do: :ok
 end

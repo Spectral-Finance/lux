@@ -70,7 +70,7 @@ defmodule Lux.MixProject do
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
       {:ex_json_schema, "~> 0.10.2"},
-      {:nodejs, "~> 2.0"},
+      {:nodejs, "~> 3.1"},
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
@@ -106,7 +106,7 @@ defmodule Lux.MixProject do
         "Changelog" => "https://github.com/Spectral-Finance/lux/blob/main/CHANGELOG.md"
       },
       files:
-        ~w(lib priv/web3/abis/* priv/python/lux/*.py priv/python/hyperliquid_utils/*.py priv/python/*.py priv/python/*.toml priv/node/*.json priv/node/*.mjs .formatter.exs mix.exs README.md LICENSE CHANGELOG.md)
+        ~w(lib priv/web3/abis/* priv/python/lux/*.py priv/python/hyperliquid_utils/*.py priv/python/*.py priv/python/*.toml priv/node/*.json priv/node/*.mjs .formatter.exs mix.exs ../README.md LICENSE CHANGELOG.md)
     ]
   end
 
@@ -114,7 +114,7 @@ defmodule Lux.MixProject do
     [
       main: "readme",
       extras: [
-        "README.md",
+        "../README.md",
         "guides/agents.livemd",
         "guides/beams.livemd",
         "guides/prisms.livemd",
@@ -129,6 +129,8 @@ defmodule Lux.MixProject do
         "guides/cursor_development.md",
         "guides/contributing.md",
         "guides/troubleshooting.md",
+        "guides/getting_started.md",
+        "guides/core_concepts.md",
         "CHANGELOG.md",
         "LICENSE"
       ],

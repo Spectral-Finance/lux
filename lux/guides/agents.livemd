@@ -3,7 +3,7 @@
 ```elixir
 Mix.install(
   [
-    {:lux, "~> 0.4.0"},
+    {:lux, ">= 0.5.0"},
     {:kino, "~> 0.14.2"}
   ],
   config: [
@@ -788,5 +788,3 @@ end
 
 Kino.nothing()
 ```
-
-<!-- livebook:{"offset":13357,"stamp":{"token":"XCP.5uDaDN_ax0taOD_UDP8WfS0Uqs8jhY9Vuvzs_U1nf8QawsDmFPRylwoenPaXdFgU5DomWyZL5CDo6P7xq2Bl8gHxdbBAdV-tIAxr8ldurMXQvw1Gcf06X3z3aFeZJmrI0W_pp8uoLoBAzhpTYXgeuksT_UXdf8UQdbHlutFi3uRV38cjZ8Gv2Gs3yWm8-I1YF7DJqBQTOGgp0eNdpHEddDfiBRNX","version":2}} -->

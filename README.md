@@ -7,8 +7,6 @@
 [![Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/lux)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> ⚠️ **Note**: Lux is currently under heavy development and should be considered pre-alpha software. The API and architecture are subject to significant changes. We welcome feedback and contributions.
-
 Lux is a powerful language-agnostic framework for building intelligent, adaptive, and collaborative multi-agent systems. It enables autonomous entities (Agents) to communicate, learn, and execute complex workflows while continuously improving through reflection.
 
 ## Why Lux?
@@ -26,33 +24,33 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 📚 [Read the full documentation on hexdocs.pm/lux](https://hexdocs.pm/lux)
 
 ### Getting Started
-- [Getting Started Guide](guides/getting_started.md) (docs coming soon) - Start here if you're new to Lux
-- [Core Concepts](guides/core_concepts.md) (docs coming soon) - Learn about Agents, Signals, Prisms, and Beams
-- [Language Support](guides/language_support.md) (docs coming soon) - Language integration details
+- [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
+- [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
+- [Language Support](lux/guides/language_support.md) - Language integration details
 
 ### Core Concepts
-- [Agents](guides/agents.livemd) - Building intelligent autonomous agents
-- [Signals](guides/signals.livemd) - Type-safe communication between agents
-- [Prisms](guides/prisms.livemd) - Modular functional components
-- [Beams](guides/beams.livemd) - Workflow orchestration
-- [Lenses](guides/lenses.livemd) - External service integration
+- [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
+- [Signals](lux/guides/signals.livemd) - Type-safe communication between agents
+- [Prisms](lux/guides/prisms.livemd) - Modular functional components
+- [Beams](lux/guides/beams.livemd) - Workflow orchestration
+- [Lenses](lux/guides/lenses.livemd) - External service integration
 
 ### Examples & Guides
-- [Multi-Agent Collaboration](guides/multi_agent_collaboration.livemd) - Build collaborative systems
-- [Trading System](guides/trading_system.livemd) - Complete crypto trading example
-- [Running a Company](guides/running_a_company.livemd) - Multi-agent content creation pipeline
-- [Role Management](guides/role_management.md) - Managing agent roles
-- [Companies](guides/companies.md) - Organizing agents into companies
+- [Multi-Agent Collaboration](lux/guides/multi_agent_collaboration.livemd) - Build collaborative systems
+- [Trading System](lux/guides/trading_system.livemd) - Complete crypto trading example
+- [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
+- [Role Management](lux/guides/role_management.md) - Managing agent roles
+- [Companies](lux/guides/companies.md) - Organizing agents into companies
 
 ### Development
-- [Contributing Guide](guides/contributing.md) - Help improve Lux
-- [Testing Guide](guides/testing.md) - Testing your Lux applications
-- [Troubleshooting](guides/troubleshooting.md) - Common issues and solutions
+- [Contributing Guide](lux/guides/contributing.md) - Help improve Lux
+- [Testing Guide](lux/guides/testing.md) - Testing your Lux applications
+- [Troubleshooting](lux/guides/troubleshooting.md) - Common issues and solutions
 
 ## Core Concepts
 
 ### 1. Agents 👻
-[Learn more about Agents](guides/agents.livemd)
+[Learn more about Agents](lux/guides/agents.livemd)
 
 Autonomous agents that combine intelligence and execution. Agents can:
 - Monitor and analyze data
@@ -62,7 +60,7 @@ Autonomous agents that combine intelligence and execution. Agents can:
 - Collaborate through structured protocols
 
 ### 2. Signals 📡
-[Learn more about Signals](guides/signals.livemd)
+[Learn more about Signals](lux/guides/signals.livemd)
 
 Type-safe communication using predefined schemas. Signals provide:
 - Structured data validation
@@ -71,7 +69,7 @@ Type-safe communication using predefined schemas. Signals provide:
 - Versioning and compatibility
 
 ### 3. Prisms 🔮
-[Learn more about Prisms](guides/prisms.livemd)
+[Learn more about Prisms](lux/guides/prisms.livemd)
 
 Pure functional components for specific tasks. Prisms enable:
 - Modular functionality
@@ -80,7 +78,7 @@ Pure functional components for specific tasks. Prisms enable:
 - Easy testing and validation
 
 ### 4. Beams 🌟
-[Learn more about Beams](guides/beams.livemd)
+[Learn more about Beams](lux/guides/beams.livemd)
 
 Composable workflow orchestrators. Beams allow you to:
 - Define complex workflows
@@ -96,25 +94,25 @@ Lux provides first-class support for multiple programming languages:
 - **JavaScript/TypeScript**: Frontend and Node.js support
 - **Other Languages**: Language-agnostic protocols for easy integration
 
-[Learn more about language support](guides/language_support.md)
+[Learn more about language support](lux/guides/language_support.md)
 
 ## Examples
 
 Check out these examples to see Lux in action:
 
-- [Trading System](guides/trading_system.livemd): A complete crypto trading system
-- [Content Creation](guides/running_a_company.livemd): Multi-agent content creation pipeline
-- [Research Assistant](guides/multi_agent_collaboration.livemd): Collaborative research system
+- [Trading System](lux/guides/trading_system.livemd): A complete crypto trading system
+- [Content Creation](lux/guides/running_a_company.livemd): Multi-agent content creation pipeline
+- [Research Assistant](lux/guides/multi_agent_collaboration.livemd): Collaborative research system
 
 ## Contributing
 
-We welcome contributions! Whether you want to add support for a new language, improve documentation, or fix bugs, check out our [Contributing Guide](guides/contributing.md).
+We welcome contributions! Whether you want to add support for a new language, improve documentation, or fix bugs, check out our [Contributing Guide](lux/guides/contributing.md).
 
 ## Community
 
-- 💬 [Discord Community](https://discord.gg/luxframework)
+- 💬 [Discord Community](https://discord.gg/dsRPcjeH)
 - 📝 [Blog](https://blog.spectrallabs.xyz)
-- 🐦 [Twitter](https://twitter.com/luxframework)
+- 🐦 [Twitter](https://twitter.com/Spectral_Labs)
 
 ## License
 

@@ -19,8 +19,8 @@ def test_encode_collections():
     assert encode_term([1, 2, 3]) == [1, 2, 3]
     assert encode_term(["a", "b"]) == [b"a", b"b"]
     
-    # Tuples (converted to lists)
-    assert encode_term((1, 2)) == [1, 2]
+    # Tuples
+    assert encode_term((1, 2)) == (1, 2)
     
     # Dictionaries
     assert encode_term({"a": 1, "b": 2}) == {b"a": 1, b"b": 2}

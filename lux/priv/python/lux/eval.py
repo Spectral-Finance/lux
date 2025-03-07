@@ -35,7 +35,9 @@ def encode_term(term):
         return term.encode('utf-8')  # Convert strings to binary for proper Elixir string handling
     elif isinstance(term, (int, float, bool)):
         return term
-    elif isinstance(term, (list, tuple)):
+    elif isinstance(term, tuple):
+        return tuple([encode_term(item) for item in term])
+    elif isinstance(term, list):
         return [encode_term(item) for item in term]
     elif isinstance(term, dict):
         if "__class__" in term:
@@ -69,7 +71,9 @@ def decode_term(term):
     """Convert Erlang terms to Python types."""
     if isinstance(term, Atom):
         return term.decode('utf-8')
-    elif isinstance(term, (list, tuple)):
+    elif isinstance(term, tuple):
+        return tuple([decode_term(item) for item in term])
+    elif isinstance(term, list):
         return [decode_term(item) for item in term]
     elif isinstance(term, dict):
         return {decode_term(k): decode_term(v) for k, v in term.items()}
@@ -168,4 +172,4 @@ def import_package(package_name):
     return encode_term({
         "success": success,
         "error": error if error else None
-    }) 
+    })
