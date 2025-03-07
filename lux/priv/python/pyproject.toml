@@ -9,7 +9,7 @@ packages = [{include = "lux"}]
 [tool.poetry.dependencies]
 python = "^3.12.3"
 web3 = "^6.15.11"
-eth-typing = "3.5.2"
+eth-typing = "5.2.0"
 eth-tester = {extras = ["py-evm"], version = "^0.11.0b2"}
 nltk = "^3.9.1"
 setuptools = "^75.8.2"
