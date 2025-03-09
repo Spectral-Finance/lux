@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramDeleteMessageLens do
+defmodule Lux.Lenses.Telegram.DeleteMessage do
   @moduledoc """
   Lens for deleting messages via the Telegram Bot API.
 
@@ -8,16 +8,16 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramDeleteMessageLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramDeleteMessageLens
+  alias Lux.Lenses.Telegram.DeleteMessage
 
   # Delete a message
-  TelegramDeleteMessageLens.focus(%{
+  DeleteMessage.focus(%{
     chat_id: 123456789,
     message_id: 42
   })
 
   # Delete a message with rate limiting and retry options
-  TelegramDeleteMessageLens.delete_message(%{
+  DeleteMessage.delete_message(%{
     chat_id: 123456789,
     message_id: 42
   }, [max_retries: 5, initial_delay: 2000])

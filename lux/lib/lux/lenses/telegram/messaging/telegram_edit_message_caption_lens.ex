@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens do
+defmodule Lux.Lenses.Telegram.EditMessageCaption do
   @moduledoc """
   Lens for editing message captions via the Telegram Bot API.
 
@@ -8,17 +8,17 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens
+  alias Lux.Lenses.Telegram.EditMessageCaption
 
   # Edit a message caption
-  TelegramEditMessageCaptionLens.focus(%{
+  EditMessageCaption.focus(%{
     chat_id: 123456789,
     message_id: 42,
     caption: "Updated caption"
   })
 
   # Edit a message with markdown formatting
-  TelegramEditMessageCaptionLens.focus(%{
+  EditMessageCaption.focus(%{
     chat_id: 123456789,
     message_id: 42,
     caption: "*Bold* and _italic_ caption",
@@ -26,13 +26,13 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens do
   })
 
   # Edit an inline message caption
-  TelegramEditMessageCaptionLens.focus(%{
+  EditMessageCaption.focus(%{
     inline_message_id: "123456789",
     caption: "Updated inline message caption"
   })
 
   # Edit a caption with rate limiting and retry options
-  TelegramEditMessageCaptionLens.edit_message_caption(%{
+  EditMessageCaption.edit_message_caption(%{
     chat_id: 123456789,
     message_id: 42,
     caption: "Updated caption"

@@ -1,8 +1,8 @@
-defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
+defmodule Lux.Integration.Telegram.TelegramSendPhotoLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Media.TelegramSendPhotoLens
+  alias Lux.Lenses.Telegram.SendPhoto
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -26,10 +26,10 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
   test "can send a photo with URL" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_caption = "Test photo sent from TelegramSendPhotoLens at #{DateTime.utc_now()}"
+      test_caption = "Test photo sent from SendPhoto at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption
@@ -56,10 +56,10 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
   test "can send a photo with markdown formatting in caption" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_caption = "*Bold* and _italic_ caption from TelegramSendPhotoLens at #{DateTime.utc_now()}"
+      test_caption = "*Bold* and _italic_ caption from SendPhoto at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption,
@@ -80,10 +80,10 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
   test "can send a photo with silent notification" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_caption = "Silent photo from TelegramSendPhotoLens at #{DateTime.utc_now()}"
+      test_caption = "Silent photo from SendPhoto at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption,
@@ -102,10 +102,10 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
   test "can send a photo with protected content" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_caption = "Protected photo from TelegramSendPhotoLens at #{DateTime.utc_now()}"
+      test_caption = "Protected photo from SendPhoto at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption,
@@ -136,7 +136,7 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: invalid_chat_id,
                  photo: @test_photo_url,
                  caption: "This should fail due to invalid chat_id"
@@ -168,7 +168,7 @@ defmodule Lux.Integration.Telegram.Media.TelegramSendPhotoLensTest do
       invalid_photo_url = "https://invalid.example.com/nonexistent.jpg"
 
       assert {:error, error} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: invalid_photo_url,
                  caption: "This should fail due to invalid photo URL"

@@ -21,7 +21,6 @@ if config_env() in [:dev, :test] do
     telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, required: false),
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, required: false),
-    integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, required: false),
     integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false)
 
   config :lux, :accounts,

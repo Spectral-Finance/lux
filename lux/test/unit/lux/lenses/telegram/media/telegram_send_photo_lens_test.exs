@@ -1,7 +1,7 @@
-defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
+defmodule Lux.Lenses.Telegram.TelegramSendPhotoLensTest do
   use UnitAPICase, async: false
 
-  alias Lux.Lenses.Telegram.Media.TelegramSendPhotoLens
+  alias Lux.Lenses.Telegram.SendPhoto
 
   setup do
     # Save original environment
@@ -68,7 +68,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramSendPhotoLens.focus(%{
+      assert {:ok, result} = SendPhoto.focus(%{
         chat_id: 123456789,
         photo: "https://example.com/photo.jpg"
       })
@@ -118,7 +118,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramSendPhotoLens.focus(%{
+      assert {:ok, result} = SendPhoto.focus(%{
         chat_id: 123456789,
         photo: "https://example.com/photo.jpg",
         caption: "*Bold* caption",
@@ -144,7 +144,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
       end)
 
       assert {:error, "Bad Request: test error message"} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: 123_456_789,
                  photo: "https://example.com/photo.jpg"
                })
@@ -158,7 +158,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
         })
       end)
 
-      assert {:error, _} = TelegramSendPhotoLens.focus(%{
+      assert {:error, _} = SendPhoto.focus(%{
         chat_id: 123456789,
         photo: "https://example.com/photo.jpg"
       })
@@ -168,7 +168,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
   describe "add_bot_token/1" do
     test "adds the bot token to the URL" do
       lens = %Lux.Lens{url: "https://api.telegram.org/bot"}
-      result = TelegramSendPhotoLens.add_bot_token(lens)
+      result = SendPhoto.add_bot_token(lens)
       assert result.url == "https://api.telegram.org/botTEST_BOT_TOKEN/sendPhoto"
     end
   end
@@ -195,7 +195,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
         }
       }
 
-      assert {:ok, result} = TelegramSendPhotoLens.after_focus(response)
+      assert {:ok, result} = SendPhoto.after_focus(response)
       assert result.message_id == 123
       assert result.chat["id"] == 123456789
       assert is_list(result.photo)
@@ -204,12 +204,12 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = TelegramSendPhotoLens.after_focus(response)
+      assert {:error, "Bad Request: test error message"} = SendPhoto.after_focus(response)
     end
 
     test "handles unexpected response format" do
       response = %{"unexpected" => "format"}
-      assert {:error, _} = TelegramSendPhotoLens.after_focus(response)
+      assert {:error, _} = SendPhoto.after_focus(response)
     end
   end
 end

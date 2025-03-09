@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLens do
+defmodule Lux.Lenses.Telegram.SendPhoto do
   @moduledoc """
   Lens for sending photos via the Telegram Bot API.
 
@@ -8,17 +8,17 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Media.TelegramSendPhotoLens
+  alias Lux.Lenses.Telegram.SendPhoto
 
   # Send a photo by URL
-  TelegramSendPhotoLens.focus(%{
+  SendPhoto.focus(%{
     chat_id: 123456789,
     photo: "https://example.com/photo.jpg",
     caption: "A beautiful photo"
   })
 
   # Send a photo with markdown formatting in caption
-  TelegramSendPhotoLens.focus(%{
+  SendPhoto.focus(%{
     chat_id: 123456789,
     photo: "https://example.com/photo.jpg",
     caption: "*Bold* and _italic_ caption",
@@ -26,7 +26,7 @@ defmodule Lux.Lenses.Telegram.Media.TelegramSendPhotoLens do
   })
 
   # Send a photo with additional options
-  TelegramSendPhotoLens.send_photo(%{
+  SendPhoto.send_photo(%{
     chat_id: 123456789,
     photo: "https://example.com/photo.jpg",
     caption: "Photo with options",

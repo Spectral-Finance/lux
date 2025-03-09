@@ -3,8 +3,8 @@ defmodule Lux.Integration.Telegram.TelegramAPIHandlerTest do
   use IntegrationCase, async: true
 
   alias Lux.Lenses.Telegram.TelegramAPIHandler
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
-  alias Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens
+  alias Lux.Lenses.Telegram.SendMessage
+  alias Lux.Lenses.Telegram.ForwardMessage
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -25,7 +25,7 @@ defmodule Lux.Integration.Telegram.TelegramAPIHandlerTest do
       # Skip if no bot token is set
       if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
         result = TelegramAPIHandler.request_with_handling(
-          TelegramSendMessageLens,
+          SendMessage,
           %{
             chat_id: chat_id,
             text: "Test message with rate limiting and retries"
@@ -50,7 +50,7 @@ defmodule Lux.Integration.Telegram.TelegramAPIHandlerTest do
       if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
         # First send a message to get a message_id
         {:ok, sent_message} = TelegramAPIHandler.request_with_handling(
-          TelegramSendMessageLens,
+          SendMessage,
           %{
             chat_id: chat_id,
             text: "Message to be forwarded"
@@ -59,7 +59,7 @@ defmodule Lux.Integration.Telegram.TelegramAPIHandlerTest do
 
         # Now forward that message
         result = TelegramAPIHandler.request_with_handling(
-          TelegramForwardMessageLens,
+          ForwardMessage,
           %{
             chat_id: chat_id,
             from_chat_id: chat_id,
@@ -90,7 +90,7 @@ defmodule Lux.Integration.Telegram.TelegramAPIHandlerTest do
 
         results = for i <- 1..3 do
           TelegramAPIHandler.request_with_handling(
-            TelegramSendMessageLens,
+            SendMessage,
             %{
               chat_id: chat_id,
               text: "Rate limit test message #{i}"

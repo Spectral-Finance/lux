@@ -1,9 +1,9 @@
-defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
+defmodule Lux.Integration.Telegram.TelegramEditMessageCaptionLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens
-  alias Lux.Lenses.Telegram.Media.TelegramSendPhotoLens
+  alias Lux.Lenses.Telegram.EditMessageCaption
+  alias Lux.Lenses.Telegram.SendPhoto
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -28,20 +28,20 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest 
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a photo with a caption to get a message_id
-      test_caption = "Test caption to be edited from TelegramEditMessageCaptionLens at #{DateTime.utc_now()}"
+      test_caption = "Test caption to be edited from EditMessageCaption at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption
                })
 
       # Now edit that message's caption
-      updated_caption = "Updated caption from TelegramEditMessageCaptionLens at #{DateTime.utc_now()}"
+      updated_caption = "Updated caption from EditMessageCaption at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramEditMessageCaptionLens.focus(%{
+               EditMessageCaption.focus(%{
                  chat_id: @test_chat_id,
                  message_id: original_message.message_id,
                  caption: updated_caption
@@ -64,7 +64,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest 
       test_caption = "Test caption to be edited with formatting at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendPhotoLens.focus(%{
+               SendPhoto.focus(%{
                  chat_id: @test_chat_id,
                  photo: @test_photo_url,
                  caption: test_caption
@@ -74,7 +74,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest 
       updated_caption = "*Bold* and _italic_ caption edited at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramEditMessageCaptionLens.focus(%{
+               EditMessageCaption.focus(%{
                  chat_id: @test_chat_id,
                  message_id: original_message.message_id,
                  caption: updated_caption,
@@ -107,7 +107,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest 
       invalid_message_id = 999999999  # An invalid message ID
 
       assert {:error, error} =
-               TelegramEditMessageCaptionLens.focus(%{
+               EditMessageCaption.focus(%{
                  chat_id: @test_chat_id,
                  message_id: invalid_message_id,
                  caption: "This should fail due to invalid message_id"
@@ -139,7 +139,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageCaptionLensTest 
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramEditMessageCaptionLens.focus(%{
+               EditMessageCaption.focus(%{
                  chat_id: invalid_chat_id,
                  message_id: 1,
                  caption: "This should fail due to invalid chat_id"

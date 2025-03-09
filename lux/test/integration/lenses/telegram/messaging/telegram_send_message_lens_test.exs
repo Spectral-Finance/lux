@@ -1,8 +1,8 @@
-defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
+defmodule Lux.Integration.Telegram.TelegramSendMessageLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.SendMessage
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -26,10 +26,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
   test "can send a simple text message" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_message = "Test message from TelegramSendMessageLens at #{DateTime.utc_now()}"
+      test_message = "Test message from SendMessage at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
@@ -46,10 +46,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
   test "can send a message with markdown formatting" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_message = "*Bold* and _italic_ message from TelegramSendMessageLens at #{DateTime.utc_now()}"
+      test_message = "*Bold* and _italic_ message from SendMessage at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message,
                  parse_mode: "Markdown"
@@ -68,10 +68,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
   test "can send a message with HTML formatting" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_message = "<b>Bold</b> and <i>italic</i> message from TelegramSendMessageLens at #{DateTime.utc_now()}"
+      test_message = "<b>Bold</b> and <i>italic</i> message from SendMessage at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message,
                  parse_mode: "HTML"
@@ -90,10 +90,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
   test "can send a message with disabled notification" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_message = "Silent message from TelegramSendMessageLens at #{DateTime.utc_now()}"
+      test_message = "Silent message from SendMessage at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message,
                  disable_notification: true
@@ -110,10 +110,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
   test "can send a message with disabled web page preview" do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
-      test_message = "Message with link https://example.com from TelegramSendMessageLens at #{DateTime.utc_now()}"
+      test_message = "Message with link https://example.com from SendMessage at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message,
                  disable_web_page_preview: true
@@ -141,7 +141,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramSendMessageLensTest do
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: invalid_chat_id,
                  text: "This should fail due to invalid chat_id"
                })

@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens do
+defmodule Lux.Lenses.Telegram.SendMessage do
   @moduledoc """
   Lens for sending messages via the Telegram Bot API.
 
@@ -8,23 +8,23 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.SendMessage
 
   # Send a simple message
-  TelegramSendMessageLens.focus(%{
+  SendMessage.focus(%{
     chat_id: 123456789,
     text: "Hello from Lux!"
   })
 
   # Send a message with markdown formatting
-  TelegramSendMessageLens.focus(%{
+  SendMessage.focus(%{
     chat_id: 123456789,
     text: "*Bold* and _italic_ text",
     parse_mode: "Markdown"
   })
 
   # Send a message with rate limiting and retry options
-  TelegramSendMessageLens.send_message(%{
+  SendMessage.send_message(%{
     chat_id: 123456789,
     text: "Hello with custom options!"
   }, [max_retries: 5, initial_delay: 2000])

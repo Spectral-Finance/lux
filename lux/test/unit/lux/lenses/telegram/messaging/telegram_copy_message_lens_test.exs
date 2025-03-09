@@ -1,7 +1,7 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
+defmodule Lux.Lenses.Telegram.TelegramCopyMessageLensTest do
   use UnitAPICase, async: false
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens
+  alias Lux.Lenses.Telegram.CopyMessage
 
   setup do
     # Save original environment
@@ -57,7 +57,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramCopyMessageLens.focus(%{
+      assert {:ok, result} = CopyMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42
@@ -93,7 +93,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramCopyMessageLens.focus(%{
+      assert {:ok, result} = CopyMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42,
@@ -119,7 +119,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
       end)
 
       assert {:error, "Bad Request: test error message"} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: 123_456_789,
                  from_chat_id: 987_654_321,
                  message_id: 42
@@ -134,7 +134,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
         })
       end)
 
-      assert {:error, _} = TelegramCopyMessageLens.focus(%{
+      assert {:error, _} = CopyMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42
@@ -145,7 +145,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
   describe "add_bot_token/1" do
     test "adds the bot token to the URL" do
       lens = %Lux.Lens{url: "https://api.telegram.org/bot"}
-      result = TelegramCopyMessageLens.add_bot_token(lens)
+      result = CopyMessage.add_bot_token(lens)
       assert result.url == "https://api.telegram.org/botTEST_BOT_TOKEN/copyMessage"
     end
   end
@@ -159,18 +159,18 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLensTest do
         }
       }
 
-      assert {:ok, result} = TelegramCopyMessageLens.after_focus(response)
+      assert {:ok, result} = CopyMessage.after_focus(response)
       assert result.message_id == 123
     end
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = TelegramCopyMessageLens.after_focus(response)
+      assert {:error, "Bad Request: test error message"} = CopyMessage.after_focus(response)
     end
 
     test "handles unexpected response format" do
       response = %{"unexpected" => "format"}
-      assert {:error, _} = TelegramCopyMessageLens.after_focus(response)
+      assert {:error, _} = CopyMessage.after_focus(response)
     end
   end
 end

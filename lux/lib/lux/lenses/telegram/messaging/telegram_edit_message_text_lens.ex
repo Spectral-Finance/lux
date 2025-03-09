@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageTextLens do
+defmodule Lux.Lenses.Telegram.EditMessageText do
   @moduledoc """
   Lens for editing message text via the Telegram Bot API.
 
@@ -8,17 +8,17 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageTextLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramEditMessageTextLens
+  alias Lux.Lenses.Telegram.EditMessageText
 
   # Edit a message text
-  TelegramEditMessageTextLens.focus(%{
+  EditMessageText.focus(%{
     chat_id: 123456789,
     message_id: 42,
     text: "Updated message text"
   })
 
   # Edit a message with markdown formatting
-  TelegramEditMessageTextLens.focus(%{
+  EditMessageText.focus(%{
     chat_id: 123456789,
     message_id: 42,
     text: "*Bold* and _italic_ text",
@@ -26,13 +26,13 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageTextLens do
   })
 
   # Edit an inline message text
-  TelegramEditMessageTextLens.focus(%{
+  EditMessageText.focus(%{
     inline_message_id: "123456789",
     text: "Updated inline message text"
   })
 
   # Edit a message with rate limiting and retry options
-  TelegramEditMessageTextLens.edit_message_text(%{
+  EditMessageText.edit_message_text(%{
     chat_id: 123456789,
     message_id: 42,
     text: "Updated message text"

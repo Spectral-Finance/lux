@@ -1,9 +1,9 @@
-defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
+defmodule Lux.Integration.Telegram.TelegramCopyMessageLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.CopyMessage
+  alias Lux.Lenses.Telegram.SendMessage
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -27,17 +27,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Test message to be copied from TelegramCopyMessageLens at #{DateTime.utc_now()}"
+      test_message = "Test message to be copied from CopyMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now copy that message
       assert {:ok, result} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id
@@ -54,17 +54,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Silent copied message from TelegramCopyMessageLens at #{DateTime.utc_now()}"
+      test_message = "Silent copied message from CopyMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now copy that message silently
       assert {:ok, result} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id,
@@ -82,17 +82,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Protected copied message from TelegramCopyMessageLens at #{DateTime.utc_now()}"
+      test_message = "Protected copied message from CopyMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now copy that message with content protection
       assert {:ok, result} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id,
@@ -110,10 +110,10 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Message to be copied with a new caption from TelegramCopyMessageLens at #{DateTime.utc_now()}"
+      test_message = "Message to be copied with a new caption from CopyMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
@@ -122,7 +122,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
       new_caption = "New caption for copied message at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id,
@@ -151,7 +151,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
       invalid_message_id = 999999999  # An invalid message ID
 
       assert {:error, error} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: invalid_message_id
@@ -183,7 +183,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramCopyMessageLensTest do
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramCopyMessageLens.focus(%{
+               CopyMessage.focus(%{
                  chat_id: invalid_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: 1

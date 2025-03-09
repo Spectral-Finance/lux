@@ -1,9 +1,9 @@
-defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
+defmodule Lux.Integration.Telegram.TelegramForwardMessageLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.ForwardMessage
+  alias Lux.Lenses.Telegram.SendMessage
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -27,17 +27,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Test message to be forwarded from TelegramForwardMessageLens at #{DateTime.utc_now()}"
+      test_message = "Test message to be forwarded from ForwardMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now forward that message
       assert {:ok, result} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id
@@ -58,17 +58,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Silent forwarded message from TelegramForwardMessageLens at #{DateTime.utc_now()}"
+      test_message = "Silent forwarded message from ForwardMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now forward that message silently
       assert {:ok, result} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id,
@@ -87,17 +87,17 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Protected forwarded message from TelegramForwardMessageLens at #{DateTime.utc_now()}"
+      test_message = "Protected forwarded message from ForwardMessage at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now forward that message with content protection
       assert {:ok, result} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: original_message.message_id,
@@ -127,7 +127,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
       invalid_message_id = 999999999  # An invalid message ID
 
       assert {:error, error} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: @test_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: invalid_message_id
@@ -151,7 +151,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramForwardMessageLensTest do
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: invalid_chat_id,
                  from_chat_id: @test_chat_id,
                  message_id: 1

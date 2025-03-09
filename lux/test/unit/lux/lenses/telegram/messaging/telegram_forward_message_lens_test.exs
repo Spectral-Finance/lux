@@ -1,7 +1,7 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
+defmodule Lux.Lenses.Telegram.TelegramForwardMessageLensTest do
   use UnitAPICase, async: false
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens
+  alias Lux.Lenses.Telegram.ForwardMessage
 
   setup do
     # Save original environment
@@ -64,7 +64,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramForwardMessageLens.focus(%{
+      assert {:ok, result} = ForwardMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42
@@ -109,7 +109,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramForwardMessageLens.focus(%{
+      assert {:ok, result} = ForwardMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42,
@@ -134,7 +134,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
       end)
 
       assert {:error, "Bad Request: test error message"} =
-               TelegramForwardMessageLens.focus(%{
+               ForwardMessage.focus(%{
                  chat_id: 123_456_789,
                  from_chat_id: 987_654_321,
                  message_id: 42
@@ -149,7 +149,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
         })
       end)
 
-      assert {:error, _} = TelegramForwardMessageLens.focus(%{
+      assert {:error, _} = ForwardMessage.focus(%{
         chat_id: 123456789,
         from_chat_id: 987654321,
         message_id: 42
@@ -160,7 +160,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
   describe "add_bot_token/1" do
     test "adds the bot token to the URL" do
       lens = %Lux.Lens{url: "https://api.telegram.org/bot"}
-      result = TelegramForwardMessageLens.add_bot_token(lens)
+      result = ForwardMessage.add_bot_token(lens)
       assert result.url == "https://api.telegram.org/botTEST_BOT_TOKEN/forwardMessage"
     end
   end
@@ -181,7 +181,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
         }
       }
 
-      assert {:ok, result} = TelegramForwardMessageLens.after_focus(response)
+      assert {:ok, result} = ForwardMessage.after_focus(response)
       assert result.message_id == 123
       assert result.forward_from["id"] == 444555666
       assert result.forward_from_chat["id"] == 987654321
@@ -190,12 +190,12 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = TelegramForwardMessageLens.after_focus(response)
+      assert {:error, "Bad Request: test error message"} = ForwardMessage.after_focus(response)
     end
 
     test "handles unexpected response format" do
       response = %{"unexpected" => "format"}
-      assert {:error, _} = TelegramForwardMessageLens.after_focus(response)
+      assert {:error, _} = ForwardMessage.after_focus(response)
     end
   end
 end

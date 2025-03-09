@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens do
+defmodule Lux.Lenses.Telegram.CopyMessage do
   @moduledoc """
   Lens for copying messages via the Telegram Bot API.
 
@@ -9,17 +9,17 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens
+  alias Lux.Lenses.Telegram.CopyMessage
 
   # Copy a message
-  TelegramCopyMessageLens.focus(%{
+  CopyMessage.focus(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42
   })
 
   # Copy a message silently (without notification)
-  TelegramCopyMessageLens.focus(%{
+  CopyMessage.focus(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42,
@@ -27,7 +27,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens do
   })
 
   # Copy a message with a new caption
-  TelegramCopyMessageLens.focus(%{
+  CopyMessage.focus(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42,
@@ -36,7 +36,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramCopyMessageLens do
   })
 
   # Copy a message with rate limiting and retry options
-  TelegramCopyMessageLens.copy_message(%{
+  CopyMessage.copy_message(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42

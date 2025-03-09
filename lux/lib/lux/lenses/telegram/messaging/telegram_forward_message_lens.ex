@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens do
+defmodule Lux.Lenses.Telegram.ForwardMessage do
   @moduledoc """
   Lens for forwarding messages via the Telegram Bot API.
 
@@ -8,17 +8,17 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens do
   ## Example
 
   ```elixir
-  alias Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens
+  alias Lux.Lenses.Telegram.ForwardMessage
 
   # Forward a message
-  TelegramForwardMessageLens.focus(%{
+  ForwardMessage.focus(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42
   })
 
   # Forward a message silently (without notification)
-  TelegramForwardMessageLens.focus(%{
+  ForwardMessage.focus(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42,
@@ -26,7 +26,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramForwardMessageLens do
   })
 
   # Forward a message with rate limiting and retry options
-  TelegramForwardMessageLens.forward_message(%{
+  ForwardMessage.forward_message(%{
     chat_id: 123456789,
     from_chat_id: 987654321,
     message_id: 42

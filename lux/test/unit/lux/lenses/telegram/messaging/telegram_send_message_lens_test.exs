@@ -1,7 +1,7 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
+defmodule Lux.Lenses.Telegram.TelegramSendMessageLensTest do
   use UnitAPICase, async: false
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.SendMessage
 
   setup do
     # Save original environment
@@ -60,7 +60,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramSendMessageLens.focus(%{
+      assert {:ok, result} = SendMessage.focus(%{
         chat_id: 123456789,
         text: "Hello from Lux!"
       })
@@ -98,7 +98,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramSendMessageLens.focus(%{
+      assert {:ok, result} = SendMessage.focus(%{
         chat_id: 123456789,
         text: "Hello from Lux!",
         parse_mode: "Markdown",
@@ -122,7 +122,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
       end)
 
       assert {:error, "Bad Request: test error message"} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: 123_456_789,
                  text: "Hello, world!"
                })
@@ -136,7 +136,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
         })
       end)
 
-      assert {:error, _} = TelegramSendMessageLens.focus(%{
+      assert {:error, _} = SendMessage.focus(%{
         chat_id: 123456789,
         text: "Hello from Lux!"
       })
@@ -146,7 +146,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
   describe "add_bot_token/1" do
     test "adds the bot token to the URL" do
       lens = %Lux.Lens{url: "https://api.telegram.org/bot"}
-      result = TelegramSendMessageLens.add_bot_token(lens)
+      result = SendMessage.add_bot_token(lens)
       assert result.url == "https://api.telegram.org/botTEST_BOT_TOKEN/sendMessage"
     end
   end
@@ -164,7 +164,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
         }
       }
 
-      assert {:ok, result} = TelegramSendMessageLens.after_focus(response)
+      assert {:ok, result} = SendMessage.after_focus(response)
       assert result.message_id == 123
       assert result.text == "Hello from Lux!"
       assert result.chat["id"] == 123456789
@@ -172,12 +172,12 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramSendMessageLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = TelegramSendMessageLens.after_focus(response)
+      assert {:error, "Bad Request: test error message"} = SendMessage.after_focus(response)
     end
 
     test "handles unexpected response format" do
       response = %{"unexpected" => "format"}
-      assert {:error, _} = TelegramSendMessageLens.after_focus(response)
+      assert {:error, _} = SendMessage.after_focus(response)
     end
   end
 end

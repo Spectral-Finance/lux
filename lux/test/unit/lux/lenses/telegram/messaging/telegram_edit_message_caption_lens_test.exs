@@ -1,7 +1,7 @@
-defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
+defmodule Lux.Lenses.Telegram.TelegramEditMessageCaptionLensTest do
   use UnitAPICase, async: false
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLens
+  alias Lux.Lenses.Telegram.EditMessageCaption
 
   setup do
     # Save original environment
@@ -62,7 +62,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramEditMessageCaptionLens.focus(%{
+      assert {:ok, result} = EditMessageCaption.focus(%{
         chat_id: 123456789,
         message_id: 42,
         caption: "Updated caption"
@@ -103,7 +103,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
         })
       end)
 
-      assert {:ok, result} = TelegramEditMessageCaptionLens.focus(%{
+      assert {:ok, result} = EditMessageCaption.focus(%{
         chat_id: 123456789,
         message_id: 42,
         caption: "*Bold* caption",
@@ -134,7 +134,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
         })
       end)
 
-      assert {:ok, _result} = TelegramEditMessageCaptionLens.focus(%{
+      assert {:ok, _result} = EditMessageCaption.focus(%{
         inline_message_id: "123456789",
         caption: "Updated inline message caption"
       })
@@ -153,7 +153,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
       end)
 
       assert {:error, "Bad Request: test error message"} =
-               TelegramEditMessageCaptionLens.focus(%{
+               EditMessageCaption.focus(%{
                  chat_id: 123_456_789,
                  message_id: 42,
                  caption: "Updated caption"
@@ -168,7 +168,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
         })
       end)
 
-      assert {:error, _} = TelegramEditMessageCaptionLens.focus(%{
+      assert {:error, _} = EditMessageCaption.focus(%{
         chat_id: 123456789,
         message_id: 42,
         caption: "Updated caption"
@@ -179,7 +179,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
   describe "add_bot_token/1" do
     test "adds the bot token to the URL" do
       lens = %Lux.Lens{url: "https://api.telegram.org/bot"}
-      result = TelegramEditMessageCaptionLens.add_bot_token(lens)
+      result = EditMessageCaption.add_bot_token(lens)
       assert result.url == "https://api.telegram.org/botTEST_BOT_TOKEN/editMessageCaption"
     end
   end
@@ -198,7 +198,7 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
         }
       }
 
-      assert {:ok, result} = TelegramEditMessageCaptionLens.after_focus(response)
+      assert {:ok, result} = EditMessageCaption.after_focus(response)
       assert result.message_id == 42
       assert result.caption == "Updated caption"
       assert result.chat["id"] == 123456789
@@ -207,12 +207,12 @@ defmodule Lux.Lenses.Telegram.Messaging.TelegramEditMessageCaptionLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = TelegramEditMessageCaptionLens.after_focus(response)
+      assert {:error, "Bad Request: test error message"} = EditMessageCaption.after_focus(response)
     end
 
     test "handles unexpected response format" do
       response = %{"unexpected" => "format"}
-      assert {:error, _} = TelegramEditMessageCaptionLens.after_focus(response)
+      assert {:error, _} = EditMessageCaption.after_focus(response)
     end
   end
 end

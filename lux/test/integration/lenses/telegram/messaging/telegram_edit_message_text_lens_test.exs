@@ -1,9 +1,9 @@
-defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
+defmodule Lux.Integration.Telegram.TelegramEditMessageTextLensTest do
   @moduledoc false
   use IntegrationCase, async: true
 
-  alias Lux.Lenses.Telegram.Messaging.TelegramEditMessageTextLens
-  alias Lux.Lenses.Telegram.Messaging.TelegramSendMessageLens
+  alias Lux.Lenses.Telegram.EditMessageText
+  alias Lux.Lenses.Telegram.SendMessage
 
   # This test module assumes you have a valid Telegram bot token configured
   # and a chat ID where the bot can send messages
@@ -27,19 +27,19 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
     # Skip this test if we're not in integration mode or if the token is not set
     if System.get_env("INTEGRATION_TELEGRAM_BOT_TOKEN") do
       # First, send a message to get a message_id
-      test_message = "Test message to be edited from TelegramEditMessageTextLens at #{DateTime.utc_now()}"
+      test_message = "Test message to be edited from EditMessageText at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
 
       # Now edit that message
-      updated_text = "Updated message text from TelegramEditMessageTextLens at #{DateTime.utc_now()}"
+      updated_text = "Updated message text from EditMessageText at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramEditMessageTextLens.focus(%{
+               EditMessageText.focus(%{
                  chat_id: @test_chat_id,
                  message_id: original_message.message_id,
                  text: updated_text
@@ -62,7 +62,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       test_message = "Test message to be edited with formatting at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
@@ -71,7 +71,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       updated_text = "*Bold* and _italic_ text edited at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramEditMessageTextLens.focus(%{
+               EditMessageText.focus(%{
                  chat_id: @test_chat_id,
                  message_id: original_message.message_id,
                  text: updated_text,
@@ -96,7 +96,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       test_message = "Test message with link https://example.com at #{DateTime.utc_now()}"
 
       assert {:ok, original_message} =
-               TelegramSendMessageLens.focus(%{
+               SendMessage.focus(%{
                  chat_id: @test_chat_id,
                  text: test_message
                })
@@ -105,7 +105,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       updated_text = "Updated message with link https://example.com at #{DateTime.utc_now()}"
 
       assert {:ok, result} =
-               TelegramEditMessageTextLens.focus(%{
+               EditMessageText.focus(%{
                  chat_id: @test_chat_id,
                  message_id: original_message.message_id,
                  text: updated_text,
@@ -136,7 +136,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       invalid_message_id = 999999999  # An invalid message ID
 
       assert {:error, error} =
-               TelegramEditMessageTextLens.focus(%{
+               EditMessageText.focus(%{
                  chat_id: @test_chat_id,
                  message_id: invalid_message_id,
                  text: "This should fail due to invalid message_id"
@@ -168,7 +168,7 @@ defmodule Lux.Integration.Telegram.Messaging.TelegramEditMessageTextLensTest do
       invalid_chat_id = "-999999999999"  # An invalid chat ID
 
       assert {:error, error} =
-               TelegramEditMessageTextLens.focus(%{
+               EditMessageText.focus(%{
                  chat_id: invalid_chat_id,
                  message_id: 1,
                  text: "This should fail due to invalid chat_id"
