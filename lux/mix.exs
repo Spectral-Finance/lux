@@ -58,7 +58,11 @@ defmodule Lux.MixProject do
       "coveralls.detail": "coveralls.detail",
       "coveralls.post": "coveralls.post",
       "coveralls.html": "coveralls.html",
-      "coveralls.github": "coveralls.github"
+      "coveralls.github": "coveralls.github",
+      fmt: [
+        "format",
+        "cmd cargo fmt --manifest-path native/lux_rust/Cargo.toml"
+      ]
     ]
   end
 
@@ -82,7 +86,8 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:rustler, "~> 0.36.1"}
     ]
   end
 
