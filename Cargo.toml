@@ -1,0 +1,2 @@
+[workspace]
+members = ["lux/native/lux_rust"]
