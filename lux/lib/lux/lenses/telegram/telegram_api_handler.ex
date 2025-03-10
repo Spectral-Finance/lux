@@ -20,74 +20,44 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
   # Define rate limit configurations
   @global_limit %{
     name: :telegram_global,
-    limit: 30,
-    window_ms: 100
+    scale_ms: 100,
+    limit: 30
   }
 
   @chat_limit %{
     name: :telegram_chat,
-    limit: 1,
-    window_ms: 100
+    scale_ms: 100,
+    limit: 1
   }
 
   @group_limit %{
     name: :telegram_group,
-    limit: 20,
-    window_ms: 60_000
+    scale_ms: 60_000,
+    limit: 20
   }
 
-  # Method-specific rate limits
-  @method_limits %{
+  # All method-specific rate limits are now standardized to 100ms
+  @method_limit_ms 100
+  @method_limit_count 30
+
+  # List of Telegram API methods for rate limiting
+  @telegram_methods [
     # Messaging methods
-    "sendMessage" => %{limit: 30, window_ms: 100},
-    "forwardMessage" => %{limit: 30, window_ms: 100},
-    "copyMessage" => %{limit: 30, window_ms: 100},
-    "sendPhoto" => %{limit: 30, window_ms: 100},
-    "sendAudio" => %{limit: 30, window_ms: 100},
-    "sendDocument" => %{limit: 30, window_ms: 100},
-    "sendVideo" => %{limit: 30, window_ms: 100},
-    "sendAnimation" => %{limit: 30, window_ms: 100},
-    "sendVoice" => %{limit: 30, window_ms: 100},
-    "sendVideoNote" => %{limit: 30, window_ms: 100},
-    "sendMediaGroup" => %{limit: 30, window_ms: 100},
-    "sendLocation" => %{limit: 30, window_ms: 100},
-    "sendVenue" => %{limit: 30, window_ms: 100},
-    "sendContact" => %{limit: 30, window_ms: 100},
-    "sendPoll" => %{limit: 30, window_ms: 100},
-    "sendDice" => %{limit: 30, window_ms: 100},
-    "sendSticker" => %{limit: 30, window_ms: 100},
+    "sendMessage", "forwardMessage", "copyMessage", "sendPhoto", "sendAudio",
+    "sendDocument", "sendVideo", "sendAnimation", "sendVoice", "sendVideoNote",
+    "sendMediaGroup", "sendLocation", "sendVenue", "sendContact", "sendPoll",
+    "sendDice", "sendSticker",
 
     # Chat management methods
-    "banChatMember" => %{limit: 30, window_ms: 100},
-    "unbanChatMember" => %{limit: 30, window_ms: 100},
-    "restrictChatMember" => %{limit: 30, window_ms: 100},
-    "promoteChatMember" => %{limit: 30, window_ms: 100},
-    "setChatAdministratorCustomTitle" => %{limit: 30, window_ms: 100},
-    "setChatPermissions" => %{limit: 30, window_ms: 100},
-    "exportChatInviteLink" => %{limit: 30, window_ms: 100},
-    "createChatInviteLink" => %{limit: 30, window_ms: 100},
-    "editChatInviteLink" => %{limit: 30, window_ms: 100},
-    "revokeChatInviteLink" => %{limit: 30, window_ms: 100},
-    "setChatPhoto" => %{limit: 30, window_ms: 100},
-    "deleteChatPhoto" => %{limit: 30, window_ms: 100},
-    "setChatTitle" => %{limit: 30, window_ms: 100},
-    "setChatDescription" => %{limit: 30, window_ms: 100},
-    "pinChatMessage" => %{limit: 30, window_ms: 100},
-    "unpinChatMessage" => %{limit: 30, window_ms: 100},
-    "unpinAllChatMessages" => %{limit: 30, window_ms: 100},
-    "leaveChat" => %{limit: 30, window_ms: 100},
+    "banChatMember", "unbanChatMember", "restrictChatMember", "promoteChatMember",
+    "setChatAdministratorCustomTitle", "setChatPermissions", "exportChatInviteLink",
+    "createChatInviteLink", "editChatInviteLink", "revokeChatInviteLink",
+    "setChatPhoto", "deleteChatPhoto", "setChatTitle", "setChatDescription",
+    "pinChatMessage", "unpinChatMessage", "unpinAllChatMessages", "leaveChat",
 
     # Bot methods
-    "getMe" => %{limit: 30, window_ms: 100},
-    "logOut" => %{limit: 30, window_ms: 100},
-    "close" => %{limit: 30, window_ms: 100},
-    "getUpdates" => %{limit: 30, window_ms: 100},
-    "setWebhook" => %{limit: 30, window_ms: 100},
-    "deleteWebhook" => %{limit: 30, window_ms: 100},
-    "getWebhookInfo" => %{limit: 30, window_ms: 100}
-
-    # Add more method-specific limits as needed
-  }
+    "getMe", "logOut", "close", "getUpdates", "setWebhook", "deleteWebhook", "getWebhookInfo"
+  ]
 
   @doc """
   Executes a function with rate limiting and error handling.
@@ -186,14 +156,12 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
   """
   def with_rate_limit(params, method, fun) do
     # Apply method-specific rate limit if applicable
-    method_result = if method && Map.has_key?(@method_limits, method) do
-      method_config = %{
-        name: :"telegram_method_#{method}",
-        limit: @method_limits[method].limit,
-        window_ms: @method_limits[method].window_ms
-      }
-
-      check_and_update(method_config)
+    method_result = if method && method in @telegram_methods do
+      method_bucket = :"telegram_method_#{method}"
+      case check_rate_limit(method_bucket, @method_limit_ms, @method_limit_count) do
+        :ok -> :ok
+        {:error, limit_ms} -> {:wait, limit_ms}
+      end
     else
       :ok
     end
@@ -201,7 +169,7 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
     case method_result do
       :ok ->
         # Apply global rate limit
-        case check_and_update(@global_limit) do
+        case check_rate_limit(@global_limit.name, @global_limit.scale_ms, @global_limit.limit) do
           :ok ->
             # If chat_id is present, also apply chat-specific rate limit
             case Map.get(params, "chat_id") || Map.get(params, :chat_id) do
@@ -211,41 +179,45 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
 
               chat_id ->
                 # Apply chat-specific rate limit
-                chat_config = chat_rate_limit_config(chat_id)
-
-                case check_and_update(chat_config) do
+                chat_bucket = :"telegram_chat_#{chat_id}"
+                
+                case check_rate_limit(chat_bucket, @chat_limit.scale_ms, @chat_limit.limit) do
                   :ok ->
                     # Check if this is a group chat (for group rate limiting)
                     # Since we don't know if it's a group without querying,
                     # we'll just apply the group limit for all chats to be safe
-                    group_config = group_rate_limit_config(chat_id)
-
-                    case check_and_update(group_config) do
+                    group_bucket = :"telegram_group_#{chat_id}"
+                    
+                    case check_rate_limit(group_bucket, @group_limit.scale_ms, @group_limit.limit) do
                       :ok ->
                         fun.()
 
-                      {:wait, wait_time} ->
-                        log(:debug, "Rate limit hit for group #{chat_id}, waiting #{wait_time}ms")
-                        Process.sleep(wait_time)
+                      {:error, limit_ms} ->
+                        log(:debug, "Rate limit hit for group #{chat_id}, waiting #{limit_ms}ms")
+                        # Use apply_rate_limit_delay instead of Process.sleep
+                        apply_rate_limit_delay(limit_ms)
                         with_rate_limit(params, method, fun)
                     end
 
-                  {:wait, wait_time} ->
-                    log(:debug, "Rate limit hit for chat #{chat_id}, waiting #{wait_time}ms")
-                    Process.sleep(wait_time)
+                  {:error, limit_ms} ->
+                    log(:debug, "Rate limit hit for chat #{chat_id}, waiting #{limit_ms}ms")
+                    # Use apply_rate_limit_delay instead of Process.sleep
+                    apply_rate_limit_delay(limit_ms)
                     with_rate_limit(params, method, fun)
                 end
             end
 
-          {:wait, wait_time} ->
-            log(:debug, "Global rate limit hit, waiting #{wait_time}ms")
-            Process.sleep(wait_time)
+          {:error, limit_ms} ->
+            log(:debug, "Global rate limit hit, waiting #{limit_ms}ms")
+            # Use apply_rate_limit_delay instead of Process.sleep
+            apply_rate_limit_delay(limit_ms)
             with_rate_limit(params, method, fun)
         end
 
-      {:wait, wait_time} ->
-        log(:debug, "Method-specific rate limit hit for #{method}, waiting #{wait_time}ms")
-        Process.sleep(wait_time)
+      {:wait, limit_ms} ->
+        log(:debug, "Method-specific rate limit hit for #{method}, waiting #{limit_ms}ms")
+        # Use apply_rate_limit_delay instead of Process.sleep
+        apply_rate_limit_delay(limit_ms)
         with_rate_limit(params, method, fun)
     end
   end
@@ -270,7 +242,8 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
               actual_delay = max(delay, backoff_delay)
 
               log(:info, "Retry attempt #{retry_count + 1}/#{max_retries} after #{actual_delay}ms")
-              Process.sleep(actual_delay)
+              # Use apply_rate_limit_delay instead of Process.sleep
+              apply_rate_limit_delay(actual_delay)
               do_with_retries(fun, max_retries, initial_delay, max_delay, retry_count + 1)
 
             {:error, reason} ->
@@ -436,86 +409,39 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
   end
 
   @doc """
-  Checks if a request can be made and updates the counter.
+  Checks if a request can be made based on rate limits using Hammer.
 
-  Returns `:ok` if the request can be made, or `{:wait, wait_time}` with
+  Returns `:ok` if the request can be made, or `{:error, wait_time}` with
   the number of milliseconds to wait before retrying.
 
   ## Parameters
 
-  - `config`: A map containing:
-    - `name`: The name of the rate limited service (atom)
-    - `limit`: Maximum number of requests in the time window
-    - `window_ms`: Time window in milliseconds
+  - `bucket`: The bucket name for rate limiting
+  - `scale_ms`: Time window in milliseconds
+  - `limit`: Maximum number of requests in the time window
   """
-  def check_and_update(config) do
-    %{name: name, limit: limit, window_ms: window_ms} = config
-    table_name = get_table_name(name)
-    init(name)
-
-    now = System.monotonic_time(:millisecond)
-    cutoff = now - window_ms
-
-    # Clean up old entries
-    :ets.select_delete(table_name, [{{:_, :"$1"}, [{:<, :"$1", cutoff}], [true]}])
-
-    # Count recent requests
-    count = :ets.info(table_name, :size)
-
-    if count < limit do
-      # We're under the limit, so record this request and proceed
-      :ets.insert(table_name, {now, now})
-      :ok
-    else
-      # We're at the limit, find the oldest request and calculate wait time
-      case :ets.select(table_name, [{{:"$1", :_}, [], [:"$1"]}]) do
-        [] ->
-          # This shouldn't happen, but just in case
-          {:wait, window_ms}
-
-        timestamps ->
-          oldest = Enum.min(timestamps)
-          wait_time = oldest + window_ms - now
-          {:wait, max(wait_time, 0)}
-      end
-    end
-  end
-
-  defp init(name) do
-    table_name = get_table_name(name)
-
-    case :ets.info(table_name) do
-      :undefined ->
-        # Create table with ordered_set type to support transactions
-        :ets.new(table_name, [:named_table, :ordered_set, :public])
-        log(:debug, "Created new rate limit table: #{inspect(table_name)}")
-
-      _ ->
+  def check_rate_limit(bucket, scale_ms, limit) do
+    # Convert milliseconds to seconds for Hammer (it works with seconds)
+    scale_ms_seconds = div(scale_ms, 1000)
+    # Ensure at least 1 second for Hammer
+    scale = max(1, scale_ms_seconds)
+    
+    case Hammer.check_rate(bucket, scale, limit) do
+      {:allow, _count} ->
         :ok
+      {:deny, _limit} ->
+        # Calculate the time to wait before the next request
+        # This is an approximation since Hammer doesn't provide exact wait times
+        {:error, scale_ms}
     end
   end
 
   @doc """
-  Gets the ETS table name for a rate limiter.
-
-  ## Parameters
-
-  - `name`: The name of the rate limiter
-
-  ## Returns
-
-  The ETS table name as an atom.
+  Applies a rate limit delay. This is a wrapper around Process.sleep that can be
+  replaced with a more sophisticated implementation if needed.
   """
-  def get_table_name(name) do
-    :"rate_limiter_#{name}"
-  end
-
-  defp chat_rate_limit_config(chat_id) do
-    %{@chat_limit | name: :"telegram_chat_#{chat_id}"}
-  end
-
-  defp group_rate_limit_config(chat_id) do
-    %{@group_limit | name: :"telegram_group_#{chat_id}"}
+  def apply_rate_limit_delay(delay_ms) do
+    Process.sleep(delay_ms)
   end
 
   @doc """
@@ -523,75 +449,8 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
   """
   def reset_all do
     log(:info, "Resetting all rate limiters")
-    reset_global_rate_limiter()
-    reset_method_rate_limiters()
-    reset_chat_rate_limiters()
-    reset_group_rate_limiters()
-  end
-
-  defp reset_global_rate_limiter do
-    reset(@global_limit.name)
-  end
-
-  defp reset_method_rate_limiters do
-    # Find and reset all method-specific tables
-    :ets.all()
-    |> Enum.filter(fn table ->
-      table_name = inspect(table)
-      String.contains?(table_name, "telegram_method_")
-    end)
-    |> Enum.each(fn table ->
-      # Check if the table still exists before trying to delete objects
-      case :ets.info(table) do
-        :undefined -> :ok
-        _ -> :ets.delete_all_objects(table)
-      end
-    end)
-  end
-
-  defp reset_chat_rate_limiters do
-    # Find and reset all chat-specific tables
-    :ets.all()
-    |> Enum.filter(fn table ->
-      table_name = inspect(table)
-      String.contains?(table_name, "telegram_chat_")
-    end)
-    |> Enum.each(fn table ->
-      # Check if the table still exists before trying to delete objects
-      case :ets.info(table) do
-        :undefined -> :ok
-        _ -> :ets.delete_all_objects(table)
-      end
-    end)
-  end
-
-  defp reset_group_rate_limiters do
-    # Find and reset all group-specific tables
-    :ets.all()
-    |> Enum.filter(fn table ->
-      table_name = inspect(table)
-      String.contains?(table_name, "telegram_group_")
-    end)
-    |> Enum.each(fn table ->
-      # Check if the table still exists before trying to delete objects
-      case :ets.info(table) do
-        :undefined -> :ok
-        _ -> :ets.delete_all_objects(table)
-      end
-    end)
-  end
-
-  defp reset(name) do
-    table_name = get_table_name(name)
-
-    case :ets.info(table_name) do
-      :undefined ->
-        :ok
-
-      _ ->
-        :ets.delete_all_objects(table_name)
-        log(:debug, "Reset rate limit table: #{inspect(table_name)}")
-    end
+    # Reset global rate limiter
+    Hammer.delete_buckets(fn bucket -> String.contains?(bucket, "telegram_") end)
   end
 
   # Extract the method name from the lens module or URL
@@ -648,16 +507,6 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
   end
 
   @doc """
-  Creates a new rate limit table for the given name.
-  """
-  def create_rate_limit_table(name) do
-    table_name = get_table_name(name)
-    :ets.new(table_name, [:set, :public, :named_table])
-    log(:debug, "Created new rate limit table: #{inspect(table_name)}")
-    table_name
-  end
-
-  @doc """
   Disables logging for Telegram API errors during tests.
   This is useful to reduce noise in test output.
   """
@@ -706,5 +555,18 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandler do
         :error -> Logger.error(message)
       end
     end
+  end
+
+  # For backward compatibility with tests
+  @doc false
+  def get_table_name(name) do
+    name
+  end
+
+  # For backward compatibility with tests
+  @doc false
+  def check_and_update(config) do
+    %{name: name, limit: limit, window_ms: window_ms} = config
+    check_rate_limit(name, window_ms, limit)
   end
 end

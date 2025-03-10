@@ -6,6 +6,11 @@ config :lux, :open_ai_models,
   default: "gpt-4o-mini",
   smartest: "gpt-4o"
 
+# Configure Hammer for rate limiting
+config :hammer,
+  backend: {Hammer.Backend.ETS, [expiry_ms: 60_000 * 60 * 4,
+                                 cleanup_interval_ms: 60_000 * 10]}
+
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
   perpetual_workers: 2,

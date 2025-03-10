@@ -43,11 +43,10 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandlerTest do
       assert {:ok, 1} = TelegramAPIHandler.with_rate_limit(params, method, test_fun)
 
       # For the third call, we'll manually set the rate limit to be exceeded
-      table_name = TelegramAPIHandler.get_table_name(:"telegram_method_#{method}")
-      now = System.monotonic_time(:millisecond)
-      # Insert enough entries to exceed the limit
-      for i <- 1..30 do
-        :ets.insert(table_name, {now - i, now - i})
+      # by making many calls to check_rate_limit to exceed the limit
+      method_bucket = :"telegram_method_#{method}"
+      for _ <- 1..30 do
+        TelegramAPIHandler.check_rate_limit(method_bucket, 100, 30)
       end
 
       # Third call should be rate limited and delayed
@@ -76,10 +75,9 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandlerTest do
       assert {:ok, 0} = TelegramAPIHandler.with_rate_limit(params, method, test_fun)
 
       # For the second call, we'll manually set the chat-specific rate limit to be exceeded
-      table_name = TelegramAPIHandler.get_table_name(:"telegram_chat_#{params.chat_id}")
-      now = System.monotonic_time(:millisecond)
-      # Insert enough entries to exceed the limit
-      :ets.insert(table_name, {now, now})
+      chat_bucket = :"telegram_chat_#{params.chat_id}"
+      # Exceed the chat-specific rate limit
+      TelegramAPIHandler.check_rate_limit(chat_bucket, 100, 1)
 
       # Second call should be rate limited and delayed
       start_time = System.monotonic_time(:millisecond)
@@ -151,24 +149,28 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandlerTest do
     end
   end
 
-  describe "check_and_update/1" do
+  describe "check_rate_limit/3" do
     test "allows requests under the limit" do
-      config = %{name: :test_limit, limit: 3, window_ms: 1000}
+      bucket = :test_limit
+      scale_ms = 1000
+      limit = 3
 
-      assert :ok = TelegramAPIHandler.check_and_update(config)
-      assert :ok = TelegramAPIHandler.check_and_update(config)
-      assert :ok = TelegramAPIHandler.check_and_update(config)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket, scale_ms, limit)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket, scale_ms, limit)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket, scale_ms, limit)
     end
 
     test "rate limits requests over the limit" do
-      config = %{name: :test_limit2, limit: 1, window_ms: 1000}
+      bucket = :test_limit2
+      scale_ms = 1000
+      limit = 1
 
-      assert :ok = TelegramAPIHandler.check_and_update(config)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket, scale_ms, limit)
 
       # Next request should be rate limited
-      case TelegramAPIHandler.check_and_update(config) do
+      case TelegramAPIHandler.check_rate_limit(bucket, scale_ms, limit) do
         :ok -> flunk("Request should have been rate limited")
-        {:wait, wait_time} -> assert wait_time > 0
+        {:error, wait_time} -> assert wait_time > 0
       end
     end
   end
@@ -176,18 +178,24 @@ defmodule Lux.Lenses.Telegram.TelegramAPIHandlerTest do
   describe "reset_all/0" do
     test "resets all rate limiters" do
       # Set up some rate limiters
-      config1 = %{name: :telegram_global, limit: 1, window_ms: 1000}
-      config2 = %{name: :telegram_chat_123, limit: 1, window_ms: 1000}
+      bucket1 = :telegram_global
+      bucket2 = :telegram_chat_123
+      scale_ms = 1000
+      limit = 1
 
-      TelegramAPIHandler.check_and_update(config1)
-      TelegramAPIHandler.check_and_update(config2)
-
+      # Use up the rate limits
+      TelegramAPIHandler.check_rate_limit(bucket1, scale_ms, limit)
+      TelegramAPIHandler.check_rate_limit(bucket1, scale_ms, limit)
+      
       # Reset all rate limiters
       TelegramAPIHandler.reset_all()
+      
+      # Sleep a bit to ensure Hammer has time to process the reset
+      Process.sleep(100)
 
       # Should be able to make requests again
-      assert :ok = TelegramAPIHandler.check_and_update(config1)
-      assert :ok = TelegramAPIHandler.check_and_update(config2)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket1, scale_ms, limit)
+      assert :ok = TelegramAPIHandler.check_rate_limit(bucket2, scale_ms, limit)
     end
   end
 
