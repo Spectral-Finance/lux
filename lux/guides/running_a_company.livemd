@@ -21,7 +21,7 @@ First, let's make sure we have all the necessary dependencies:
 Mix.install([
   {:lux, ">= 0.5.0"},
   {:jason, "~> 1.4"},
-  {:req, "~> 0.4.0"}
+  {:req, "~> 0.5.0"}
 ])
 ```
 
@@ -138,7 +138,6 @@ defmodule ContentTools.WritingBeam do
       required: ["topic"]
     }
 
-  def steps do
     sequence do
       # First do research
       step(:research, ContentTools.ResearchPrism, %{
@@ -153,7 +152,6 @@ defmodule ContentTools.WritingBeam do
         style: [:input, "style"]
       })
     end
-  end
 end
 ```
 
@@ -169,24 +167,19 @@ defmodule ContentTeam.Agents.Researcher do
     goal: "Provide well-researched, accurate information for content creation",
     prisms: [ContentTools.ResearchPrism],
     llm_config: %{
-      temperature: 0.3  # Lower temperature for more focused research
+      temperature: 0.3  # Lower temperature for more focused research,
     }
 
   # Implement the task handler for research assignments
-  @impl true
   def handle_task_assignment(%Lux.Signal{payload: payload} = signal, context) do
     case payload do
-      %{"type" => "assignment", "title" => title, "description" => description} ->
+      %{"type" => "assignment", "title" => _title, "description" => description} ->
         # Extract topic from description
         topic = extract_topic(description)
         
         # Use the research prism
-        case ContentTools.ResearchPrism.handler(%{"topic" => topic, "depth" => "detailed"}, context) do
-          {:ok, research} ->
+        with {:ok, research} <- ContentTools.ResearchPrism.handler(%{"topic" => topic, "depth" => "detailed"}, context) do
             {:ok, create_completion_signal(signal, research)}
-            
-          {:error, reason} ->
-            {:ok, create_failure_signal(signal, reason)}
         end
         
       _ ->
@@ -220,25 +213,6 @@ defmodule ContentTeam.Agents.Researcher do
       recipient: original.sender
     }
   end
-  
-  defp create_failure_signal(original, reason) do
-    %Lux.Signal{
-      id: Lux.UUID.generate(),
-      schema_id: original.schema_id,
-      payload: %{
-        "type" => "failure",
-        "task_id" => original.payload["task_id"],
-        "objective_id" => original.payload["objective_id"],
-        "title" => original.payload["title"],
-        "status" => "failed",
-        "result" => %{
-          "success" => false,
-          "error" => inspect(reason)
-        }
-      },
-      recipient: original.sender
-    }
-  end
 end
 
 defmodule ContentTeam.Agents.Writer do
@@ -251,10 +225,9 @@ defmodule ContentTeam.Agents.Writer do
       temperature: 0.7  # Higher temperature for more creative writing
     }
 
-  @impl true
   def handle_task_assignment(%Lux.Signal{payload: payload} = signal, context) do
     case payload do
-      %{"type" => "assignment", "title" => title, "context" => %{"research" => research}} ->
+      %{"type" => "assignment", "title" => title, "context" => %{"research" => _research}} ->
         # Use the writing beam
         case ContentTools.WritingBeam.run(%{
           "topic" => title,
@@ -321,7 +294,6 @@ defmodule ContentTeam.Agents.Editor do
       temperature: 0.4  # Balanced temperature for editing
     }
 
-  @impl true
   def handle_task_assignment(%Lux.Signal{payload: payload} = signal, _context) do
     case payload do
       %{"type" => "assignment", "context" => %{"content" => content}} ->
@@ -406,6 +378,34 @@ defmodule ContentTeam.Company do
 
   objective :create_blog_post do
     description "Create a well-researched blog post"
+    input %{
+      type: "object",
+      properties: %{
+        "topic" => %{
+          type: "string",
+          description: "The main topic for the blog post"
+        },
+        "target_audience" => %{
+          type: "string", 
+          description: "The intended audience for the content",
+          examples: ["tech enthusiasts", "business leaders", "general public"]
+        },
+        "tone" => %{
+          type: "string",
+          description: "The writing style and tone to use",
+          enum: ["informative", "casual", "technical", "professional"],
+          default: "informative"
+        },
+        "word_count" => %{
+          type: "integer",
+          description: "Target word count for the blog post",
+          minimum: 500,
+          maximum: 5000,
+          default: 1500
+        }
+      },
+      required: ["topic", "target_audience"]
+    }
     success_criteria """
     - Well-researched content with cited sources
     - Engaging writing style appropriate for target audience
@@ -430,7 +430,8 @@ Let's start the company and create a blog post:
 
 ```elixir
 # Start the company
-{:ok, company_pid} = ContentTeam.Company.start_link()
+{:ok, company_pid} = Lux.Company.start_link(ContentTeam.Company)
+{:ok, objectives} = Lux.Company.list_objectives(company_pid)
 
 # Create a blog post
 {:ok, objective_id} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
@@ -447,6 +448,8 @@ Let's start the company and create a blog post:
 # - Overall progress
 # - Any completed artifacts
 # - Error information (if any)
+
+{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
 ```
 
 ## Monitoring and Debugging
@@ -454,49 +457,55 @@ Let's start the company and create a blog post:
 You can monitor the company's operation in several ways:
 
 1. Check objective status:
-```elixir
-{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
-IO.inspect(status)
-```
+
+   ```elixir
+   {:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
+   IO.inspect(status)
+   ```
 
 2. List all active objectives:
-```elixir
-{:ok, objectives} = Lux.Company.list_objectives(company_pid)
-IO.inspect(objectives)
-```
+
+   ```elixir
+   {:ok, objectives} = Lux.Company.list_objectives(company_pid)
+   IO.inspect(objectives)
+   ```
 
 3. Get agent status:
-```elixir
-{:ok, agents} = Lux.Company.list_agents(company_pid)
-IO.inspect(agents)
-```
+
+   ```elixir
+   {:ok, agents} = Lux.Company.list_agents(company_pid)
+   IO.inspect(agents)
+   ```
 
 4. View objective artifacts:
-```elixir
-{:ok, artifacts} = Lux.Company.get_objective_artifacts(company_pid, objective_id)
-IO.inspect(artifacts)
-```
+
+   ```elixir
+   {:ok, artifacts} = Lux.Company.get_objective_artifacts(company_pid, objective_id)
+   IO.inspect(artifacts)
+   ```
 
 ## Error Handling
 
 The company handles various types of errors:
 
 1. Invalid inputs:
-```elixir
-{:error, :invalid_input} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
-  "topic" => "AI"  # Missing required fields
-})
-```
+
+   ```elixir
+   {:error, :invalid_input} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
+   "topic" => "AI"  # Missing required fields
+   })
+   ```
 
 2. Agent failures:
-```elixir
-# The company will attempt to recover from agent failures
-# You can check the error in the objective status
-{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
-if status.error do
-  IO.puts("Error: #{status.error}")
-end
-```
+
+   ```elixir
+   # The company will attempt to recover from agent failures
+   # You can check the error in the objective status
+   {:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
+   if status.error do
+   IO.puts("Error: #{status.error}")
+   end
+   ```
 
 ## Next Steps
 
@@ -504,4 +513,4 @@ end
 2. Create custom tools for specific tasks
 3. Implement more complex objectives
 4. Add monitoring and alerting
-5. Implement recovery strategies for different failure modes 
+5. Implement recovery strategies for different failure modes

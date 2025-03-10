@@ -204,9 +204,11 @@ defmodule Lux.Company do
        signal_router: signal_router,
        agent_hub: agent_hub,
        roles: %{},
-       objectives: %{},
+       objectives: Enum.map(company_config.objectives, fn obj ->
+        {obj.id, obj}
+      end) |> Enum.into(%{}),
        artifacts: %{}
-     }}
+     }} |> dbg()
   end
 
   @impl true
