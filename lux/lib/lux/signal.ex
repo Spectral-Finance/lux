@@ -10,6 +10,7 @@ defmodule Lux.Signal do
           sender: String.t() | nil,
           recipient: String.t() | nil,
           timestamp: DateTime.t(),
+          topic: String.t() | nil,
           metadata: map(),
           schema_id: module() | nil
         }
@@ -19,6 +20,7 @@ defmodule Lux.Signal do
             sender: nil,
             recipient: nil,
             timestamp: nil,
+            topic: nil,
             metadata: %{},
             schema_id: nil
 
@@ -30,6 +32,7 @@ defmodule Lux.Signal do
         :sender,
         :recipient,
         :timestamp,
+        :topic,
         :metadata,
         :schema_id
       ]
