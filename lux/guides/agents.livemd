@@ -3,7 +3,7 @@
 ```elixir
 Mix.install(
   [
-    {:lux, "~> 0.4.0"},
+    {:lux, ">= 0.5.0"},
     {:kino, "~> 0.14.2"}
   ],
   config: [
@@ -34,11 +34,13 @@ Application.put_env(:venomous, :snake_manager, %{
 Application.ensure_all_started([:lux, :ex_unit, :kino])
 ```
 
-## Section
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fagents.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Agents are autonomous components in Lux that can interact with LLMs, process signals, and execute workflows. They combine intelligence with execution capabilities, making them perfect for building conversational and agentic applications.
-
-## Overview
 
 An Agent consists of:
 
@@ -788,5 +790,3 @@ end
 
 Kino.nothing()
 ```
-
-<!-- livebook:{"offset":13357,"stamp":{"token":"XCP.5uDaDN_ax0taOD_UDP8WfS0Uqs8jhY9Vuvzs_U1nf8QawsDmFPRylwoenPaXdFgU5DomWyZL5CDo6P7xq2Bl8gHxdbBAdV-tIAxr8ldurMXQvw1Gcf06X3z3aFeZJmrI0W_pp8uoLoBAzhpTYXgeuksT_UXdf8UQdbHlutFi3uRV38cjZ8Gv2Gs3yWm8-I1YF7DJqBQTOGgp0eNdpHEddDfiBRNX","version":2}} -->

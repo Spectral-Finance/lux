@@ -3,7 +3,7 @@
 ```elixir
 Mix.install(
   [
-    {:lux, "~> 0.4.0"}
+    {:lux, ">= 0.5.0"}
     {:kino, "~> 0.14.2"}
   ],
   start_applications: false,
@@ -55,6 +55,10 @@ When you run this notebook for the first time, you can get an error and see `Add
 ![](https://github.com/user-attachments/assets/907d68cb-2d73-46b3-93ab-c55149a4f992)
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Ftrading_system.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 This example demonstrates a simple trading system built with Lux agents. The system consists of:
 

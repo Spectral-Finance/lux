@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from erlport.erlterms import Atom
 import uuid
 import os
+import re
 
 class Prism(ABC):
     def __init__(self, **kwargs):
@@ -18,6 +19,7 @@ class Prism(ABC):
 
         self.id = kwargs.get('id', str(uuid.uuid4()))
         self.name = kwargs.get('name', '')
+        self.module_name = self.__class__.__name__
         self.description = kwargs.get('description', '')
         self.input_schema = kwargs.get('input_schema', {})
         self.output_schema = kwargs.get('output_schema', {})
@@ -28,14 +30,12 @@ class Prism(ABC):
             '__struct__': Atom(b'Elixir.Lux.Prism'),
             'id': self.id,
             'name': self.name,
+            'module_name': self.module_name,
             'examples': '',
             'description': self.description,
             'input_schema': self.input_schema,
             'output_schema': self.output_schema,
-            'handler': {
-                Atom(b'type'): Atom(b'python'),
-                Atom(b'path'): os.path.abspath(__file__)
-            }
+            'handler': (Atom(b'python'), os.path.abspath(__file__))
         }
 
     @abstractmethod

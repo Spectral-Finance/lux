@@ -14,6 +14,7 @@ eth-tester = {extras = ["py-evm"], version = "^0.11.0b2"}
 nltk = "^3.9.1"
 setuptools = "^75.8.2"
 hyperliquid-python-sdk = "^0.10.1"
+ckzg = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"

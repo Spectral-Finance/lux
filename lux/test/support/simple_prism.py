@@ -1,9 +1,9 @@
-from lux.prism import Prism
+from lux import Prism
 
 class SimplePrism(Prism):
     id='aaace2b1-8089-4d4e-b68e-2ce904da12f0'
     name='Simple Prism'
-    description='A very simple prism'
+    description='A very simple prism that greets you'
     input_schema={
         'type': 'object',
         'properties': {
@@ -26,7 +26,10 @@ class SimplePrism(Prism):
 
     def handler(self, input, context):
         return {
-            'message': f'Hello, {input.get("name", "prism")}!',
+            'success': True,
+            'data': {
+                'message': f'Hello, {input.get("name", "prism")}!',
+            }
         }
 
     @staticmethod

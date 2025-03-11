@@ -5,7 +5,7 @@
 ```elixir
 Mix.install(
   [
-    {:lux, "~> 0.4.0"},
+    {:lux, ">= 0.5.0"},
     {:xml_builder, "~> 2.3"},
     {:csv, "~> 3.2"},
     {:swoosh, "~> 1.17"}
@@ -29,6 +29,10 @@ Application.ensure_all_started([:lux, :ex_unit])
 ```
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fprisms.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Prisms are modular units of functionality that can be composed into workflows. They provide a way to encapsulate business logic, transformations, and integrations into reusable components.
 
@@ -549,6 +553,65 @@ MyApp.Prisms.CryptoAddressValidator.run(%{
 {:ok, %{"is_valid" => true, "normalized_address" => "0xd3CdA913deB6f67967B99D67aCDFa1712C293601"}}
 ```
 
+#### Pure Python Prisms
+
+You can define a prism entirely in Python. Extend the [Prism](https://github.com/Spectral-Finance/lux/blob/main/lux/priv/python/lux/prism.py) abstract class from `lux` package and implement `handler` and `new` methods:
+
+```python
+from lux import Prism
+
+class SimplePrism(Prism):
+    id='aaace2b1-8089-4d4e-b68e-2ce904da12f0'
+    name='Simple Prism'
+    description='A very simple prism that greets you'
+
+    def handler(self, input, context):
+        return {
+            "success": True,
+            "data": {
+                "message": f'Hello, {input.get("name", "prism")}!',
+            },
+        }
+
+    @staticmethod
+    def new():
+        return SimplePrism()
+```
+
+You can load Python prism using `Lux.Prism.view/1` with file path. Please keep in mind that your Python prism runs in the `venv` set up during initial setup.
+Only the packages listed in [`pyproject.toml`](../priv/python/pyproject.toml) are available to your Python prisms.
+While you access the prism with `Lux.Prism.view/1`, `SimplePrism` module is dynamically defined and available in Elixir runtime.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+prism = Lux.Prism.view("path/to/prism.py")
+```
+
+You can also access the Python prism via dynamically defined module `SimplePrism` to Elixir:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+SimplePrism.view()
+```
+
+In the agent module, use `{:python, "path/to/prism.py"}` tuple to indicate that the prism is implemented in Python.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyApp.Agent do
+  use Lux.Agent,
+    prisms: [
+      {:python, "path/to/prism.py"}
+    ],
+    signal_handlers: [
+      {:python, "path/to/prism.py"}
+    ]
+end
+```
+
 The Python integration supports:
 
 * Direct Python code execution with `~PY` sigils
@@ -566,3 +629,5 @@ Best practices for Python integration:
 4. Leverage Python's scientific and ML libraries when appropriate
 5. Use type hints and docstrings in Python code
 6. Follow both Elixir and Python style guides
+
+Want to learn more about Python integration? Check out the [Python language support doc](language_support/python.livemd).

@@ -82,34 +82,20 @@ defmodule Lux.LLM.OpenAITest do
     end
 
     test "converts a prism to an OpenAI function" do
-      prism =
-        Lux.Prism.new(%{
-          name: "test_prism",
-          description: "A test prism",
-          input_schema: %{
-            type: "object",
-            properties: %{
-              "query" => %{
-                type: "string",
-                description: "Search query"
-              }
-            }
-          }
-        })
+      prism = TestPrism.view()
 
       function = OpenAI.tool_to_function(prism)
 
       assert %{
                type: "function",
                function: %{
-                 name: "test_prism",
+                 name: "Lux_LLM_OpenAITest_TestPrism",
                  description: "A test prism",
                  parameters: %{
-                   type: "object",
+                   type: :object,
                    properties: %{
-                     "query" => %{
-                       type: "string",
-                       description: "Search query"
+                     value: %{
+                       type: :string
                      }
                    }
                  }

@@ -128,6 +128,7 @@ Lux automatically handles type conversion between Elixir and Python:
 | Integer | `int` |
 | Float | `float` |
 | String | `str` |
+| Tuple | `tuple` |
 | List | `list` |
 | Map | `dict` |
 | Struct | `dict` |
@@ -138,18 +139,21 @@ Example:
 python variables: %{
   number: 42,
   text: "hello",
+  tuple: (1,2),
   list: [1, 2, 3],
   map: %{key: "value"}
 } do
   ~PY"""
   # number is an int
   # text is a str
+  # tuple is a tuple
   # list is a list
   # map is a dict
   
-  result = {
+  {
     "number_type": str(type(number)),
     "text_type": str(type(text)),
+    "tuple_type": str(type(tuple)),
     "list_type": str(type(list)),
     "map_type": str(type(map))
   }
@@ -236,28 +240,3 @@ end
    - Test both success and error cases
    - Verify type conversions
    - Test with realistic data
-
-## Coming Soon
-
-Lux will soon support defining components entirely in Python:
-
-```python
-from lux import Prism, Beam, Agent
-
-class MyPrism(Prism):
-    name = "Python Prism"
-    description = "A prism implemented in Python"
-    
-    def handler(self, input, context):
-        # Process input
-        result = self.process_data(input)
-        return {"success": True, "data": result}
-```
-
-This will allow you to:
-- Write agents entirely in Python
-- Define prisms and beams in Python
-- Use Python's class system
-- Leverage Python's async capabilities
-
-Stay tuned for updates! 

@@ -19,6 +19,7 @@ defmodule UnitAPICase do
 
   alias Lux.LLM.OpenAI
   alias Lux.Lens.TelegramLens
+  alias Lux.LLM.Anthropic
   using do
     quote do
       @moduletag :unit
@@ -29,6 +30,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, :req_options, plug: {Req.Test, Lux.Lens})
     Application.put_env(:lux, OpenAI, plug: {Req.Test, OpenAI})
     Application.put_env(:lux, TelegramLens, plug: {Req.Test, TelegramLens})
+    Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
 
     :ok
   end

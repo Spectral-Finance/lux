@@ -127,25 +127,25 @@ defmodule Lux.NodeJS do
   defp do_eval(code, variables, opts, fun) do
     filename = create_file_name(code)
 
-    with {:ok, node_modules_path} <- maybe_create_node_modules(),
-         file_path = Path.join(node_modules_path, filename),
-         :ok <- File.write(file_path, code) do
-      fun.({file_path, "main"}, [variables], opts)
+    with {:ok, filepath} <- ensure_module_path(filename),
+         :ok <- File.write(filepath, code) do
+      fun.({filename, "main"}, [variables], opts)
     end
   end
 
-  defp maybe_create_node_modules do
-    node_modules = Path.join(@module_path, "node_modules/lux")
+  defp ensure_module_path(filename) do
+    filepath = Path.join(@module_path, filename)
+    module_path = Path.dirname(filepath)
 
-    if !File.exists?(node_modules) do
-      File.mkdir_p(node_modules)
+    if !File.exists?(module_path) do
+      File.mkdir_p(module_path)
     end
 
-    {:ok, node_modules}
+    {:ok, filepath}
   end
 
   defp create_file_name(code) do
     hash = :sha |> :crypto.hash(code) |> Base.encode16(case: :lower)
-    "#{hash}.mjs"
+    Path.join(["node_modules", "lux", "#{hash}.mjs"])
   end
 end

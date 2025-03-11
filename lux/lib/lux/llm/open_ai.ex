@@ -170,6 +170,12 @@ defmodule Lux.LLM.OpenAI do
 
   defp maybe_add_response_format(body, _), do: Map.put(body, :response_format, %{type: "text"})
 
+  def tool_to_function({:python, path}) do
+    path
+    |> Prism.view()
+    |> tool_to_function()
+  end
+
   def tool_to_function(tool_module) when is_atom(tool_module) and not is_nil(tool_module) do
     cond do
       Lux.prism?(tool_module) ->
@@ -198,7 +204,7 @@ defmodule Lux.LLM.OpenAI do
     }
   end
 
-  def tool_to_function(%Prism{name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Prism{module_name: name, description: description, input_schema: input_schema}) do
     %{
       type: "function",
       function: %{
