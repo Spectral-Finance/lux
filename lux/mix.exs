@@ -66,6 +66,7 @@ defmodule Lux.MixProject do
   defp deps do
     [
       {:bandit, "~> 1.0"},
+      {:plug_cowboy, "~> 2.6"},
       {:req, "~> 0.5.0"},
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
@@ -74,6 +75,7 @@ defmodule Lux.MixProject do
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
+      {:hammer, "~> 6.1"},
       # test and dev dependencies
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
