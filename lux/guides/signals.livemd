@@ -9,8 +9,6 @@ Mix.install(
     {:kino, "~> 0.14.2"}
   ]
 )
-
-Application.ensure_all_started([:ex_unit])
 ```
 
 ## Overview
@@ -483,6 +481,10 @@ When validation fails, you get detailed error messages:
    * Test edge cases and boundary values
    * Test format validation thoroughly
 
+Example test:
+
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Schemas.TaskSchemaTest do
   use UnitCase, async: true
@@ -509,24 +511,6 @@ defmodule MyApp.Schemas.TaskSchemaTest do
     )
   end
 end
-
-ExUnit.run()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-Running ExUnit with seed: 49621, max_cases: 40
-
-...
-Finished in 0.00 seconds (0.00s async, 0.00s sync)
-3 tests, 0 failures
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-%{total: 3, failures: 0, excluded: 0, skipped: 0}
 ```
 
 ## Using Signals

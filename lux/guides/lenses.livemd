@@ -5,8 +5,6 @@ Mix.install([
   {:lux, ">= 0.5.0"}
   {:kino, "~> 0.14.2"}
 ])
-
-Application.ensure_all_started([:ex_unit])
 ```
 
 ## Overview
@@ -243,6 +241,8 @@ end
 
 Example test:
 
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Lenses.WeatherAPITest do
   use UnitCase, async: true
@@ -285,8 +285,6 @@ defmodule MyApp.Lenses.WeatherAPITest do
     end
   end
 end
-
-ExUnit.run()
 ```
 
 ## Advanced Topics
