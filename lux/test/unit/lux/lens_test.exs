@@ -94,7 +94,7 @@ defmodule Lux.LensTest do
       end
 
       lens = DefaultNameLens.view()
-      assert lens.name == "DefaultNameLens"
+      assert lens.name == "Lux.LensTest.DefaultNameLens"
     end
 
     test "supports focus with input params" do
