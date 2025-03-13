@@ -3,6 +3,7 @@ ETHERSCAN_API_KEY="your-etherscan-api-key"
 ETHERSCAN_API_KEY_PRO="false"
 
 # Base environment variables for development
+TOGETHER_API_KEY="sample-api-key"
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_HOST=localhost
