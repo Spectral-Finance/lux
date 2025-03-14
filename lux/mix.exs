@@ -75,6 +75,7 @@ defmodule Lux.MixProject do
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
       {:nostrum, "~> 0.10"},
+      {:hammer, "~> 7.0", only: [:test]},
       # test and dev dependencies
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
