@@ -42,10 +42,6 @@ if config_env() in [:dev, :test] do
   config :ethereumex,
     url: env!("RPC_URL", :string!)
 
-  config :nostrum,
-    token: env!("DISCORD_TOKEN", :string!),
-    gateway_intents: :all
-
   config :logger,
     level: env!("LOG_LEVEL", :atom!, :debug)
 end
