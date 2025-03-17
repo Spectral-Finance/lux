@@ -145,86 +145,46 @@ defmodule Lux.Lenses.Discord.MessageLens do
   """
   @impl true
   def after_focus(messages) when is_list(messages) do
-    {:ok, %{
-      status: "success",
-      messages: Enum.map(messages, &transform_message/1),
-      channel_id: messages |> List.first() |> Map.get("channel_id")
-    }}
-  end
-
-  @impl true
-  def after_focus(%{"code" => code, "message" => error_message}) do
-    Logger.error("Discord API error: #{code} - #{error_message}")
-    {:error, %{
-      type: "discord_api_error",
-      code: code,
-      message: error_message,
-      context: %{
-        endpoint: "messages",
-        method: "GET"
+    transformed_messages = Enum.map(messages, fn message ->
+      %{
+        id: message["id"],
+        content: message["content"],
+        author: %{
+          id: get_in(message, ["author", "id"]),
+          username: get_in(message, ["author", "username"]),
+          discriminator: get_in(message, ["author", "discriminator"])
+        },
+        timestamp: message["timestamp"],
+        attachments: Enum.map(message["attachments"] || [], fn attachment ->
+          %{
+            id: attachment["id"],
+            filename: attachment["filename"],
+            size: attachment["size"],
+            url: attachment["url"],
+            proxy_url: attachment["proxy_url"],
+            content_type: attachment["content_type"]
+          }
+        end),
+        reactions: Enum.map(message["reactions"] || [], fn reaction ->
+          %{
+            emoji: get_in(reaction, ["emoji", "name"]),
+            count: reaction["count"]
+          }
+        end)
       }
-    }}
+    end)
+
+    {:ok, %{messages: transformed_messages}}
   end
 
   @impl true
-  def after_focus(%{"retry_after" => retry_after}) do
-    Logger.warning("Discord rate limit hit, retry after #{retry_after}ms", %{retry_after: retry_after})
-    {:error, %{
-      type: "rate_limit",
-      retry_after: retry_after
-    }}
+  def after_focus(%{"code" => code, "message" => message}) do
+    {:error, "Discord API error #{code}: #{message}"}
   end
 
   @impl true
   def after_focus(response) do
-    Logger.error("Unexpected Discord API response: #{inspect(response)}")
-    {:error, %{
-      type: "unexpected_response",
-      message: "Unexpected response format",
-      response: response
-    }}
-  end
-
-  @doc """
-  Transforms a Discord message into our standard format.
-  """
-  defp transform_message(message) do
-    %{
-      id: message["id"],
-      content: message["content"],
-      author: %{
-        id: get_in(message, ["author", "id"]),
-        username: get_in(message, ["author", "username"]),
-        discriminator: get_in(message, ["author", "discriminator"])
-      },
-      timestamp: message["timestamp"],
-      attachments: Enum.map(message["attachments"] || [], &transform_attachment/1),
-      reactions: Enum.map(message["reactions"] || [], &transform_reaction/1)
-    }
-  end
-
-  @doc """
-  Transforms a Discord attachment into our standard format.
-  """
-  defp transform_attachment(attachment) do
-    %{
-      id: attachment["id"],
-      filename: attachment["filename"],
-      size: attachment["size"],
-      url: attachment["url"],
-      proxy_url: attachment["proxy_url"],
-      content_type: attachment["content_type"]
-    }
-  end
-
-  @doc """
-  Transforms a Discord reaction into our standard format.
-  """
-  defp transform_reaction(reaction) do
-    %{
-      emoji: get_in(reaction, ["emoji", "name"]),
-      count: reaction["count"]
-    }
+    {:error, "Unexpected response format: #{inspect(response)}"}
   end
 
   defp lens_url do
