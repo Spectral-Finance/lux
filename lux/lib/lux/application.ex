@@ -11,9 +11,17 @@ defmodule Lux.Application do
       Lux.NodeJS,
       {Lux.Agent.Supervisor, []},
       Lux.AgentHub
-    ]
+    ] ++ optional_children()
 
     opts = [strategy: :one_for_one, name: Lux.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp optional_children do
+    if Application.get_env(:lux, :env) == :test do
+      [RateLimiter]
+    else
+      []
+    end
   end
 end

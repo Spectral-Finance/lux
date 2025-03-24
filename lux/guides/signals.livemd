@@ -92,6 +92,7 @@ MyApp.Signals.Task.new(%{
    payload: %{priority: "low", title: "new signal", assignee: "agent"},
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.873770Z],
    metadata: %{},
    schema_id: MyApp.Schemas.TaskSchema
@@ -144,6 +145,7 @@ NullSignal.new(%{payload: nil})
    payload: nil,
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.899178Z],
    metadata: %{},
    schema_id: NullSchema
@@ -174,13 +176,14 @@ BooleanSignal.new(%{payload: true})
    payload: true,
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.918708Z],
    metadata: %{},
    schema_id: BooleanSchema
  }}
 ```
 
-#### Integer Vlidation
+#### Integer Validation
 
 ```elixir
 defmodule IntegerSchema do
@@ -204,6 +207,7 @@ IntegerSignal.new(%{payload: 1})
    payload: 1,
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.938289Z],
    metadata: %{},
    schema_id: IntegerSchema
@@ -234,6 +238,7 @@ StringSignal.new(%{payload: "payload"})
    payload: "payload",
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.958540Z],
    metadata: %{},
    schema_id: StringSchema
@@ -268,6 +273,7 @@ ArraySignal.new(%{payload: ["data"]})
    payload: ["data"],
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.978059Z],
    metadata: %{},
    schema_id: ArraySchema
@@ -331,6 +337,7 @@ ComplexObjectSignal.new(%{payload: %{
    },
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:51.998781Z],
    metadata: %{},
    schema_id: ComplexObjectSchema
@@ -382,6 +389,7 @@ UserSignal.new(%{payload: %{
    payload: %{server: "lux.io", email: "hello@lux.io", last_login: "2024-03-21T17:32:28Z"},
    sender: nil,
    recipient: nil,
+   topic: nil,
    timestamp: ~U[2025-02-12 12:56:52.026939Z],
    metadata: %{},
    schema_id: UserSchema
@@ -553,6 +561,7 @@ signal
   },
   sender: nil,
   recipient: nil,
+  topic: nil,
   timestamp: ~U[2025-02-12 12:58:06.802667Z],
   metadata: %{},
   schema_id: MyApp.Schemas.TaskSchema
@@ -805,3 +814,11 @@ signal.metadata
 ```
 %{}
 ```
+
+### Signal Destination
+
+In Lux we provide two identifiers for where the signal is sent to.
+
+The first one is `recipient` and the second one is `topic`, in the recipient, a unique identifier of the expected agent to receive the signal is expected.
+On the other hand, a topic is used to indicate that the signal should be shared with a group of agents subscribed to that topic. So far, the routing by topic is
+an implementation detail of the server using Lux and not part of Lux out of the box.
