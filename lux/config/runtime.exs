@@ -25,7 +25,8 @@ if config_env() in [:dev, :test] do
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, required: false),
     integration_anthropic: env!("INTEGRATION_ANTHROPIC_API_KEY", :string!, required: false),
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, required: false),
-    integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, required: false)
+    integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, required: false),
+    integration_together: env!("INTEGRATION_TOGETHER_API_KEY", :string!, required: false)
 
   config :lux, :accounts,
     wallet_address: env!("WALLET_ADDRESS", :string!),
