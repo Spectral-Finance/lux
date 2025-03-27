@@ -8,41 +8,87 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
   setup do
     mock_python_code = """
     import sys
+    import asyncio
 
-    class UniswapPlugin:
-        def get_swap_quote(self, chain_id, token_in, token_out, amount, slippage):
-            if token_in == "0x1234" and token_out == "0x5678":
+    class EVMWalletClient:
+        def __init__(self, chain_id):
+            self.chain_id = chain_id
+
+        def get_chain(self):
+            return {"id": self.chain_id}
+
+        def get_address(self):
+            return "0xmockwallet"
+
+        def send_transaction(self, tx):
+            return {"hash": "0xmocktxhash"}
+
+    class UniswapService:
+        async def get_quote(self, wallet_client, params):
+            if params["tokenIn"] == "0x1234" and params["tokenOut"] == "0x5678":
                 return {
-                    "chain_id": chain_id,
-                    "token_in": token_in,
-                    "token_out": token_out,
-                    "amount": amount,
-                    "slippage": slippage,
-                    "quote": "2000000000000000000"
+                    "quote": {
+                        "amount": "2000000000000000000",
+                        "to": "0xuniswap",
+                        "data": "0xmockdata"
+                    }
                 }
             else:
                 raise Exception("Insufficient liquidity")
 
-        def execute_swap(self, quote):
-            return {"amount_received": quote["quote"]}
+        async def check_approval(self, wallet_client, params):
+            if params["token"] == "0x1234":
+                return {"status": "approved"}
+            return {
+                "status": "needs_approval",
+                "txHash": "0xapproval"
+            }
+
+        async def swap_tokens(self, wallet_client, params):
+            if params["tokenIn"] == "0x1234" and params["tokenOut"] == "0x5678":
+                return {"txHash": "0xswaphash"}
+            else:
+                raise Exception("Swap failed")
 
     class UniswapPluginOptions:
-        pass
+        def __init__(self, api_key=None, rpc_url=None):
+            self.api_key = api_key
+            self.rpc_url = rpc_url
+
+    # Create a module structure
+    class uniswap:
+        def __init__(self, options=None):
+            self.service = UniswapService()
+            self.options = options or UniswapPluginOptions()
+
+        async def get_quote(self, *args, **kwargs):
+            return await self.service.get_quote(*args, **kwargs)
+
+        async def check_approval(self, *args, **kwargs):
+            return await self.service.check_approval(*args, **kwargs)
+
+        async def swap_tokens(self, *args, **kwargs):
+            return await self.service.swap_tokens(*args, **kwargs)
 
     # Create a module structure
     class goat_plugins:
-        class uniswap:
-            uniswap = UniswapPlugin()
-            UniswapPluginOptions = UniswapPluginOptions
+        uniswap = uniswap
+        UniswapPluginOptions = UniswapPluginOptions
+
+    class goat_wallets:
+        class evm:
+            EVMWalletClient = EVMWalletClient
 
     # Add the module to sys.modules
     sys.modules["goat_plugins"] = goat_plugins
-    sys.modules["goat_plugins.uniswap"] = goat_plugins.uniswap
+    sys.modules["goat_plugins.uniswap"] = goat_plugins
+    sys.modules["goat_wallets"] = goat_wallets
+    sys.modules["goat_wallets.evm"] = goat_wallets.evm
 
     def import_package(name):
         if name in ["goat_plugins", "goat_plugins.uniswap"]:
             return {"success": True}
-        return {"success": False, "error": "Package not found"}
+        return {"success": False, "error": "No module named 'goat_plugins'"}
     """
 
     {:ok, _} = Lux.Python.eval(mock_python_code)
@@ -59,7 +105,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
     }
 
     result = UniswapSwap.handler(input, %{})
-    assert {:ok, %{amount_received: "2000000000000000000"}} = result
+    assert {:ok, %{amount_received: "2000000000000000000", tx_hash: "0xswaphash"}} = result
   end
 
   test "handler/2 handles swap execution error" do
@@ -96,7 +142,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
         del sys.modules["goat_plugins.uniswap"]
 
     def import_package(name):
-        return {"success": False, "error": "Package not found"}
+        return {"success": False, "error": "No module named 'goat_plugins'"}
     """
 
     {:ok, _} = Lux.Python.eval(mock_python_code)
@@ -119,6 +165,6 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
     }
 
     result = UniswapSwap.handler(input, %{})
-    assert {:ok, %{amount_received: "2000000000000000000"}} = result
+    assert {:ok, %{amount_received: "2000000000000000000", tx_hash: "0xswaphash"}} = result
   end
 end

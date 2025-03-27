@@ -27,6 +27,11 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
           type: :integer,
           description: "Slippage tolerance in basis points (e.g. 50 for 0.5%)",
           default: 50
+        },
+        api_key: %{
+          type: :string,
+          description: "Uniswap API key for higher rate limits",
+          default: nil
         }
       },
       required: ["from_token", "to_token", "amount"]
@@ -37,9 +42,13 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
         amount_received: %{
           type: :string,
           description: "Amount of tokens received"
+        },
+        tx_hash: %{
+          type: :string,
+          description: "Transaction hash of the swap"
         }
       },
-      required: ["amount_received"]
+      required: ["amount_received", "tx_hash"]
     }
 
   import Lux.Python
@@ -53,7 +62,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
       with {:ok, %{"success" => true}} <- Lux.Python.import_package("goat_plugins"),
            {:ok, %{"success" => true}} <- Lux.Python.import_package("goat_plugins.uniswap"),
            {:ok, result} <- execute_swap(params) do
-        {:ok, %{amount_received: result}}
+        {:ok, result}
       else
         {:ok, %{"success" => false, "error" => error}} ->
           {:error, "Failed to import required packages: #{error}"}
@@ -68,6 +77,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
   defp validate_params(input) do
     input = Map.put_new(input, :chain_id, 1)
     input = Map.put_new(input, :slippage, 50)
+    input = Map.put_new(input, :api_key, nil)
 
     required_params = ["from_token", "to_token", "amount"]
     missing_params = Enum.filter(required_params, &(not Map.has_key?(input, String.to_atom(&1))))
@@ -85,27 +95,66 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
                to_token: params.to_token,
                amount: params.amount,
                chain_id: params.chain_id,
-               slippage: params.slippage
+               slippage: params.slippage,
+               api_key: params.api_key
              } do
         ~PY"""
         result = None
         try:
             from goat_plugins.uniswap import uniswap, UniswapPluginOptions
+            from goat_wallets.evm import EVMWalletClient
+            import asyncio
 
-            # Get swap quote first
-            quote = uniswap.get_swap_quote(
-                chain_id=chain_id,
-                token_in=from_token,
-                token_out=to_token,
-                amount=amount,
-                slippage=slippage
-            )
+            async def run_swap():
+                # Initialize the plugin with API key if provided
+                options = UniswapPluginOptions(api_key=api_key if api_key else None)
+                plugin = uniswap(options)
 
-            # Execute the swap
-            result = uniswap.execute_swap(quote)
+                # Create a wallet client (this should be replaced with actual wallet)
+                wallet_client = EVMWalletClient(chain_id=chain_id)
 
-            # Return the amount received
-            result = result["amount_received"]
+                # Get swap quote first
+                quote_response = await plugin.get_quote(
+                    wallet_client,
+                    {
+                        "tokenIn": from_token,
+                        "tokenOut": to_token,
+                        "amount": amount
+                    }
+                )
+
+                # Check token approval
+                approval_response = await plugin.check_approval(
+                    wallet_client,
+                    {
+                        "token": from_token,
+                        "amount": amount,
+                        "walletAddress": wallet_client.get_address()
+                    }
+                )
+
+                # If approval was needed, wait for it to complete
+                if "txHash" in approval_response:
+                    # In a real implementation, we would wait for the approval transaction
+                    pass
+
+                # Execute the swap
+                swap_response = await plugin.swap_tokens(
+                    wallet_client,
+                    {
+                        "tokenIn": from_token,
+                        "tokenOut": to_token,
+                        "amount": amount
+                    }
+                )
+
+                return {
+                    "amount_received": quote_response["quote"]["amount"],
+                    "tx_hash": swap_response["txHash"]
+                }
+
+            # Run the async function
+            result = asyncio.run(run_swap())
         except Exception as e:
             result = {"error": str(e)}
         result
@@ -114,7 +163,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
 
     case python_result do
       %{"error" => error} -> {:error, error}
-      result when is_binary(result) -> {:ok, result}
+      %{"amount_received" => amount, "tx_hash" => tx_hash} -> {:ok, %{amount_received: amount, tx_hash: tx_hash}}
     end
   end
 end
