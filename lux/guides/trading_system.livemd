@@ -56,6 +56,10 @@ When you run this notebook for the first time, you can get an error and see `Add
 
 ## Overview
 
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Ftrading_system.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
 This example demonstrates a simple trading system built with Lux agents. The system consists of:
 
 * A Market Researcher agent that analyzes market conditions and proposes trades

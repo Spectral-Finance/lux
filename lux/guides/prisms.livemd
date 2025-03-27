@@ -25,10 +25,14 @@ Application.put_env(:venomous, :snake_manager, %{
   ]
 })
 
-Application.ensure_all_started([:lux, :ex_unit])
+Application.ensure_all_started([:lux])
 ```
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fprisms.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Prisms are modular units of functionality that can be composed into workflows. They provide a way to encapsulate business logic, transformations, and integrations into reusable components.
 
@@ -284,6 +288,8 @@ MyApp.Prisms.OrderProcessor.run(%{
 
 Example test:
 
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Prisms.TextAnalysisTest do
   use UnitCase, async: true
@@ -310,24 +316,6 @@ defmodule MyApp.Prisms.TextAnalysisTest do
     end
   end
 end
-
-ExUnit.run()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-Running ExUnit with seed: 616293, max_cases: 40
-
-..
-Finished in 0.00 seconds (0.00s async, 0.00s sync)
-2 tests, 0 failures
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-%{total: 2, failures: 0, excluded: 0, skipped: 0}
 ```
 
 ## Advanced Topics

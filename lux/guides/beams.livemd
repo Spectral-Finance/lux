@@ -22,10 +22,14 @@ Application.put_env(:venomous, :snake_manager, %{
   ]
 })
 
-Application.ensure_all_started([:lux, :kino, :ex_unit])
+Application.ensure_all_started([:lux, :kino])
 ```
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fbeams.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Beams are the orchestration layer of Lux, allowing you to compose Prisms, Lenses, and other components into complex workflows. They support sequential, parallel, and conditional execution with rich error handling and logging.
 
@@ -763,6 +767,8 @@ MyApp.Beams.ErrorHandlingBeam.run(:ok)
 
 Example test:
 
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Beams.ContentProcessorTest do
   use UnitCase, async: true
@@ -796,24 +802,6 @@ defmodule MyApp.Beams.ContentProcessorTest do
     end
   end
 end
-
-ExUnit.run()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-Running ExUnit with seed: 780470, max_cases: 40
-
-..
-Finished in 0.00 seconds (0.00s async, 0.00s sync)
-2 tests, 0 failures
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-%{total: 2, failures: 0, excluded: 0, skipped: 0}
 ```
 
 ## Advanced Topics

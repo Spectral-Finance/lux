@@ -281,8 +281,9 @@ defmodule Lux.Agent do
 
   def chat(agent, message, opts) do
     llm_config = build_llm_config(agent, opts)
+    tools = agent.beams ++ agent.prisms ++ agent.lenses
 
-    case LLM.call(message, agent.beams ++ agent.prisms, llm_config) do
+    case LLM.call(message, tools, llm_config) do
       {:ok, %{payload: %{content: content}}} when is_map(content) ->
         store_interaction(agent, message, format_content(content), opts)
         {:ok, format_content(content)}

@@ -31,14 +31,16 @@ Application.put_env(:venomous, :snake_manager, %{
   ]
 })
 
-Application.ensure_all_started([:lux, :ex_unit, :kino])
+Application.ensure_all_started([:lux, :kino])
 ```
 
-## Section
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fagents.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Agents are autonomous components in Lux that can interact with LLMs, process signals, and execute workflows. They combine intelligence with execution capabilities, making them perfect for building conversational and agentic applications.
-
-## Overview
 
 An Agent consists of:
 
@@ -716,6 +718,10 @@ Kino.nothing()
    * Mock LLM responses in tests
    * Verify structured response handling
 
+Example test:
+
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Agents.ChatAgentTest do
   use UnitCase, async: true
@@ -733,8 +739,6 @@ defmodule MyApp.Agents.ChatAgentTest do
     assert String.length(response) > 0
   end
 end
-
-ExUnit.run()
 ```
 
 ## Advanced Features

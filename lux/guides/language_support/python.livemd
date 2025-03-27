@@ -11,6 +11,10 @@ Application.ensure_all_started([:lux])
 
 ## Overview
 
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Fpython.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
 Lux provides first-class support for Python, allowing you to leverage Python's rich ecosystem of libraries and tools in your agents. This guide explains how to use Python effectively with Lux.
 
 ## Writing Python Code

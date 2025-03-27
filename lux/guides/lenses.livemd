@@ -5,11 +5,13 @@ Mix.install([
   {:lux, ">= 0.5.0"}
   {:kino, "~> 0.14.2"}
 ])
-
-Application.ensure_all_started([:ex_unit])
 ```
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flenses.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Lenses provide a way to interact with external systems and APIs in a structured, composable way. They handle authentication, data transformation, and error handling for external integrations.
 
@@ -239,6 +241,8 @@ end
 
 Example test:
 
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Lenses.WeatherAPITest do
   use UnitCase, async: true
@@ -281,8 +285,6 @@ defmodule MyApp.Lenses.WeatherAPITest do
     end
   end
 end
-
-ExUnit.run()
 ```
 
 ## Advanced Topics

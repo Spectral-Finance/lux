@@ -21,6 +21,10 @@ Mix.install(
 
 ## Introduction
 
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fmulti_agent_collaboration.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
 This guide demonstrates how to create and coordinate multiple agents working together in Lux.
 
 ## Basic Concepts

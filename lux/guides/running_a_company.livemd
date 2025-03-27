@@ -2,6 +2,10 @@
 
 ## Introduction
 
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Frunning_a_company.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
 In this guide, we'll create and run a complete Lux company that creates blog content. We'll:
 
 1. Define the company structure

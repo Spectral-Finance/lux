@@ -1,0 +1,498 @@
+# Etherscan Integration Guide
+
+```elixir
+Mix.install([
+  {:lux, "~> 0.4.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:ex_unit])
+```
+
+## Overview
+
+Lux provides a comprehensive set of lenses for interacting with the Etherscan API, allowing you to easily access blockchain data from Ethereum and other EVM-compatible networks. These lenses handle authentication, data transformation, and error handling, making it simple to integrate blockchain data into your applications.
+
+This guide covers:
+
+* Setting up Etherscan API access
+* Using different types of Etherscan lenses
+* Handling Pro API endpointsExpected error: 
+* Working with different networks
+* Error handling and best practices
+
+## Getting Started
+
+### API Key Setup
+
+To use the Etherscan API, you'll need an API key:
+
+1. Register at [Etherscan](https://etherscan.io/register)
+2. Create an API key in your account dashboard
+3. Add your API key to the appropriate override files
+
+For security best practices, store your API keys in the following files:
+
+```bash
+# In dev.override.envrc
+ETHERSCAN_API_KEY="your_development_api_key"
+
+# In test.override.envrc
+ETHERSCAN_API_KEY="your_testing_api_key"
+```
+
+That's it! Lux will automatically use these keys when making requests to the Etherscan API.
+
+### Basic Usage
+
+Here's a simple example of using an Etherscan lens:
+
+```elixir
+alias Lux.Lenses.Etherscan.EthSupply
+
+# Get the current ETH supply
+{:ok, result} = EthSupply.focus(%{chainid: 1})
+IO.inspect(result)
+```
+
+## Lens Categories
+
+Etherscan lenses are organized into several categories:
+
+### Accounts
+
+Lenses for querying account information:
+
+```elixir
+alias Lux.Lenses.Etherscan.Balance
+
+# Get ETH balance for an address
+{:ok, result} = Balance.focus(%{
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  chainid: 1
+})
+
+# Get balance history at a specific block
+alias Lux.Lenses.Etherscan.BalanceHistory
+
+{:ok, result} = BalanceHistory.focus(%{
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  blockno: 8_000_000,
+  chainid: 1
+})
+```
+
+### Blocks
+
+Lenses for querying block information:
+
+```elixir
+alias Lux.Lenses.Etherscan.BlockInfoLens
+
+# Get information about a specific block
+{:ok, result} = BlockInfoLens.focus(%{
+  blockno: 14000000,
+  chainid: 1
+})
+```
+
+### Contracts
+
+Lenses for interacting with smart contracts:
+
+```elixir
+alias Lux.Lenses.Etherscan.ContractAbi
+
+# Get the ABI for a verified contract
+{:ok, result} = ContractAbi.focus(%{
+  address: "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d", # CryptoKitties
+  chainid: 1
+})
+```
+
+### Gas
+
+Lenses for gas-related information:
+
+```elixir
+alias Lux.Lenses.Etherscan.GasPriceLens
+
+# Get current gas price
+{:ok, result} = GasPriceLens.focus(%{chainid: 1})
+```
+
+### Logs
+
+Lenses for querying event logs:
+
+```elixir
+alias Lux.Lenses.Etherscan.LogsLens
+
+# Get logs for a specific address and topics
+{:ok, result} = LogsLens.focus(%{
+  address: "0x06012c8cf97BEaD5deAe237070F9587f8E7A266d",
+  fromBlock: 14000000,
+  toBlock: 14001000,
+  chainid: 1
+})
+```
+
+### Stats
+
+Lenses for network statistics:
+
+```elixir
+alias Lux.Lenses.Etherscan.EthSupply
+alias Lux.Lenses.Etherscan.EthPrice
+alias Lux.Lenses.Etherscan.NodeCount
+
+# Get current ETH supply
+{:ok, supply} = EthSupply.focus(%{chainid: 1})
+
+# Get current ETH price
+{:ok, price} = EthPrice.focus(%{chainid: 1})
+
+# Get node count
+{:ok, nodes} = NodeCount.focus(%{chainid: 1})
+```
+
+### Tokens
+
+Lenses for token-related information:
+
+```elixir
+alias Lux.Lenses.Etherscan.TokenInfo
+alias Lux.Lenses.Etherscan.TokenBalance
+
+# Get information about a token
+{:ok, info} = TokenInfo.focus(%{
+  contractaddress: "0x6b175474e89094c44da98b954eedeac495271d0f", # DAI
+  chainid: 1
+})
+
+# Get token balance for an address
+{:ok, balance} = TokenBalance.focus(%{
+  contractaddress: "0x6b175474e89094c44da98b954eedeac495271d0f", # DAI
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  chainid: 1
+})
+```
+
+### Transactions
+
+Lenses for transaction information:
+
+```elixir
+alias Lux.Lenses.Etherscan.TxInfoLens
+alias Lux.Lenses.Etherscan.TxReceiptStatus
+
+# Get transaction details
+{:ok, tx} = TxInfoLens.focus(%{
+  txhash: "0x1e2910a262b1008d0616a0beb24c1a491d78771baa54a33e66065e03b1f46bc1",
+  chainid: 1
+})
+
+# Get transaction receipt status
+{:ok, status} = TxReceiptStatus.focus(%{
+  txhash: "0x1e2910a262b1008d0616a0beb24c1a491d78771baa54a33e66065e03b1f46bc1",
+  chainid: 1
+})
+```
+
+## Working with Pro API Endpoints
+
+Some Etherscan endpoints require a Pro API key. Lux handles these gracefully:
+
+```elixir
+alias Lux.Lenses.Etherscan.DailyAvgGasLimit
+
+# This requires a Pro API key
+result = DailyAvgGasLimit.focus(%{
+  startdate: "2023-01-01",
+  enddate: "2023-01-31",
+  chainid: 1
+})
+
+case result do
+  {:ok, data} ->
+    # We have a Pro API key, process the data
+    IO.inspect(data)
+    
+  {:error, %{result: error}} when is_binary(error) and String.contains?(error, "API Pro endpoint") ->
+    # Handle Pro API requirement gracefully
+    IO.puts("This endpoint requires a Pro API key")
+    
+  {:error, error} ->
+    # Handle other errors
+    IO.puts("Error: #{inspect(error)}")
+end
+```
+
+## Multi-Chain Support
+
+Etherscan lenses support multiple EVM-compatible networks through the `chainid` parameter:
+
+```elixir
+# Ethereum Mainnet (default)
+{:ok, eth_result} = Balance.focus(%{
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  chainid: 1
+})
+
+# Polygon (Matic)
+{:ok, polygon_result} = Balance.focus(%{
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  chainid: 137
+})
+
+# Binance Smart Chain
+{:ok, bsc_result} = Balance.focus(%{
+  address: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  chainid: 56
+})
+```
+
+## Error Handling
+
+Etherscan lenses provide detailed error information:
+
+```elixir
+case Balance.focus(%{address: "invalid_address", chainid: 1}) do
+  {:ok, result} ->
+    # Process successful result
+    IO.inspect(result)
+    
+  {:error, %{result: "Error! Invalid address format"}} ->
+    # Handle invalid address error
+    IO.puts("The address format is invalid")
+    
+  {:error, %{result: "No transactions found"}} ->
+    # Handle no data error
+    IO.puts("No transactions found for this address")
+    
+  {:error, error} ->
+    # Handle other errors
+    IO.puts("Error: #{inspect(error)}")
+end
+```
+
+## Rate Limiting
+
+Etherscan has API rate limits (5 calls/sec for free tier). When building applications, consider:
+
+1. Adding delays between calls
+2. Implementing caching
+3. Using batch endpoints where available
+
+```elixir
+# Example of adding delay between calls
+addresses = [
+  "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
+  "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+  "0x85f5c8de3a3e5ff70e94a9b4d50d400dc4c1f00d"
+]
+
+results = Enum.map(addresses, fn address ->  
+  Balance.focus(%{
+    address: address,
+    chainid: 1
+  })
+end)
+```
+
+## Advanced Usage
+
+### Custom Transformations
+
+You can extend Etherscan lenses with custom transformations:
+
+```elixir
+defmodule MyApp.Lenses.EnhancedBalanceLens do
+  @moduledoc """
+  Enhanced balance lens with additional transformations
+  """
+  
+  alias Lux.Lenses.Etherscan.Balance
+  
+  def focus(params) do
+    with {:ok, result} <- Balance.focus(params) do
+      # Convert wei to ether and add additional data
+      balance_in_eth = String.to_integer(result.result) / 1.0e18
+      
+      {:ok, %{
+        result: result.result,
+        balance_eth: balance_in_eth,
+        address: params.address,
+        timestamp: DateTime.utc_now()
+      }}
+    end
+  end
+end
+```
+
+### Combining Multiple Lenses
+
+You can combine multiple lenses using Beams:
+
+```elixir
+defmodule MyApp.Beams.TokenAnalysisBeam do
+  use Lux.Beam,
+    name: "Token Analysis",
+    description: "Analyzes token information and holder data"
+  
+  alias Lux.Lenses.Etherscan.TokenInfo
+  alias Lux.Lenses.Etherscan.TokenSupply
+  alias Lux.Lenses.Etherscan.TokenHolderList
+  
+  def steps do
+    sequence do
+      # Get token info
+      step(:info, TokenInfo, %{
+        contractaddress: [:input, "contractaddress"],
+        chainid: [:input, "chainid"]
+      })
+      
+      # Get token supply
+      step(:supply, TokenSupply, %{
+        contractaddress: [:input, "contractaddress"],
+        chainid: [:input, "chainid"]
+      })
+      
+      # Get top token holders (Pro API feature)
+      branch {__MODULE__, :has_pro_api?} do
+        true ->
+          step(:holders, TokenHolderList, %{
+            contractaddress: [:input, "contractaddress"],
+            chainid: [:input, "chainid"]
+          })
+          
+        false ->
+          step(:skip_holders, MyApp.Prisms.NoOp, %{
+            message: "Skipping token holders (requires Pro API)"
+          })
+      end
+    end
+  end
+  
+  def has_pro_api?(ctx) do
+    # Check if we have a Pro API key by making a test call
+    case TokenHolderList.focus(%{
+      contractaddress: ctx.input["contractaddress"],
+      chainid: ctx.input["chainid"]
+    }) do
+      {:error, %{result: result}} when is_binary(result) and String.contains?(result, "API Pro endpoint") ->
+        false
+      _ ->
+        true
+    end
+  end
+end
+```
+
+## Testing
+
+When testing applications that use Etherscan lenses, consider:
+
+1. Using mock responses for unit tests
+2. Creating integration tests with real API calls
+3. Handling Pro API endpoints gracefully
+
+### Integration Test Example
+
+```elixir
+defmodule MyApp.Integration.EtherscanTest do
+  use ExUnit.Case, async: false
+  
+  alias Lux.Lenses.Etherscan.Balance
+  
+  # Skip tests if no API key is available
+  setup do
+    api_key = Application.get_env(:lux, [:api_keys, :etherscan])
+    
+    if is_nil(api_key) do
+      {:skip, "No Etherscan API key available"}
+    else
+      :ok
+    end
+  end
+  
+  test "can fetch ETH balance" do
+    # Ethereum Foundation address
+    address = "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"
+    
+    {:ok, result} = Balance.focus(%{
+      address: address,
+      chainid: 1
+    })
+    
+    assert is_binary(result.result)
+    balance = String.to_integer(result.result)
+    assert balance > 0
+  end
+  
+  test "handles invalid address" do
+    {:error, error} = Balance.focus(%{
+      address: "invalid",
+      chainid: 1
+    })
+    
+    assert error.result == "Error! Invalid address format"
+  end
+  
+  # Test for Pro API endpoints
+  test "handles Pro API requirements gracefully" do
+    alias Lux.Lenses.Etherscan.DailyAvgGasLimit
+    
+    result = DailyAvgGasLimit.focus(%{
+      startdate: "2023-01-01",
+      enddate: "2023-01-31",
+      chainid: 1
+    })
+    
+    case result do
+      {:ok, data} ->
+        # We have a Pro API key
+        assert is_list(data.result)
+        
+      {:error, %{result: error}} ->
+        # We don't have a Pro API key
+        assert String.contains?(error, "API Pro endpoint")
+    end
+  end
+end
+```
+
+## Best Practices
+
+1. **API Key Management**
+   * Store API keys securely in environment variables
+   * Use different API keys for development and production
+   * Consider upgrading to Pro API for production applications with high volume
+
+2. **Error Handling**
+   * Handle common errors gracefully (invalid addresses, no data, etc.)
+   * Implement retry logic for transient errors
+   * Check for Pro API requirements
+
+3. **Performance**
+   * Implement caching for frequently accessed data
+   * Batch requests where possible
+   * Respect rate limits
+
+4. **Multi-Chain Support**
+   * Always specify the `chainid` parameter
+   * Handle chain-specific differences in data formats
+   * Test on all supported chains
+
+5. **Testing**
+   * Create comprehensive integration tests
+   * Mock API responses for unit tests
+   * Test error handling scenarios
+
+## Conclusion
+
+Lux's Etherscan lenses provide a powerful and flexible way to interact with blockchain data. By following the patterns and practices in this guide, you can build robust applications that leverage the wealth of information available on the Ethereum blockchain and other EVM-compatible networks.
+
+For more information, refer to:
+- [Etherscan API Documentation](https://docs.etherscan.io/)
+- [Lux Documentation](https://hexdocs.pm/lux) 

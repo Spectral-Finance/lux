@@ -74,11 +74,12 @@ defmodule Lux.MixProject do
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
+      {:hammer, "~> 7.0", only: [:test]},
       # test and dev dependencies
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
-      {:dotenvy, "~> 0.8.0", only: [:dev, :test]},
+      {:dotenvy, "~> 1.0.1", only: [:dev, :test]},
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
@@ -105,8 +106,23 @@ defmodule Lux.MixProject do
         "GitHub" => "https://github.com/Spectral-Finance/lux",
         "Changelog" => "https://github.com/Spectral-Finance/lux/blob/main/CHANGELOG.md"
       },
-      files:
-        ~w(lib priv/web3/abis/* priv/python/lux/*.py priv/python/hyperliquid_utils/*.py priv/python/*.py priv/python/*.toml priv/node/*.json priv/node/*.mjs .formatter.exs mix.exs ../README.md LICENSE CHANGELOG.md)
+      files: [
+        "lib",
+        "priv/web3/abis/*",
+        "priv/python/lux/*.py",
+        "priv/python/erlport/*.py",
+        "priv/python/hyperliquid_utils/*.py",
+        "priv/python/*.py",
+        "priv/python/*.toml",
+        "priv/python/README.md",
+        "priv/node/*.json",
+        "priv/node/*.mjs",
+        ".formatter.exs",
+        "mix.exs",
+        "../README.md",
+        "LICENSE",
+        "CHANGELOG.md"
+      ]
     ]
   end
 
