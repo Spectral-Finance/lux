@@ -1,4 +1,3 @@
-# lib/lux/prisms/goat_sdk/uniswap_swap.ex
 defmodule Lux.Prisms.GoatSdk.UniswapSwap do
   use Lux.Prism,
     name: "Uniswap Swap",
