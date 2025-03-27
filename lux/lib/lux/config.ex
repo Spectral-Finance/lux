@@ -119,6 +119,36 @@ defmodule Lux.Config do
     |> Keyword.get(:wallet_address, "")
   end
 
+  @doc """
+  Retrieves the configured syntax agent API URL.
+  """
+  @spec syntax_agent_api_url() :: String.t()
+  def syntax_agent_api_url do
+    :lux
+    |> Application.fetch_env!(:syntax)
+    |> Keyword.get(:agent_api_url, "")
+  end
+
+  @doc """
+  Retrieves the configured syntax agent API key.
+  """
+  @spec syntax_agent_api_key() :: String.t()
+  def syntax_agent_api_key do
+    :lux
+    |> Application.fetch_env!(:syntax)
+    |> Keyword.get(:agent_api_key, "")
+  end
+
+  @doc """
+  Retrieves the configured syntax company contract address.
+  """
+  @spec syntax_company_contract_address() :: String.t()
+  def syntax_company_contract_address do
+    :lux
+    |> Application.fetch_env!(:syntax)
+    |> Keyword.get(:company_contract_address, "")
+  end
+
   @doc false
   defp get_required_key(group, key) do
     :lux

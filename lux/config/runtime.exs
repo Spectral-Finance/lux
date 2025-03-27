@@ -46,6 +46,11 @@ if config_env() in [:dev, :test] do
 
   config :logger,
     level: env!("LOG_LEVEL", :atom!, :debug)
+
+  config :lux, :syntax,
+    agent_api_url: env!("SYNTAX_AGENT_API_URL", :string!),
+    agent_api_key: env!("SYNTAX_AGENT_API_KEY", :string!),
+    company_contract_address: env!("COMPANY_CONTRACT_ADDRESS", :string!)
 end
 
 

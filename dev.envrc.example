@@ -11,5 +11,9 @@ POSTGRES_PORT=5432
 PORT=4000
 SECRET_KEY_BASE=zDOKhgvZMQfdRIbEBDrpMeV7zxeStRbH9BONTMd12vY86CtHmf2KaMyJakv2WqLf
 
+SYNTAX_AGENT_API_URL="https://agents-api.spectrallabs.xyz"
+SYNTAX_AGENT_API_KEY="your-synax-agent-api-key"
+COMPANY_CONTRACT_ADDRESS="0x12345678"
+
 # Optional: Set to true to enable server
 PHX_SERVER=false 
