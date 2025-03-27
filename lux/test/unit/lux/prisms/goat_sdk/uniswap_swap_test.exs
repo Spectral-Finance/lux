@@ -55,8 +55,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
       to_token: "0x5678",
       amount: "1000000000000000000",
       chain_id: 1,
-      slippage: 50,
-      rpc_url: "https://eth.llamarpc.com"
+      slippage: 50
     }
 
     result = UniswapSwap.handler(input, %{})
@@ -69,8 +68,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
       to_token: "0x8888",
       amount: "1000000000000000000",
       chain_id: 1,
-      slippage: 50,
-      rpc_url: "https://eth.llamarpc.com"
+      slippage: 50
     }
 
     result = UniswapSwap.handler(input, %{})
