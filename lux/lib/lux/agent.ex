@@ -39,6 +39,11 @@ defmodule Lux.Agent do
           backend: module(),
           name: atom() | nil
         }
+  @type company_config :: %{
+          company_contract_address: String.t(),
+          company_name: String.t(),
+          company_contract_address: String.t()
+        }
 
   # {module, interval_ms, input, opts}
   @type scheduled_action :: {module(), pos_integer(), map(), map()}
@@ -56,6 +61,7 @@ defmodule Lux.Agent do
           beams: [Lux.Beam.t()],
           lenses: [Lux.Lens.t()],
           accepts_signals: [Lux.SignalSchema.t()],
+          tools: [Lux.MCP.Tool.t()],
           llm_config: map(),
           memory_config: memory_config() | nil,
           memory_pid: pid() | nil,
@@ -74,6 +80,7 @@ defmodule Lux.Agent do
             beams: [],
             lenses: [],
             accepts_signals: [],
+            tools: [],
             memory_config: nil,
             memory_pid: nil,
             scheduled_actions: [],
@@ -245,7 +252,13 @@ defmodule Lux.Agent do
           Agent.schedule_action(name, module, interval_ms, input, opts)
         end
 
-        {:ok, agent}
+        {:ok, agent, {:continue, []}}
+      end
+
+      @impl GenServer
+      def handle_continue(_args, agent) do
+        {:ok, tools} = Lux.Company.MCP.list_tools()
+        {:noreply, struct(agent, tools: tools)}
       end
 
       @impl GenServer
@@ -281,7 +294,7 @@ defmodule Lux.Agent do
 
   def chat(agent, message, opts) do
     llm_config = build_llm_config(agent, opts)
-    tools = agent.beams ++ agent.prisms ++ agent.lenses
+    tools = agent.beams ++ agent.prisms ++ agent.lenses ++ agent.tools
 
     case LLM.call(message, tools, llm_config) do
       {:ok, %{payload: %{content: content}}} when is_map(content) ->

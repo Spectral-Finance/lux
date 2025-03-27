@@ -9,6 +9,7 @@ defmodule Lux.LLM.OpenAI do
   alias Lux.Lens
   alias Lux.LLM.ResponseSignal
   alias Lux.Prism
+  alias Lux.MCP.Tool
 
   require Beam
   require Lens
@@ -176,22 +177,6 @@ defmodule Lux.LLM.OpenAI do
     |> tool_to_function()
   end
 
-  def tool_to_function(tool_module) when is_atom(tool_module) and not is_nil(tool_module) do
-    cond do
-      Lux.prism?(tool_module) ->
-        tool_to_function(tool_module.view())
-
-      Lux.beam?(tool_module) ->
-        tool_to_function(tool_module.view())
-
-      Lux.lens?(tool_module) ->
-        tool_to_function(tool_module.view())
-
-      true ->
-        raise "Unsupported tool type: #{inspect(tool_module)}"
-    end
-  end
-
   def tool_to_function(%Beam{module_name: name, description: description, input_schema: input_schema}) do
     %{
       type: "function",
@@ -225,6 +210,21 @@ defmodule Lux.LLM.OpenAI do
         parameters: schema
       }
     }
+  end
+
+  def tool_to_function(%Tool{name: name, description: description, input_schema: input_schema}) do
+    %{
+      type: "function",
+      function: %{
+        name: name,
+        description: description,
+        parameters: input_schema
+      }
+    }
+  end
+
+  def tool_to_function(tool_module) do
+    raise "Unsupported tool type: #{inspect(tool_module)}"
   end
 
   defp handle_response(%{body: body}, _config) do
