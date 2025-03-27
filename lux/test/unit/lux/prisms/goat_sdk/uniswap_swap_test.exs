@@ -110,7 +110,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
     }
 
     result = UniswapSwap.handler(input, %{})
-    assert {:error, "Failed to import required packages: Package not found"} = result
+    assert {:error, "Failed to import required packages: No module named 'goat_plugins'"} = result
   end
 
   test "handler/2 uses default values for optional parameters" do

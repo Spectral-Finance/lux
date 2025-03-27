@@ -95,6 +95,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
                rpc_url: params.rpc_url
              } do
         ~PY"""
+        result = None
         try:
             from goat_plugins.uniswap import uniswap, UniswapPluginOptions
 
@@ -111,9 +112,10 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
             result = uniswap.execute_swap(quote)
 
             # Return the amount received
-            return result["amount_received"]
+            result = result["amount_received"]
         except Exception as e:
-            return {"error": str(e)}
+            result = {"error": str(e)}
+        result
         """
       end
 
