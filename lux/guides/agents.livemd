@@ -31,7 +31,7 @@ Application.put_env(:venomous, :snake_manager, %{
   ]
 })
 
-Application.ensure_all_started([:lux, :ex_unit, :kino])
+Application.ensure_all_started([:lux, :kino])
 ```
 
 ## Overview
@@ -718,6 +718,10 @@ Kino.nothing()
    * Mock LLM responses in tests
    * Verify structured response handling
 
+Example test:
+
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Agents.ChatAgentTest do
   use UnitCase, async: true
@@ -735,8 +739,6 @@ defmodule MyApp.Agents.ChatAgentTest do
     assert String.length(response) > 0
   end
 end
-
-ExUnit.run()
 ```
 
 ## Advanced Features

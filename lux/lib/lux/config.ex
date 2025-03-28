@@ -63,6 +63,32 @@ defmodule Lux.Config do
       :test -> get_required_key(:api_keys, :integration_telegram_bot)
       _ -> get_required_key(:api_keys, :telegram_bot)
     end
+
+  Gets the Discord API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec discord_api_key() :: api_key()
+  def discord_api_key do
+    get_required_key(:api_keys, :discord)
+  end
+
+  @doc """
+  Gets the Etherscan API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec etherscan_api_key() :: api_key()
+  def etherscan_api_key do
+    get_required_key(:api_keys, :etherscan)
+  end
+
+  @doc """
+  Checks if a Pro Etherscan API key is configured.
+  """
+  @spec etherscan_api_key_pro?() :: boolean()
+  def etherscan_api_key_pro? do
+    :lux
+    |> Application.fetch_env!(:api_keys)
+    |> Keyword.get(:etherscan_pro, false)
   end
 
   @doc """

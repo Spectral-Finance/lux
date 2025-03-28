@@ -11,7 +11,8 @@ defmodule Lux.SignalTest do
         payload: %{message: "Hello"},
         metadata: %{created_at: "2024-01-01"},
         sender: "agent-1",
-        recipient: "agent-2"
+        recipient: "agent-2",
+        topic: "test-topic"
       }
 
       signal = Signal.new(attrs)
@@ -23,6 +24,7 @@ defmodule Lux.SignalTest do
       assert signal.metadata == %{created_at: "2024-01-01"}
       assert signal.sender == "agent-1"
       assert signal.recipient == "agent-2"
+      assert signal.topic == "test-topic"
     end
 
     test "initializes empty metadata when not provided" do
@@ -36,6 +38,7 @@ defmodule Lux.SignalTest do
       assert signal.metadata == %{}
       assert signal.sender == nil
       assert signal.recipient == nil
+      assert signal.topic == nil
     end
   end
 
@@ -56,6 +59,7 @@ defmodule Lux.SignalTest do
       assert signal.metadata == %{}
       assert signal.sender == nil
       assert signal.recipient == nil
+      assert signal.topic == nil
     end
 
     test "creates a signal with sender and recipient" do
@@ -71,6 +75,7 @@ defmodule Lux.SignalTest do
       assert signal.payload.message == "hello"
       assert signal.sender == "agent-1"
       assert signal.recipient == "agent-2"
+      assert signal.topic == nil
     end
 
     defmodule ValidatedSignal do

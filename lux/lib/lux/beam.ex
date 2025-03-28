@@ -184,6 +184,7 @@ defmodule Lux.Beam do
 
   defstruct id: nil,
             name: "",
+            module_name: nil,
             description: "",
             input_schema: nil,
             output_schema: nil,
@@ -233,6 +234,7 @@ defmodule Lux.Beam do
   @type t :: %__MODULE__{
           id: String.t(),
           name: String.t(),
+          module_name: String.t(),
           description: String.t(),
           input_schema: nullable(schema()),
           output_schema: nullable(schema()),
@@ -247,9 +249,15 @@ defmodule Lux.Beam do
 
       alias Lux.Beam
 
-      @beam %Beam{
+      Module.register_attribute(__MODULE__, :beam_struct, persist: false)
+      Module.register_attribute(__MODULE__, :beam_module_name, persist: false)
+
+      @beam_module_name __MODULE__ |> Module.split() |> Enum.join(".")
+
+      @beam_struct %Beam{
         id: Keyword.get(unquote(opts), :id, Lux.UUID.generate()),
-        name: Keyword.get(unquote(opts), :name, __MODULE__ |> Module.split() |> Enum.join(".")),
+        name: Keyword.get(unquote(opts), :name, @beam_module_name),
+        module_name: @beam_module_name,
         description: unquote(opts[:description]),
         input_schema: unquote(opts[:input_schema]),
         output_schema: unquote(opts[:output_schema]),
@@ -261,7 +269,7 @@ defmodule Lux.Beam do
         raise "The Lux.Beam module requires a sequence block to be defined"
       end
 
-      def view, do: %{@beam | definition: __steps__()}
+      def view, do: %{@beam_struct | definition: __steps__()}
 
       def run(input, opts \\ []), do: Lux.Beam.Runner.run(view(), input, opts)
     end
@@ -274,6 +282,7 @@ defmodule Lux.Beam do
     %__MODULE__{
       id: attrs[:id] || Lux.UUID.generate(),
       name: attrs[:name] || "",
+      module_name: attrs[:module_name] || "",
       description: attrs[:description] || "",
       input_schema: attrs[:input_schema],
       output_schema: attrs[:output_schema],

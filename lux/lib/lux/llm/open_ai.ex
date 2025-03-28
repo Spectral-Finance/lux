@@ -192,7 +192,7 @@ defmodule Lux.LLM.OpenAI do
     end
   end
 
-  def tool_to_function(%Beam{name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Beam{module_name: name, description: description, input_schema: input_schema}) do
     %{
       type: "function",
       function: %{
@@ -216,11 +216,11 @@ defmodule Lux.LLM.OpenAI do
     }
   end
 
-  def tool_to_function(%Lens{name: name, description: description, schema: schema}) do
+  def tool_to_function(%Lens{module_name: name, description: description, schema: schema}) do
     %{
       type: "function",
       function: %{
-        name: name || "unnamed_lens",
+        name: String.replace(name, ".", "_"),
         description: description || "",
         parameters: schema
       }
@@ -323,6 +323,9 @@ defmodule Lux.LLM.OpenAI do
 
       Lux.beam?(tool_module) ->
         tool_module.run(args, ctx)
+
+      Lux.lens?(tool_module) ->
+        tool_module.focus(args)
 
       true ->
         {:error,

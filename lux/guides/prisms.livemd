@@ -25,7 +25,7 @@ Application.put_env(:venomous, :snake_manager, %{
   ]
 })
 
-Application.ensure_all_started([:lux, :ex_unit])
+Application.ensure_all_started([:lux])
 ```
 
 ## Overview
@@ -288,6 +288,8 @@ MyApp.Prisms.OrderProcessor.run(%{
 
 Example test:
 
+<!-- livebook:{"force_markdown":true} -->
+
 ```elixir
 defmodule MyApp.Prisms.TextAnalysisTest do
   use UnitCase, async: true
@@ -314,24 +316,6 @@ defmodule MyApp.Prisms.TextAnalysisTest do
     end
   end
 end
-
-ExUnit.run()
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-Running ExUnit with seed: 616293, max_cases: 40
-
-..
-Finished in 0.00 seconds (0.00s async, 0.00s sync)
-2 tests, 0 failures
-```
-
-<!-- livebook:{"output":true} -->
-
-```
-%{total: 2, failures: 0, excluded: 0, skipped: 0}
 ```
 
 ## Advanced Topics
