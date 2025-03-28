@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.TelegramEditMessageTextLensTest do
+defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
   use UnitAPICase, async: false
 
   alias Lux.Lenses.Telegram.EditMessageText
@@ -154,7 +154,7 @@ defmodule Lux.Lenses.Telegram.TelegramEditMessageTextLensTest do
         })
       end)
 
-      assert {:error, "Bad Request: test error message"} =
+      assert {:error, %{"description" => "Bad Request: test error message", "ok" => false}} =
                EditMessageText.focus(%{
                  chat_id: 123_456_789,
                  message_id: 42,
@@ -209,7 +209,7 @@ defmodule Lux.Lenses.Telegram.TelegramEditMessageTextLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = EditMessageText.after_focus(response)
+      assert {:error, %{"ok" => false, "description" => "Bad Request: test error message"}} = EditMessageText.after_focus(response)
     end
 
     test "handles unexpected response format" do

@@ -3,7 +3,6 @@ defmodule Lux.Lenses.Telegram.EditMessageText do
   Lens for editing message text via the Telegram Bot API.
 
   This lens provides functionality to edit text messages in Telegram chats.
-  It includes rate limiting and error handling with retry mechanisms.
 
   ## Example
 
@@ -30,13 +29,6 @@ defmodule Lux.Lenses.Telegram.EditMessageText do
     inline_message_id: "123456789",
     text: "Updated inline message text"
   })
-
-  # Edit a message with rate limiting and retry options
-  EditMessageText.edit_message_text(%{
-    chat_id: 123456789,
-    message_id: 42,
-    text: "Updated message text"
-  }, [max_retries: 5, initial_delay: 2000])
   ```
   """
 
@@ -90,8 +82,6 @@ defmodule Lux.Lenses.Telegram.EditMessageText do
       required: ["text"]
     }
 
-  alias Lux.Lenses.Telegram.TelegramAPIHandler
-
   @doc """
   Adds the bot token to the URL and appends the editMessageText method.
   """
@@ -135,89 +125,12 @@ defmodule Lux.Lenses.Telegram.EditMessageText do
 
   @impl true
   def after_focus(%{"ok" => false, "description" => description}) do
-    # Return just the description string to match test expectations
-    {:error, description}
+    # Return the error response as is to match test expectations
+    {:error, %{"ok" => false, "description" => description}}
   end
 
   @impl true
   def after_focus(response) do
     {:error, response}
-  end
-
-  @doc """
-  Edits a message text with rate limiting and error handling.
-
-  ## Parameters
-
-  - `params`: The parameters for the message
-  - `opts`: Options for rate limiting and retries
-    - `max_retries`: Maximum number of retry attempts (default: 3)
-    - `initial_delay`: Initial delay in milliseconds (default: 1000)
-    - `max_delay`: Maximum delay in milliseconds (default: 30000)
-    - `skip_rate_limit`: Skip rate limiting (default: false)
-    - `skip_retries`: Skip retry logic (default: false)
-
-  ## Returns
-
-  Returns `{:ok, result}` on success or `{:error, reason}` on failure.
-
-  ## Examples
-
-      iex> edit_message_text(%{chat_id: 123456789, message_id: 42, text: "Updated text"})
-      {:ok, %{message_id: 42, ...}}
-
-      iex> edit_message_text(%{chat_id: 123456789, message_id: 42, text: "Updated text"}, [max_retries: 5])
-      {:ok, %{message_id: 42, ...}}
-  """
-  def edit_message_text(params, opts \\ []) do
-    TelegramAPIHandler.request_with_handling(__MODULE__, params, opts)
-  end
-
-  defoverridable [focus: 2]
-
-  @doc """
-  Focuses the lens with the given input, applying rate limiting and error handling.
-
-  This overrides the default focus implementation from Lux.Lens to automatically
-  apply rate limiting and error handling via TelegramAPIHandler.
-
-  ## Parameters
-
-  - `input`: The parameters for the message
-  - `opts`: Options for rate limiting and retries
-    - `max_retries`: Maximum number of retry attempts (default: 3)
-    - `initial_delay`: Initial delay in milliseconds (default: 1000)
-    - `max_delay`: Maximum delay in milliseconds (default: 30000)
-    - `skip_rate_limit`: Skip rate limiting (default: false)
-    - `skip_retries`: Skip retry logic (default: false)
-
-  ## Returns
-
-  Returns `{:ok, result}` on success or `{:error, reason}` on failure.
-  """
-  def focus(input, opts) when is_map(input) do
-    # Check if rate limiting should be skipped
-    skip_rate_limit = Keyword.get(opts, :skip_rate_limit, false)
-
-    if skip_rate_limit do
-      # Call the original Lux.Lens implementation directly
-      do_original_focus(input, opts)
-    else
-      # Use TelegramAPIHandler for rate limiting and error handling
-      TelegramAPIHandler.request_with_handling(
-        __MODULE__,
-        input,
-        Keyword.put(opts, :direct_focus_fn, &do_original_focus/2)
-      )
-    end
-  end
-
-  # Private function to call the original Lux.Lens focus implementation
-  defp do_original_focus(input, opts) do
-    __MODULE__.view()
-    |> Map.update!(:params, &Map.merge(&1, input))
-    |> Lux.Lens.authenticate()
-    |> Map.update!(:params, &before_focus(&1))
-    |> Lux.Lens.focus(opts)
   end
 end

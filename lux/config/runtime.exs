@@ -28,7 +28,7 @@ if config_env() in [:dev, :test] do
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
-    integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false)
+    integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
     allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
 
   config :lux, Lux.Integrations.Allora,

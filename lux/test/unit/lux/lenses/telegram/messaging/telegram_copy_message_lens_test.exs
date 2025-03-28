@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.TelegramCopyMessageLensTest do
+defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
   use UnitAPICase, async: false
 
   alias Lux.Lenses.Telegram.CopyMessage
@@ -118,7 +118,7 @@ defmodule Lux.Lenses.Telegram.TelegramCopyMessageLensTest do
         })
       end)
 
-      assert {:error, "Bad Request: test error message"} =
+      assert {:error, %{"description" => "Bad Request: test error message", "ok" => false}} =
                CopyMessage.focus(%{
                  chat_id: 123_456_789,
                  from_chat_id: 987_654_321,
@@ -165,7 +165,7 @@ defmodule Lux.Lenses.Telegram.TelegramCopyMessageLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = CopyMessage.after_focus(response)
+      assert {:error, %{"ok" => false, "description" => "Bad Request: test error message"}} = CopyMessage.after_focus(response)
     end
 
     test "handles unexpected response format" do

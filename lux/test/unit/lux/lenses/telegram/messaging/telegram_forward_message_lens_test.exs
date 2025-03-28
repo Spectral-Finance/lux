@@ -1,4 +1,4 @@
-defmodule Lux.Lenses.Telegram.TelegramForwardMessageLensTest do
+defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
   use UnitAPICase, async: false
 
   alias Lux.Lenses.Telegram.ForwardMessage
@@ -133,7 +133,7 @@ defmodule Lux.Lenses.Telegram.TelegramForwardMessageLensTest do
         })
       end)
 
-      assert {:error, "Bad Request: test error message"} =
+      assert {:error, %{"ok" => false, "description" => "Bad Request: test error message"}} =
                ForwardMessage.focus(%{
                  chat_id: 123_456_789,
                  from_chat_id: 987_654_321,
@@ -190,7 +190,7 @@ defmodule Lux.Lenses.Telegram.TelegramForwardMessageLensTest do
 
     test "transforms error response" do
       response = %{"ok" => false, "description" => "Bad Request: test error message"}
-      assert {:error, "Bad Request: test error message"} = ForwardMessage.after_focus(response)
+      assert {:error, %{"ok" => false, "description" => "Bad Request: test error message"}} = ForwardMessage.after_focus(response)
     end
 
     test "handles unexpected response format" do

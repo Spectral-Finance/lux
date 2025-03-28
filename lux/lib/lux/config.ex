@@ -63,7 +63,9 @@ defmodule Lux.Config do
       :test -> get_required_key(:api_keys, :integration_telegram_bot)
       _ -> get_required_key(:api_keys, :telegram_bot)
     end
+  end
 
+  @doc """
   Gets the Discord API key from configuration.
   Raises if the key is not configured.
   """

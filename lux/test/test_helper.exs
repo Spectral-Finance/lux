@@ -3,11 +3,7 @@ ExUnit.start(exclude: [:skip, :integration, :unit])
 # Configure Logger to be less verbose during tests
 Logger.configure(level: :warning)
 
-# Disable Telegram API logging during tests
-alias Lux.Lenses.Telegram.TelegramAPIHandler
-TelegramAPIHandler.disable_logging()
-
-# Silence specific loggers for the Telegram API (keeping this as a backup)
+# Silence specific loggers for the Telegram API
 :logger.add_primary_filter(
   :silence_telegram_api,
   {&:logger_filters.domain/2, {:stop, :equal, [:"Lux.Lenses.Telegram"]}}
