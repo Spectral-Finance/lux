@@ -3,7 +3,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
 
   alias Lux.Prisms.Telegram.Media.SendPhoto
 
-  @chat_id 123456789
+  @chat_id 123_456_789
   @photo_url "https://example.com/photo.jpg"
   @photo_file_id "AgACAgQAAxkBAAIBZWCtPW7GcS9llxJh7SZqAAAAH-E5tQACrroxG6gS0FHr9bwF"
   @caption "A beautiful photo"
@@ -33,12 +33,12 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
           "ok" => true,
           "result" => %{
             "message_id" => @message_id,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
             "chat" => %{"id" => @chat_id, "type" => "private"},
-            "date" => 1617123456,
+            "date" => 1_617_123_456,
             "photo" => [
-              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12345},
-              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67890}
+              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12_345},
+              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67_890}
             ],
             "caption" => @caption
           }
@@ -74,12 +74,12 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
           "ok" => true,
           "result" => %{
             "message_id" => @message_id,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
             "chat" => %{"id" => @chat_id, "type" => "private"},
-            "date" => 1617123456,
+            "date" => 1_617_123_456,
             "photo" => [
-              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12345},
-              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67890}
+              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12_345},
+              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67_890}
             ]
           }
         }))
@@ -116,12 +116,12 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
           "ok" => true,
           "result" => %{
             "message_id" => @message_id,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
             "chat" => %{"id" => @chat_id, "type" => "private"},
-            "date" => 1617123456,
+            "date" => 1_617_123_456,
             "photo" => [
-              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12345},
-              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67890}
+              %{"file_id" => "small_file_id", "file_unique_id" => "small_unique", "width" => 320, "height" => 240, "file_size" => 12_345},
+              %{"file_id" => "medium_file_id", "file_unique_id" => "medium_unique", "width" => 800, "height" => 600, "file_size" => 67_890}
             ],
             "caption" => markdown_caption,
             "caption_entities" => [

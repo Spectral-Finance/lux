@@ -3,7 +3,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
 
   alias Lux.Prisms.Telegram.Messages.SendMessage
 
-  @chat_id 123456789
+  @chat_id 123_456_789
   @text "Hello from Lux!"
   @new_message_id 123
   @agent_ctx %{name: "TestAgent"}

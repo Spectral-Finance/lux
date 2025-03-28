@@ -17,7 +17,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         params = Jason.decode!(body)
         
-        assert params["chat_id"] == 123456789
+        assert params["chat_id"] == 123_456_789
         assert params["message_id"] == 42
         assert params["text"] == "Updated message text"
         
@@ -27,16 +27,16 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 111222333, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1609459200,
+            "from" => %{"id" => 111_222_333, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_609_459_200,
             "text" => "Updated message text"
           }
         }))
       end)
       
       params = %{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "Updated message text",
         plug: {Req.Test, TelegramClientMock}
@@ -45,7 +45,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
       assert {:ok, result} = EditMessageText.handler(params, %{name: "Test Agent"})
       assert result.edited == true
       assert result.message_id == 42
-      assert result.chat_id == 123456789
+      assert result.chat_id == 123_456_789
       assert result.text == "Updated message text"
     end
     
@@ -86,7 +86,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         params = Jason.decode!(body)
         
-        assert params["chat_id"] == 123456789
+        assert params["chat_id"] == 123_456_789
         assert params["message_id"] == 42
         assert params["text"] == "*Bold* and _italic_ text"
         assert params["parse_mode"] == "Markdown"
@@ -97,9 +97,9 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 111222333, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1609459200,
+            "from" => %{"id" => 111_222_333, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_609_459_200,
             "text" => "*Bold* and _italic_ text",
             "entities" => [
               %{"type" => "bold", "offset" => 0, "length" => 6},
@@ -110,7 +110,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
       end)
       
       params = %{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "*Bold* and _italic_ text",
         parse_mode: "Markdown",
@@ -120,7 +120,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
       assert {:ok, result} = EditMessageText.handler(params, %{name: "Test Agent"})
       assert result.edited == true
       assert result.message_id == 42
-      assert result.chat_id == 123456789
+      assert result.chat_id == 123_456_789
       assert result.text == "*Bold* and _italic_ text"
     end
     
@@ -139,14 +139,14 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "chat" => %{"id" => 123456789},
+            "chat" => %{"id" => 123_456_789},
             "text" => "https://example.com"
           }
         }))
       end)
       
       params = %{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "https://example.com",
         disable_web_page_preview: true,
@@ -167,7 +167,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
       
       # Missing text for chat message
       params = %{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42
       }
       
@@ -194,7 +194,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageTextTest do
       end)
       
       params = %{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 999,
         text: "This message doesn't exist",
         plug: {Req.Test, TelegramClientMock}

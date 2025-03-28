@@ -44,7 +44,7 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["message_id"] == 42
         assert decoded_body["text"] == "Updated message text"
 
@@ -54,24 +54,24 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
           "result" => %{
             "message_id" => 42,
             "text" => "Updated message text",
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "date" => 1617123456,
-            "edit_date" => 1617123457
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "date" => 1_617_123_456,
+            "edit_date" => 1_617_123_457
           }
         })
       end)
 
       assert {:ok, result} = EditMessageText.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "Updated message text"
       })
 
       assert result.message_id == 42
       assert result.text == "Updated message text"
-      assert result.chat["id"] == 123456789
-      assert result.edit_date == 1617123457
+      assert result.chat["id"] == 123_456_789
+      assert result.edit_date == 1_617_123_457
     end
 
     test "edits a message with optional parameters" do
@@ -84,7 +84,7 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["message_id"] == 42
         assert decoded_body["text"] == "*Bold* text"
         assert decoded_body["parse_mode"] == "Markdown"
@@ -96,16 +96,16 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
           "result" => %{
             "message_id" => 42,
             "text" => "*Bold* text",
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "date" => 1617123456,
-            "edit_date" => 1617123457
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "date" => 1_617_123_456,
+            "edit_date" => 1_617_123_457
           }
         })
       end)
 
       assert {:ok, result} = EditMessageText.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "*Bold* text",
         parse_mode: "Markdown",
@@ -126,7 +126,7 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["inline_message_id"] == "123456789"
+        assert decoded_body["inline_message_id"] == "123_456_789"
         assert decoded_body["text"] == "Updated inline message text"
 
         # Return a mock response
@@ -137,7 +137,7 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
       end)
 
       assert {:ok, _result} = EditMessageText.focus(%{
-        inline_message_id: "123456789",
+        inline_message_id: "123_456_789",
         text: "Updated inline message text"
       })
     end
@@ -171,7 +171,7 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
       end)
 
       assert {:error, _} = EditMessageText.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42,
         text: "Updated text"
       })
@@ -193,18 +193,18 @@ defmodule Lux.Lenses.Telegram.EditMessageTextLensTest do
         "result" => %{
           "message_id" => 42,
           "text" => "Updated message text",
-          "chat" => %{"id" => 123456789, "type" => "private"},
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "date" => 1617123456,
-          "edit_date" => 1617123457
+          "chat" => %{"id" => 123_456_789, "type" => "private"},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "date" => 1_617_123_456,
+          "edit_date" => 1_617_123_457
         }
       }
 
       assert {:ok, result} = EditMessageText.after_focus(response)
       assert result.message_id == 42
       assert result.text == "Updated message text"
-      assert result.chat["id"] == 123456789
-      assert result.edit_date == 1617123457
+      assert result.chat["id"] == 123_456_789
+      assert result.edit_date == 1_617_123_457
     end
 
     test "transforms error response" do

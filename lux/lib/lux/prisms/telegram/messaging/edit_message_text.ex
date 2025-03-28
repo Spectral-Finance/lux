@@ -17,24 +17,24 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
 
       # Edit a message text
       iex> EditMessageText.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   message_id: 42,
       ...>   text: "Updated message text"
       ...> }, %{name: "Agent"})
-      {:ok, %{edited: true, message_id: 42, chat_id: 123456789, text: "Updated message text"}}
+      {:ok, %{edited: true, message_id: 42, chat_id: 123_456_789, text: "Updated message text"}}
 
       # Edit a message with markdown formatting
       iex> EditMessageText.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   message_id: 42,
       ...>   text: "*Bold* and _italic_ text",
       ...>   parse_mode: "Markdown"
       ...> }, %{name: "Agent"})
-      {:ok, %{edited: true, message_id: 42, chat_id: 123456789, text: "*Bold* and _italic_ text"}}
+      {:ok, %{edited: true, message_id: 42, chat_id: 123_456_789, text: "*Bold* and _italic_ text"}}
 
       # Edit an inline message text
       iex> EditMessageText.handler(%{
-      ...>   inline_message_id: "123456789",
+      ...>   inline_message_id: "123_456_789",
       ...>   text: "Updated inline message text"
       ...> }, %{name: "Agent"})
       {:ok, %{edited: true}}

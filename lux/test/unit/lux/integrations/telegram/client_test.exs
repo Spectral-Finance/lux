@@ -21,7 +21,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(%{
           "ok" => true,
           "result" => %{
-            "id" => 123456789,
+            "id" => 123_456_789,
             "is_bot" => true,
             "first_name" => "TestBot",
             "username" => "test_bot"
@@ -46,7 +46,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         body_params = Jason.decode!(body)
-        assert body_params["chat_id"] == 123456789
+        assert body_params["chat_id"] == 123_456_789
         assert body_params["text"] == "Hello, world!"
 
         conn
@@ -55,7 +55,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
           "ok" => true,
           "result" => %{
             "message_id" => 456,
-            "chat" => %{"id" => 123456789}
+            "chat" => %{"id" => 123_456_789}
           }
         }))
       end)
@@ -64,7 +64,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         Client.request(:post, "/sendMessage", %{
           token: @bot_token,
           json: %{
-            chat_id: 123456789,
+            chat_id: 123_456_789,
             text: "Hello, world!"
           },
           plug: {Req.Test, TelegramClientMock}
@@ -88,7 +88,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         |> Plug.Conn.send_resp(200, Jason.encode!(%{
           "ok" => true,
           "result" => %{
-            "id" => 123456789,
+            "id" => 123_456_789,
             "is_bot" => true,
             "first_name" => "TestBot",
             "username" => "test_bot"
@@ -152,7 +152,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
       {:error, {400, response}} =
         Client.request(:post, "/sendMessage", %{
           json: %{
-            chat_id: 123456789,
+            chat_id: 123_456_789,
             text: "Hello, world!"
           },
           plug: {Req.Test, TelegramClientMock}

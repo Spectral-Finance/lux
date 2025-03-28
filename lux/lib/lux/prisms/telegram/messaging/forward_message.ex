@@ -16,29 +16,29 @@ defmodule Lux.Prisms.Telegram.Messages.ForwardMessage do
 
       # Forward a message
       iex> ForwardMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42
       ...> }, %{name: "Agent"})
-      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
 
       # Forward a message silently (without notification)
       iex> ForwardMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42,
       ...>   disable_notification: true
       ...> }, %{name: "Agent"})
-      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
 
       # Forward a message with content protection
       iex> ForwardMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42,
       ...>   protect_content: true
       ...> }, %{name: "Agent"})
-      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{forwarded: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
   """
 
   use Lux.Prism,

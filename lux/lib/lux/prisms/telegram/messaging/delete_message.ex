@@ -16,14 +16,14 @@ defmodule Lux.Prisms.Telegram.Messages.DeleteMessage do
 
       # Delete a message
       iex> DeleteMessage.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   message_id: 42
       ...> }, %{name: "Agent"})
-      {:ok, %{deleted: true, message_id: 42, chat_id: 123456789}}
+      {:ok, %{deleted: true, message_id: 42, chat_id: 123_456_789}}
 
       # Error handling (passed through from Telegram API)
       iex> DeleteMessage.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   message_id: 42
       ...> }, %{name: "Agent"})
       {:error, "Failed to delete message: Bad Request: message to delete not found (HTTP 400)"}

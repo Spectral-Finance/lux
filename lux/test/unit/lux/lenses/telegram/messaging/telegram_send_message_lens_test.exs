@@ -44,7 +44,7 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["text"] == "Hello from Lux!"
 
         # Return a mock response
@@ -53,21 +53,21 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
           "result" => %{
             "message_id" => 123,
             "text" => "Hello from Lux!",
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "date" => 1617123456
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "date" => 1_617_123_456
           }
         })
       end)
 
       assert {:ok, result} = SendMessage.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         text: "Hello from Lux!"
       })
 
       assert result.message_id == 123
       assert result.text == "Hello from Lux!"
-      assert result.chat["id"] == 123456789
+      assert result.chat["id"] == 123_456_789
     end
 
     test "sends a message with optional parameters" do
@@ -80,7 +80,7 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["text"] == "Hello from Lux!"
         assert decoded_body["parse_mode"] == "Markdown"
         assert decoded_body["disable_notification"] == true
@@ -91,15 +91,15 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
           "result" => %{
             "message_id" => 123,
             "text" => "Hello from Lux!",
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "date" => 1617123456
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "date" => 1_617_123_456
           }
         })
       end)
 
       assert {:ok, result} = SendMessage.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         text: "Hello from Lux!",
         parse_mode: "Markdown",
         disable_notification: true
@@ -137,7 +137,7 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
       end)
 
       assert {:error, _} = SendMessage.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         text: "Hello from Lux!"
       })
     end
@@ -158,16 +158,16 @@ defmodule Lux.Lenses.Telegram.SendMessageLensTest do
         "result" => %{
           "message_id" => 123,
           "text" => "Hello from Lux!",
-          "chat" => %{"id" => 123456789, "type" => "private"},
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "date" => 1617123456
+          "chat" => %{"id" => 123_456_789, "type" => "private"},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "date" => 1_617_123_456
         }
       }
 
       assert {:ok, result} = SendMessage.after_focus(response)
       assert result.message_id == 123
       assert result.text == "Hello from Lux!"
-      assert result.chat["id"] == 123456789
+      assert result.chat["id"] == 123_456_789
     end
 
     test "transforms error response" do

@@ -44,7 +44,7 @@ defmodule Lux.Lenses.Telegram.DeleteMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["message_id"] == 42
 
         # Return a mock response
@@ -55,7 +55,7 @@ defmodule Lux.Lenses.Telegram.DeleteMessageLensTest do
       end)
 
       assert {:ok, true} = DeleteMessage.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42
       })
     end
@@ -88,7 +88,7 @@ defmodule Lux.Lenses.Telegram.DeleteMessageLensTest do
       end)
 
       assert {:error, _} = DeleteMessage.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         message_id: 42
       })
     end

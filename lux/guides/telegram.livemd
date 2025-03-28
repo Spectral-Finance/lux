@@ -54,7 +54,7 @@ alias Lux.Prisms.Telegram.Messages.SendMessage
 # Send a message to a chat
 {:ok, result} = SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "Hello from Lux!"
   },
   %{name: "Demo Bot"}
@@ -77,7 +77,7 @@ alias Lux.Prisms.Telegram.Messages.DeleteMessage
 # Send a basic message
 {:ok, result} = SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "Hello from Lux!"
   },
   %{name: "Demo Bot"}
@@ -86,7 +86,7 @@ alias Lux.Prisms.Telegram.Messages.DeleteMessage
 # Edit a message you've sent
 {:ok, edited} = EditMessageText.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     message_id: result.message_id,
     text: "Updated message"
   },
@@ -96,7 +96,7 @@ alias Lux.Prisms.Telegram.Messages.DeleteMessage
 # Delete a message
 {:ok, _} = DeleteMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     message_id: result.message_id
   },
   %{name: "Demo Bot"}
@@ -113,7 +113,7 @@ alias Lux.Prisms.Telegram.Media.SendPhoto
 # Send a photo by URL
 {:ok, photo_result} = SendPhoto.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     photo: "https://example.com/image.jpg",
     caption: "Check out this image!"
   },
@@ -123,7 +123,7 @@ alias Lux.Prisms.Telegram.Media.SendPhoto
 # Send a photo with markdown caption
 {:ok, _} = SendPhoto.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     photo: "https://example.com/image.jpg",
     caption: "*Bold* and _italic_ formatting",
     parse_mode: "Markdown"
@@ -144,7 +144,7 @@ alias Lux.Prisms.Telegram.Messages.EditMessageCaption
 # Copy a message between chats
 {:ok, copied} = CopyMessage.handler(
   %{
-    chat_id: 123456789, # Destination chat
+    chat_id: 123_456_789, # Destination chat
     from_chat_id: 987654321, # Source chat
     message_id: 42 # Message to copy
   },
@@ -154,7 +154,7 @@ alias Lux.Prisms.Telegram.Messages.EditMessageCaption
 # Forward a message between chats
 {:ok, forwarded} = ForwardMessage.handler(
   %{
-    chat_id: 123456789, # Destination chat
+    chat_id: 123_456_789, # Destination chat
     from_chat_id: 987654321, # Source chat
     message_id: 42 # Message to forward
   },
@@ -164,7 +164,7 @@ alias Lux.Prisms.Telegram.Messages.EditMessageCaption
 # Edit a media caption
 {:ok, _} = EditMessageCaption.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     message_id: photo_result.message_id,
     caption: "Updated caption"
   },
@@ -182,7 +182,7 @@ Telegram supports rich formatting in messages using Markdown or HTML:
 # Using MarkdownV2 formatting
 SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "*Bold text*\n_Italic text_\n`Code`\n[Link](https://example.com)",
     parse_mode: "MarkdownV2"
   },
@@ -192,7 +192,7 @@ SendMessage.handler(
 # Using HTML formatting
 SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "<b>Bold text</b>\n<i>Italic text</i>\n<code>Code</code>\n<a href='https://example.com'>Link</a>",
     parse_mode: "HTML"
   },
@@ -208,7 +208,7 @@ You can customize message behavior with various options:
 # Silent messages (no notification)
 SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "This message won't trigger a notification",
     disable_notification: true
   },
@@ -218,7 +218,7 @@ SendMessage.handler(
 # Protected content (prevent forwarding)
 SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "This message cannot be forwarded",
     protect_content: true
   },
@@ -351,7 +351,7 @@ Telegram supports interactive buttons in messages:
 # Example of inline keyboard
 SendMessage.handler(
   %{
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "Please select an option:",
     reply_markup: %{
       inline_keyboard: [

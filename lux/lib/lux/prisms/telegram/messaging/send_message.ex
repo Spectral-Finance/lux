@@ -15,26 +15,26 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
 
       # Send a simple message
       iex> SendMessage.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   text: "Hello from Lux!"
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123456789, text: "Hello from Lux!"}}
+      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "Hello from Lux!"}}
 
       # Send a message with markdown formatting
       iex> SendMessage.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   text: "*Bold* and _italic_ text",
       ...>   parse_mode: "Markdown"
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123456789, text: "*Bold* and _italic_ text"}}
+      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "*Bold* and _italic_ text"}}
 
       # Send a message silently (without notification)
       iex> SendMessage.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   text: "Silent message",
       ...>   disable_notification: true
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123456789, text: "Silent message"}}
+      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "Silent message"}}
   """
 
   use Lux.Prism,

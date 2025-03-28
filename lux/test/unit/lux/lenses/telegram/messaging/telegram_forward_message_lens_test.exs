@@ -44,8 +44,8 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
-        assert decoded_body["from_chat_id"] == 987654321
+        assert decoded_body["chat_id"] == 123_456_789
+        assert decoded_body["from_chat_id"] == 987_654_321
         assert decoded_body["message_id"] == 42
 
         # Return a mock response
@@ -53,27 +53,27 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 123,
-            "from" => %{"id" => 111222333, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1617123456,
-            "forward_from" => %{"id" => 444555666, "first_name" => "Original Sender"},
-            "forward_from_chat" => %{"id" => 987654321, "type" => "private"},
-            "forward_date" => 1617123000,
+            "from" => %{"id" => 111_222_333, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_617_123_456,
+            "forward_from" => %{"id" => 444_555_666, "first_name" => "Original Sender"},
+            "forward_from_chat" => %{"id" => 987_654_321, "type" => "private"},
+            "forward_date" => 1_617_123_000,
             "text" => "Original message text"
           }
         })
       end)
 
       assert {:ok, result} = ForwardMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42
       })
 
       assert result.message_id == 123
-      assert result.chat["id"] == 123456789
-      assert result.forward_from["id"] == 444555666
-      assert result.forward_from_chat["id"] == 987654321
+      assert result.chat["id"] == 123_456_789
+      assert result.forward_from["id"] == 444_555_666
+      assert result.forward_from_chat["id"] == 987_654_321
       assert result.text == "Original message text"
     end
 
@@ -87,8 +87,8 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
-        assert decoded_body["from_chat_id"] == 987654321
+        assert decoded_body["chat_id"] == 123_456_789
+        assert decoded_body["from_chat_id"] == 987_654_321
         assert decoded_body["message_id"] == 42
         assert decoded_body["disable_notification"] == true
         assert decoded_body["protect_content"] == true
@@ -98,27 +98,27 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 123,
-            "from" => %{"id" => 111222333, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1617123456,
-            "forward_from" => %{"id" => 444555666, "first_name" => "Original Sender"},
-            "forward_from_chat" => %{"id" => 987654321, "type" => "private"},
-            "forward_date" => 1617123000,
+            "from" => %{"id" => 111_222_333, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_617_123_456,
+            "forward_from" => %{"id" => 444_555_666, "first_name" => "Original Sender"},
+            "forward_from_chat" => %{"id" => 987_654_321, "type" => "private"},
+            "forward_date" => 1_617_123_000,
             "text" => "Original message text"
           }
         })
       end)
 
       assert {:ok, result} = ForwardMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42,
         disable_notification: true,
         protect_content: true
       })
 
       assert result.message_id == 123
-      assert result.forward_from["id"] == 444555666
+      assert result.forward_from["id"] == 444_555_666
     end
 
     test "focus/1 handles error response from API" do
@@ -150,8 +150,8 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
       end)
 
       assert {:error, _} = ForwardMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42
       })
     end
@@ -171,20 +171,20 @@ defmodule Lux.Lenses.Telegram.ForwardMessageLensTest do
         "ok" => true,
         "result" => %{
           "message_id" => 123,
-          "from" => %{"id" => 111222333, "is_bot" => true, "first_name" => "Test Bot"},
-          "chat" => %{"id" => 123456789, "type" => "private"},
-          "date" => 1617123456,
-          "forward_from" => %{"id" => 444555666, "first_name" => "Original Sender"},
-          "forward_from_chat" => %{"id" => 987654321, "type" => "private"},
-          "forward_date" => 1617123000,
+          "from" => %{"id" => 111_222_333, "is_bot" => true, "first_name" => "Test Bot"},
+          "chat" => %{"id" => 123_456_789, "type" => "private"},
+          "date" => 1_617_123_456,
+          "forward_from" => %{"id" => 444_555_666, "first_name" => "Original Sender"},
+          "forward_from_chat" => %{"id" => 987_654_321, "type" => "private"},
+          "forward_date" => 1_617_123_000,
           "text" => "Original message text"
         }
       }
 
       assert {:ok, result} = ForwardMessage.after_focus(response)
       assert result.message_id == 123
-      assert result.forward_from["id"] == 444555666
-      assert result.forward_from_chat["id"] == 987654321
+      assert result.forward_from["id"] == 444_555_666
+      assert result.forward_from_chat["id"] == 987_654_321
       assert result.text == "Original message text"
     end
 

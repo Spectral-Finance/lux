@@ -3,7 +3,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
 
   alias Lux.Prisms.Telegram.Messages.EditMessageCaption
 
-  @chat_id 123456789
+  @chat_id 123_456_789
   @message_id 42
   @inline_message_id "CAAqrxJRAqABAZaiqJ4sAJtvlCQI"
   @caption "Updated caption"
@@ -31,10 +31,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
           "ok" => true,
           "result" => %{
             "message_id" => @message_id,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
             "chat" => %{"id" => @chat_id, "type" => "private"},
-            "date" => 1617123456,
-            "edit_date" => 1617123459,
+            "date" => 1_617_123_456,
+            "edit_date" => 1_617_123_459,
             "caption" => @caption
           }
         }))
@@ -101,10 +101,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
           "ok" => true,
           "result" => %{
             "message_id" => @message_id,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "TestBot", "username" => "test_bot"},
             "chat" => %{"id" => @chat_id, "type" => "private"},
-            "date" => 1617123456,
-            "edit_date" => 1617123459,
+            "date" => 1_617_123_456,
+            "edit_date" => 1_617_123_459,
             "caption" => formatted_caption
           }
         }))

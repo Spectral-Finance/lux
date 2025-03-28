@@ -44,7 +44,7 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["photo"] == "https://example.com/photo.jpg"
 
         # Return a mock response
@@ -52,9 +52,9 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 123,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1617123456,
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_617_123_456,
             "photo" => [
               %{
                 "file_id" => "photo_file_id_1",
@@ -69,12 +69,12 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
       end)
 
       assert {:ok, result} = SendPhoto.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         photo: "https://example.com/photo.jpg"
       })
 
       assert result.message_id == 123
-      assert result.chat["id"] == 123456789
+      assert result.chat["id"] == 123_456_789
       assert is_list(result.photo)
       assert length(result.photo) == 1
       assert hd(result.photo)["file_id"] == "photo_file_id_1"
@@ -90,7 +90,7 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
+        assert decoded_body["chat_id"] == 123_456_789
         assert decoded_body["photo"] == "https://example.com/photo.jpg"
         assert decoded_body["caption"] == "*Bold* caption"
         assert decoded_body["parse_mode"] == "Markdown"
@@ -101,9 +101,9 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 123,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1617123456,
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_617_123_456,
             "photo" => [
               %{
                 "file_id" => "photo_file_id_1",
@@ -119,7 +119,7 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
       end)
 
       assert {:ok, result} = SendPhoto.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         photo: "https://example.com/photo.jpg",
         caption: "*Bold* caption",
         parse_mode: "Markdown",
@@ -159,7 +159,7 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
       end)
 
       assert {:error, _} = SendPhoto.focus(%{
-        chat_id: 123456789,
+        chat_id: 123_456_789,
         photo: "https://example.com/photo.jpg"
       })
     end
@@ -179,9 +179,9 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
         "ok" => true,
         "result" => %{
           "message_id" => 123,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789, "type" => "private"},
-          "date" => 1617123456,
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789, "type" => "private"},
+          "date" => 1_617_123_456,
           "photo" => [
             %{
               "file_id" => "photo_file_id_1",
@@ -197,7 +197,7 @@ defmodule Lux.Lenses.Telegram.SendPhotoLensTest do
 
       assert {:ok, result} = SendPhoto.after_focus(response)
       assert result.message_id == 123
-      assert result.chat["id"] == 123456789
+      assert result.chat["id"] == 123_456_789
       assert is_list(result.photo)
       assert result.caption == "Test caption"
     end

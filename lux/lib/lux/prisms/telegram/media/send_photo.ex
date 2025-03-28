@@ -16,20 +16,20 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
 
       # Send a photo by URL
       iex> SendPhoto.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   photo: "https://example.com/photo.jpg",
       ...>   caption: "A beautiful photo"
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 42, chat_id: 123456789, photo: "https://example.com/photo.jpg"}}
+      {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789, photo: "https://example.com/photo.jpg"}}
 
       # Send a photo with markdown formatting in caption
       iex> SendPhoto.handler(%{
-      ...>   chat_id: 123456789,
+      ...>   chat_id: 123_456_789,
       ...>   photo: "https://example.com/photo.jpg",
       ...>   caption: "*Bold* and _italic_ caption",
       ...>   parse_mode: "Markdown"
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 42, chat_id: 123456789, photo: "https://example.com/photo.jpg"}}
+      {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789, photo: "https://example.com/photo.jpg"}}
   """
 
   use Lux.Prism,

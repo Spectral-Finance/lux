@@ -16,30 +16,30 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
 
       # Copy a message
       iex> CopyMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42
       ...> }, %{name: "Agent"})
-      {:ok, %{copied: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{copied: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
 
       # Copy a message silently (without notification)
       iex> CopyMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42,
       ...>   disable_notification: true
       ...> }, %{name: "Agent"})
-      {:ok, %{copied: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{copied: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
 
       # Copy a message with a new caption
       iex> CopyMessage.handler(%{
-      ...>   chat_id: 123456789,
-      ...>   from_chat_id: 987654321,
+      ...>   chat_id: 123_456_789,
+      ...>   from_chat_id: 987_654_321,
       ...>   message_id: 42,
       ...>   caption: "New caption for the copied message",
       ...>   parse_mode: "Markdown"
       ...> }, %{name: "Agent"})
-      {:ok, %{copied: true, message_id: 123, from_chat_id: 987654321, chat_id: 123456789}}
+      {:ok, %{copied: true, message_id: 123, from_chat_id: 987_654_321, chat_id: 123_456_789}}
   """
 
   use Lux.Prism,

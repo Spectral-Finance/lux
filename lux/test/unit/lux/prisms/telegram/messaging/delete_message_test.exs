@@ -3,7 +3,7 @@ defmodule Lux.Prisms.Telegram.Messages.DeleteMessageTest do
 
   alias Lux.Prisms.Telegram.Messages.DeleteMessage
 
-  @chat_id 123456789
+  @chat_id 123_456_789
   @message_id 42
   @agent_ctx %{name: "TestAgent"}
 

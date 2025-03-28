@@ -3,8 +3,8 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
 
   alias Lux.Prisms.Telegram.Messages.CopyMessage
 
-  @chat_id 123456789
-  @from_chat_id 987654321
+  @chat_id 123_456_789
+  @from_chat_id 987_654_321
   @message_id 42
   @new_message_id 123
   @agent_ctx %{name: "TestAgent"}

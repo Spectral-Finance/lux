@@ -44,8 +44,8 @@ defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
-        assert decoded_body["from_chat_id"] == 987654321
+        assert decoded_body["chat_id"] == 123_456_789
+        assert decoded_body["from_chat_id"] == 987_654_321
         assert decoded_body["message_id"] == 42
 
         # Return a mock response
@@ -58,8 +58,8 @@ defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
       end)
 
       assert {:ok, result} = CopyMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42
       })
 
@@ -76,8 +76,8 @@ defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
         # Verify the body
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        assert decoded_body["chat_id"] == 123456789
-        assert decoded_body["from_chat_id"] == 987654321
+        assert decoded_body["chat_id"] == 123_456_789
+        assert decoded_body["from_chat_id"] == 987_654_321
         assert decoded_body["message_id"] == 42
         assert decoded_body["caption"] == "New caption"
         assert decoded_body["parse_mode"] == "Markdown"
@@ -94,8 +94,8 @@ defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
       end)
 
       assert {:ok, result} = CopyMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42,
         caption: "New caption",
         parse_mode: "Markdown",
@@ -135,8 +135,8 @@ defmodule Lux.Lenses.Telegram.CopyMessageLensTest do
       end)
 
       assert {:error, _} = CopyMessage.focus(%{
-        chat_id: 123456789,
-        from_chat_id: 987654321,
+        chat_id: 123_456_789,
+        from_chat_id: 987_654_321,
         message_id: 42
       })
     end

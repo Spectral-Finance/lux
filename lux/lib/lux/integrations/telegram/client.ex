@@ -35,14 +35,14 @@ defmodule Lux.Integrations.Telegram.Client do
       # Send a message
       iex> Telegram.Client.request(:post, "/sendMessage", %{
       ...>   token: "your_bot_token",
-      ...>   json: %{chat_id: 123456789, text: "Hello!"}
+      ...>   json: %{chat_id: 123_456_789, text: "Hello!"}
       ...> })
       {:ok, %{"ok" => true, "result" => %{"message_id" => 456}}}
 
       # Copy a message
       iex> Telegram.Client.request(:post, "/copyMessage", %{
       ...>   token: "your_bot_token",
-      ...>   json: %{chat_id: 123456789, from_chat_id: 987654321, message_id: 42}
+      ...>   json: %{chat_id: 123_456_789, from_chat_id: 987_654_321, message_id: 42}
       ...> })
       {:ok, %{"ok" => true, "result" => %{"message_id" => 123}}}
   """
