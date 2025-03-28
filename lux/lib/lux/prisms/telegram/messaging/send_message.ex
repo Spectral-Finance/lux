@@ -172,13 +172,27 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
       {key, value} when is_binary(value) and key in [:chat_id] -> 
         # Try to convert string chat_id to integer if it's numeric
         case Integer.parse(value) do
-          {int_value, ""} -> {key, int_value}
-          _ -> {key, value}
+          {int_value, ""} -> {stringify_key(key), int_value}
+          _ -> {stringify_key(key), value}
         end
-      # Convert atom keys to strings to meet Telegram API expectations
-      {key, value} when is_atom(key) -> {Atom.to_string(key), value}
-      {key, value} -> {key, value}
+      # Handle nested maps recursively
+      {key, value} when is_map(value) ->
+        {stringify_key(key), transform_param_types(value)}
+      # Handle lists that might contain maps
+      {key, value} when is_list(value) ->
+        {stringify_key(key), Enum.map(value, &transform_list_item/1)}
+      # Convert any other pairs ensuring the key is a string
+      {key, value} -> {stringify_key(key), value}
     end)
     |> Enum.into(%{})
   end
+
+  # Helper function to stringify keys
+  defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
+  defp stringify_key(key) when is_binary(key), do: key
+  defp stringify_key(key), do: "#{key}"
+
+  # Helper function to transform items in a list
+  defp transform_list_item(item) when is_map(item), do: transform_param_types(item)
+  defp transform_list_item(item), do: item
 end 
