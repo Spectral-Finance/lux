@@ -75,7 +75,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     end
 
     test "uses configured API key when token is not provided" do
-      api_key = "7904697933:AAF0XodgLwQ7OYG06xm3eYmBPlVIMBHVLOc"
+      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
       
       Application.put_env(:lux, :telegram_bot_token, api_key)
       
@@ -134,7 +134,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     end
 
     test "handles API error with description" do
-      api_key = "7904697933:AAF0XodgLwQ7OYG06xm3eYmBPlVIMBHVLOc"
+      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
       
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
@@ -163,7 +163,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     end
 
     test "handles unexpected response format" do
-      api_key = "7904697933:AAF0XodgLwQ7OYG06xm3eYmBPlVIMBHVLOc"
+      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
       
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "GET"
