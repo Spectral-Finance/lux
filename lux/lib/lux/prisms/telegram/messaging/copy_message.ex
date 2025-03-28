@@ -176,6 +176,8 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
           {int_value, ""} -> {key, int_value}
           _ -> {key, value}
         end
+      # Convert atom keys to strings to meet Telegram API expectations
+      {key, value} when is_atom(key) -> {Atom.to_string(key), value}
       {key, value} -> {key, value}
     end)
     |> Enum.into(%{})
