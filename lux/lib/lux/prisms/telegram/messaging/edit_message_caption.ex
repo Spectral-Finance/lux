@@ -216,10 +216,9 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
   # Transform parameters to the correct types expected by the Telegram API
   defp transform_param_types(params) do
     params
+    |> Map.take([:chat_id, :message_id, :inline_message_id, :caption, :parse_mode, 
+                :caption_entities, :reply_markup])
     |> Enum.reduce(%{}, fn
-      # Skip "schema" and other non-desired attributes
-      {key, _value}, acc when key in ["schema", "lux"] ->
-        acc
       {key, value}, acc when is_binary(value) and key in [:chat_id] -> 
         # Try to convert string chat_id to integer if it's numeric
         case Integer.parse(value) do
@@ -229,11 +228,26 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
       {key, value}, acc when is_map(value) ->
         Map.put(acc, stringify_key(key), transform_param_types(value))
       {key, value}, acc when is_list(value) ->
-        Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
+        # Check if it's a keyword list directly in the function body instead of in a guard
+        if keyword_list?(value) do
+          # Skip keyword lists which are typically schema definitions
+          acc
+        else
+          Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
+        end
       {key, value}, acc ->
         Map.put(acc, stringify_key(key), value)
     end)
   end
+
+  # Helper function to check if a list is a keyword list
+  defp keyword_list?(list) when is_list(list) do
+    Enum.all?(list, fn
+      {key, _} when is_atom(key) -> true
+      _ -> false
+    end)
+  end
+  defp keyword_list?(_), do: false
 
   # Helper function to stringify keys
   defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
