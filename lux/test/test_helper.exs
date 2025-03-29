@@ -1,14 +1,5 @@
 ExUnit.start(exclude: [:skip, :integration, :unit])
 
-# Configure Logger to be less verbose during tests
-Logger.configure(level: :warning)
-
-# Silence specific loggers for the Telegram API
-:logger.add_primary_filter(
-  :silence_telegram_api,
-  {&:logger_filters.domain/2, {:stop, :equal, [:"Lux.Lenses.Telegram"]}}
-)
-
 defmodule UnitAPICase do
   @moduledoc false
   use ExUnit.CaseTemplate
