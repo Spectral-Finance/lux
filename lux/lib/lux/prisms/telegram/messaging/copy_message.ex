@@ -207,6 +207,8 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
       item -> item
     end)
   end
-  defp transform_list_item(item) when is_map(item), do: transform_param_types(item)
-  defp transform_list_item(item), do: item
+  # Handle non-list items
+  defp transform_list_item(item) do
+    if is_map(item), do: transform_param_types(item), else: item
+  end
 end 

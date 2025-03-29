@@ -240,7 +240,8 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
   defp stringify_key(key) when is_binary(key), do: key
   defp stringify_key(key), do: "#{key}"
 
-  # Helper function to transform items in a list
-  defp transform_list_item(item) when is_map(item), do: transform_param_types(item)
-  defp transform_list_item(item), do: item
+  # Handle non-list items
+  defp transform_list_item(item) do
+    if is_map(item), do: transform_param_types(item), else: item
+  end
 end 
