@@ -5,6 +5,7 @@ defmodule UnitAPICase do
   use ExUnit.CaseTemplate
 
   alias Lux.LLM.OpenAI
+  alias Lux.Lens.TelegramLens
   alias Lux.Lenses.Etherscan
   alias Lux.LLM.Anthropic
   alias Lux.Integrations.Discord.Client, as: DiscordClient
@@ -18,6 +19,7 @@ defmodule UnitAPICase do
   setup do
     Application.put_env(:lux, :req_options, plug: {Req.Test, Lux.Lens})
     Application.put_env(:lux, OpenAI, plug: {Req.Test, OpenAI})
+    Application.put_env(:lux, TelegramLens, plug: {Req.Test, TelegramLens})
     Application.put_env(:lux, Etherscan, plug: {Req.Test, Etherscan})
     Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
