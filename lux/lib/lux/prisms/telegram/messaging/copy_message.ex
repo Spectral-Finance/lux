@@ -169,22 +169,29 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
   # Transform parameters to the correct types expected by the Telegram API
   defp transform_param_types(params) do
     params
-    |> Enum.map(fn
+    |> Map.new(fn
+      # Handle special cases for chat_id and from_chat_id
       {key, value} when is_binary(value) and key in [:chat_id, :from_chat_id] -> 
         # Try to convert string chat_id to integer if it's numeric
+        stringified_key = stringify_key(key)
         case Integer.parse(value) do
-          {int_value, ""} -> {stringify_key(key), int_value}
-          _ -> {stringify_key(key), value}
+          {int_value, ""} -> {stringified_key, int_value}
+          _ -> {stringified_key, value}
         end
+      # Skip schema-related and special metadata fields
+      {key, _value} when key in [:__struct__, :__meta__, :inserted_at, :updated_at, :required] ->
+        {stringify_key(key), nil}
       # Handle nested maps recursively
       {key, value} when is_map(value) ->
         {stringify_key(key), transform_param_types(value)}
       # Handle lists that might contain maps
       {key, value} when is_list(value) ->
-        {stringify_key(key), Enum.map(value, &transform_list_item/1)}
-      # Convert any other pairs ensuring the key is a string
-      {key, value} -> {stringify_key(key), value}
+        {stringify_key(key), transform_list_item(value)}
+      # Convert any other pairs ensuring the key is a string and filter out nil values
+      {key, value} -> 
+        {stringify_key(key), value}
     end)
+    |> Enum.filter(fn {_k, v} -> v != nil end)
     |> Enum.into(%{})
   end
 
@@ -194,6 +201,12 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
   defp stringify_key(key), do: "#{key}"
 
   # Helper function to transform items in a list
+  defp transform_list_item(items) when is_list(items) do
+    Enum.map(items, fn
+      item when is_map(item) -> transform_param_types(item)
+      item -> item
+    end)
+  end
   defp transform_list_item(item) when is_map(item), do: transform_param_types(item)
   defp transform_list_item(item), do: item
 end 

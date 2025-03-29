@@ -159,23 +159,25 @@ defmodule Lux.Prisms.Telegram.Messages.ForwardMessage do
   # Transform parameters to the correct types expected by the Telegram API
   defp transform_param_types(params) do
     params
-    |> Enum.map(fn
-      {key, value} when is_binary(value) and key in [:chat_id, :from_chat_id] -> 
+    |> Enum.reduce(%{}, fn
+      # Skip "schema" and other non-desired attributes
+      {key, _value}, acc when key in ["schema", "lux"] ->
+        acc
+      {key, value}, acc when is_binary(value) and key in [:chat_id, :from_chat_id] ->
         # Try to convert string chat_id to integer if it's numeric
         case Integer.parse(value) do
-          {int_value, ""} -> {stringify_key(key), int_value}
-          _ -> {stringify_key(key), value}
+          {int_value, ""} -> Map.put(acc, stringify_key(key), int_value)
+          _ -> Map.put(acc, stringify_key(key), value)
         end
       # Handle nested maps recursively
-      {key, value} when is_map(value) ->
-        {stringify_key(key), transform_param_types(value)}
+      {key, value}, acc when is_map(value) ->
+        Map.put(acc, stringify_key(key), transform_param_types(value))
       # Handle lists that might contain maps
-      {key, value} when is_list(value) ->
-        {stringify_key(key), Enum.map(value, &transform_list_item/1)}
+      {key, value}, acc when is_list(value) ->
+        Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
       # Convert any other pairs ensuring the key is a string
-      {key, value} -> {stringify_key(key), value}
+      {key, value}, acc -> Map.put(acc, stringify_key(key), value)
     end)
-    |> Enum.into(%{})
   end
 
   # Helper function to stringify keys
