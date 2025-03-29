@@ -127,17 +127,15 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} sending photo to chat #{chat_id}")
 
-      # Build the request body with all permitted parameters
-      request_body = params
-                     |> Map.take([:chat_id, :photo, :caption, :parse_mode, 
-                                  :caption_entities, :disable_notification,
-                                  :protect_content, :reply_to_message_id,
-                                  :allow_sending_without_reply, :reply_markup])
-                     |> transform_param_types()
+      # Build the request body
+      request_body = Map.take(params, [:chat_id, :photo, :caption, :parse_mode,
+                              :caption_entities, :disable_notification,
+                              :protect_content, :reply_to_message_id,
+                              :allow_sending_without_reply, :reply_markup])
 
       # Prepare request options
       request_opts = %{json: request_body}
-      
+
       # Add plug option for testing if provided
       request_opts = if Map.has_key?(params, :plug) do
         Map.put(request_opts, :plug, params.plug)
@@ -148,21 +146,21 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
       case Client.request(:post, "/sendPhoto", request_opts) do
         {:ok, %{"result" => result}} when is_map(result) ->
           Logger.info("Successfully sent photo to chat #{chat_id}")
-          
+
           # Extract caption for the response if it exists
           caption = Map.get(params, :caption)
-          
+
           {:ok, %{
-            sent: true, 
-            message_id: result["message_id"], 
+            sent: true,
+            message_id: result["message_id"],
             chat_id: chat_id,
             photo: photo,
             caption: caption
           }}
-        
+
         {:error, {status, %{"description" => description}}} ->
           {:error, "Failed to send photo: #{description} (HTTP #{status})"}
-          
+
         {:error, error} ->
           {:error, "Failed to send photo: #{inspect(error)}"}
       end
@@ -176,37 +174,4 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
       _ -> {:error, "Missing or invalid #{key}"}
     end
   end
-
-  # Transform parameters to the correct types expected by the Telegram API
-  defp transform_param_types(params) do
-    params
-    |> Enum.reduce(%{}, fn
-      # Skip "schema" and other non-desired attributes
-      {key, _value}, acc when key in ["schema", "lux"] ->
-        acc
-      {key, value}, acc when is_binary(value) and key in [:chat_id] -> 
-        # Try to convert string chat_id to integer if it's numeric
-        case Integer.parse(value) do
-          {int_value, ""} -> Map.put(acc, stringify_key(key), int_value)
-          _ -> Map.put(acc, stringify_key(key), value)
-        end
-      # Handle nested maps recursively
-      {key, value}, acc when is_map(value) ->
-        Map.put(acc, stringify_key(key), transform_param_types(value))
-      # Handle lists that might contain maps
-      {key, value}, acc when is_list(value) ->
-        Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
-      # Convert any other pairs ensuring the key is a string
-      {key, value}, acc -> Map.put(acc, stringify_key(key), value)
-    end)
-  end
-
-  # Helper function to stringify keys
-  defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
-  defp stringify_key(key) when is_binary(key), do: key
-  defp stringify_key(key), do: "#{key}"
-
-  # Helper function to transform items in a list
-  defp transform_list_item(item) when is_map(item), do: transform_param_types(item)
-  defp transform_list_item(item), do: item
-end 
+end

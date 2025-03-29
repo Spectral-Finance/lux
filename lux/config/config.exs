@@ -19,14 +19,3 @@ config :venomous, :snake_manager, %{
     python_executable: "python3"
   ]
 }
-
-# Add Hammer configuration
-config :hammer,
-  backend: {Hammer.Backend.ETS, 
-    [
-      expiry_ms: 60_000 * 60 * 4,       # 4 hours
-      cleanup_interval_ms: 60_000 * 10,  # 10 minutes
-      pool_size: 1,
-      pool_max_overflow: 2
-    ]
-  }

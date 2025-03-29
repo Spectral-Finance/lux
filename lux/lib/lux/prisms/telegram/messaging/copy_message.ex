@@ -122,16 +122,12 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} copying message #{message_id} from chat #{from_chat_id} to chat #{chat_id}")
 
-      # Build the request body with all permitted parameters
-      request_body = params
-                     |> Map.take([:chat_id, :from_chat_id, :message_id, :caption, 
-                                  :parse_mode, :disable_notification, :protect_content])
-                     |> transform_param_types()
+      # Build the request body
+      request_body = Map.take(params, [:chat_id, :from_chat_id, :message_id, :caption,
+                              :parse_mode, :disable_notification, :protect_content])
 
-      # Prepare request options
-      request_opts = %{json: request_body}
-      
       # Add plug option for testing if provided
+      request_opts = %{json: request_body}
       request_opts = if Map.has_key?(params, :plug) do
         Map.put(request_opts, :plug, params.plug)
       else
@@ -142,16 +138,16 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
         {:ok, %{"result" => %{"message_id" => new_message_id}}} ->
           Logger.info("Successfully copied message #{message_id} from chat #{from_chat_id} to chat #{chat_id}")
           {:ok, %{
-            copied: true, 
-            message_id: new_message_id, 
-            from_chat_id: from_chat_id, 
+            copied: true,
+            message_id: new_message_id,
+            from_chat_id: from_chat_id,
             chat_id: chat_id
           }}
-        
+
         {:error, {status, %{"description" => description}}} ->
           error = "Failed to copy message: #{description} (HTTP #{status})"
           {:error, error}
-          
+
         {:error, error} ->
           {:error, "Failed to copy message: #{inspect(error)}"}
       end
@@ -165,50 +161,4 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
       _ -> {:error, "Missing or invalid #{key}"}
     end
   end
-
-  # Transform parameters to the correct types expected by the Telegram API
-  defp transform_param_types(params) do
-    params
-    |> Map.take([:chat_id, :from_chat_id, :message_id, :caption, 
-                :parse_mode, :disable_notification, :protect_content])
-    |> Enum.reduce(%{}, fn
-      {key, value}, acc when is_binary(value) and key in [:chat_id, :from_chat_id] -> 
-        # Try to convert string chat_id to integer if it's numeric
-        case Integer.parse(value) do
-          {int_value, ""} -> Map.put(acc, stringify_key(key), int_value)
-          _ -> Map.put(acc, stringify_key(key), value)
-        end
-      {key, value}, acc when is_map(value) ->
-        Map.put(acc, stringify_key(key), transform_param_types(value))
-      {key, value}, acc when is_list(value) ->
-        # Check if it's a keyword list directly in the function body
-        if keyword_list?(value) do
-          # Skip keyword lists which are typically schema definitions
-          acc
-        else
-          Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
-        end
-      {key, value}, acc ->
-        Map.put(acc, stringify_key(key), value)
-    end)
-  end
-
-  # Helper function to check if a list is a keyword list
-  defp keyword_list?(list) when is_list(list) do
-    Enum.all?(list, fn
-      {key, _} when is_atom(key) -> true
-      _ -> false
-    end)
-  end
-  defp keyword_list?(_), do: false
-
-  # Helper function to stringify keys
-  defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
-  defp stringify_key(key) when is_binary(key), do: key
-  defp stringify_key(key), do: "#{key}"
-
-  # Handle non-list items
-  defp transform_list_item(item) do
-    if is_map(item), do: transform_param_types(item), else: item
-  end
-end 
+end

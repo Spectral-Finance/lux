@@ -116,10 +116,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
     cond do
       Map.has_key?(params, :inline_message_id) ->
         handle_inline_message(params, agent)
-      
+
       Map.has_key?(params, :chat_id) && Map.has_key?(params, :message_id) ->
         handle_chat_message(params, agent)
-      
+
       true ->
         {:error, "Missing required parameters: either (chat_id and message_id) or inline_message_id must be provided"}
     end
@@ -133,15 +133,13 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} editing caption of message #{message_id} in chat #{chat_id}")
 
-      # Build the request body with all permitted parameters
-      request_body = params
-                     |> Map.take([:chat_id, :message_id, :caption, :parse_mode, 
+      # Build the request body
+      request_body = Map.take(params, [:chat_id, :message_id, :caption, :parse_mode,
                                   :caption_entities, :reply_markup])
-                     |> transform_param_types()
 
       # Prepare request options
       request_opts = %{json: request_body}
-      
+
       # Add plug option for testing if provided
       request_opts = if Map.has_key?(params, :plug) do
         Map.put(request_opts, :plug, params.plug)
@@ -153,15 +151,15 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
         {:ok, %{"result" => result}} when is_map(result) ->
           Logger.info("Successfully edited caption of message #{message_id} in chat #{chat_id}")
           {:ok, %{
-            edited: true, 
-            message_id: message_id, 
+            edited: true,
+            message_id: message_id,
             chat_id: chat_id,
             caption: caption
           }}
-        
+
         {:error, {status, %{"description" => description}}} ->
           {:error, "Failed to edit message caption: #{description} (HTTP #{status})"}
-          
+
         {:error, error} ->
           {:error, "Failed to edit message caption: #{inspect(error)}"}
       end
@@ -175,15 +173,13 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} editing caption of inline message #{inline_message_id}")
 
-      # Build the request body with all permitted parameters
-      request_body = params
-                     |> Map.take([:inline_message_id, :caption, :parse_mode, 
+      # Build the request body
+      request_body = Map.take(params, [:inline_message_id, :caption, :parse_mode,
                                   :caption_entities, :reply_markup])
-                     |> transform_param_types()
 
       # Prepare request options
       request_opts = %{json: request_body}
-      
+
       # Add plug option for testing if provided
       request_opts = if Map.has_key?(params, :plug) do
         Map.put(request_opts, :plug, params.plug)
@@ -195,10 +191,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
         {:ok, %{"result" => true}} ->
           Logger.info("Successfully edited caption of inline message #{inline_message_id}")
           {:ok, %{edited: true}}
-        
+
         {:error, {status, %{"description" => description}}} ->
           {:error, "Failed to edit inline message caption: #{description} (HTTP #{status})"}
-          
+
         {:error, error} ->
           {:error, "Failed to edit inline message caption: #{inspect(error)}"}
       end
@@ -212,50 +208,4 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
       _ -> {:error, "Missing or invalid #{key}"}
     end
   end
-
-  # Transform parameters to the correct types expected by the Telegram API
-  defp transform_param_types(params) do
-    params
-    |> Map.take([:chat_id, :message_id, :inline_message_id, :caption, :parse_mode, 
-                :caption_entities, :reply_markup])
-    |> Enum.reduce(%{}, fn
-      {key, value}, acc when is_binary(value) and key in [:chat_id] -> 
-        # Try to convert string chat_id to integer if it's numeric
-        case Integer.parse(value) do
-          {int_value, ""} -> Map.put(acc, stringify_key(key), int_value)
-          _ -> Map.put(acc, stringify_key(key), value)
-        end
-      {key, value}, acc when is_map(value) ->
-        Map.put(acc, stringify_key(key), transform_param_types(value))
-      {key, value}, acc when is_list(value) ->
-        # Check if it's a keyword list directly in the function body instead of in a guard
-        if keyword_list?(value) do
-          # Skip keyword lists which are typically schema definitions
-          acc
-        else
-          Map.put(acc, stringify_key(key), Enum.map(value, &transform_list_item/1))
-        end
-      {key, value}, acc ->
-        Map.put(acc, stringify_key(key), value)
-    end)
-  end
-
-  # Helper function to check if a list is a keyword list
-  defp keyword_list?(list) when is_list(list) do
-    Enum.all?(list, fn
-      {key, _} when is_atom(key) -> true
-      _ -> false
-    end)
-  end
-  defp keyword_list?(_), do: false
-
-  # Helper function to stringify keys
-  defp stringify_key(key) when is_atom(key), do: Atom.to_string(key)
-  defp stringify_key(key) when is_binary(key), do: key
-  defp stringify_key(key), do: "#{key}"
-
-  # Handle non-list items
-  defp transform_list_item(item) do
-    if is_map(item), do: transform_param_types(item), else: item
-  end
-end 
+end
