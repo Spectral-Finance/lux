@@ -4,6 +4,9 @@ defmodule Lux.Integrations.Telegram.ClientTest do
   alias Lux.Integrations.Telegram.Client
 
   @bot_token "test_bot_token"
+  @mock_api_key "mock_token:ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+
+  import Mock
 
   setup do
     Req.Test.verify_on_exit!()
@@ -75,36 +78,34 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     end
 
     test "uses configured API key when token is not provided" do
-      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
+      api_key = @mock_api_key
       
-      Application.put_env(:lux, :telegram_bot_token, api_key)
-      
-      Req.Test.expect(TelegramClientMock, fn conn ->
-        assert conn.method == "GET"
-        assert conn.request_path == "/bot#{api_key}/getMe"
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          assert conn.method == "GET"
+          assert conn.request_path == "/bot#{api_key}/getMe"
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(200, Jason.encode!(%{
-          "ok" => true,
-          "result" => %{
-            "id" => 123_456_789,
-            "is_bot" => true,
-            "first_name" => "TestBot",
-            "username" => "test_bot"
-          }
-        }))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(200, Jason.encode!(%{
+            "ok" => true,
+            "result" => %{
+              "id" => 123_456_789,
+              "is_bot" => true,
+              "first_name" => "TestBot",
+              "username" => "test_bot"
+            }
+          }))
+        end)
 
-      {:ok, response} =
-        Client.request(:get, "/getMe", %{
-          plug: {Req.Test, TelegramClientMock}
-        })
+        {:ok, response} =
+          Client.request(:get, "/getMe", %{
+            plug: {Req.Test, TelegramClientMock}
+          })
 
-      assert response["ok"] == true
-      assert get_in(response, ["result", "username"]) == "test_bot"
-      
-      Application.put_env(:lux, :telegram_bot_token, nil)
+        assert response["ok"] == true
+        assert get_in(response, ["result", "username"]) == "test_bot"
+      end
     end
 
     test "handles authentication error" do
@@ -134,54 +135,58 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     end
 
     test "handles API error with description" do
-      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
+      api_key = @mock_api_key
       
-      Req.Test.expect(TelegramClientMock, fn conn ->
-        assert conn.method == "POST"
-        assert conn.request_path == "/bot#{api_key}/sendMessage"
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          assert conn.method == "POST"
+          assert conn.request_path == "/bot#{api_key}/sendMessage"
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(400, Jason.encode!(%{
-          "ok" => false,
-          "error_code" => 400,
-          "description" => "Bad Request: chat not found"
-        }))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(400, Jason.encode!(%{
+            "ok" => false,
+            "error_code" => 400,
+            "description" => "Bad Request: chat not found"
+          }))
+        end)
 
-      {:error, {400, response}} =
-        Client.request(:post, "/sendMessage", %{
-          json: %{
-            chat_id: 123_456_789,
-            text: "Hello, world!"
-          },
-          plug: {Req.Test, TelegramClientMock}
-        })
+        {:error, {400, response}} =
+          Client.request(:post, "/sendMessage", %{
+            json: %{
+              chat_id: 123_456_789,
+              text: "Hello, world!"
+            },
+            plug: {Req.Test, TelegramClientMock}
+          })
 
-      assert response["ok"] == false
-      assert response["description"] == "Bad Request: chat not found"
+        assert response["ok"] == false
+        assert response["description"] == "Bad Request: chat not found"
+      end
     end
 
     test "handles unexpected response format" do
-      api_key = "1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij"
+      api_key = @mock_api_key
       
-      Req.Test.expect(TelegramClientMock, fn conn ->
-        assert conn.method == "GET"
-        assert conn.request_path == "/bot#{api_key}/getMe"
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          assert conn.method == "GET"
+          assert conn.request_path == "/bot#{api_key}/getMe"
 
-        conn
-        |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(200, Jason.encode!(%{
-          "unexpected" => "format"
-        }))
-      end)
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(200, Jason.encode!(%{
+            "unexpected" => "format"
+          }))
+        end)
 
-      {:error, body} =
-        Client.request(:get, "/getMe", %{
-          plug: {Req.Test, TelegramClientMock}
-        })
+        {:error, body} =
+          Client.request(:get, "/getMe", %{
+            plug: {Req.Test, TelegramClientMock}
+          })
 
-      assert body == %{"unexpected" => "format"}
+        assert body == %{"unexpected" => "format"}
+      end
     end
   end
 end 
