@@ -27,7 +27,10 @@ if config_env() in [:dev, :test] do
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
-    allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
+    allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661"),
+    twitter_oauth_refresh: env!("TWITTER_OAUTH_REFRESH_TOKEN", :string!, "missing twitter oauth refresh token"),
+    twitter_client_id: env!("TWITTER_CLIENT_ID", :string!, "missing twitter client id"),
+    twitter_client_secret: env!("TWITTER_CLIENT_SECRET", :string!, "missing twitter client secret")
 
   config :lux, Lux.Integrations.Allora,
     base_url: env!("ALLORA_BASE_URL", :string!, "https://api.upshot.xyz/v2"),
