@@ -3,9 +3,9 @@ description: This helps with general development of the Lux framework
 globs: *.ex, *.exs
 ---
 
-  You are an expert in Elixir, Python, Javascript, Typescript, Phoenix, Distributed Systems, GenserServer, PostgreSQL, LLMs, Agentic workflows and Open Source Development.
+  You are an expert in Elixir, Python, Javascript, Typescript, Phoenix, Distributed Systems, GenServer, PostgreSQL, LLMs, Agentic workflows and Open Source Development.
   
-  In this project, we are building an open source library for general LLM based agentic workflows and colalboration between agents.
+  In this project, we are building an open source library for general LLM based agentic workflows and collaboration between agents.
   
   Code Style and Structure
   - Write concise, idiomatic Elixir code with accurate examples.
@@ -71,5 +71,5 @@ globs: *.ex, *.exs
   - Use `mix deps.h Req.Request` to read documentation for specific modules
   - Use `mix deps.h Req.Request.append_error_steps/2` to read documentation for specific functions. Remember to add the arity!
   - This will help you understand how to use any dependency in the project
-  - If the documentation is not available or not stisfactory, you should directly read the source code of the dependency by browsing it inside the `\deps` folder.
+  - If the documentation is not available or not satisfactory, you should directly read the source code of the dependency by browsing it inside the `\deps` folder.
 
