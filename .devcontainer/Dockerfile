@@ -8,26 +8,9 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     postgresql-client \
     git \
     curl \
+    unzip \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
-
-# Install asdf and set up tools versions from .tool-versions
-COPY ../.tool-versions /root/.tool-versions
-RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
-    && echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc \
-    && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc \
-    && . "$HOME/.asdf/asdf.sh" \
-    && asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git \
-    && asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git \
-    && asdf plugin add python \
-    && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git \
-    && asdf install
-
-# Install hex, rebar, and phoenix
-RUN . "$HOME/.asdf/asdf.sh" \
-    && mix local.hex --force \
-    && mix local.rebar --force \
-    && mix archive.install hex phx_new --force
 
 # Create a non-root user
 ARG USERNAME=vscode
@@ -43,9 +26,26 @@ RUN groupadd --gid $USER_GID $USERNAME \
 
 USER $USERNAME
 
-# Set up asdf for the non-root user
+# Install asdf and plugins
 RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
     && echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc \
-    && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+    && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc \
+    && . "$HOME/.asdf/asdf.sh" \
+    && asdf plugin add erlang https://github.com/asdf-vm/asdf-erlang.git \
+    && asdf plugin add elixir https://github.com/asdf-vm/asdf-elixir.git \
+    && asdf plugin add python \
+    && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+
+# Copy tool-versions file
+COPY --chown=$USERNAME:$USERNAME .tool-versions /workspaces/lux/.tool-versions
+
+# Install versions from tool-versions
+RUN . "$HOME/.asdf/asdf.sh" && cd /workspaces/lux && asdf install
+
+# Install hex, rebar, and phoenix
+RUN . "$HOME/.asdf/asdf.sh" \
+    && mix local.hex --force \
+    && mix local.rebar --force \
+    && mix archive.install hex phx_new --force
 
 WORKDIR /workspaces/lux 

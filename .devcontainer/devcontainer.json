@@ -2,8 +2,7 @@
     "name": "Lux Development Environment",
     "dockerFile": "Dockerfile",
     "features": {
-        "ghcr.io/devcontainers/features/github-cli:1": {},
-        "ghcr.io/devcontainers-contrib/features/asdf:1": {}
+        "ghcr.io/devcontainers/features/github-cli:1": {}
     },
     "forwardPorts": [
         4000,  // LuxApp Phoenix server
