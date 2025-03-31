@@ -1,5 +1,54 @@
 #!/bin/bash
 
+# Interactive menu function that supports arrow keys
+menu() {
+    local options=("$@")
+    local selected=0
+    local num_options=${#options[@]}
+
+    # Hide cursor
+    tput civis
+
+    while true; do
+        # Clear previous options
+        for ((i=0; i<$num_options; i++)); do
+            printf "\033[1A\033[K"
+        done
+
+        # Print options
+        for ((i=0; i<$num_options; i++)); do
+            if [ $i -eq $selected ]; then
+                printf "\033[36m> %s\033[0m\n" "${options[$i]}"
+            else
+                printf "  %s\n" "${options[$i]}"
+            fi
+        done
+
+        # Read a single keystroke
+        read -rsn1 input
+        if [[ "$input" = $'\x1b' ]]; then
+            read -rsn2 input
+            case "$input" in
+                '[A') # Up arrow
+                    ((selected--))
+                    [ $selected -lt 0 ] && selected=$((num_options-1))
+                    ;;
+                '[B') # Down arrow
+                    ((selected++))
+                    [ $selected -ge $num_options ] && selected=0
+                    ;;
+            esac
+        elif [[ "$input" = "" ]]; then # Enter key
+            break
+        fi
+    done
+
+    # Show cursor
+    tput cnorm
+    printf "\n"
+    return $selected
+}
+
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "GitHub CLI (gh) is not installed. Please install it first:"
@@ -22,87 +71,117 @@ if [ -z "$REPO_FULL_PATH" ]; then
 fi
 echo "Using repository: $REPO_FULL_PATH"
 
-# List existing codespaces
+# List existing codespaces and get available ones
 echo -e "\nExisting Codespaces:"
 gh codespace list
 
-# Ask if user wants to create a new codespace
-read -p "Create a new Codespace? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    # Get list of branches
-    echo -e "\nAvailable branches:"
+# Add some spacing and explanation
+echo -e "\nCodespaces are cloud-based development environments that mirror your local setup."
+echo "You can either connect to an existing Codespace or create a new one."
+echo -e "\nAvailable options:"
+echo "- Existing Codespaces: Connect to a running development environment"
+echo "- Create new Codespace: Set up a fresh environment with custom settings"
+echo -e "\n"
+
+# Get available codespaces (more compatible approach)
+# Initialize empty array
+CODESPACE_ARRAY=()
+while IFS= read -r line; do
+    CODESPACE_ARRAY+=("$line")
+done < <(gh codespace list | grep "Available" | awk '{print $1}')
+
+# Add "Create new Codespace" option
+CODESPACE_ARRAY+=("Create new Codespace")
+
+# Create menu options with existing codespaces plus "Create new" option
+echo -e "📍 Step 1: Select Your Development Environment"
+echo "Please select an existing Codespace to connect to, or choose to create a new one:"
+echo "Use ↑↓ arrows and Enter to select:"
+menu "${CODESPACE_ARRAY[@]}"
+SELECTION=$?
+
+# Check if user selected "Create new Codespace" (last option)
+if [ $SELECTION -eq $((${#CODESPACE_ARRAY[@]} - 1)) ]; then
+    # User selected "Create new Codespace"
     # Get current branch
     CURRENT_BRANCH=$(git branch --show-current)
-    echo "0) main (default)"
-    echo "1) $CURRENT_BRANCH (current)"
-    echo "2) Enter different branch name"
     
-    read -p "Select branch (0-2, or Enter for main): " branch_choice
-    echo
+    # Branch selection
+    echo -e "\n📍 Step 2: Select the Git Branch"
+    echo "Please select which Git branch you want to use in your Codespace:"
+    echo "This will determine which version of the code you'll be working with."
+    echo "Use ↑↓ arrows and Enter to select:"
+    menu "$CURRENT_BRANCH (current branch)" "main" "Enter different branch name"
+    BRANCH_CHOICE=$?
 
     branch_arg=""
-    case $branch_choice in
-        0|"") branch_arg="--branch main";;
-        1) branch_arg="--branch $CURRENT_BRANCH";;
+    case $BRANCH_CHOICE in
+        0) branch_arg="--branch $CURRENT_BRANCH";;
+        1) branch_arg="--branch main";;
         2)
-            read -p "Enter branch name: " custom_branch
+            read -p "Please enter the name of the branch you want to use: " custom_branch
             branch_arg="--branch $custom_branch"
             ;;
     esac
 
-    # Show available machine types
-    echo -e "\nAvailable machine types:"
-    echo "0) 2-core  (8GB RAM, 32GB storage)"
-    echo "1) 4-core  (16GB RAM, 32GB storage)"
-    echo "2) 8-core  (32GB RAM, 64GB storage)"
-    echo "3) 16-core (64GB RAM, 128GB storage)"
-    
-    # Let user choose machine type
-    read -p "Select machine type (0-3, or Enter for default 2-core): " machine_choice
-    echo
+    # Machine type selection
+    echo -e "\n📍 Step 3: Select the Machine Type"
+    echo "Please select the computational resources for your development environment:"
+    echo "Choose based on your development needs - larger machines are better for"
+    echo "heavy workloads but have shorter retention periods."
+    echo "Use ↑↓ arrows and Enter to select:"
+    menu "2-core  (8GB RAM, 32GB storage) - Good for basic development" \
+         "4-core  (16GB RAM, 32GB storage) - Better for testing and medium workloads" \
+         "8-core  (32GB RAM, 64GB storage) - Great for heavy compilation" \
+         "16-core (64GB RAM, 128GB storage) - Best for intensive workloads"
+    MACHINE_CHOICE=$?
 
-    # Only specify machine if user made a choice
-    machine_arg=""
-    case $machine_choice in
+    # Set machine type
+    case $MACHINE_CHOICE in
         0) machine_arg="--machine basicLinux32gb";;
         1) machine_arg="--machine standardLinux32gb";;
         2) machine_arg="--machine premiumLinux";;
         3) machine_arg="--machine largePremiumLinux";;
-        *) echo "Using default machine type (2-core, 8GB RAM, 32GB storage)";;
     esac
 
-    # Show available regions
-    echo -e "\nAvailable regions:"
-    echo "1) US East"
-    echo "2) US West"
-    echo "3) Europe West"
-    echo "4) Southeast Asia"
-    echo "5) Australia"
+    # Region selection
+    echo -e "\n📍 Step 4: Select the Server Region"
+    echo "Please select the geographical location for your development environment:"
+    echo "Choose the region closest to you for the best performance and lowest latency."
+    echo "Use ↑↓ arrows and Enter to select:"
+    menu "US East (Virginia) - Default region, good for Eastern US and Canada" \
+         "US West (Oregon) - Best for Western US and Pacific regions" \
+         "Europe West (Netherlands) - Optimal for Europe and Middle East" \
+         "Southeast Asia (Singapore) - Best for Asia and Pacific regions" \
+         "Australia (Sydney) - Optimal for Australia and New Zealand"
+    REGION_CHOICE=$?
 
-    # Let user choose region
-    read -p "Select region (1-5, or Enter for default): " region_choice
-    echo
-
-    # Set region argument
-    region_arg=""
-    case $region_choice in
-        1) region_arg="--location UsEast";;
-        2) region_arg="--location UsWest";;
-        3) region_arg="--location EuropeWest";;
-        4) region_arg="--location SoutheastAsia";;
-        5) region_arg="--location Australia";;
-        *) echo "Using default region";;
+    # Set region
+    case $REGION_CHOICE in
+        0) region_arg="--location UsEast";;
+        1) region_arg="--location UsWest";;
+        2) region_arg="--location EuropeWest";;
+        3) region_arg="--location SoutheastAsia";;
+        4) region_arg="--location Australia";;
     esac
 
-    echo "Creating new Codespace..."
+    echo -e "\n📍 Configuration Summary:"
+    echo "You have selected the following configuration for your new Codespace:"
+    echo "- Branch: ${branch_arg#--branch }"
+    echo "- Machine: ${machine_arg#--machine }"
+    echo "- Region: ${region_arg#--location }"
+    echo ""
+    
     NEW_CODESPACE=$(gh codespace create --repo $REPO_FULL_PATH $branch_arg $machine_arg $region_arg)
+    if [ -z "$NEW_CODESPACE" ]; then
+        echo "Error: Failed to create codespace"
+        exit 1
+    fi
     echo "New Codespace created: $NEW_CODESPACE"
     
     # Wait for the codespace to be ready
     echo "Waiting for Codespace to be ready..."
     while true; do
-        # Get status using --json format but parse with grep and cut
         STATUS=$(gh codespace list --json name,state | grep -F "\"$NEW_CODESPACE\"" | grep -o '"state":"[^"]*"' | cut -d'"' -f4)
         if [ "$STATUS" = "Available" ]; then
             break
@@ -113,39 +192,17 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     
     CODESPACE_NAME=$NEW_CODESPACE
 else
-    # If not creating new, select an available codespace
-    echo -e "\nSelect an existing Codespace:"
-    
-    # Get available codespaces using simple format and grep
-    mapfile -t CODESPACE_ARRAY < <(gh codespace list | grep "Available" | awk '{print $1}')
-    
-    if [ ${#CODESPACE_ARRAY[@]} -eq 0 ]; then
-        echo "No available Codespaces found. Please create a new one."
-        exit 1
-    fi
-    
-    # Print available codespaces with numbers
-    for i in "${!CODESPACE_ARRAY[@]}"; do
-        echo "$((i+1))) ${CODESPACE_ARRAY[$i]}"
-    done
-    
-    read -p "Select Codespace (1-${#CODESPACE_ARRAY[@]}): " selection
-    if [[ $selection =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#CODESPACE_ARRAY[@]}" ]; then
-        CODESPACE_NAME="${CODESPACE_ARRAY[$((selection-1))]}"
-    else
-        echo "Invalid selection"
-        exit 1
-    fi
+    CODESPACE_NAME="${CODESPACE_ARRAY[$SELECTION]}"
 fi
 
-echo "Using Codespace: $CODESPACE_NAME"
+echo -e "\nUsing Codespace: $CODESPACE_NAME"
 
 # Configure SSH
 echo "Configuring SSH..."
 gh codespace ssh --config
 
 echo "
-Setup complete! To connect with Cursor:
+✨ Setup complete! To connect with Cursor:
 1. Open Cursor
 2. Press Cmd/Ctrl + Shift + P
 3. Type 'Connect to Host'
