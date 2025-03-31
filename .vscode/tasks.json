@@ -1,0 +1,126 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Setup: Install Elixir Dependencies",
+            "type": "shell",
+            "command": "mix local.hex --force && mix local.rebar --force && mix deps.get && mix compile",
+            "problemMatcher": ["$mixCompileError", "$mixCompileWarning"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Setup: Install LuxApp Dependencies",
+            "type": "shell",
+            "command": "cd lux_app && mix deps.get && mix compile",
+            "problemMatcher": ["$mixCompileError", "$mixCompileWarning"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Setup: Install Python Dependencies",
+            "type": "shell",
+            "command": "python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Setup: Install Node.js Dependencies",
+            "type": "shell",
+            "command": "cd lux_app/assets && npm install",
+            "problemMatcher": ["$eslint-compact"],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Setup: Install Livebook",
+            "type": "shell",
+            "command": "mix escript.install hex livebook --force",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Setup: Initialize Environment",
+            "dependsOn": [
+                "Setup: Install Elixir Dependencies",
+                "Setup: Install LuxApp Dependencies",
+                "Setup: Install Python Dependencies",
+                "Setup: Install Node.js Dependencies",
+                "Setup: Install Livebook"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Start LuxApp Server",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/lux_app && mix phx.server",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "phoenix",
+                "pattern": {
+                    "regexp": "^\\[(\\w+)\\] (\\w+) (.*)$",
+                    "severity": 1,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[info\\] Running LuxAppWeb.Endpoint",
+                    "endsPattern": "^\\[info\\] Access LuxAppWeb.Endpoint at"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Start Livebook",
+            "type": "shell",
+            "command": "livebook server --port 4001 --token-enabled false",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "livebook",
+                "pattern": {
+                    "regexp": "^\\[(\\w+)\\] (\\w+) (.*)$",
+                    "severity": 1,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\[info\\] LiveBook running at",
+                    "endsPattern": "^\\[info\\] LiveBook is available at"
+                }
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "Start All Services",
+            "dependsOn": ["Start LuxApp Server", "Start Livebook"],
+            "dependsOrder": "parallel",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        }
+    ]
+} 

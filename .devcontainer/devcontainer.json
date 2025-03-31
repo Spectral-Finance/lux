@@ -88,7 +88,7 @@
             }
         }
     },
-    "postCreateCommand": "mix local.hex --force && mix local.rebar --force && mix deps.get && mix compile && cd lux_app && mix deps.get && mix compile && cd .. && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt && mix escript.install hex livebook --force",
+    "postStartCommand": "echo 'Run \"Initialize Environment\" task to set up your development environment'",
     "remoteUser": "vscode",
     "remoteEnv": {
         "MIX_ENV": "dev",

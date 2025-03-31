@@ -143,7 +143,16 @@ The environment will automatically:
 - Configure VS Code settings for optimal development
 - Install and configure Livebook
 
-To start the development environment:
+To set up the development environment:
+1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+2. Type "Tasks: Run Build Task" and select it (or use Cmd/Ctrl + Shift + B)
+3. This will run the "Initialize Environment" task which:
+   - Installs Elixir dependencies for both Lux and LuxApp
+   - Sets up Python virtual environment and dependencies
+   - Installs Node.js dependencies
+   - Installs and configures Livebook
+
+To start the development servers:
 1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
 2. Type "Tasks: Run Task" and select it
 3. Choose "Start All Services" to launch both LuxApp and Livebook
@@ -152,7 +161,17 @@ To start the development environment:
    - Livebook at port 4001 (no authentication required in dev mode)
    - Additional ports 8080 and 8081 are available for your services
 
-You can also start services individually:
+Available Tasks:
+Setup Tasks:
+- "Initialize Environment" - Sets up all dependencies (default build task)
+- "Install Elixir Dependencies" - Installs Lux dependencies
+- "Install LuxApp Dependencies" - Installs LuxApp dependencies
+- "Install Python Dependencies" - Sets up Python environment
+- "Install Node.js Dependencies" - Installs Node.js packages
+- "Install Livebook" - Installs Livebook
+
+Service Tasks:
+- "Start All Services" - Launches both servers (default test task)
 - "Start LuxApp Server" - Starts only the Phoenix server
 - "Start Livebook" - Starts only the Livebook server
 
