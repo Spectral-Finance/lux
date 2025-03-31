@@ -30,6 +30,27 @@ gh codespace list
 read -p "Create a new Codespace? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # Get list of branches
+    echo -e "\nAvailable branches:"
+    # Get current branch
+    CURRENT_BRANCH=$(git branch --show-current)
+    echo "0) main (default)"
+    echo "1) $CURRENT_BRANCH (current)"
+    echo "2) Enter different branch name"
+    
+    read -p "Select branch (0-2, or Enter for main): " branch_choice
+    echo
+
+    branch_arg=""
+    case $branch_choice in
+        0|"") branch_arg="--branch main";;
+        1) branch_arg="--branch $CURRENT_BRANCH";;
+        2)
+            read -p "Enter branch name: " custom_branch
+            branch_arg="--branch $custom_branch"
+            ;;
+    esac
+
     # Show available machine types
     echo -e "\nAvailable machine types:"
     echo "0) 2-core  (8GB RAM, 32GB storage)"
@@ -75,11 +96,48 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     esac
 
     echo "Creating new Codespace..."
-    gh codespace create --repo $REPO_FULL_PATH $machine_arg $region_arg
+    NEW_CODESPACE=$(gh codespace create --repo $REPO_FULL_PATH $branch_arg $machine_arg $region_arg)
+    echo "New Codespace created: $NEW_CODESPACE"
+    
+    # Wait for the codespace to be ready
+    echo "Waiting for Codespace to be ready..."
+    while true; do
+        # Get status using --json format but parse with grep and cut
+        STATUS=$(gh codespace list --json name,state | grep -F "\"$NEW_CODESPACE\"" | grep -o '"state":"[^"]*"' | cut -d'"' -f4)
+        if [ "$STATUS" = "Available" ]; then
+            break
+        fi
+        echo "Status: $STATUS"
+        sleep 5
+    done
+    
+    CODESPACE_NAME=$NEW_CODESPACE
+else
+    # If not creating new, select an available codespace
+    echo -e "\nSelect an existing Codespace:"
+    
+    # Get available codespaces using simple format and grep
+    mapfile -t CODESPACE_ARRAY < <(gh codespace list | grep "Available" | awk '{print $1}')
+    
+    if [ ${#CODESPACE_ARRAY[@]} -eq 0 ]; then
+        echo "No available Codespaces found. Please create a new one."
+        exit 1
+    fi
+    
+    # Print available codespaces with numbers
+    for i in "${!CODESPACE_ARRAY[@]}"; do
+        echo "$((i+1))) ${CODESPACE_ARRAY[$i]}"
+    done
+    
+    read -p "Select Codespace (1-${#CODESPACE_ARRAY[@]}): " selection
+    if [[ $selection =~ ^[0-9]+$ ]] && [ "$selection" -ge 1 ] && [ "$selection" -le "${#CODESPACE_ARRAY[@]}" ]; then
+        CODESPACE_NAME="${CODESPACE_ARRAY[$((selection-1))]}"
+    else
+        echo "Invalid selection"
+        exit 1
+    fi
 fi
 
-# Get the most recent codespace name
-CODESPACE_NAME=$(gh codespace list --json name --jq '.[0].name')
 echo "Using Codespace: $CODESPACE_NAME"
 
 # Configure SSH
