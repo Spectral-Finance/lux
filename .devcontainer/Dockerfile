@@ -48,10 +48,4 @@ RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
     && echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc \
     && echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
 
-# Create convenience script for starting services
-RUN echo '#!/bin/bash\n\
-cd /workspaces/lux/lux_app && mix phx.server & \n\
-livebook server --port 4001 --token-enabled false & \n\
-wait' > ~/start_services.sh && chmod +x ~/start_services.sh
-
 WORKDIR /workspaces/lux 

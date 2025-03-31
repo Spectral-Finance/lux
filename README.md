@@ -144,12 +144,17 @@ The environment will automatically:
 - Install and configure Livebook
 
 To start the development environment:
-1. Open a terminal in VS Code
-2. Run `~/start_services.sh` to start both LuxApp and Livebook
-3. Access:
+1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+2. Type "Tasks: Run Task" and select it
+3. Choose "Start All Services" to launch both LuxApp and Livebook
+4. Access:
    - LuxApp at port 4000
    - Livebook at port 4001 (no authentication required in dev mode)
    - Additional ports 8080 and 8081 are available for your services
+
+You can also start services individually:
+- "Start LuxApp Server" - Starts only the Phoenix server
+- "Start Livebook" - Starts only the Livebook server
 
 For development:
 - The main Lux library is in the root directory
