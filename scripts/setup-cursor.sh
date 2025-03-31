@@ -49,6 +49,14 @@ menu() {
     return $selected
 }
 
+# Handle command line arguments
+if [ "$1" = "--cleanup" ]; then
+    check_ssh_config
+    cleanup_old_configs
+    echo "✨ Cleaned up all Lux Codespace configurations from ~/.ssh/codespaces.auto"
+    exit 0
+fi
+
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then
     echo "GitHub CLI (gh) is not installed. Please install it first:"
@@ -181,14 +189,23 @@ if [ $SELECTION -eq $((${#CODESPACE_ARRAY[@]} - 1)) ]; then
     
     # Wait for the codespace to be ready
     echo "Waiting for Codespace to be ready..."
-    while true; do
-        STATUS=$(gh codespace list --json name,state | grep -F "\"$NEW_CODESPACE\"" | grep -o '"state":"[^"]*"' | cut -d'"' -f4)
+    max_attempts=30
+    attempt=0
+    while [ $attempt -lt $max_attempts ]; do
+        STATUS=$(gh codespace list | grep "$NEW_CODESPACE" | awk '{print $5}')
         if [ "$STATUS" = "Available" ]; then
+            echo "✨ Codespace is ready!"
             break
         fi
-        echo "Status: $STATUS"
+        echo "Status: $STATUS (attempt $((attempt + 1))/$max_attempts)"
+        attempt=$((attempt + 1))
         sleep 5
     done
+    
+    if [ $attempt -eq $max_attempts ]; then
+        echo "❌ Timed out waiting for Codespace to be ready"
+        exit 1
+    fi
     
     CODESPACE_NAME=$NEW_CODESPACE
 else
@@ -197,15 +214,96 @@ fi
 
 echo -e "\nUsing Codespace: $CODESPACE_NAME"
 
-# Configure SSH
-echo "Configuring SSH..."
-gh codespace ssh --config
+# Function to check if we can write to SSH config
+check_ssh_config() {
+    SSH_DIR=~/.ssh
+    SSH_CONFIG=~/.ssh/codespaces.auto
+
+    # Create .ssh directory if it doesn't exist
+    if [ ! -d "$SSH_DIR" ]; then
+        echo "Creating ~/.ssh directory..."
+        mkdir -p "$SSH_DIR"
+        chmod 700 "$SSH_DIR"
+    fi
+
+    # Create codespaces.auto file if it doesn't exist
+    if [ ! -f "$SSH_CONFIG" ]; then
+        echo "Creating ~/.ssh/codespaces.auto file..."
+        touch "$SSH_CONFIG"
+        chmod 600 "$SSH_CONFIG"
+    fi
+
+    # Check if we can write to the config file
+    if [ ! -w "$SSH_CONFIG" ]; then
+        echo "❌ Error: Cannot write to ~/.ssh/codespaces.auto"
+        echo "Please check file permissions"
+        exit 1
+    fi
+}
+
+# Function to remove old Lux Codespace configurations
+cleanup_old_configs() {
+    echo "Cleaning up old Lux Codespace configurations..."
+    if [ -f ~/.ssh/codespaces.auto ]; then
+        # Create a temporary file
+        TEMP_FILE=$(mktemp)
+        # Copy everything except our managed block
+        sed '/# BEGIN LUX CODESPACE CONFIGURATIONS/,/# END LUX CODESPACE CONFIGURATIONS/d' ~/.ssh/codespaces.auto > "$TEMP_FILE"
+        # Replace the original file
+        mv "$TEMP_FILE" ~/.ssh/codespaces.auto
+        chmod 600 ~/.ssh/codespaces.auto
+    fi
+}
+
+# Function to add new SSH configuration
+add_ssh_config() {
+    local codespace_name=$1
+    echo "Adding SSH configuration for $codespace_name..."
+    
+    # Get the ProxyCommand for this codespace
+    PROXY_CMD=$(gh codespace ssh -c "$codespace_name" --config 2>&1 | grep "ProxyCommand" | head -n 1 | cut -d' ' -f2-)
+    
+    if [ -z "$PROXY_CMD" ]; then
+        echo "❌ Error: Could not get ProxyCommand for $codespace_name"
+        exit 1
+    fi
+
+    # Add our configuration block
+    cat >> ~/.ssh/codespaces.auto << EOF
+
+# BEGIN LUX CODESPACE CONFIGURATIONS
+# Last updated: $(date)
+# Codespace: ${codespace_name}
+
+Host codespaces-${codespace_name}
+    ProxyCommand ${PROXY_CMD}
+    User vscode
+    UserKnownHostsFile=/dev/null
+    StrictHostKeyChecking no
+    LogLevel quiet
+    ControlMaster auto
+    IdentityFile ~/.ssh/codespaces.auto
+
+# END LUX CODESPACE CONFIGURATIONS
+EOF
+}
+
+# Main script continues...
+check_ssh_config
+
+# After selecting/creating a codespace...
+echo "Configuring SSH for Codespace: $CODESPACE_NAME"
+cleanup_old_configs
+add_ssh_config "$CODESPACE_NAME"
 
 echo "
 ✨ Setup complete! To connect with Cursor:
 1. Open Cursor
 2. Press Cmd/Ctrl + Shift + P
 3. Type 'Connect to Host'
-4. Select the Codespace (prefixed with 'codespaces-')
+4. Select 'codespaces-${CODESPACE_NAME}'
 
-Your Codespace name is: $CODESPACE_NAME" 
+Your Codespace name is: ${CODESPACE_NAME}
+
+Note: SSH configuration has been added to ~/.ssh/codespaces.auto
+To remove this configuration later, run this script with --cleanup" 
