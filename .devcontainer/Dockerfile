@@ -6,7 +6,6 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     build-essential \
     inotify-tools \
     postgresql-client \
-    openssh-server \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
@@ -27,11 +26,5 @@ COPY --chown=vscode:vscode ../.tool-versions /workspaces/lux/.tool-versions
 
 # Install versions from tool-versions
 RUN . "$HOME/.asdf/asdf.sh" && cd /workspaces/lux && asdf install
-
-# Install hex, rebar, and phoenix
-RUN . "$HOME/.asdf/asdf.sh" \
-    && mix local.hex --force \
-    && mix local.rebar --force \
-    && mix archive.install hex phx_new --force
 
 WORKDIR /workspaces/lux 
