@@ -37,7 +37,7 @@ RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
     && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
 # Copy tool-versions file
-COPY --chown=$USERNAME:$USERNAME .tool-versions /workspaces/lux/.tool-versions
+COPY --chown=$USERNAME:$USERNAME ../.tool-versions /workspaces/lux/.tool-versions
 
 # Install versions from tool-versions
 RUN . "$HOME/.asdf/asdf.sh" && cd /workspaces/lux && asdf install
