@@ -3,7 +3,10 @@
     "dockerFile": "Dockerfile",
     "context": "..",
     "features": {
-        "ghcr.io/devcontainers/features/github-cli:1": {}
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/sshd:1": {
+            "version": "latest"
+        }
     },
     "forwardPorts": [
         4000,  // LuxApp Phoenix server

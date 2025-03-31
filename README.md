@@ -181,3 +181,60 @@ For development:
 - Livebook notebooks can be created and run directly in the browser
 - All necessary ports are automatically forwarded
 - VS Code is configured for Elixir, Phoenix, and LiveView development
+
+## Connecting with Cursor
+
+We provide two ways to connect Cursor to your Codespace:
+
+### Option 1: Using the Setup Script (Recommended)
+
+We provide a convenient setup script that automates the entire process:
+
+```bash
+# Make the script executable if needed
+chmod +x scripts/setup-cursor.sh
+
+# Run the setup script
+./scripts/setup-cursor.sh
+```
+
+The script will:
+- Check prerequisites (gh CLI and GitHub login)
+- List your existing Codespaces
+- Help you create a new Codespace if needed, with options for:
+  - Machine type (2-core to 16-core)
+  - Region selection for better latency
+- Configure SSH automatically
+- Guide you through connecting with Cursor
+
+### Option 2: Manual Setup
+
+If you prefer to set things up manually:
+
+1. Create and start your Codespace:
+   ```bash
+   # List available Codespaces
+   gh codespace list
+   
+   # Create a new Codespace if needed
+   gh codespace create
+   ```
+
+2. Get SSH configuration:
+   ```bash
+   # This will add the Codespace to your SSH config
+   gh codespace ssh --config
+   ```
+
+3. Connect with Cursor:
+   - Open Cursor
+   - Press Cmd/Ctrl + Shift + P
+   - Type "Connect to Host"
+   - Select your Codespace from the list (it will be prefixed with "codespaces-")
+
+Tips:
+- Use `gh codespace ports forward 3000:3000` to forward ports if needed
+- Use `gh codespace stop` when you're done to save resources
+- The Codespace includes all necessary development tools and extensions
+
+For more details on Codespace management, see our [Development Guide](./docs/development.md).

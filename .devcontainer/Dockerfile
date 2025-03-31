@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/devcontainers/base:ubuntu
+FROM mcr.microsoft.com/vscode/devcontainers/universal:linux
 
 # Install basic dependencies
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
@@ -6,25 +6,11 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     build-essential \
     inotify-tools \
     postgresql-client \
-    git \
-    curl \
-    unzip \
+    openssh-server \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
-USER $USERNAME
+USER vscode
 
 # Install asdf and plugins
 RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
@@ -37,7 +23,7 @@ RUN git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1 \
     && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
 # Copy tool-versions file
-COPY --chown=$USERNAME:$USERNAME ../.tool-versions /workspaces/lux/.tool-versions
+COPY --chown=vscode:vscode ../.tool-versions /workspaces/lux/.tool-versions
 
 # Install versions from tool-versions
 RUN . "$HOME/.asdf/asdf.sh" && cd /workspaces/lux && asdf install
