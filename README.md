@@ -117,3 +117,43 @@ We welcome contributions! Whether you want to add support for a new language, im
 ## License
 
 Lux is released under the MIT License. See [LICENSE](LICENSE) for details.
+
+### Using GitHub Codespaces
+
+Lux supports development using GitHub Codespaces, providing a pre-configured development environment with all necessary dependencies. To get started:
+
+1. Click the "Code" button on the GitHub repository
+2. Select "Create codespace on main"
+3. Wait for the environment to be created (this may take a few minutes)
+
+The Codespace comes with:
+- Elixir/Erlang environment (matching .tool-versions)
+- Python environment with virtual env
+- Node.js environment
+- VS Code extensions for Elixir, Python, and JavaScript development
+- GitHub CLI
+- Phoenix Framework
+- Livebook integration
+- All necessary development tools
+
+The environment will automatically:
+- Install all Elixir dependencies for both Lux and LuxApp
+- Set up a Python virtual environment
+- Install required Python packages
+- Configure VS Code settings for optimal development
+- Install and configure Livebook
+
+To start the development environment:
+1. Open a terminal in VS Code
+2. Run `~/start_services.sh` to start both LuxApp and Livebook
+3. Access:
+   - LuxApp at port 4000
+   - Livebook at port 4001 (no authentication required in dev mode)
+   - Additional ports 8080 and 8081 are available for your services
+
+For development:
+- The main Lux library is in the root directory
+- LuxApp is in the `lux_app` directory
+- Livebook notebooks can be created and run directly in the browser
+- All necessary ports are automatically forwarded
+- VS Code is configured for Elixir, Phoenix, and LiveView development

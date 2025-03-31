@@ -1,0 +1,99 @@
+{
+    "name": "Lux Development Environment",
+    "dockerFile": "Dockerfile",
+    "features": {
+        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers-contrib/features/asdf:1": {}
+    },
+    "forwardPorts": [
+        4000,  // LuxApp Phoenix server
+        4001,  // Livebook
+        8080,  // Additional port for services
+        8081   // Additional port for services
+    ],
+    "portsAttributes": {
+        "4000": {
+            "label": "LuxApp",
+            "onAutoForward": "notify"
+        },
+        "4001": {
+            "label": "Livebook",
+            "onAutoForward": "notify"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                // Elixir & Phoenix
+                "jakebecker.elixir-ls",
+                "phoenixframework.phoenix",
+                "phoenixframework.phoenix-liveview-snippets",
+                "pgourlain.erlang",
+                "valentin.beamdasm",
+
+                // Python
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy",
+
+                // JavaScript/TypeScript
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "graphql.vscode-graphql",
+                "graphql.vscode-graphql-syntax",
+
+                // Git & GitHub
+                "github.copilot",
+                "github.vscode-github-actions",
+                "github.vscode-pull-request-github",
+                "eamodio.gitlens",
+
+                // Database
+                "ckolkman.vscode-postgres",
+
+                // Docker
+                "ms-azuretools.vscode-docker",
+
+                // General Development
+                "irongeek.vscode-env",
+                "oderwat.indent-rainbow",
+                "yzhang.markdown-all-in-one",
+                "ms-vsliveshare.vsliveshare"
+            ],
+            "settings": {
+                "elixirLS.suggestSpecs": true,
+                "elixirLS.dialyzerEnabled": true,
+                "python.defaultInterpreterPath": "/workspaces/lux/.venv/bin/python",
+                "python.formatting.provider": "black",
+                "editor.formatOnSave": true,
+                "files.associations": {
+                    "*.heex": "phoenix-heex"
+                },
+                "[elixir]": {
+                    "editor.formatOnSave": true,
+                    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+                },
+                "[phoenix-heex]": {
+                    "editor.formatOnSave": true,
+                    "editor.defaultFormatter": "JakeBecker.elixir-ls"
+                },
+                "gitlens.currentLine.enabled": true,
+                "gitlens.hovers.currentLine.over": "line",
+                "editor.inlineSuggest.enabled": true,
+                "github.copilot.enable": {
+                    "*": true,
+                    "yaml": true,
+                    "plaintext": true,
+                    "markdown": true
+                }
+            }
+        }
+    },
+    "postCreateCommand": "mix local.hex --force && mix local.rebar --force && mix deps.get && mix compile && cd lux_app && mix deps.get && mix compile && cd .. && python -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt && mix escript.install hex livebook --force",
+    "remoteUser": "vscode",
+    "remoteEnv": {
+        "MIX_ENV": "dev",
+        "LIVEBOOK_PORT": "4001",
+        "LIVEBOOK_TOKEN_ENABLED": "false"
+    }
+}
