@@ -260,12 +260,17 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   # Node management
   def handle_event("node_added", %{"node" => node}, socket) do
+    IO.inspect(node, label: "Node added")
     nodes = [node | socket.assigns.nodes]
 
     # Broadcast node added to all clients
     send(self(), {:broadcast_node_added, node})
 
     {:noreply, assign(socket, :nodes, nodes)}
+  end
+
+  def handle_event("node_added_error", %{"message" => message}, socket) do
+    {:noreply, put_flash(socket, :error, message)}
   end
 
   def handle_event("node_removed", %{"id" => node_id}, socket) do
@@ -360,6 +365,7 @@ defmodule LuxAppWeb.NodeEditorLive do
   def render(assigns) do
     ~H"""
     <div class="flex h-screen w-screen bg-gray-900 text-white overflow-hidden">
+      <.json_drop_zone id="json-dropzone" />
       <!-- Component Palette -->
       <div class="w-64 border-r border-gray-700 p-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Components</h2>
