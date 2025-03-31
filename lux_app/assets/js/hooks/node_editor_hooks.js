@@ -405,6 +405,10 @@ const NodeEditorHooks = {
         
         // Update edge paths after cancelling drag
         this.scheduleEdgePathUpdate(50);
+      } else if (e.key === 'Backspace') {
+        this.pushEvent('node_removed', {
+          id: this.selectedNodeId
+        });
       }
     },
 
