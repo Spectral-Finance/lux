@@ -121,6 +121,18 @@
                 "kind": "test",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Install Development Tools",
+            "type": "shell",
+            "command": "asdf install",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            },
+            "runOptions": {
+                "runOn": "folderOpen"
+            }
         }
     ]
 } 

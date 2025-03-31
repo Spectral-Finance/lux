@@ -127,16 +127,13 @@ Lux supports development using GitHub Codespaces, providing a pre-configured dev
 3. Wait for the environment to be created (this may take a few minutes)
 
 The Codespace comes with:
-- Elixir/Erlang environment (matching .tool-versions)
-- Python environment with virtual env
-- Node.js environment
 - VS Code extensions for Elixir, Python, and JavaScript development
 - GitHub CLI
-- Phoenix Framework
-- Livebook integration
-- All necessary development tools
+- asdf version manager
+- All necessary development tools and plugins
 
 The environment will automatically:
+- Install development tools via asdf (based on .tool-versions)
 - Install all Elixir dependencies for both Lux and LuxApp
 - Set up a Python virtual environment
 - Install required Python packages
@@ -144,9 +141,10 @@ The environment will automatically:
 - Install and configure Livebook
 
 To set up the development environment:
-1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
-2. Type "Tasks: Run Build Task" and select it (or use Cmd/Ctrl + Shift + B)
-3. This will run the "Initialize Environment" task which:
+1. Wait for the automatic tool installation (triggered when folder opens)
+2. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+3. Type "Tasks: Run Build Task" and select it (or use Cmd/Ctrl + Shift + B)
+4. This will run the "Initialize Environment" task which:
    - Installs Elixir dependencies for both Lux and LuxApp
    - Sets up Python virtual environment and dependencies
    - Installs Node.js dependencies
@@ -164,6 +162,7 @@ To start the development servers:
 Available Tasks:
 Setup Tasks:
 - "Initialize Environment" - Sets up all dependencies (default build task)
+- "Install Development Tools" - Installs tools via asdf (runs automatically)
 - "Install Elixir Dependencies" - Installs Lux dependencies
 - "Install LuxApp Dependencies" - Installs LuxApp dependencies
 - "Install Python Dependencies" - Sets up Python environment
@@ -184,11 +183,7 @@ For development:
 
 ## Connecting with Cursor
 
-We provide two ways to connect Cursor to your Codespace:
-
-### Option 1: Using the Setup Script (Recommended)
-
-We provide a convenient setup script that automates the entire process:
+We provide a convenient setup script that helps you connect Cursor to your Codespace:
 
 ```bash
 # Make the script executable if needed
@@ -199,42 +194,13 @@ chmod +x scripts/setup-cursor.sh
 ```
 
 The script will:
-- Check prerequisites (gh CLI and GitHub login)
-- List your existing Codespaces
-- Help you create a new Codespace if needed, with options for:
-  - Machine type (2-core to 16-core)
-  - Region selection for better latency
-- Configure SSH automatically
-- Guide you through connecting with Cursor
+1. Check for GitHub CLI installation and authentication
+2. Let you create a new Codespace or select an existing one
+3. Configure SSH access for Cursor
+4. Provide clear instructions for connecting Cursor to your Codespace
 
-### Option 2: Manual Setup
-
-If you prefer to set things up manually:
-
-1. Create and start your Codespace:
-   ```bash
-   # List available Codespaces
-   gh codespace list
-   
-   # Create a new Codespace if needed
-   gh codespace create
-   ```
-
-2. Get SSH configuration:
-   ```bash
-   # This will add the Codespace to your SSH config
-   gh codespace ssh --config
-   ```
-
-3. Connect with Cursor:
-   - Open Cursor
-   - Press Cmd/Ctrl + Shift + P
-   - Type "Connect to Host"
-   - Select your Codespace from the list (it will be prefixed with "codespaces-")
-
-Tips:
-- Use `gh codespace ports forward 3000:3000` to forward ports if needed
-- Use `gh codespace stop` when you're done to save resources
-- The Codespace includes all necessary development tools and extensions
-
-For more details on Codespace management, see our [Development Guide](./docs/development.md).
+Once complete, you can connect Cursor to your Codespace:
+1. Open Cursor
+2. Press Cmd/Ctrl + Shift + P
+3. Type 'Connect to Host'
+4. Select your Codespace (it will be prefixed with 'codespaces-')
