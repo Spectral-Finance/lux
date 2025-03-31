@@ -113,19 +113,21 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
-    with {:ok, _caption} <- validate_param(params, :caption) do
-      cond do
-        Map.has_key?(params, :inline_message_id) ->
-          handle_inline_message(params, agent)
+    case validate_param(params, :caption) do
+      {:ok, _caption} ->
+        cond do
+          Map.has_key?(params, :inline_message_id) ->
+            handle_inline_message(params, agent)
 
-        Map.has_key?(params, :chat_id) && Map.has_key?(params, :message_id) ->
-          handle_chat_message(params, agent)
+          Map.has_key?(params, :chat_id) && Map.has_key?(params, :message_id) ->
+            handle_chat_message(params, agent)
 
-        true ->
-          {:error, "Missing or invalid message identifier: Either (chat_id and message_id) or inline_message_id must be provided"}
-      end
-    else
-      {:error, reason} -> {:error, reason}
+          true ->
+            {:error, "Missing or invalid message identifier: Either (chat_id and message_id) or inline_message_id must be provided"}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 
