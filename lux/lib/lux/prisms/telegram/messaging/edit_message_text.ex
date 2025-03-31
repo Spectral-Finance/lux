@@ -117,15 +117,19 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
-    cond do
-      Map.has_key?(params, :inline_message_id) ->
-        handle_inline_message(params, agent)
+    with {:ok, _text} <- validate_param(params, :text) do
+      cond do
+        Map.has_key?(params, :inline_message_id) ->
+          handle_inline_message(params, agent)
 
-      Map.has_key?(params, :chat_id) && Map.has_key?(params, :message_id) ->
-        handle_chat_message(params, agent)
+        Map.has_key?(params, :chat_id) && Map.has_key?(params, :message_id) ->
+          handle_chat_message(params, agent)
 
-      true ->
-        {:error, "Missing required parameters: either (chat_id and message_id) or inline_message_id must be provided"}
+        true ->
+          {:error, "Missing or invalid message identifier"}
+      end
+    else
+      {:error, reason} -> {:error, reason}
     end
   end
 
@@ -158,6 +162,9 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
         {:error, {status, %{"description" => description}}} ->
           {:error, "Failed to edit message text: #{description} (HTTP #{status})"}
 
+        {:error, {status, description}} when is_binary(description) ->
+          {:error, "Failed to edit message text: #{description} (HTTP #{status})"}
+
         {:error, error} ->
           {:error, "Failed to edit message text: #{inspect(error)}"}
       end
@@ -184,6 +191,9 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
           {:ok, %{edited: true}}
 
         {:error, {status, %{"description" => description}}} ->
+          {:error, "Failed to edit inline message text: #{description} (HTTP #{status})"}
+
+        {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to edit inline message text: #{description} (HTTP #{status})"}
 
         {:error, error} ->

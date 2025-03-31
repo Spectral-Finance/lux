@@ -133,6 +133,10 @@ defmodule Lux.Prisms.Telegram.Messages.ForwardMessage do
           error = "Failed to forward message: #{description} (HTTP #{status})"
           {:error, error}
 
+        {:error, {status, description}} when is_binary(description) ->
+          error = "Failed to forward message: #{description} (HTTP #{status})"
+          {:error, error}
+
         {:error, error} ->
           {:error, "Failed to forward message: #{inspect(error)}"}
       end

@@ -142,6 +142,10 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
           error = "Failed to send message: #{description} (HTTP #{status})"
           {:error, error}
 
+        {:error, {status, description}} when is_binary(description) ->
+          error = "Failed to send message: #{description} (HTTP #{status})"
+          {:error, error}
+
         {:error, error} ->
           {:error, "Failed to send message: #{inspect(error)}"}
       end

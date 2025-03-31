@@ -143,6 +143,10 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
           error = "Failed to copy message: #{description} (HTTP #{status})"
           {:error, error}
 
+        {:error, {status, description}} when is_binary(description) ->
+          error = "Failed to copy message: #{description} (HTTP #{status})"
+          {:error, error}
+
         {:error, error} ->
           {:error, "Failed to copy message: #{inspect(error)}"}
       end

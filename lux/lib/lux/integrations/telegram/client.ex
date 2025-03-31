@@ -70,6 +70,12 @@ defmodule Lux.Integrations.Telegram.Client do
           body -> {:error, body}
         end
 
+      {:ok, %{status: 401}} ->
+        {:error, :invalid_token}
+
+      {:ok, %{status: status, body: %{"description" => message}}} ->
+        {:error, {status, message}}
+
       {:ok, %{status: status, body: body}} ->
         {:error, {status, body}}
 
@@ -80,4 +86,4 @@ defmodule Lux.Integrations.Telegram.Client do
 
   defp maybe_add_plug(options, nil), do: options
   defp maybe_add_plug(options, plug), do: Keyword.put(options, :plug, plug)
-end 
+end

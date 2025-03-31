@@ -18,7 +18,7 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
     test "successfully copies a message with required parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -42,7 +42,7 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
                    chat_id: @chat_id,
                    from_chat_id: @from_chat_id,
                    message_id: @message_id,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -51,7 +51,7 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
     test "successfully copies a message with optional parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -83,7 +83,7 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
                    parse_mode: "Markdown",
                    disable_notification: true,
                    protect_content: true,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -118,7 +118,7 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
                    chat_id: @chat_id,
                    from_chat_id: @from_chat_id,
                    message_id: @message_id,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -147,4 +147,4 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessageTest do
       assert Map.has_key?(prism.output_schema.properties, :chat_id)
     end
   end
-end 
+end

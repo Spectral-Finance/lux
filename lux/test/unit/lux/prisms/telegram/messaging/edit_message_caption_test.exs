@@ -18,7 +18,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
     test "successfully edits a message caption with chat_id and message_id" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -47,7 +47,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
                    chat_id: @chat_id,
                    message_id: @message_id,
                    caption: @caption,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -56,7 +56,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
     test "successfully edits an inline message caption" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["inline_message_id"] == @inline_message_id
@@ -75,7 +75,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
                  %{
                    inline_message_id: @inline_message_id,
                    caption: @caption,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -84,10 +84,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
     test "successfully edits a message caption with parse_mode" do
       parse_mode = "Markdown"
       formatted_caption = "*Bold* caption"
-      
+
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -117,7 +117,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
                    message_id: @message_id,
                    caption: formatted_caption,
                    parse_mode: parse_mode,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -125,10 +125,10 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
 
     test "validates required parameters" do
       result = EditMessageCaption.handler(%{message_id: @message_id}, @agent_ctx)
-      assert result == {:error, "Missing required parameters: either (chat_id and message_id) or inline_message_id must be provided"}
-
-      result = EditMessageCaption.handler(%{chat_id: @chat_id, message_id: @message_id}, @agent_ctx)
       assert result == {:error, "Missing or invalid caption"}
+
+      result = EditMessageCaption.handler(%{caption: @caption}, @agent_ctx)
+      assert result == {:error, "Missing or invalid message identifier: Either (chat_id and message_id) or inline_message_id must be provided"}
     end
 
     test "handles Telegram API error" do
@@ -149,7 +149,7 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
                    chat_id: @chat_id,
                    message_id: @message_id,
                    caption: @caption,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -176,4 +176,4 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaptionTest do
       assert Map.has_key?(prism.output_schema.properties, :caption)
     end
   end
-end 
+end

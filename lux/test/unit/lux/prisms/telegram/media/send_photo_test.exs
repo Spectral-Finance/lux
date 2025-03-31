@@ -20,7 +20,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
         assert String.ends_with?(conn.request_path, "/sendPhoto")
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -52,7 +52,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
                    chat_id: @chat_id,
                    photo: @photo_url,
                    caption: @caption,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -62,7 +62,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
         assert String.ends_with?(conn.request_path, "/sendPhoto")
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -91,7 +91,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
                  %{
                    chat_id: @chat_id,
                    photo: @photo_file_id,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -99,10 +99,10 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
 
     test "successfully sends a photo with markdown caption" do
       markdown_caption = "*Bold* and _italic_ caption"
-      
+
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -140,7 +140,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
                    photo: @photo_url,
                    caption: markdown_caption,
                    parse_mode: "Markdown",
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -150,13 +150,13 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
       Req.Test.expect(TelegramClientMock, fn conn ->
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
-        
+
         assert decoded_body["chat_id"] == @chat_id
         assert decoded_body["photo"] == @photo_url
         assert decoded_body["disable_notification"] == true
         assert decoded_body["protect_content"] == true
         assert decoded_body["reply_to_message_id"] == 10
-        
+
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
         |> Plug.Conn.send_resp(200, Jason.encode!(%{
@@ -167,7 +167,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
           }
         }))
       end)
-      
+
       assert {:ok, _result} = SendPhoto.handler(
         %{
           chat_id: @chat_id,
@@ -175,7 +175,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
           disable_notification: true,
           protect_content: true,
           reply_to_message_id: 10,
-          plug: {Req.Test, TelegramClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -208,7 +208,7 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
                  %{
                    chat_id: @chat_id,
                    photo: "invalid_photo_url",
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -237,4 +237,4 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
       assert Map.has_key?(prism.output_schema.properties, :caption)
     end
   end
-end 
+end

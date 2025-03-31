@@ -4,7 +4,15 @@ defmodule Lux.Integration.Telegram.ClientTest do
   alias Lux.Integrations.Telegram.Client
 
   describe "basic Telegram API integration" do
-    test "can fetch current bot information" do
+    setup do
+      config = %{
+        api_key: Application.get_env(:lux, :api_keys)[:integration_telegram_bot]
+      }
+
+      %{config: config}
+    end
+
+    test "can fetch current bot information", %{config: config} do
       assert {:ok, %{
         "ok" => true,
         "result" => %{
@@ -16,7 +24,7 @@ defmodule Lux.Integration.Telegram.ClientTest do
           "can_read_all_group_messages" => _,
           "supports_inline_queries" => _
         }
-      }} = Client.request(:get, "/getMe")
+      }} = Client.request(:get, "/getMe", %{token: config.api_key})
     end
   end
 end

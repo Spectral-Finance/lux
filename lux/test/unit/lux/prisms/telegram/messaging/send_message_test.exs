@@ -17,7 +17,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
     test "successfully sends a message with required parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -39,7 +39,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
                  %{
                    chat_id: @chat_id,
                    text: @text,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -48,7 +48,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
     test "successfully sends a message with optional parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
         assert decoded_body["chat_id"] == @chat_id
@@ -82,7 +82,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
                    disable_web_page_preview: true,
                    reply_to_message_id: 42,
                    allow_sending_without_reply: true,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -113,7 +113,7 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
                  %{
                    chat_id: @chat_id,
                    text: @text,
-                   plug: {Req.Test, TelegramClientMock}
+                   plug: {Req.Test, __MODULE__}
                  },
                  @agent_ctx
                )
@@ -143,4 +143,4 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
       assert Map.has_key?(prism.output_schema.properties, :text)
     end
   end
-end 
+end

@@ -34,8 +34,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
       {:ok, response} =
         Client.request(:get, "/getMe", %{
-          token: @bot_token,
-          plug: {Req.Test, TelegramClientMock}
+          token: @bot_token
         })
 
       assert response["ok"] == true
@@ -46,7 +45,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"
         assert conn.request_path == "/bottest_bot_token/sendMessage"
-        
+
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         body_params = Jason.decode!(body)
         assert body_params["chat_id"] == 123_456_789
@@ -69,8 +68,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
           json: %{
             chat_id: 123_456_789,
             text: "Hello, world!"
-          },
-          plug: {Req.Test, TelegramClientMock}
+          }
         })
 
       assert response["ok"] == true
@@ -79,7 +77,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
     test "uses configured API key when token is not provided" do
       api_key = @mock_api_key
-      
+
       with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "GET"
@@ -99,9 +97,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         end)
 
         {:ok, response} =
-          Client.request(:get, "/getMe", %{
-            plug: {Req.Test, TelegramClientMock}
-          })
+          Client.request(:get, "/getMe")
 
         assert response["ok"] == true
         assert get_in(response, ["result", "username"]) == "test_bot"
@@ -110,7 +106,7 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
     test "handles authentication error" do
       token = "invalid_token"
-      
+
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/bot#{token}/getMe"
@@ -124,19 +120,15 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         }))
       end)
 
-      {:error, {401, response}} =
+      {:error, :invalid_token} =
         Client.request(:get, "/getMe", %{
-          token: token,
-          plug: {Req.Test, TelegramClientMock}
+          token: token
         })
-
-      assert response["ok"] == false
-      assert response["description"] == "Unauthorized"
     end
 
     test "handles API error with description" do
       api_key = @mock_api_key
-      
+
       with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "POST"
@@ -151,23 +143,19 @@ defmodule Lux.Integrations.Telegram.ClientTest do
           }))
         end)
 
-        {:error, {400, response}} =
+        {:error, {400, "Bad Request: chat not found"}} =
           Client.request(:post, "/sendMessage", %{
             json: %{
               chat_id: 123_456_789,
               text: "Hello, world!"
-            },
-            plug: {Req.Test, TelegramClientMock}
+            }
           })
-
-        assert response["ok"] == false
-        assert response["description"] == "Bad Request: chat not found"
       end
     end
 
     test "handles unexpected response format" do
       api_key = @mock_api_key
-      
+
       with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "GET"
@@ -181,12 +169,10 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         end)
 
         {:error, body} =
-          Client.request(:get, "/getMe", %{
-            plug: {Req.Test, TelegramClientMock}
-          })
+          Client.request(:get, "/getMe")
 
         assert body == %{"unexpected" => "format"}
       end
     end
   end
-end 
+end

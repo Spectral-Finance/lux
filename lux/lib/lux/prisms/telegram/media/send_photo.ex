@@ -154,6 +154,9 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
         {:error, {status, %{"description" => description}}} ->
           {:error, "Failed to send photo: #{description} (HTTP #{status})"}
 
+        {:error, {status, description}} when is_binary(description) ->
+          {:error, "Failed to send photo: #{description} (HTTP #{status})"}
+
         {:error, error} ->
           {:error, "Failed to send photo: #{inspect(error)}"}
       end
