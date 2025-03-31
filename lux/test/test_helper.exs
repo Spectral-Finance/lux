@@ -9,6 +9,7 @@ defmodule UnitAPICase do
   alias Lux.Lenses.Etherscan
   alias Lux.LLM.Anthropic
   alias Lux.Integrations.Discord.Client, as: DiscordClient
+  alias Lux.Integrations.Telegram.Client, as: TelegramClient
 
   using do
     quote do
@@ -19,10 +20,10 @@ defmodule UnitAPICase do
   setup do
     Application.put_env(:lux, :req_options, plug: {Req.Test, Lux.Lens})
     Application.put_env(:lux, OpenAI, plug: {Req.Test, OpenAI})
-    Application.put_env(:lux, TelegramLens, plug: {Req.Test, TelegramLens})
     Application.put_env(:lux, Etherscan, plug: {Req.Test, Etherscan})
     Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
+    Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     :ok
   end
 end

@@ -4,15 +4,7 @@ defmodule Lux.Integration.Telegram.ClientTest do
   alias Lux.Integrations.Telegram.Client
 
   describe "basic Telegram API integration" do
-    setup do
-      config = %{
-        api_key: Application.get_env(:lux, :api_keys)[:integration_telegram_bot]
-      }
-
-      %{config: config}
-    end
-
-    test "can fetch current bot information", %{config: _config} do
+    test "can fetch current bot information" do
       assert {:ok, %{
         "ok" => true,
         "result" => %{

@@ -136,13 +136,6 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
       # Prepare request options
       request_opts = %{json: request_body}
 
-      # Add plug option for testing if provided
-      request_opts = if Map.has_key?(params, :plug) do
-        Map.put(request_opts, :plug, params.plug)
-      else
-        request_opts
-      end
-
       case Client.request(:post, "/sendPhoto", request_opts) do
         {:ok, %{"result" => result}} when is_map(result) ->
           Logger.info("Successfully sent photo to chat #{chat_id}")

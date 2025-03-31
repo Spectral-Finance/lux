@@ -119,13 +119,6 @@ defmodule Lux.Prisms.Telegram.Messages.ForwardMessage do
       # Prepare request options
       request_opts = %{json: request_body}
 
-      # Add plug option for testing if provided
-      request_opts = if Map.has_key?(params, :plug) do
-        Map.put(request_opts, :plug, params.plug)
-      else
-        request_opts
-      end
-
       case Client.request(:post, "/forwardMessage", request_opts) do
         {:ok, %{"result" => %{"message_id" => new_message_id}}} ->
           Logger.info("Successfully forwarded message #{message_id} from chat #{from_chat_id} to chat #{chat_id}")

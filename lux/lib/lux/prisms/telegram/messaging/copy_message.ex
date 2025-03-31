@@ -126,13 +126,8 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessage do
       request_body = Map.take(params, [:chat_id, :from_chat_id, :message_id, :caption,
                               :parse_mode, :disable_notification, :protect_content])
 
-      # Add plug option for testing if provided
+      # Prepare request options
       request_opts = %{json: request_body}
-      request_opts = if Map.has_key?(params, :plug) do
-        Map.put(request_opts, :plug, params.plug)
-      else
-        request_opts
-      end
 
       case Client.request(:post, "/copyMessage", request_opts) do
         {:ok, %{"result" => %{"message_id" => new_message_id}}} ->

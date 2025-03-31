@@ -144,12 +144,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
       # Prepare request options
       request_opts = %{json: request_body}
 
-      # Add plug option for testing if provided
-      request_opts = if Map.has_key?(params, :plug) do
-        Map.put(request_opts, :plug, params.plug)
-      else
-        request_opts
-      end
 
       case Client.request(:post, "/editMessageText", request_opts) do
         {:ok, %{"result" => result}} when is_map(result) ->
@@ -183,13 +177,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
 
       # Prepare request options
       request_opts = %{json: request_body}
-
-      # Add plug option for testing if provided
-      request_opts = if Map.has_key?(params, :plug) do
-        Map.put(request_opts, :plug, params.plug)
-      else
-        request_opts
-      end
 
       case Client.request(:post, "/editMessageText", request_opts) do
         {:ok, %{"result" => true}} ->

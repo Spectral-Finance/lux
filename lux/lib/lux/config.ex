@@ -59,10 +59,7 @@ defmodule Lux.Config do
   """
   @spec telegram_bot_token() :: api_key()
   def telegram_bot_token do
-    case Application.get_env(:lux, :env) do
-      :test -> get_required_key(:api_keys, :integration_telegram_bot)
-      _ -> get_required_key(:api_keys, :telegram_bot)
-    end
+    get_required_key(:api_keys, :telegram_bot)
   end
 
   @doc """
