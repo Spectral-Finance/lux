@@ -26,9 +26,10 @@
         </a>
       </div>
       <div class="hidden md:block">
-        <div class="ml-10 flex items-baseline space-x-4">
+        <div class="ml-10 flex items-center space-x-4">
           <a
-            href="https://github.com/spectrallabs/lux"
+            href="https://github.com/spectral-finance/lux"
+            target="_blank"
             class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200"
           >
             <svg
@@ -42,10 +43,11 @@
             GitHub
           </a>
           <a
-            href="/phoenix"
+            href="#"
+            phx-click="export_all"
             class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
           >
-            Phoenix UI
+            Export All
           </a>
         </div>
       </div>
@@ -80,23 +82,25 @@
   
 <!-- Mobile menu, show/hide based on menu state -->
   <div class="md:hidden hidden" id="mobile-menu">
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex items-center">
       <a
-        href="https://github.com/spectrallabs/lux"
+        href="https://github.com/spectral-finance/lux"
+        target="_blank"
         class="text-gray-300 hover:bg-gray-700 hover:text-white block px-3 py-2 rounded-md text-base font-medium"
       >
         GitHub
       </a>
       <a
-        href="/phoenix"
+        href="#"
+        phx-click="export_all"
         class="bg-orange-500 text-white block px-3 py-2 rounded-md text-base font-medium"
       >
-        Phoenix UI
+        Export All
       </a>
     </div>
   </div>
 </header>
-<main class="px-4 py-4 sm:px-6 lg:px-8">
+<main class="py-4">
   <div class="mx-auto">
     <.flash_group flash={@flash} />
     {@inner_content}
