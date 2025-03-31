@@ -209,6 +209,24 @@ const NodeEditorHooks = {
         console.log("Node updated event received");
         this.scheduleEdgePathUpdate(100);
       });
+
+      this.handleEvent("all_exported", (data) => {
+        // Create a Blob containing the JSON data
+        const jsonContent = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        
+        // Create a temporary download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = 'agents.json';
+        
+        // Append link, trigger download, and cleanup
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        URL.revokeObjectURL(downloadLink.href);
+        console.log("Export JSON event received", data);
+      });
     },
 
     destroyed() {

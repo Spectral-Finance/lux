@@ -325,6 +325,12 @@ defmodule LuxAppWeb.NodeEditorLive do
     {:noreply, socket}
   end
 
+  def handle_event("export_all", _params, socket) do
+    nodes = socket.assigns.nodes
+    edges = socket.assigns.edges
+    {:noreply, socket |> push_event("all_exported", %{nodes: nodes, edges: edges})}
+  end
+
   # Broadcast event handlers
   def handle_info({:broadcast_edge_created, edge}, socket) do
     {:noreply, socket |> push_event("edge_created", %{edge: edge})}
