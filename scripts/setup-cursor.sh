@@ -53,7 +53,7 @@ menu() {
 if [ "$1" = "--cleanup" ]; then
     check_ssh_config
     cleanup_old_configs
-    echo "✨ Cleaned up all Lux Codespace configurations from ~/.ssh/codespaces.auto"
+    echo "✨ Cleaned up all Lux Codespace configurations from ~/.ssh/codespaces"
     exit 0
 fi
 
@@ -217,7 +217,7 @@ echo -e "\nUsing Codespace: $CODESPACE_NAME"
 # Function to check if we can write to SSH config
 check_ssh_config() {
     SSH_DIR=~/.ssh
-    SSH_CONFIG=~/.ssh/codespaces.auto
+    SSH_CONFIG=~/.ssh/codespaces
 
     # Create .ssh directory if it doesn't exist
     if [ ! -d "$SSH_DIR" ]; then
@@ -226,32 +226,18 @@ check_ssh_config() {
         chmod 700 "$SSH_DIR"
     fi
 
-    # Create codespaces.auto file if it doesn't exist
+    # Create codespaces file if it doesn't exist
     if [ ! -f "$SSH_CONFIG" ]; then
-        echo "Creating ~/.ssh/codespaces.auto file..."
+        echo "Creating ~/.ssh/codespaces file..."
         touch "$SSH_CONFIG"
         chmod 600 "$SSH_CONFIG"
     fi
 
     # Check if we can write to the config file
     if [ ! -w "$SSH_CONFIG" ]; then
-        echo "❌ Error: Cannot write to ~/.ssh/codespaces.auto"
+        echo "❌ Error: Cannot write to ~/.ssh/codespaces"
         echo "Please check file permissions"
         exit 1
-    fi
-}
-
-# Function to remove old Lux Codespace configurations
-cleanup_old_configs() {
-    echo "Cleaning up old Lux Codespace configurations..."
-    if [ -f ~/.ssh/codespaces.auto ]; then
-        # Create a temporary file
-        TEMP_FILE=$(mktemp)
-        # Copy everything except our managed block
-        sed '/# BEGIN LUX CODESPACE CONFIGURATIONS/,/# END LUX CODESPACE CONFIGURATIONS/d' ~/.ssh/codespaces.auto > "$TEMP_FILE"
-        # Replace the original file
-        mv "$TEMP_FILE" ~/.ssh/codespaces.auto
-        chmod 600 ~/.ssh/codespaces.auto
     fi
 }
 
@@ -269,11 +255,7 @@ add_ssh_config() {
     fi
 
     # Add our configuration block
-    cat >> ~/.ssh/codespaces.auto << EOF
-
-# BEGIN LUX CODESPACE CONFIGURATIONS
-# Last updated: $(date)
-# Codespace: ${codespace_name}
+    cat >> ~/.ssh/codespaces << EOF
 
 Host codespaces-${codespace_name}
     ProxyCommand ${PROXY_CMD}
@@ -283,8 +265,14 @@ Host codespaces-${codespace_name}
     LogLevel quiet
     ControlMaster auto
     IdentityFile ~/.ssh/codespaces.auto
-
-# END LUX CODESPACE CONFIGURATIONS
+    RequestTTY force
+    ForwardAgent yes
+    # VS Code/Cursor specific settings
+    ForwardX11 no
+    PubkeyAcceptedKeyTypes +ssh-rsa
+    HostkeyAlgorithms +ssh-rsa
+    # Set up welcome message
+    RemoteCommand bash -c 'if [ ! -f ~/.welcome_configured ]; then echo "source /workspaces/lux/.devcontainer/welcome.sh" >> ~/.bashrc && touch ~/.welcome_configured; fi; bash'
 EOF
 }
 
@@ -293,7 +281,6 @@ check_ssh_config
 
 # After selecting/creating a codespace...
 echo "Configuring SSH for Codespace: $CODESPACE_NAME"
-cleanup_old_configs
 add_ssh_config "$CODESPACE_NAME"
 
 echo "
@@ -304,6 +291,6 @@ echo "
 4. Select 'codespaces-${CODESPACE_NAME}'
 
 Your Codespace name is: ${CODESPACE_NAME}
+The workspace will automatically open in /workspaces/lux
 
-Note: SSH configuration has been added to ~/.ssh/codespaces.auto
-To remove this configuration later, run this script with --cleanup" 
+Note: SSH configuration has been added to ~/.ssh/codespaces" 
