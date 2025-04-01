@@ -35,6 +35,11 @@ defmodule LuxAppWeb.NodeEditorLive do
           "label" => "Ultimate Assistant",
           "description" => "Tools Agent",
           "goal" => "Help users with various tasks",
+          "llm_config" => %{
+            "provider" => "openai",
+            "model" => "gpt-4o-mini",
+            "temperature" => 0.5
+          },
           "components" => [
             %{
               "id" => "comp-1",
@@ -260,7 +265,6 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   # Node management
   def handle_event("node_added", %{"node" => node}, socket) do
-    IO.inspect(node, label: "Node added")
     nodes = [node | socket.assigns.nodes]
 
     # Broadcast node added to all clients
@@ -309,7 +313,7 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   def handle_event(
         "update_property",
-        %{"value" => value, "field" => field} = params,
+        %{"value" => value, "field" => field},
         socket
       ) do
     node_id = socket.assigns.selected_node["id"]
