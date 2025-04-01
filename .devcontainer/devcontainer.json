@@ -95,7 +95,7 @@
             }
         }
     },
-    "postCreateCommand": "chmod +x scripts/welcome.sh",
+    "postCreateCommand": "chmod +x scripts/welcome.sh && chmod +x scripts/configure-codespace-gpg.sh && ./scripts/configure-codespace-gpg.sh",
     "postStartCommand": "echo 'source ${containerWorkspaceFolder}/scripts/welcome.sh' >> ~/.bashrc",
     "remoteUser": "vscode",
     "remoteEnv": {
