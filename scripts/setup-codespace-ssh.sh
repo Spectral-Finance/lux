@@ -13,7 +13,6 @@
 # 
 # Usage:
 #   ./setup-codespace-ssh.sh         # Regular setup
-#   ./setup-codespace-ssh.sh --cleanup  # Clean up old configurations
 # =============================================================================
 
 # Interactive menu function that supports arrow keys
@@ -64,14 +63,6 @@ menu() {
     printf "\n"
     return $selected
 }
-
-# Handle command line arguments
-if [ "$1" = "--cleanup" ]; then
-    check_ssh_config
-    cleanup_old_configs
-    echo "✨ Cleaned up all Lux Codespace configurations from ~/.ssh/codespaces"
-    exit 0
-fi
 
 # Check if gh CLI is installed
 if ! command -v gh &> /dev/null; then

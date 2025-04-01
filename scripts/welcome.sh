@@ -1,5 +1,16 @@
 #!/bin/bash
 
+# =============================================================================
+# Lux Development Environment Welcome Script
+# =============================================================================
+# This script provides a welcoming interface for developers when they access
+# the Lux development environment. It displays:
+# - The Lux and Spectral logos
+# - Quick access instructions for different editors
+# - Directory navigation hints
+# - Important setup information for new codespaces
+# =============================================================================
+
 # Color definitions
 CYAN=$'\e[36m'
 BOLD=$'\e[1m'
