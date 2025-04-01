@@ -371,7 +371,7 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   def render(assigns) do
     ~H"""
-    <div class="flex h-screen w-screen bg-gray-900 text-white overflow-hidden">
+    <div class="flex h-full w-screen bg-gray-900 text-white overflow-hidden">
       <.json_drop_zone id="json-dropzone" />
       <!-- Component Palette -->
       <div class="w-64 border-r border-gray-700 p-4 overflow-y-auto">
