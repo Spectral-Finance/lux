@@ -6,6 +6,19 @@ defmodule Lux.Integrations.Twitter do
   require Logger
   alias Lux.Integrations.Twitter.Client
 
+  @token_cache_table :twitter_token_cache
+
+  # Initialize the ETS table for token caching
+  def init_cache do
+    # Create the ETS table if it doesn't exist yet
+    case :ets.info(@token_cache_table) do
+      :undefined ->
+        :ets.new(@token_cache_table, [:named_table, :set, :public])
+      _ ->
+        :ok
+    end
+  end
+
   @doc """
   Common request settings for Twitter API calls.
   """
@@ -62,6 +75,9 @@ defmodule Lux.Integrations.Twitter do
   Uses caching to avoid refreshing the token on every request.
   """
   def get_access_token do
+    # Initialize cache if needed
+    init_cache()
+
     # For testing, return a test token if configured
     case Application.get_env(:lux, :twitter_test_token) do
       nil ->
@@ -129,14 +145,17 @@ defmodule Lux.Integrations.Twitter do
 
   # Token caching functions
   defp cache_token(token, expires_in) do
+    init_cache()
     expiry = current_time_seconds() + expires_in
-    :persistent_term.put({__MODULE__, :twitter_token}, {token, expiry})
+    :ets.insert(@token_cache_table, {:twitter_token, {token, expiry}})
+    {:ok, token}
   end
 
   defp get_cached_token do
-    case :persistent_term.get({__MODULE__, :twitter_token}, :not_found) do
-      :not_found -> {:error, :no_cached_token}
-      {token, expiry} -> {:ok, token, expiry}
+    init_cache()
+    case :ets.lookup(@token_cache_table, :twitter_token) do
+      [] -> {:error, :no_cached_token}
+      [{:twitter_token, {token, expiry}}] -> {:ok, token, expiry}
     end
   end
 

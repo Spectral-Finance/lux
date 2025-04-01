@@ -5,11 +5,9 @@ defmodule Lux.Prisms.Twitter.PostTweetTest do
   @tweet_text "This is a test tweet from Lux"
   @tweet_id "1234567890"
   @reply_to_id "9876543210"
-  @agent_ctx %{name: "TestAgent"}
+  @agent_ctx %{agent: %{name: "TestAgent"}}
 
   setup do
-    # Provide a test token for Twitter
-    Application.put_env(:lux, :twitter_test_token, "test-twitter-token")
     Req.Test.verify_on_exit!()
     :ok
   end

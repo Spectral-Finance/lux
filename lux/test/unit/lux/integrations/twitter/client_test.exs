@@ -8,9 +8,6 @@ defmodule Lux.Integrations.Twitter.ClientTest do
   end
 
   setup do
-    # Set up the test token
-    Application.put_env(:lux, :twitter_test_token, "test-twitter-token")
-
     # Ensure we verify all expected requests are made
     Req.Test.verify_on_exit!()
     :ok
@@ -18,7 +15,7 @@ defmodule Lux.Integrations.Twitter.ClientTest do
 
   describe "request/3" do
     test "makes correct API call with bearer token" do
-      Req.Test.stub(TwitterTestMock, fn conn ->
+      Req.Test.expect(TwitterTestMock, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/2/tweets/123456789"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer test-twitter-token"]
@@ -41,7 +38,7 @@ defmodule Lux.Integrations.Twitter.ClientTest do
     end
 
     test "makes correct API call for POST request with JSON body" do
-      Req.Test.stub(TwitterTestMock, fn conn ->
+      Req.Test.expect(TwitterTestMock, fn conn ->
         {:ok, body, conn} = Plug.Conn.read_body(conn)
         body_params = Jason.decode!(body)
 
@@ -79,7 +76,7 @@ defmodule Lux.Integrations.Twitter.ClientTest do
     end
 
     test "handles API error with detail message" do
-      Req.Test.stub(TwitterTestMock, fn conn ->
+      Req.Test.expect(TwitterTestMock, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/2/tweets/nonexistent"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer test-twitter-token"]
@@ -98,7 +95,7 @@ defmodule Lux.Integrations.Twitter.ClientTest do
     end
 
     test "handles rate limiting error" do
-      Req.Test.stub(TwitterTestMock, fn conn ->
+      Req.Test.expect(TwitterTestMock, fn conn ->
         assert conn.method == "GET"
         assert conn.request_path == "/2/tweets/123456789"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bearer test-twitter-token"]

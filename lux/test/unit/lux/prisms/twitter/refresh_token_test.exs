@@ -5,7 +5,7 @@ defmodule Lux.Prisms.Twitter.RefreshTokenTest do
   @client_id "test_client_id"
   @client_secret "test_client_secret"
   @refresh_token "test_refresh_token"
-  @agent_ctx %{name: "TestAgent"}
+  @agent_ctx %{agent: %{name: "TestAgent"}}
 
   setup do
     Req.Test.verify_on_exit!()

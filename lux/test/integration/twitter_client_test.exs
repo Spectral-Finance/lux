@@ -3,24 +3,22 @@ defmodule Lux.Integration.Twitter.ClientTest do
 
   alias Lux.Integrations.Twitter.Client
 
-  # Only run these tests if we have Twitter credentials
-  @moduletag :twitter
-
-  setup_all do
-    api_key = Application.get_env(:lux, :api_keys)[:integration_twitter]
-
-    # Skip tests if no Twitter API key is configured
-    if is_nil(api_key) do
-      # Mark all tests in this module as skipped
-      ExUnit.configure(exclude: [twitter: true])
-      :ok
-    else
-      :ok
-    end
-  end
-
   describe "basic Twitter API integration" do
-    test "can fetch a tweet by ID" do
+    setup do
+      config = %{
+        api_key: Application.get_env(:lux, :api_keys)[:integration_twitter]
+      }
+
+      # Skip tests if no Twitter API key is configured
+      if is_nil(config.api_key) do
+        skip_test = "No Twitter API key configured"
+        {:skip, skip_test}
+      else
+        %{config: config}
+      end
+    end
+
+    test "can fetch a tweet by ID", %{config: _config} do
       # Use a well-known tweet ID that is unlikely to be deleted
       # This is Twitter's own "Hello World" tweet
       tweet_id = "1460323737035677698"
@@ -36,7 +34,7 @@ defmodule Lux.Integration.Twitter.ClientTest do
       assert Map.has_key?(tweet_data, "created_at")
     end
 
-    test "can fetch user information by username" do
+    test "can fetch user information by username", %{config: _config} do
       # Use Twitter's official account
       username = "Twitter"
 
@@ -48,14 +46,14 @@ defmodule Lux.Integration.Twitter.ClientTest do
       assert Map.has_key?(user_data, "name")
     end
 
-    test "handles error responses appropriately" do
+    test "handles error responses appropriately", %{config: _config} do
       # Use a non-existent tweet ID
       tweet_id = "999999999999999999999"
 
       assert {:error, {404, _}} = Client.request(:get, "/tweets/#{tweet_id}")
     end
 
-    test "can search recent tweets" do
+    test "can search recent tweets", %{config: _config} do
       # Search for tweets about Elixir programming language
       query = "elixir lang"
 

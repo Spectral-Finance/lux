@@ -27,6 +27,7 @@ if config_env() in [:dev, :test] do
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
+    integration_twitter: env!("INTEGRATION_TWITTER_API_KEY", :string!, "missing twitter"),
     allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661"),
     twitter_oauth_refresh: env!("TWITTER_OAUTH_REFRESH_TOKEN", :string!, "missing twitter oauth refresh token"),
     twitter_client_id: env!("TWITTER_CLIENT_ID", :string!, "missing twitter client id"),
