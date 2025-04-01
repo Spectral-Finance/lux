@@ -271,8 +271,6 @@ Host codespaces-${codespace_name}
     ForwardX11 no
     PubkeyAcceptedKeyTypes +ssh-rsa
     HostkeyAlgorithms +ssh-rsa
-    # Set up welcome message
-    RemoteCommand bash -c 'if [ ! -f ~/.welcome_configured ]; then echo "source /workspaces/lux/.devcontainer/welcome.sh" >> ~/.bashrc && touch ~/.welcome_configured; fi; bash'
 EOF
 }
 

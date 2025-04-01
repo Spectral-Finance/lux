@@ -125,7 +125,7 @@
         {
             "label": "Install Development Tools",
             "type": "shell",
-            "command": "asdf install",
+            "command": "if [ \"$CODESPACES\" = \"true\" ]; then asdf install; else echo 'Skipping asdf install - not in Codespaces'; fi",
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
