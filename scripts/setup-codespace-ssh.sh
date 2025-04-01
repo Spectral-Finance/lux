@@ -283,20 +283,20 @@ check_ssh_config() {
     fi
 }
 
-# Function to add new SSH configuration
-add_ssh_config() {
+# Function to configure GPG signing
+configure_gpg_signing() {
     local codespace_name=$1
-    echo "Adding SSH configuration for $codespace_name..."
+    echo "Configuring GPG signing for $codespace_name..."
     
-    # Get the ProxyCommand for this codespace
-    PROXY_CMD=$(gh codespace ssh -c "$codespace_name" --config 2>&1 | grep "ProxyCommand" | head -n 1 | cut -d' ' -f2-)
+    # Get the GitHub token for the codespace
+    local token=$(gh codespace ssh -c "$codespace_name" --config 2>&1 | grep -o 'GH_TOKEN=[^ ]*' | cut -d= -f2)
     
-    if [ -z "$PROXY_CMD" ]; then
-        echo "❌ Error: Could not get ProxyCommand for $codespace_name"
-        exit 1
+    if [ -z "$token" ]; then
+        echo "⚠️  Warning: Could not get GitHub token for GPG signing"
+        return 1
     fi
 
-    # Add our configuration block
+    # Add our configuration block with GPG signing environment
     cat >> ~/.ssh/codespaces << EOF
 
 Host codespaces-${codespace_name}
@@ -313,9 +313,34 @@ Host codespaces-${codespace_name}
     ForwardX11 no
     PubkeyAcceptedKeyTypes +ssh-rsa
     HostkeyAlgorithms +ssh-rsa
-    # Set up welcome message
-    RemoteCommand bash -c 'if [ ! -f ~/.welcome_configured ]; then echo "source /workspaces/lux/scripts/welcome.sh" >> ~/.bashrc && touch ~/.welcome_configured; fi; bash'
+    # Environment variables for GPG signing
+    SetEnv GH_TOKEN=${token}
+    SetEnv GITHUB_TOKEN=${token}
+    # Set up welcome message and GPG config
+    RemoteCommand bash -c 'if [ ! -f ~/.welcome_configured ]; then 
+        echo "source /workspaces/lux/scripts/welcome.sh" >> ~/.bashrc && 
+        git config --global gpg.program "/.codespaces/bin/gh-gpgsign" &&
+        git config --global commit.gpgsign true &&
+        touch ~/.welcome_configured; 
+    fi; bash'
 EOF
+}
+
+# Function to add new SSH configuration
+add_ssh_config() {
+    local codespace_name=$1
+    echo "Adding SSH configuration for $codespace_name..."
+    
+    # Get the ProxyCommand for this codespace
+    PROXY_CMD=$(gh codespace ssh -c "$codespace_name" --config 2>&1 | grep "ProxyCommand" | head -n 1 | cut -d' ' -f2-)
+    
+    if [ -z "$PROXY_CMD" ]; then
+        echo "❌ Error: Could not get ProxyCommand for $codespace_name"
+        exit 1
+    fi
+
+    # Configure GPG signing
+    configure_gpg_signing "$codespace_name"
 }
 
 # Main script continues...
