@@ -44,7 +44,7 @@
           </a>
           <a
             href="#"
-            phx-click="export_all"
+            phx-click="export_nodes"
             class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 shadow-md hover:shadow-lg"
           >
             Export All
@@ -92,7 +92,7 @@
       </a>
       <a
         href="#"
-        phx-click="export_all"
+        phx-click="export_nodes"
         class="bg-orange-500 text-white block px-3 py-2 rounded-md text-base font-medium"
       >
         Export All
@@ -100,7 +100,7 @@
     </div>
   </div>
 </header>
-<main class="py-4">
+<main>
   <div class="mx-auto">
     <.flash_group flash={@flash} />
     {@inner_content}

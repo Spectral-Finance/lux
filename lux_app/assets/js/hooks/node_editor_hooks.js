@@ -1,3 +1,5 @@
+import { downloadJSON } from '../utils';
+
 const NodeEditorHooks = {
   DraggableNode: {
     mounted() {
@@ -210,22 +212,9 @@ const NodeEditorHooks = {
         this.scheduleEdgePathUpdate(100);
       });
 
-      this.handleEvent("all_exported", (data) => {
-        // Create a Blob containing the JSON data
-        const jsonContent = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonContent], { type: 'application/json' });
-        
-        // Create a temporary download link
-        const downloadLink = document.createElement('a');
-        downloadLink.href = URL.createObjectURL(blob);
-        downloadLink.download = 'agents.json';
-        
-        // Append link, trigger download, and cleanup
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-        URL.revokeObjectURL(downloadLink.href);
+      this.handleEvent("nodes_exported", (data) => {
         console.log("Export JSON event received", data);
+        downloadJSON(data);
       });
     },
 
@@ -423,7 +412,7 @@ const NodeEditorHooks = {
         
         // Update edge paths after cancelling drag
         this.scheduleEdgePathUpdate(50);
-      } else if (e.key === 'Backspace') {
+      } else if (e.key === 'Backspace' && !e.target.matches('input, textarea')) {
         this.pushEvent('node_removed', {
           id: this.selectedNodeId
         });

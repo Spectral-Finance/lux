@@ -62,7 +62,7 @@ const JsonDropZone = {
           this.pushEvent('node_added_error', { message: 'Invalid JSON file' });
         }
       };
-      reader.readAsText(jsonFile);
+      reader.readAsText(e.dataTransfer.files[0]);
     });
 
     // Handle dragover on the drop zone
