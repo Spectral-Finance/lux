@@ -4,6 +4,7 @@ defmodule Lux.Integrations.Twitter do
   """
 
   require Logger
+  alias Lux.Integrations.Twitter.Client
 
   @doc """
   Common request settings for Twitter API calls.
@@ -79,11 +80,17 @@ defmodule Lux.Integrations.Twitter do
 
   @doc """
   Refreshes the Twitter access token using the stored refresh token.
+
+  ## Parameters
+
+  * `client_id` - Optional client ID. Defaults to the value from config.
+  * `client_secret` - Optional client secret. Defaults to the value from config.
+  * `refresh_token` - Optional refresh token. Defaults to the value from config.
   """
-  def refresh_access_token do
-    client_id = Lux.Config.twitter_client_id()
-    client_secret = Lux.Config.twitter_client_secret()
-    refresh_token = Lux.Config.twitter_oauth_refresh_token()
+  def refresh_access_token(opts \\ []) do
+    client_id = Keyword.get(opts, :client_id, Lux.Config.twitter_client_id())
+    client_secret = Keyword.get(opts, :client_secret, Lux.Config.twitter_client_secret())
+    refresh_token = Keyword.get(opts, :refresh_token, Lux.Config.twitter_oauth_refresh_token())
 
     # Check if all credentials are present
     credentials_present = client_id && client_secret && refresh_token
@@ -91,7 +98,8 @@ defmodule Lux.Integrations.Twitter do
     if credentials_present do
       auth_header = "Basic " <> Base.encode64("#{client_id}:#{client_secret}")
 
-      case Req.post("https://api.twitter.com/2/oauth2/token",
+      # Use Client module instead of Req directly
+      case Client.request(:post, "/oauth2/token", %{
         headers: [
           {"Authorization", auth_header},
           {"Content-Type", "application/x-www-form-urlencoded"}
@@ -100,8 +108,8 @@ defmodule Lux.Integrations.Twitter do
           grant_type: "refresh_token",
           refresh_token: refresh_token
         ]
-      ) do
-        {:ok, %{status: 200, body: body}} ->
+      }) do
+        {:ok, body} ->
           token = body["access_token"]
           expires_in = body["expires_in"]
 
@@ -109,11 +117,8 @@ defmodule Lux.Integrations.Twitter do
           cache_token(token, expires_in)
 
           {:ok, token}
-        {:ok, %{status: status, body: body}} ->
-          Logger.error("Twitter token refresh failed with status #{status}: #{inspect(body)}")
-          {:error, {status, body}}
         {:error, error} ->
-          Logger.error("Twitter token refresh request failed: #{inspect(error)}")
+          Logger.error("Twitter token refresh failed: #{inspect(error)}")
           {:error, error}
       end
     else

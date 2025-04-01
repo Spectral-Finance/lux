@@ -11,7 +11,8 @@ defmodule Lux.Integrations.Twitter.Client do
   @type request_opts :: %{
     optional(:json) => map(),
     optional(:headers) => [{String.t(), String.t()}],
-    optional(:plug) => {module(), term()}
+    optional(:plug) => {module(), term()},
+    optional(:form) => Keyword.t()
   }
 
   @doc """
@@ -25,7 +26,8 @@ defmodule Lux.Integrations.Twitter.Client do
 
   ## Options
 
-    * `:json` - Request body for POST/PUT requests
+    * `:json` - Request body for POST/PUT requests as JSON
+    * `:form` - Request body for POST/PUT requests as form data
     * `:headers` - Additional headers to include
     * `:plug` - A plug to use for testing instead of making real HTTP requests
 
@@ -41,11 +43,49 @@ defmodule Lux.Integrations.Twitter.Client do
   """
   @spec request(atom(), String.t(), request_opts()) :: {:ok, map()} | {:error, term()}
   def request(method, path, opts \\ %{}) do
-    case Twitter.get_access_token() do
-      {:ok, token} ->
-        make_request(method, path, token, opts)
-      error ->
-        error
+    # For token refresh, we don't need a token to authenticate (we're getting one)
+    if String.ends_with?(path, "/oauth2/token") do
+      make_request_without_auth(method, path, opts)
+    else
+      case Twitter.get_access_token() do
+        {:ok, token} ->
+          make_request(method, path, token, opts)
+        error ->
+          error
+      end
+    end
+  end
+
+  # Makes a request without authentication (for getting tokens)
+  defp make_request_without_auth(method, path, opts) do
+    url = if String.starts_with?(path, "/oauth2") do
+      "https://api.twitter.com/2" <> path
+    else
+      @endpoint <> path
+    end
+
+    [
+      method: method,
+      url: url,
+      headers: opts[:headers] || [],
+      json: opts[:json]
+    ]
+    |> add_form_data(opts[:form])
+    |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
+    |> maybe_add_plug(opts[:plug])
+    |> Req.new()
+    |> Req.request()
+    |> case do
+      {:ok, %{status: status} = response} when status in 200..299 ->
+        {:ok, response.body}
+
+      {:ok, %{status: status, body: body}} ->
+        Logger.error("Twitter API error: #{status} - #{inspect(body)}")
+        {:error, {status, body}}
+
+      {:error, error} ->
+        Logger.error("Twitter API request failed: #{inspect(error)}")
+        {:error, error}
     end
   end
 
@@ -60,6 +100,7 @@ defmodule Lux.Integrations.Twitter.Client do
       ] ++ (opts[:headers] || []),
       json: opts[:json]
     ]
+    |> add_form_data(opts[:form])
     |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
     |> maybe_add_plug(opts[:plug])
     |> Req.new()
@@ -86,6 +127,10 @@ defmodule Lux.Integrations.Twitter.Client do
         {:error, error}
     end
   end
+
+  # Add form data if present
+  defp add_form_data(options, nil), do: options
+  defp add_form_data(options, form), do: Keyword.put(options, :form, form)
 
   defp maybe_add_plug(options, nil), do: options
   defp maybe_add_plug(options, plug), do: Keyword.put(options, :plug, plug)

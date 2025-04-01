@@ -23,7 +23,7 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
 
   setup do
     # Set up the TwitterClientMock
-    Application.put_env(:lux, Lux.Integrations.Twitter.Client, plug: {Req.Test, TwitterClientMock})
+    Application.put_env(:lux, Lux.Integrations.Twitter.Client, plug: {Req.Test, __MODULE__})
     # Provide a test token
     Application.put_env(:lux, :twitter_test_token, "test-twitter-token")
 
@@ -63,7 +63,7 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
       }} = GetTweet.handler(
         %{
           id: @tweet_id,
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -115,7 +115,7 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
         %{
           id: @tweet_id,
           expansions: ["author_id"],
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -153,7 +153,7 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
       }} = GetTweet.handler(
         %{
           id: @tweet_id,
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -175,7 +175,7 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
       assert {:error, {404, "Tweet not found"}} = GetTweet.handler(
         %{
           id: @tweet_id,
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -185,14 +185,14 @@ defmodule Lux.Prisms.Twitter.GetTweetTest do
       assert {:error, "Missing or invalid id"} = GetTweet.handler(
         %{
           id: "",
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
 
       assert {:error, "Missing or invalid id"} = GetTweet.handler(
         %{
-          plug: {Req.Test, TwitterClientMock}
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )

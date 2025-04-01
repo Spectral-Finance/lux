@@ -1,19 +1,6 @@
 defmodule Lux.Prisms.Twitter.PostTweetTest do
-  @moduledoc """
-  Test suite for the PostTweet prism module.
-
-  These tests verify the prism's ability to:
-  - Post tweets to Twitter
-  - Handle Twitter API errors appropriately
-  - Validate input/output schemas
-  - Support reply functionality
-
-  The tests use a Twitter API client mock to simulate API interactions.
-  """
-
   use UnitAPICase, async: true
   alias Lux.Prisms.Twitter.PostTweet
-  alias Lux.Test.Mocks.TwitterClientMock
 
   @tweet_text "This is a test tweet from Lux"
   @tweet_id "1234567890"
@@ -21,11 +8,8 @@ defmodule Lux.Prisms.Twitter.PostTweetTest do
   @agent_ctx %{name: "TestAgent"}
 
   setup do
-    # Set up the TwitterClientMock
-    Application.put_env(:lux, Lux.Integrations.Twitter.Client, plug: {Req.Test, TwitterClientMock})
-    # Provide a test token
+    # Provide a test token for Twitter
     Application.put_env(:lux, :twitter_test_token, "test-twitter-token")
-
     Req.Test.verify_on_exit!()
     :ok
   end
