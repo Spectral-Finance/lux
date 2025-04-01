@@ -62,6 +62,8 @@ LOGO
         echo -e "  ${CYAN}• Vim:${RESET}     vim /workspaces/lux"
         echo -e "\nOr change to the workspace directory:"
         echo -e "  cd /workspaces/lux\n"
+        echo -e "${DIM}Note: If this is a new codespace, dev dependencies will be installed"
+        echo -e "automatically when you open the workspace. This may take some time.${RESET}\n"
     fi
 }
 
