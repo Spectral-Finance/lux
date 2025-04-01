@@ -5,7 +5,6 @@ defmodule UnitAPICase do
   use ExUnit.CaseTemplate
 
   alias Lux.LLM.OpenAI
-  alias Lux.Lens.TelegramLens
   alias Lux.Lenses.Etherscan
   alias Lux.LLM.Anthropic
   alias Lux.Integrations.Discord.Client, as: DiscordClient
