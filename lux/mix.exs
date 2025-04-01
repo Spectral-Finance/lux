@@ -79,7 +79,7 @@ defmodule Lux.MixProject do
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
-      {:dotenvy, "~> 1.0.1", only: [:dev, :test]},
+      {:dotenvy, "~> 1.1.0", only: [:dev, :test]},
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
