@@ -92,14 +92,22 @@ echo "- Create new Codespace: Set up a fresh environment with custom settings"
 echo -e "\n"
 
 # Get available codespaces (more compatible approach)
-# Initialize empty array
+# Initialize empty arrays for names and states
 CODESPACE_ARRAY=()
+CODESPACE_STATES=()
 while IFS= read -r line; do
-    CODESPACE_ARRAY+=("$line")
-done < <(gh codespace list | grep "Available" | awk '{print $1}')
+    # Skip header line and empty lines
+    if [[ -n "$line" && ! "$line" =~ "NAME" ]]; then
+        name=$(echo "$line" | awk '{print $1}')
+        state=$(echo "$line" | awk '{print $4}')
+        CODESPACE_ARRAY+=("$name")
+        CODESPACE_STATES+=("$state")
+    fi
+done < <(gh codespace list)
 
 # Add "Create new Codespace" option
 CODESPACE_ARRAY+=("Create new Codespace")
+CODESPACE_STATES+=("new")
 
 # Create menu options with existing codespaces plus "Create new" option
 echo -e "📍 Step 1: Select Your Development Environment"
@@ -210,6 +218,33 @@ if [ $SELECTION -eq $((${#CODESPACE_ARRAY[@]} - 1)) ]; then
     CODESPACE_NAME=$NEW_CODESPACE
 else
     CODESPACE_NAME="${CODESPACE_ARRAY[$SELECTION]}"
+    CODESPACE_STATE="${CODESPACE_STATES[$SELECTION]}"
+    
+    # If codespace is shutdown, start it
+    if [ "$CODESPACE_STATE" = "Shutdown" ]; then
+        echo -e "\n🚀 Starting codespace ${CODESPACE_NAME}..."
+        gh codespace start -c "$CODESPACE_NAME"
+        
+        # Wait for the codespace to be ready
+        echo "Waiting for Codespace to be ready..."
+        max_attempts=30
+        attempt=0
+        while [ $attempt -lt $max_attempts ]; do
+            STATUS=$(gh codespace list | grep "$CODESPACE_NAME" | awk '{print $4}')
+            if [ "$STATUS" = "Available" ]; then
+                echo "✨ Codespace is ready!"
+                break
+            fi
+            echo "Status: $STATUS (attempt $((attempt + 1))/$max_attempts)"
+            attempt=$((attempt + 1))
+            sleep 5
+        done
+        
+        if [ $attempt -eq $max_attempts ]; then
+            echo "❌ Timed out waiting for Codespace to be ready"
+            exit 1
+        fi
+    fi
 fi
 
 echo -e "\nUsing Codespace: $CODESPACE_NAME"
@@ -271,6 +306,8 @@ Host codespaces-${codespace_name}
     ForwardX11 no
     PubkeyAcceptedKeyTypes +ssh-rsa
     HostkeyAlgorithms +ssh-rsa
+    # Set up welcome message
+    RemoteCommand bash -c 'if [ ! -f ~/.welcome_configured ]; then echo "source /workspaces/lux/scripts/welcome.sh" >> ~/.bashrc && touch ~/.welcome_configured; fi; bash'
 EOF
 }
 

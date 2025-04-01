@@ -61,7 +61,10 @@
                 "irongeek.vscode-env",
                 "oderwat.indent-rainbow",
                 "yzhang.markdown-all-in-one",
-                "ms-vsliveshare.vsliveshare"
+                "ms-vsliveshare.vsliveshare",
+
+                // New additions
+                "ms-vscode.vscode-typescript-tdd"
             ],
             "settings": {
                 "elixirLS.suggestSpecs": true,
@@ -92,7 +95,8 @@
             }
         }
     },
-    "postStartCommand": "echo 'Run \"Initialize Environment\" task to set up your development environment'",
+    "postCreateCommand": "chmod +x scripts/welcome.sh",
+    "postStartCommand": "echo 'source ${containerWorkspaceFolder}/scripts/welcome.sh' >> ~/.bashrc",
     "remoteUser": "vscode",
     "remoteEnv": {
         "MIX_ENV": "dev",
