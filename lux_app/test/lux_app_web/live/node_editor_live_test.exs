@@ -384,7 +384,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       assert html =~ "Help users with various tasks"
     end
 
-    test "updates node properties in real-time when pressing cmd+enter", %{conn: conn} do
+    test "updates node properties in real-time when blurring the input", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/")
 
       # Select the initial agent node
@@ -395,9 +395,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       # Test label update with cmd+enter
       view
       |> element("input[name='node[data][label]']")
-      |> render_keydown(%{
-        "key" => "Enter",
-        "metaKey" => true,
+      |> render_blur(%{
         "value" => "Real-time Label Update"
       })
 
@@ -410,9 +408,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       # Test description update with cmd+enter
       view
       |> element("textarea[name='node[data][description]']")
-      |> render_keydown(%{
-        "key" => "Enter",
-        "metaKey" => true,
+      |> render_blur(%{
         "value" => "Real-time Description Update"
       })
 
@@ -425,9 +421,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       # Test goal update with cmd+enter (only for agent nodes)
       view
       |> element("textarea[name='node[data][goal]']")
-      |> render_keydown(%{
-        "key" => "Enter",
-        "metaKey" => true,
+      |> render_blur(%{
         "value" => "Real-time Goal Update"
       })
 
@@ -435,7 +429,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       assert html =~ "Real-time Goal Update"
     end
 
-    test "updates prism properties in real-time when pressing ctrl+enter", %{conn: conn} do
+    test "updates prism properties in real-time when blurring the input", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/")
 
       # Add and select a prism node
@@ -457,12 +451,10 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       |> element("g.node[data-node-id='prism-test']")
       |> render_click()
 
-      # Test label update with ctrl+enter
+      # Test label update with blur
       view
       |> element("input[name='node[data][label]']")
-      |> render_keydown(%{
-        "key" => "Enter",
-        "ctrlKey" => true,
+      |> render_blur(%{
         "value" => "Real-time Prism Update"
       })
 
@@ -472,12 +464,10 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       assert html =~
                ~s(<text x="10" y="30" fill="white" font-weight="bold">Real-time Prism Update</text>)
 
-      # Test description update with ctrl+enter
+      # Test description update with blur
       view
       |> element("textarea[name='node[data][description]']")
-      |> render_keydown(%{
-        "key" => "Enter",
-        "ctrlKey" => true,
+      |> render_blur(%{
         "value" => "Real-time Prism Description"
       })
 
