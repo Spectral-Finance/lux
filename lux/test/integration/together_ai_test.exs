@@ -11,7 +11,7 @@ defmodule Lux.Integration.LLM.TogetherAITest do
     setup do
       config = %{
         api_key: Application.get_env(:lux, :api_keys)[:integration_together],
-        model: "mistralai/Mistral-7B-Instruct-v0.2",
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         temperature: 0.7
       }
 
@@ -33,7 +33,7 @@ defmodule Lux.Integration.LLM.TogetherAITest do
                   system_fingerprint: _
                 },
                 payload: %{
-                  model: "mistralai/Mistral-7B-Instruct-v0.2",
+                  model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
                   content: %{"capital" => "Paris"},
                   tool_calls: nil,
                   tool_calls_results: nil,
@@ -162,7 +162,7 @@ defmodule Lux.Integration.LLM.TogetherAITest do
     test "will return a function call result in the response when calling a prism" do
       config = %{
         api_key: Application.get_env(:lux, :api_keys)[:integration_together],
-        model: "mistralai/Mistral-7B-Instruct-v0.2",
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         temperature: 0.7
       }
 
@@ -193,7 +193,7 @@ defmodule Lux.Integration.LLM.TogetherAITest do
     test "will return a function call result in the response when calling a beam" do
       config = %{
         api_key: Application.get_env(:lux, :api_keys)[:integration_together],
-        model: "mistralai/Mistral-7B-Instruct-v0.2",
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         temperature: 0.7
       }
 
