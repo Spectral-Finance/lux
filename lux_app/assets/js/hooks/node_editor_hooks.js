@@ -679,7 +679,12 @@ const NodeEditorHooks = {
             label: 'New Agent',
             description: 'Agent description',
             goal: 'Agent goal',
-            components: []
+            components: [],
+            llm_config: {
+              provider: "openai",
+              model: "gpt-4o-mini",
+              temperature: 0.5
+            }
           };
         case 'prism':
           return {

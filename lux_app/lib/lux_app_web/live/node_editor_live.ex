@@ -25,6 +25,24 @@ defmodule LuxAppWeb.NodeEditorLive do
     }
   }
 
+  @llm_providers [
+    OpenAI: "openai",
+    Anthropic: "anthropic"
+  ]
+
+  @llm_models %{
+    "openai" => [
+      "GPT-4o-mini": "gpt-4o-mini",
+      "GPT-4o": "gpt-4o",
+      "GPT-4": "gpt-4"
+    ],
+    "anthropic" => [
+      "Claude 3.7 Sonnet": "claude-3.7-sonnet",
+      "Claude 3.5 Sonnet": "claude-3-5-sonnet",
+      "Claude 3 Haiku": "claude-3-haiku"
+    ]
+  }
+
   def mount(_params, _session, socket) do
     nodes = [
       %{
@@ -61,6 +79,8 @@ defmodule LuxAppWeb.NodeEditorLive do
      |> assign(:nodes, nodes)
      |> assign(:edges, edges)
      |> assign(:node_types, @node_types)
+     |> assign(:llm_providers, @llm_providers)
+     |> assign(:llm_models, @llm_models)
      |> assign(:selected_node, nil)
      |> assign(:dragging_node, nil)
      |> assign(:drawing_edge, nil)}
@@ -524,7 +544,7 @@ defmodule LuxAppWeb.NodeEditorLive do
       <div class="w-64 border-l border-gray-700 p-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Properties</h2>
         <%= if @selected_node do %>
-          <form phx-submit="update_node">
+          <form phx-submit="update_node" phx-change="update_node">
             <input type="hidden" name="node[id]" value={@selected_node["id"]} />
             <div class="space-y-4">
               <div>
@@ -536,8 +556,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                   name="node[data][label]"
                   value={@selected_node["data"]["label"]}
                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                  phx-blur="update_property"
-                  phx-value-field="label"
+                  phx-debounce="blur"
                 />
               </div>
               <div>
@@ -546,8 +565,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                   name="node[data][description]"
                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                   rows="3"
-                  phx-blur="update_property"
-                  phx-value-field="description"
+                  phx-debounce="blur"
                 ><%= @selected_node["data"]["description"] %></textarea>
               </div>
               <%= if @selected_node["type"] == "agent" do %>
@@ -557,52 +575,42 @@ defmodule LuxAppWeb.NodeEditorLive do
                     name="node[data][goal]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                     rows="3"
-                    phx-blur="update_property"
-                    phx-value-field="goal"
+                    phx-debounce="blur"
                   ><%= @selected_node["data"]["goal"] %></textarea>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-400 mb-1">LLM Provider</label>
                   <select
-                    name="node[data][llm_provider]"
+                    name="node[data][llm_config][provider]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                     rows="3"
-                    phx-blur="update_property"
-                    phx-value-field="llm_provider"
                   >
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="gemini">Gemini</option>
-                    <option value="claude">Claude</option>
-                    <option value="groq">Groq</option>
-                    <option value="azure">Azure</option>
+                    {options_for_select(
+                      @llm_providers,
+                      @selected_node["data"]["llm_config"]["provider"]
+                    )}
                   </select>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-400 mb-1">LLM Model</label>
                   <select
-                    name="node[data][llm_model]"
+                    name="node[data][llm_config][model]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    value={@selected_node["data"]["llm_model"]}
-                    phx-blur="update_property"
-                    phx-value-field="llm_model"
                   >
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o-mini</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
-                    <option value="gpt-3.5-turbo-16k">GPT-3.5-turbo-16k</option>
+                    {options_for_select(
+                      @llm_models[@selected_node["data"]["llm_config"]["provider"]],
+                      @selected_node["data"]["llm_config"]["model"]
+                    )}
                   </select>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-400 mb-1">LLM Temperature</label>
                   <input
                     type="number"
-                    name="node[data][llm_temperature]"
+                    name="node[data][llm_config][temperature]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    value={@selected_node["data"]["llm_temperature"]}
-                    phx-blur="update_property"
-                    phx-value-field="llm_temperature"
+                    value={@selected_node["data"]["llm_config"]["temperature"]}
+                    phx-debounce="blur"
                   />
                 </div>
               <% end %>
