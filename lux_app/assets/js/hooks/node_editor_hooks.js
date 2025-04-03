@@ -309,8 +309,7 @@ const NodeEditorHooks = {
         node: {
           id: nodeId,
           type: nodeType,
-          position: { x, y },
-          data: this.getInitialNodeData(nodeType)
+          position: { x, y }
         }
       });
       
@@ -671,47 +670,6 @@ const NodeEditorHooks = {
         y: parseFloat(match[2])
       };
     },
-
-    getInitialNodeData(type) {
-      switch (type) {
-        case 'agent':
-          return {
-            label: 'New Agent',
-            description: 'Agent description',
-            goal: 'Agent goal',
-            components: [],
-            llm_config: {
-              provider: "openai",
-              model: "gpt-4o-mini",
-              temperature: 0.5
-            }
-          };
-        case 'prism':
-          return {
-            label: 'New Prism',
-            description: 'Prism description',
-            input_schema: null,
-            output_schema: null
-          };
-        case 'lens':
-          return {
-            label: 'New Lens',
-            description: 'Lens description',
-            url: '',
-            method: 'GET',
-            schema: null
-          };
-        case 'beam':
-          return {
-            label: 'New Beam',
-            description: 'Beam description',
-            input_schema: null,
-            output_schema: null
-          };
-        default:
-          return { label: 'New Node' };
-      }
-    }
   }
 };
 

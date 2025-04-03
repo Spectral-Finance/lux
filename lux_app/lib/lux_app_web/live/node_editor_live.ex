@@ -9,24 +9,10 @@ defmodule LuxAppWeb.NodeEditorLive do
         "type" => "agent",
         "position" => %{"x" => 400, "y" => 200},
         "data" => %{
-          "label" => "Ultimate Assistant",
-          "description" => "Tools Agent",
-          "goal" => "Help users with various tasks",
-          "llm_config" => %{
-            "provider" => "openai",
-            "model" => "gpt-4o-mini",
-            "temperature" => 0.5
-          },
-          "components" => [
-            %{
-              "id" => "comp-1",
-              "type" => "prism",
-              "name" => "Chat Model",
-              "label" => "Chat Model"
-            },
-            %{"id" => "comp-2", "type" => "lens", "name" => "Memory", "label" => "Memory"},
-            %{"id" => "comp-3", "type" => "beam", "name" => "Tool", "label" => "Tool"}
-          ]
+          initial_data("agent")
+          | "label" => "Ultimate Assistant",
+            "description" => "Tools Agent",
+            "goal" => "Help users with various tasks"
         }
       }
     ]
@@ -37,9 +23,6 @@ defmodule LuxAppWeb.NodeEditorLive do
      socket
      |> assign(:nodes, nodes)
      |> assign(:edges, edges)
-     |> assign(:node_types, @node_types)
-     |> assign(:llm_providers, @llm_providers)
-     |> assign(:llm_models, @llm_models)
      |> assign(:selected_node, nil)
      |> assign(:dragging_node, nil)
      |> assign(:drawing_edge, nil)}
