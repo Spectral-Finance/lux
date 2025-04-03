@@ -1,32 +1,44 @@
 [tool.poetry]
-name = "lux-sdk"
+name = "lux-python"
 version = "0.1.0"
-description = "Python SDK for creating Lux-compatible agents"
-authors = ["Lux Team"]
+description = "Python components for the Lux framework"
+authors = ["Robert Parcus <robertparcus@spectrallabs.xyz>"]
 readme = "README.md"
 packages = [{include = "lux"}]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-jsonschema = "^4.17.3"
-python-dateutil = "^2.8.2"
-typing-extensions = "^4.5.0"
+python = "^3.12.3"
+web3 = "^6.15.11"
+eth-typing = "3.5.2"
+eth-tester = {extras = ["py-evm"], version = "^0.11.0b2"}
+nltk = "^3.9.1"
+setuptools = "^75.8.2"
+hyperliquid-python-sdk = "^0.10.1"
+ckzg = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.0.0"
-black = "^23.0.0"
-mypy = "^1.0.0"
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+black = "^25.1.0"
+isort = "^6.0.1"
+mypy = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.black]
-line-length = 100
-target-version = ['py39']
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=lux --cov-report=term-missing"
 
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true 
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3 
