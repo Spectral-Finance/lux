@@ -1,51 +1,8 @@
 """
-KnowledgeGraph Schema
+Knowledge Graph Schema
 
-This schema defines the structure for representing knowledge as a graph of concepts
-and their relationships. It enables agents to share and update their understanding
-of concept relationships and dependencies.
-
-Example usage:
-```python
-{
-    "timestamp": "2024-03-20T15:30:00Z",
-    "graph_id": "kg_machine_learning_basics",
-    "nodes": [
-        {
-            "id": "supervised_learning",
-            "type": "concept",
-            "name": "Supervised Learning",
-            "description": "Learning from labeled training data",
-            "confidence": 0.95
-        },
-        {
-            "id": "classification",
-            "type": "technique",
-            "name": "Classification",
-            "description": "Predicting categorical labels",
-            "confidence": 0.9
-        }
-    ],
-    "edges": [
-        {
-            "source": "supervised_learning",
-            "target": "classification",
-            "relationship": "includes",
-            "weight": 0.8,
-            "properties": {
-                "bidirectional": false,
-                "examples": ["spam detection", "image recognition"]
-            }
-        }
-    ],
-    "metadata": {
-        "domain": "machine_learning",
-        "version": "1.0",
-        "last_updated": "2024-03-20T15:30:00Z",
-        "confidence_threshold": 0.7
-    }
-}
-```
+This schema represents knowledge graphs and semantic networks,
+including nodes, edges, and their relationships and properties.
 """
 
 from lux_sdk.signals import SignalSchema
@@ -53,108 +10,246 @@ from lux_sdk.signals import SignalSchema
 KnowledgeGraphSchema = SignalSchema(
     name="knowledge_graph",
     version="1.0",
-    description="Schema for representing knowledge as a graph of concepts and relationships",
+    description="Schema for knowledge graphs and semantic networks",
     schema={
         "type": "object",
-        "required": ["timestamp", "graph_id", "nodes", "edges", "metadata"],
         "properties": {
             "timestamp": {
                 "type": "string",
-                "format": "date-time",
-                "description": "When the knowledge graph was created or updated"
+                "format": "date-time"
             },
             "graph_id": {
                 "type": "string",
-                "description": "Unique identifier for the knowledge graph"
+                "description": "Unique identifier for this knowledge graph"
             },
             "nodes": {
                 "type": "array",
                 "items": {
                     "type": "object",
-                    "required": ["id", "type", "name", "confidence"],
                     "properties": {
-                        "id": {
+                        "node_id": {
                             "type": "string",
-                            "description": "Unique node identifier"
+                            "description": "Unique identifier for the node"
                         },
                         "type": {
                             "type": "string",
-                            "description": "Node type (e.g., concept, entity, fact)"
+                            "enum": ["concept", "entity", "event", "property", "class", "instance"],
+                            "description": "Type of node"
                         },
-                        "name": {
+                        "label": {
                             "type": "string",
-                            "description": "Human-readable name"
+                            "description": "Human-readable label for the node"
                         },
-                        "description": {
-                            "type": "string",
-                            "description": "Optional description of the node"
+                        "properties": {
+                            "type": "object",
+                            "description": "Additional properties of the node",
+                            "additionalProperties": True
                         },
-                        "confidence": {
-                            "type": "number",
-                            "minimum": 0,
-                            "maximum": 1,
-                            "description": "Confidence in node's accuracy"
+                        "aliases": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "Alternative names or labels"
+                            }
+                        },
+                        "source": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "description": "Source type (e.g., document, database, api)"
+                                },
+                                "identifier": {
+                                    "type": "string",
+                                    "description": "Source identifier"
+                                }
+                            }
                         }
-                    }
+                    },
+                    "required": ["node_id", "type", "label"]
                 }
             },
             "edges": {
                 "type": "array",
                 "items": {
                     "type": "object",
-                    "required": ["source", "target", "relationship", "weight"],
                     "properties": {
-                        "source": {
+                        "edge_id": {
                             "type": "string",
-                            "description": "Source node ID"
+                            "description": "Unique identifier for the edge"
                         },
-                        "target": {
+                        "source_id": {
                             "type": "string",
-                            "description": "Target node ID"
+                            "description": "ID of source node"
                         },
-                        "relationship": {
+                        "target_id": {
                             "type": "string",
+                            "description": "ID of target node"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["is_a", "has_property", "related_to", "part_of", "causes", "depends_on", "similar_to", "custom"],
                             "description": "Type of relationship"
+                        },
+                        "label": {
+                            "type": "string",
+                            "description": "Human-readable label for the relationship"
+                        },
+                        "properties": {
+                            "type": "object",
+                            "description": "Additional properties of the edge",
+                            "additionalProperties": True
                         },
                         "weight": {
                             "type": "number",
                             "minimum": 0,
                             "maximum": 1,
-                            "description": "Relationship strength"
+                            "description": "Weight or strength of the relationship"
                         },
-                        "properties": {
+                        "provenance": {
                             "type": "object",
-                            "description": "Additional edge properties"
+                            "properties": {
+                                "confidence": {
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                    "description": "Confidence score"
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "description": "Method used to establish relationship"
+                                },
+                                "timestamp": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "description": "When relationship was established"
+                                }
+                            }
                         }
-                    }
+                    },
+                    "required": ["edge_id", "source_id", "target_id", "type"]
+                }
+            },
+            "subgraphs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "subgraph_id": {
+                            "type": "string",
+                            "description": "Unique identifier for the subgraph"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the subgraph"
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "Description of the subgraph"
+                        },
+                        "node_ids": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "IDs of nodes in the subgraph"
+                            }
+                        },
+                        "edge_ids": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "IDs of edges in the subgraph"
+                            }
+                        }
+                    },
+                    "required": ["subgraph_id", "name", "node_ids", "edge_ids"]
                 }
             },
             "metadata": {
                 "type": "object",
-                "required": ["domain", "version", "last_updated"],
                 "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the knowledge graph"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description of the knowledge graph"
+                    },
                     "domain": {
                         "type": "string",
-                        "description": "Knowledge domain"
+                        "description": "Domain or subject area"
                     },
                     "version": {
                         "type": "string",
-                        "description": "Graph version"
+                        "description": "Version of the graph"
+                    },
+                    "created_by": {
+                        "type": "string",
+                        "description": "Creator of the graph"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Creation timestamp"
                     },
                     "last_updated": {
                         "type": "string",
                         "format": "date-time",
                         "description": "Last update timestamp"
                     },
-                    "confidence_threshold": {
+                    "license": {
+                        "type": "string",
+                        "description": "License information"
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "Relevant tags"
+                        }
+                    }
+                },
+                "required": ["name", "domain", "version"]
+            },
+            "statistics": {
+                "type": "object",
+                "properties": {
+                    "node_count": {
+                        "type": "integer",
+                        "description": "Total number of nodes"
+                    },
+                    "edge_count": {
+                        "type": "integer",
+                        "description": "Total number of edges"
+                    },
+                    "density": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1,
-                        "description": "Minimum confidence threshold"
+                        "description": "Graph density"
+                    },
+                    "node_type_distribution": {
+                        "type": "object",
+                        "description": "Distribution of node types",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
+                    },
+                    "edge_type_distribution": {
+                        "type": "object",
+                        "description": "Distribution of edge types",
+                        "additionalProperties": {
+                            "type": "integer"
+                        }
                     }
                 }
             }
         },
-        "additionalProperties": False
+        "required": [
+            "timestamp",
+            "graph_id",
+            "nodes",
+            "edges",
+            "metadata"
+        ]
     }
 ) 

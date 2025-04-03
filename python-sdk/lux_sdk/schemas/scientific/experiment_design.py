@@ -1,8 +1,8 @@
 """
-ExperimentDesignSchema
+Experiment Design Schema
 
-This schema represents experimental design specifications, including
-hypotheses, variables, controls, and measurement protocols.
+This schema represents scientific experiment designs, including hypotheses,
+methodology, variables, and controls.
 """
 
 from lux_sdk.signals import SignalSchema
@@ -10,25 +10,50 @@ from lux_sdk.signals import SignalSchema
 ExperimentDesignSchema = SignalSchema(
     name="experiment_design",
     version="1.0",
-    description="Schema for representing experimental design specifications and protocols",
+    description="Schema for defining scientific experiment designs and methodologies",
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time"},
-            "experiment_id": {"type": "string"},
-            "title": {"type": "string"},
-            "description": {"type": "string"},
+            "timestamp": {
+                "type": "string",
+                "format": "date-time"
+            },
+            "experiment_id": {
+                "type": "string",
+                "description": "Unique identifier for this experiment"
+            },
+            "title": {
+                "type": "string",
+                "description": "Title of the experiment"
+            },
+            "research_question": {
+                "type": "string",
+                "description": "Primary research question being investigated"
+            },
             "hypotheses": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "id": {"type": "string"},
-                        "statement": {"type": "string"},
-                        "rationale": {"type": "string"},
-                        "predictions": {"type": "array", "items": {"type": "string"}}
+                        "hypothesis_id": {
+                            "type": "string",
+                            "description": "Identifier for the hypothesis"
+                        },
+                        "statement": {
+                            "type": "string",
+                            "description": "Formal hypothesis statement"
+                        },
+                        "type": {
+                            "type": "string",
+                            "enum": ["null", "alternative", "directional"],
+                            "description": "Type of hypothesis"
+                        },
+                        "rationale": {
+                            "type": "string",
+                            "description": "Reasoning behind the hypothesis"
+                        }
                     },
-                    "required": ["id", "statement", "rationale", "predictions"]
+                    "required": ["hypothesis_id", "statement", "type"]
                 }
             },
             "variables": {
@@ -39,13 +64,28 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string"},
-                                "type": {"type": "string"},
-                                "levels": {"type": "array", "items": {"type": "string"}},
-                                "units": {"type": "string"},
-                                "control_value": {"type": "string"}
+                                "name": {
+                                    "type": "string",
+                                    "description": "Variable name"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["categorical", "continuous", "discrete"],
+                                    "description": "Variable type"
+                                },
+                                "levels": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Possible values or levels"
+                                    }
+                                },
+                                "units": {
+                                    "type": "string",
+                                    "description": "Units of measurement"
+                                }
                             },
-                            "required": ["name", "type", "levels", "units"]
+                            "required": ["name", "type"]
                         }
                     },
                     "dependent": {
@@ -53,138 +93,219 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string"},
-                                "type": {"type": "string"},
-                                "measurement_method": {"type": "string"},
-                                "units": {"type": "string"},
-                                "expected_range": {
-                                    "type": "object",
-                                    "properties": {
-                                        "min": {"type": "number"},
-                                        "max": {"type": "number"}
-                                    }
+                                "name": {
+                                    "type": "string",
+                                    "description": "Variable name"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["categorical", "continuous", "discrete"],
+                                    "description": "Variable type"
+                                },
+                                "measurement_method": {
+                                    "type": "string",
+                                    "description": "How the variable is measured"
+                                },
+                                "units": {
+                                    "type": "string",
+                                    "description": "Units of measurement"
                                 }
                             },
-                            "required": ["name", "type", "measurement_method", "units"]
+                            "required": ["name", "type", "measurement_method"]
                         }
                     },
-                    "controlled": {
+                    "control": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string"},
-                                "value": {"type": "string"},
-                                "method": {"type": "string"}
+                                "name": {
+                                    "type": "string",
+                                    "description": "Variable name"
+                                },
+                                "control_method": {
+                                    "type": "string",
+                                    "description": "How the variable is controlled"
+                                }
                             },
-                            "required": ["name", "value", "method"]
+                            "required": ["name", "control_method"]
                         }
                     }
                 },
                 "required": ["independent", "dependent"]
             },
-            "design": {
+            "methodology": {
                 "type": "object",
                 "properties": {
-                    "type": {"type": "string", "enum": ["factorial", "randomized", "repeated_measures", "mixed"]},
-                    "groups": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "name": {"type": "string"},
-                                "size": {"type": "integer", "minimum": 1},
-                                "treatment": {"type": "string"}
+                    "design_type": {
+                        "type": "string",
+                        "enum": ["between_subjects", "within_subjects", "mixed", "factorial", "time_series"],
+                        "description": "Type of experimental design"
+                    },
+                    "sampling": {
+                        "type": "object",
+                        "properties": {
+                            "method": {
+                                "type": "string",
+                                "description": "Sampling method used"
                             },
-                            "required": ["name", "size", "treatment"]
-                        }
+                            "size": {
+                                "type": "integer",
+                                "description": "Sample size"
+                            },
+                            "power_analysis": {
+                                "type": "object",
+                                "description": "Statistical power analysis details"
+                            }
+                        },
+                        "required": ["method", "size"]
                     },
                     "randomization": {
                         "type": "object",
                         "properties": {
-                            "method": {"type": "string"},
-                            "seed": {"type": "integer"}
-                        },
-                        "required": ["method"]
+                            "method": {
+                                "type": "string",
+                                "description": "Randomization method"
+                            },
+                            "seed": {
+                                "type": "integer",
+                                "description": "Random seed for reproducibility"
+                            }
+                        }
                     },
                     "blinding": {
                         "type": "object",
                         "properties": {
-                            "type": {"type": "string", "enum": ["none", "single", "double", "triple"]},
-                            "roles": {"type": "array", "items": {"type": "string"}}
+                            "type": {
+                                "type": "string",
+                                "enum": ["none", "single", "double", "triple"],
+                                "description": "Type of blinding"
+                            },
+                            "roles": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string",
+                                    "description": "Roles that are blinded"
+                                }
+                            }
                         }
                     }
                 },
-                "required": ["type", "groups"]
+                "required": ["design_type", "sampling"]
             },
-            "protocols": {
+            "procedures": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "name": {"type": "string"},
-                        "description": {"type": "string"},
-                        "steps": {
+                        "step_id": {
+                            "type": "string",
+                            "description": "Identifier for the procedure step"
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "Detailed description of the step"
+                        },
+                        "duration": {
+                            "type": "string",
+                            "description": "Expected duration of the step"
+                        },
+                        "materials": {
                             "type": "array",
                             "items": {
-                                "type": "object",
-                                "properties": {
-                                    "number": {"type": "integer"},
-                                    "action": {"type": "string"},
-                                    "duration": {"type": "string"},
-                                    "equipment": {"type": "array", "items": {"type": "string"}},
-                                    "notes": {"type": "string"}
-                                },
-                                "required": ["number", "action"]
+                                "type": "string",
+                                "description": "Required materials"
                             }
                         }
                     },
-                    "required": ["name", "description", "steps"]
+                    "required": ["step_id", "description"]
                 }
             },
-            "quality_control": {
+            "analysis_plan": {
                 "type": "object",
                 "properties": {
-                    "calibration": {
+                    "statistical_tests": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "equipment": {"type": "string"},
-                                "frequency": {"type": "string"},
-                                "standards": {"type": "array", "items": {"type": "string"}}
+                                "test_name": {
+                                    "type": "string",
+                                    "description": "Name of statistical test"
+                                },
+                                "variables": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Variables involved"
+                                    }
+                                },
+                                "assumptions": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "description": "Test assumptions"
+                                    }
+                                }
                             },
-                            "required": ["equipment", "frequency"]
+                            "required": ["test_name", "variables"]
                         }
                     },
-                    "validation": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "method": {"type": "string"},
-                                "criteria": {"type": "string"},
-                                "frequency": {"type": "string"}
-                            },
-                            "required": ["method", "criteria", "frequency"]
-                        }
+                    "significance_level": {
+                        "type": "number",
+                        "description": "Alpha level for significance testing"
                     }
                 }
             },
             "metadata": {
                 "type": "object",
                 "properties": {
-                    "creator": {"type": "string"},
-                    "creation_date": {"type": "string", "format": "date-time"},
-                    "last_modified": {"type": "string", "format": "date-time"},
-                    "status": {"type": "string", "enum": ["draft", "active", "completed", "archived"]},
-                    "tags": {"type": "array", "items": {"type": "string"}},
-                    "funding_source": {"type": "string"},
-                    "collaborators": {"type": "array", "items": {"type": "string"}},
-                    "ethics_approval": {"type": "string"}
+                    "researchers": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Researcher identifier"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "description": "Role in the experiment"
+                                }
+                            },
+                            "required": ["id", "role"]
+                        }
+                    },
+                    "institution": {
+                        "type": "string",
+                        "description": "Research institution"
+                    },
+                    "funding": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "source": {
+                                    "type": "string",
+                                    "description": "Funding source"
+                                },
+                                "grant_id": {
+                                    "type": "string",
+                                    "description": "Grant identifier"
+                                }
+                            }
+                        }
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
-        "required": ["timestamp", "experiment_id", "title", "description", "hypotheses", "variables", "design", "protocols"]
+        "required": ["timestamp", "experiment_id", "title", "research_question", "hypotheses", "variables", "methodology"]
     }
 ) 
