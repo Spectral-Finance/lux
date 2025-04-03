@@ -14,66 +14,69 @@ TeamFormationSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "formation_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "formation_id": {"type": "string"},
             "project": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "id": {"type": "string", "required": True},
-                    "name": {"type": "string", "required": True},
-                    "description": {"type": "string", "required": True},
-                    "duration": {"type": "string", "required": True},
-                    "complexity": {"type": "string", "enum": ["low", "medium", "high"], "required": True}
-                }
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "description": {"type": "string"},
+                    "duration": {"type": "string"},
+                    "complexity": {"type": "string", "enum": ["low", "medium", "high"]}
+                },
+                "required": ["id", "name", "description", "duration", "complexity"]
             },
             "team_requirements": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "size": {
                         "type": "object",
                         "properties": {
-                            "min": {"type": "integer", "minimum": 1, "required": True},
-                            "max": {"type": "integer", "minimum": 1, "required": True},
+                            "min": {"type": "integer", "minimum": 1},
+                            "max": {"type": "integer", "minimum": 1},
                             "optimal": {"type": "integer", "minimum": 1}
-                        }
+                        },
+                        "required": ["min", "max"]
                     },
                     "roles": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "title": {"type": "string", "required": True},
-                                "count": {"type": "integer", "minimum": 1, "required": True},
+                                "title": {"type": "string"},
+                                "count": {"type": "integer", "minimum": 1},
                                 "skills": {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "name": {"type": "string", "required": True},
-                                            "level": {"type": "string", "enum": ["basic", "intermediate", "advanced"], "required": True},
+                                            "name": {"type": "string"},
+                                            "level": {"type": "string", "enum": ["basic", "intermediate", "advanced"]},
                                             "priority": {"type": "integer", "minimum": 1, "maximum": 5}
-                                        }
+                                        },
+                                        "required": ["name", "level"]
                                     }
                                 }
-                            }
+                            },
+                            "required": ["title", "count"]
                         }
                     }
-                }
+                },
+                "required": ["size", "roles"]
             },
             "formation_criteria": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "diversity_factors": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "factor": {"type": "string", "required": True},
-                                "weight": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                            }
+                                "factor": {"type": "string"},
+                                "weight": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                            },
+                            "required": ["factor", "weight"]
                         }
                     },
                     "compatibility_metrics": {
@@ -81,12 +84,14 @@ TeamFormationSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "metric": {"type": "string", "required": True},
-                                "threshold": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                            }
+                                "metric": {"type": "string"},
+                                "threshold": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                            },
+                            "required": ["metric", "threshold"]
                         }
                     }
-                }
+                },
+                "required": ["diversity_factors", "compatibility_metrics"]
             },
             "constraints": {
                 "type": "object",
@@ -120,6 +125,7 @@ TeamFormationSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "formation_id", "project", "team_requirements", "formation_criteria"]
     }
 ) 

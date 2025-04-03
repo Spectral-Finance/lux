@@ -28,7 +28,6 @@ class DataSchema(SignalSchema):
                 "name": "customer_id",
                 "type": "string",
                 "description": "Unique customer identifier",
-                "required": true,
                 "constraints": {
                     "pattern": "^CUST_\\d{6}$",
                     "unique": true
@@ -104,7 +103,6 @@ class DataSchema(SignalSchema):
             description="Schema for representing data schema definitions",
             schema={
                 "type": "object",
-                "required": ["timestamp", "schema_id", "namespace", "schema_definition", "fields"],
                 "properties": {
                     "timestamp": {
                         "type": "string",
@@ -121,7 +119,6 @@ class DataSchema(SignalSchema):
                     },
                     "schema_definition": {
                         "type": "object",
-                        "required": ["name", "description", "version"],
                         "description": "Core schema definition",
                         "properties": {
                             "name": {
@@ -141,14 +138,14 @@ class DataSchema(SignalSchema):
                                 "enum": ["json", "avro", "protobuf", "xml", "csv"],
                                 "description": "Data format"
                             }
-                        }
+                        },
+                        "required": ["name", "description", "version"]
                     },
                     "fields": {
                         "type": "array",
                         "description": "Field definitions",
                         "items": {
                             "type": "object",
-                            "required": ["field_id", "name", "type", "description"],
                             "properties": {
                                 "field_id": {
                                     "type": "string",
@@ -166,10 +163,6 @@ class DataSchema(SignalSchema):
                                 "description": {
                                     "type": "string",
                                     "description": "Field description"
-                                },
-                                "required": {
-                                    "type": "boolean",
-                                    "description": "Whether the field is required"
                                 },
                                 "constraints": {
                                     "type": "object",
@@ -197,244 +190,12 @@ class DataSchema(SignalSchema):
                                             "items": {"type": "string"}
                                         }
                                     }
-                                },
-                                "metadata": {
-                                    "type": "object",
-                                    "description": "Field metadata",
-                                    "properties": {
-                                        "source": {
-                                            "type": "string",
-                                            "description": "Data source"
-                                        },
-                                        "sensitivity": {
-                                            "type": "string",
-                                            "enum": ["public", "internal", "confidential", "restricted"],
-                                            "description": "Data sensitivity level"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "relationships": {
-                        "type": "array",
-                        "description": "Schema relationships",
-                        "items": {
-                            "type": "object",
-                            "required": ["relationship_id", "type", "source_field", "target_schema", "target_field"],
-                            "properties": {
-                                "relationship_id": {
-                                    "type": "string",
-                                    "description": "Relationship identifier"
-                                },
-                                "type": {
-                                    "type": "string",
-                                    "enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many"],
-                                    "description": "Relationship type"
-                                },
-                                "source_field": {
-                                    "type": "string",
-                                    "description": "Source field name"
-                                },
-                                "target_schema": {
-                                    "type": "string",
-                                    "description": "Target schema name"
-                                },
-                                "target_field": {
-                                    "type": "string",
-                                    "description": "Target field name"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "description": "Relationship description"
-                                },
-                                "constraints": {
-                                    "type": "object",
-                                    "description": "Relationship constraints",
-                                    "properties": {
-                                        "cascade_delete": {
-                                            "type": "boolean",
-                                            "description": "Whether to cascade deletes"
-                                        },
-                                        "on_update": {
-                                            "type": "string",
-                                            "enum": ["cascade", "restrict", "set_null"],
-                                            "description": "Update behavior"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "validation_rules": {
-                        "type": "array",
-                        "description": "Data validation rules",
-                        "items": {
-                            "type": "object",
-                            "required": ["rule_id", "name", "description", "condition"],
-                            "properties": {
-                                "rule_id": {
-                                    "type": "string",
-                                    "description": "Rule identifier"
-                                },
-                                "name": {
-                                    "type": "string",
-                                    "description": "Rule name"
-                                },
-                                "description": {
-                                    "type": "string",
-                                    "description": "Rule description"
-                                },
-                                "condition": {
-                                    "type": "string",
-                                    "description": "Validation condition"
-                                },
-                                "severity": {
-                                    "type": "string",
-                                    "enum": ["info", "warning", "error"],
-                                    "description": "Rule severity"
-                                },
-                                "message": {
-                                    "type": "string",
-                                    "description": "Validation message"
-                                }
-                            }
-                        }
-                    },
-                    "compatibility": {
-                        "type": "object",
-                        "description": "Schema compatibility information",
-                        "properties": {
-                            "backward_compatible": {
-                                "type": "boolean",
-                                "description": "Backward compatibility status"
-                            },
-                            "forward_compatible": {
-                                "type": "boolean",
-                                "description": "Forward compatibility status"
-                            },
-                            "breaking_changes": {
-                                "type": "array",
-                                "description": "Breaking changes",
-                                "items": {"type": "string"}
-                            },
-                            "deprecated_fields": {
-                                "type": "array",
-                                "description": "Deprecated fields",
-                                "items": {"type": "string"}
-                            },
-                            "supported_versions": {
-                                "type": "array",
-                                "description": "Supported schema versions",
-                                "items": {"type": "string"}
-                            },
-                            "migration_scripts": {
-                                "type": "object",
-                                "description": "Version migration scripts",
-                                "additionalProperties": {"type": "string"}
-                            }
-                        }
-                    },
-                    "documentation": {
-                        "type": "object",
-                        "description": "Schema documentation",
-                        "properties": {
-                            "description": {
-                                "type": "string",
-                                "description": "Detailed documentation"
-                            },
-                            "usage_examples": {
-                                "type": "array",
-                                "description": "Usage examples",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["title", "code"],
-                                    "properties": {
-                                        "title": {
-                                            "type": "string",
-                                            "description": "Example title"
-                                        },
-                                        "code": {
-                                            "type": "string",
-                                            "description": "Example code"
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "description": "Example description"
-                                        }
-                                    }
                                 }
                             },
-                            "changelog": {
-                                "type": "array",
-                                "description": "Schema changelog",
-                                "items": {
-                                    "type": "object",
-                                    "required": ["version", "date", "changes"],
-                                    "properties": {
-                                        "version": {
-                                            "type": "string",
-                                            "description": "Version number"
-                                        },
-                                        "date": {
-                                            "type": "string",
-                                            "format": "date",
-                                            "description": "Change date"
-                                        },
-                                        "changes": {
-                                            "type": "array",
-                                            "description": "List of changes",
-                                            "items": {"type": "string"}
-                                        }
-                                    }
-                                }
-                            },
-                            "field_descriptions": {
-                                "type": "object",
-                                "description": "Detailed field descriptions",
-                                "additionalProperties": {"type": "string"}
-                            }
-                        }
-                    },
-                    "metadata": {
-                        "type": "object",
-                        "description": "Additional metadata about the schema",
-                        "properties": {
-                            "created_at": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Creation timestamp"
-                            },
-                            "created_by": {
-                                "type": "string",
-                                "description": "Schema creator"
-                            },
-                            "last_updated": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Last update timestamp"
-                            },
-                            "version": {
-                                "type": "string",
-                                "description": "Schema version"
-                            },
-                            "status": {
-                                "type": "string",
-                                "enum": ["draft", "active", "deprecated"],
-                                "description": "Schema status"
-                            },
-                            "review_status": {
-                                "type": "string",
-                                "enum": ["pending", "in_review", "approved", "rejected"],
-                                "description": "Review status"
-                            },
-                            "tags": {
-                                "type": "array",
-                                "description": "Relevant tags",
-                                "items": {"type": "string"}
-                            }
+                            "required": ["field_id", "name", "type", "description"]
                         }
                     }
-                }
+                },
+                "required": ["timestamp", "schema_id", "namespace", "schema_definition", "fields"]
             }
         ) 

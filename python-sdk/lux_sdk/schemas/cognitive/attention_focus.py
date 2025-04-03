@@ -14,22 +14,21 @@ AttentionFocusSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "focus_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "focus_id": {"type": "string"},
             "target": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "type": {"type": "string", "required": True},  # e.g., "task", "conversation", "environment"
-                    "identifier": {"type": "string", "required": True},
-                    "priority": {"type": "integer", "minimum": 1, "maximum": 10, "required": True}
-                }
+                    "type": {"type": "string"},  # e.g., "task", "conversation", "environment"
+                    "identifier": {"type": "string"},
+                    "priority": {"type": "integer", "minimum": 1, "maximum": 10}
+                },
+                "required": ["type", "identifier", "priority"]
             },
             "attention_level": {
                 "type": "number",
                 "minimum": 0.0,
                 "maximum": 1.0,
-                "required": True,
                 "description": "Level of attention from 0.0 (completely distracted) to 1.0 (fully focused)"
             },
             "distractions": {
@@ -37,16 +36,16 @@ AttentionFocusSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "source": {"type": "string", "required": True},
-                        "impact": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                    }
+                        "source": {"type": "string"},
+                        "impact": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                    },
+                    "required": ["source", "impact"]
                 }
             },
             "duration": {
                 "type": "integer",
                 "minimum": 0,
-                "description": "Duration of current focus in seconds",
-                "required": True
+                "description": "Duration of current focus in seconds"
             },
             "metadata": {
                 "type": "object",
@@ -56,6 +55,7 @@ AttentionFocusSchema = SignalSchema(
                     "related_tasks": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "focus_id", "target", "attention_level", "duration"]
     }
 ) 

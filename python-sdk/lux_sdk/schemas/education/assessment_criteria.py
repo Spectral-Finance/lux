@@ -14,16 +14,15 @@ AssessmentCriteriaSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "criteria_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
-            "subject_area": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "criteria_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
+            "subject_area": {"type": "string"},
             "educational_level": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "level": {"type": "string", "required": True},
+                    "level": {"type": "string"},
                     "grade": {"type": "string"},
                     "age_range": {
                         "type": "object",
@@ -32,60 +31,62 @@ AssessmentCriteriaSchema = SignalSchema(
                             "max": {"type": "integer"}
                         }
                     }
-                }
+                },
+                "required": ["level"]
             },
             "assessment_type": {
                 "type": "string",
-                "enum": ["formative", "summative", "diagnostic", "performance"],
-                "required": True
+                "enum": ["formative", "summative", "diagnostic", "performance"]
             },
             "evaluation_criteria": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "criterion_id": {"type": "string", "required": True},
-                        "name": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "weight": {"type": "number", "minimum": 0, "maximum": 100, "required": True},
+                        "criterion_id": {"type": "string"},
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
+                        "weight": {"type": "number", "minimum": 0, "maximum": 100},
                         "performance_indicators": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "level": {"type": "string", "required": True},
-                                    "description": {"type": "string", "required": True},
+                                    "level": {"type": "string"},
+                                    "description": {"type": "string"},
                                     "score_range": {
                                         "type": "object",
                                         "properties": {
-                                            "min": {"type": "number", "required": True},
-                                            "max": {"type": "number", "required": True}
-                                        }
+                                            "min": {"type": "number"},
+                                            "max": {"type": "number"}
+                                        },
+                                        "required": ["min", "max"]
                                     },
                                     "examples": {"type": "array", "items": {"type": "string"}}
-                                }
+                                },
+                                "required": ["level", "description"]
                             }
                         }
-                    }
+                    },
+                    "required": ["criterion_id", "name", "description", "weight"]
                 }
             },
             "scoring_rubric": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "total_points": {"type": "number", "required": True},
-                    "passing_threshold": {"type": "number", "required": True},
+                    "total_points": {"type": "number"},
+                    "passing_threshold": {"type": "number"},
                     "grading_scale": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "grade": {"type": "string", "required": True},
-                                "min_score": {"type": "number", "required": True},
-                                "max_score": {"type": "number", "required": True},
-                                "description": {"type": "string", "required": True}
-                            }
+                                "grade": {"type": "string"},
+                                "min_score": {"type": "number"},
+                                "max_score": {"type": "number"},
+                                "description": {"type": "string"}
+                            },
+                            "required": ["grade", "min_score", "max_score", "description"]
                         }
                     },
                     "rubric_criteria": {
@@ -93,73 +94,80 @@ AssessmentCriteriaSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "criterion": {"type": "string", "required": True},
+                                "criterion": {"type": "string"},
                                 "levels": {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "level": {"type": "string", "required": True},
-                                            "points": {"type": "number", "required": True},
-                                            "description": {"type": "string", "required": True},
+                                            "level": {"type": "string"},
+                                            "points": {"type": "number"},
+                                            "description": {"type": "string"},
                                             "indicators": {"type": "array", "items": {"type": "string"}}
-                                        }
+                                        },
+                                        "required": ["level", "points", "description"]
                                     }
                                 }
-                            }
+                            },
+                            "required": ["criterion"]
                         }
                     }
-                }
+                },
+                "required": ["total_points", "passing_threshold"]
             },
             "assessment_methods": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "method_id": {"type": "string", "required": True},
-                        "name": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
+                        "method_id": {"type": "string"},
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
                         "tools": {"type": "array", "items": {"type": "string"}},
                         "data_collection": {
                             "type": "object",
                             "properties": {
-                                "format": {"type": "string", "required": True},
+                                "format": {"type": "string"},
                                 "frequency": {"type": "string"},
                                 "storage": {"type": "string"}
-                            }
+                            },
+                            "required": ["format"]
                         }
-                    }
+                    },
+                    "required": ["method_id", "name", "description"]
                 }
             },
             "feedback_guidelines": {
                 "type": "object",
                 "properties": {
-                    "timing": {"type": "string", "required": True},
-                    "format": {"type": "string", "required": True},
+                    "timing": {"type": "string"},
+                    "format": {"type": "string"},
                     "components": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "component": {"type": "string", "required": True},
-                                "description": {"type": "string", "required": True},
+                                "component": {"type": "string"},
+                                "description": {"type": "string"},
                                 "examples": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["component", "description"]
                         }
                     }
-                }
+                },
+                "required": ["timing", "format"]
             },
             "accommodations": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "type": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
+                        "type": {"type": "string"},
+                        "description": {"type": "string"},
                         "eligibility_criteria": {"type": "array", "items": {"type": "string"}},
                         "implementation_guidelines": {"type": "string"}
-                    }
+                    },
+                    "required": ["type", "description"]
                 }
             },
             "metadata": {
@@ -186,6 +194,7 @@ AssessmentCriteriaSchema = SignalSchema(
                     "license": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "criteria_id", "title", "description", "subject_area", "educational_level", "assessment_type", "evaluation_criteria", "scoring_rubric", "assessment_methods"]
     }
 ) 

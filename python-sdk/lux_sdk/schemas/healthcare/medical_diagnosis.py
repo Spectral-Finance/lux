@@ -14,41 +14,40 @@ MedicalDiagnosisSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "diagnosis_id": {"type": "string", "required": True},
-            "patient_id": {"type": "string", "required": True},
-            "provider_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "diagnosis_id": {"type": "string"},
+            "patient_id": {"type": "string"},
+            "provider_id": {"type": "string"},
             "encounter_info": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "date": {"type": "string", "format": "date-time", "required": True},
-                    "type": {"type": "string", "enum": ["initial", "follow_up", "emergency", "routine"], "required": True},
-                    "location": {"type": "string", "required": True},
-                    "chief_complaint": {"type": "string", "required": True}
-                }
+                    "date": {"type": "string", "format": "date-time"},
+                    "type": {"type": "string", "enum": ["initial", "follow_up", "emergency", "routine"]},
+                    "location": {"type": "string"},
+                    "chief_complaint": {"type": "string"}
+                },
+                "required": ["date", "type", "location", "chief_complaint"]
             },
             "symptoms": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "description": {"type": "string", "required": True},
-                        "severity": {"type": "string", "enum": ["mild", "moderate", "severe"], "required": True},
-                        "onset": {"type": "string", "format": "date-time", "required": True},
+                        "description": {"type": "string"},
+                        "severity": {"type": "string", "enum": ["mild", "moderate", "severe"]},
+                        "onset": {"type": "string", "format": "date-time"},
                         "duration": {"type": "string"},
                         "frequency": {"type": "string"},
                         "location": {"type": "string"},
                         "characteristics": {"type": "array", "items": {"type": "string"}},
                         "aggravating_factors": {"type": "array", "items": {"type": "string"}},
                         "relieving_factors": {"type": "array", "items": {"type": "string"}}
-                    }
+                    },
+                    "required": ["description", "severity", "onset"]
                 }
             },
             "physical_examination": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "vital_signs": {
                         "type": "object",
@@ -56,32 +55,36 @@ MedicalDiagnosisSchema = SignalSchema(
                             "temperature": {
                                 "type": "object",
                                 "properties": {
-                                    "value": {"type": "number", "required": True},
-                                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"], "required": True}
-                                }
+                                    "value": {"type": "number"},
+                                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit"]}
+                                },
+                                "required": ["value", "unit"]
                             },
                             "blood_pressure": {
                                 "type": "object",
                                 "properties": {
-                                    "systolic": {"type": "integer", "required": True},
-                                    "diastolic": {"type": "integer", "required": True},
-                                    "unit": {"type": "string", "enum": ["mmHg"], "required": True}
-                                }
+                                    "systolic": {"type": "integer"},
+                                    "diastolic": {"type": "integer"},
+                                    "unit": {"type": "string", "enum": ["mmHg"]}
+                                },
+                                "required": ["systolic", "diastolic", "unit"]
                             },
-                            "heart_rate": {"type": "integer", "required": True},
-                            "respiratory_rate": {"type": "integer", "required": True},
+                            "heart_rate": {"type": "integer"},
+                            "respiratory_rate": {"type": "integer"},
                             "oxygen_saturation": {"type": "number", "minimum": 0, "maximum": 100}
-                        }
+                        },
+                        "required": ["heart_rate", "respiratory_rate"]
                     },
                     "findings": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "system": {"type": "string", "required": True},
-                                "observation": {"type": "string", "required": True},
-                                "significance": {"type": "string", "enum": ["normal", "abnormal", "critical"], "required": True}
-                            }
+                                "system": {"type": "string"},
+                                "observation": {"type": "string"},
+                                "significance": {"type": "string", "enum": ["normal", "abnormal", "critical"]}
+                            },
+                            "required": ["system", "observation", "significance"]
                         }
                     }
                 }
@@ -91,36 +94,37 @@ MedicalDiagnosisSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "procedure": {"type": "string", "required": True},
-                        "date": {"type": "string", "format": "date-time", "required": True},
-                        "category": {"type": "string", "enum": ["laboratory", "imaging", "pathology", "other"], "required": True},
+                        "procedure": {"type": "string"},
+                        "date": {"type": "string", "format": "date-time"},
+                        "category": {"type": "string", "enum": ["laboratory", "imaging", "pathology", "other"]},
                         "results": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "parameter": {"type": "string", "required": True},
-                                    "value": {"type": "string", "required": True},
+                                    "parameter": {"type": "string"},
+                                    "value": {"type": "string"},
                                     "unit": {"type": "string"},
                                     "reference_range": {"type": "string"},
                                     "interpretation": {"type": "string", "enum": ["normal", "abnormal", "critical"]}
-                                }
+                                },
+                                "required": ["parameter", "value"]
                             }
                         },
-                        "interpretation": {"type": "string", "required": True}
-                    }
+                        "interpretation": {"type": "string"}
+                    },
+                    "required": ["procedure", "date", "category", "interpretation"]
                 }
             },
             "diagnoses": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "condition": {"type": "string", "required": True},
-                        "icd_code": {"type": "string", "required": True},
-                        "type": {"type": "string", "enum": ["primary", "secondary", "differential"], "required": True},
-                        "certainty": {"type": "string", "enum": ["confirmed", "probable", "possible"], "required": True},
+                        "condition": {"type": "string"},
+                        "icd_code": {"type": "string"},
+                        "type": {"type": "string", "enum": ["primary", "secondary", "differential"]},
+                        "certainty": {"type": "string", "enum": ["confirmed", "probable", "possible"]},
                         "stage": {"type": "string"},
                         "severity": {"type": "string", "enum": ["mild", "moderate", "severe"]},
                         "evidence": {
@@ -128,12 +132,14 @@ MedicalDiagnosisSchema = SignalSchema(
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "type": {"type": "string", "required": True},
-                                    "description": {"type": "string", "required": True}
-                                }
+                                    "type": {"type": "string"},
+                                    "description": {"type": "string"}
+                                },
+                                "required": ["type", "description"]
                             }
                         }
-                    }
+                    },
+                    "required": ["condition", "icd_code", "type", "certainty"]
                 }
             },
             "treatment_plan": {
@@ -144,14 +150,15 @@ MedicalDiagnosisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "dosage": {"type": "string", "required": True},
-                                "frequency": {"type": "string", "required": True},
-                                "duration": {"type": "string", "required": True},
-                                "route": {"type": "string", "required": True},
+                                "name": {"type": "string"},
+                                "dosage": {"type": "string"},
+                                "frequency": {"type": "string"},
+                                "duration": {"type": "string"},
+                                "route": {"type": "string"},
                                 "instructions": {"type": "string"},
                                 "precautions": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["name", "dosage", "frequency", "duration", "route"]
                         }
                     },
                     "procedures": {
@@ -159,12 +166,13 @@ MedicalDiagnosisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "urgency": {"type": "string", "enum": ["emergency", "urgent", "elective"], "required": True},
+                                "name": {"type": "string"},
+                                "urgency": {"type": "string", "enum": ["emergency", "urgent", "elective"]},
                                 "scheduled_date": {"type": "string", "format": "date-time"},
                                 "preparation": {"type": "array", "items": {"type": "string"}},
                                 "aftercare": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["name", "urgency"]
                         }
                     },
                     "lifestyle_modifications": {
@@ -172,10 +180,11 @@ MedicalDiagnosisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "category": {"type": "string", "required": True},
-                                "recommendations": {"type": "array", "items": {"type": "string"}, "required": True},
+                                "category": {"type": "string"},
+                                "recommendations": {"type": "array", "items": {"type": "string"}},
                                 "goals": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["category", "recommendations"]
                         }
                     }
                 }
@@ -183,21 +192,23 @@ MedicalDiagnosisSchema = SignalSchema(
             "follow_up": {
                 "type": "object",
                 "properties": {
-                    "timing": {"type": "string", "required": True},
-                    "provider_type": {"type": "string", "required": True},
+                    "timing": {"type": "string"},
+                    "provider_type": {"type": "string"},
                     "instructions": {"type": "array", "items": {"type": "string"}},
                     "monitoring_parameters": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "parameter": {"type": "string", "required": True},
-                                "frequency": {"type": "string", "required": True},
+                                "parameter": {"type": "string"},
+                                "frequency": {"type": "string"},
                                 "target_values": {"type": "string"}
-                            }
+                            },
+                            "required": ["parameter", "frequency"]
                         }
                     }
-                }
+                },
+                "required": ["timing", "provider_type"]
             },
             "metadata": {
                 "type": "object",
@@ -211,6 +222,7 @@ MedicalDiagnosisSchema = SignalSchema(
                     "confidentiality": {"type": "string", "enum": ["normal", "restricted", "very_restricted"]}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "diagnosis_id", "patient_id", "provider_id", "encounter_info", "symptoms", "physical_examination", "diagnoses"]
     }
 ) 

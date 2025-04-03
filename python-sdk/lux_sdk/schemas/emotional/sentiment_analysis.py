@@ -14,53 +14,50 @@ SentimentAnalysisSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "analysis_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "analysis_id": {"type": "string"},
             "content": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "text": {"type": "string", "required": True},
-                    "source": {"type": "string", "required": True},
+                    "text": {"type": "string"},
+                    "source": {"type": "string"},
                     "context": {"type": "string"}
-                }
+                },
+                "required": ["text", "source"]
             },
             "sentiment": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "polarity": {
                         "type": "number",
                         "minimum": -1.0,
                         "maximum": 1.0,
-                        "required": True,
                         "description": "Sentiment polarity from -1.0 (negative) to 1.0 (positive)"
                     },
                     "subjectivity": {
                         "type": "number",
                         "minimum": 0.0,
                         "maximum": 1.0,
-                        "required": True,
                         "description": "Subjectivity level from 0.0 (objective) to 1.0 (subjective)"
                     },
                     "confidence": {
                         "type": "number",
                         "minimum": 0.0,
-                        "maximum": 1.0,
-                        "required": True
+                        "maximum": 1.0
                     }
-                }
+                },
+                "required": ["polarity", "subjectivity", "confidence"]
             },
             "emotions": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "joy": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True},
-                    "sadness": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True},
-                    "anger": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True},
-                    "fear": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True},
-                    "surprise": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                }
+                    "joy": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                    "sadness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                    "anger": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                    "fear": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+                    "surprise": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                },
+                "required": ["joy", "sadness", "anger", "fear", "surprise"]
             },
             "metadata": {
                 "type": "object",
@@ -71,6 +68,7 @@ SentimentAnalysisSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "analysis_id", "content", "sentiment", "emotions"]
     }
 ) 

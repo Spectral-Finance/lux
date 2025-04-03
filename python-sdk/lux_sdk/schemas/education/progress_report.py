@@ -14,95 +14,98 @@ ProgressReportSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "report_id": {"type": "string", "required": True},
-            "learner_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "report_id": {"type": "string"},
+            "learner_id": {"type": "string"},
             "period": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "start_date": {"type": "string", "format": "date-time", "required": True},
-                    "end_date": {"type": "string", "format": "date-time", "required": True},
+                    "start_date": {"type": "string", "format": "date-time"},
+                    "end_date": {"type": "string", "format": "date-time"},
                     "term": {"type": "string"}
-                }
+                },
+                "required": ["start_date", "end_date"]
             },
             "educational_context": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "program": {"type": "string", "required": True},
-                    "level": {"type": "string", "required": True},
-                    "institution": {"type": "string", "required": True},
+                    "program": {"type": "string"},
+                    "level": {"type": "string"},
+                    "institution": {"type": "string"},
                     "instructor": {"type": "string"}
-                }
+                },
+                "required": ["program", "level", "institution"]
             },
             "achievement_summary": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "overall_progress": {
                         "type": "object",
                         "properties": {
-                            "percentage": {"type": "number", "minimum": 0, "maximum": 100, "required": True},
-                            "status": {"type": "string", "enum": ["ahead", "on_track", "behind"], "required": True},
-                            "trend": {"type": "string", "enum": ["improving", "stable", "declining"], "required": True}
-                        }
+                            "percentage": {"type": "number", "minimum": 0, "maximum": 100},
+                            "status": {"type": "string", "enum": ["ahead", "on_track", "behind"]},
+                            "trend": {"type": "string", "enum": ["improving", "stable", "declining"]}
+                        },
+                        "required": ["percentage", "status", "trend"]
                     },
-                    "completed_objectives": {"type": "integer", "required": True},
-                    "total_objectives": {"type": "integer", "required": True},
-                    "average_performance": {"type": "number", "required": True},
+                    "completed_objectives": {"type": "integer"},
+                    "total_objectives": {"type": "integer"},
+                    "average_performance": {"type": "number"},
                     "strengths": {"type": "array", "items": {"type": "string"}},
                     "areas_for_improvement": {"type": "array", "items": {"type": "string"}}
-                }
+                },
+                "required": ["completed_objectives", "total_objectives", "average_performance"]
             },
             "learning_objectives": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "objective_id": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "status": {"type": "string", "enum": ["not_started", "in_progress", "completed", "mastered"], "required": True},
+                        "objective_id": {"type": "string"},
+                        "description": {"type": "string"},
+                        "status": {"type": "string", "enum": ["not_started", "in_progress", "completed", "mastered"]},
                         "completion_date": {"type": "string", "format": "date-time"},
-                        "proficiency_level": {"type": "string", "required": True},
+                        "proficiency_level": {"type": "string"},
                         "assessment_scores": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "assessment_id": {"type": "string", "required": True},
-                                    "score": {"type": "number", "required": True},
-                                    "date": {"type": "string", "format": "date-time", "required": True},
-                                    "type": {"type": "string", "required": True}
-                                }
+                                    "assessment_id": {"type": "string"},
+                                    "score": {"type": "number"},
+                                    "date": {"type": "string", "format": "date-time"},
+                                    "type": {"type": "string"}
+                                },
+                                "required": ["assessment_id", "score", "date", "type"]
                             }
                         }
-                    }
+                    },
+                    "required": ["objective_id", "description", "status", "proficiency_level"]
                 }
             },
             "skill_development": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "skill": {"type": "string", "required": True},
-                        "current_level": {"type": "string", "required": True},
-                        "target_level": {"type": "string", "required": True},
-                        "progress": {"type": "number", "minimum": 0, "maximum": 100, "required": True},
+                        "skill": {"type": "string"},
+                        "current_level": {"type": "string"},
+                        "target_level": {"type": "string"},
+                        "progress": {"type": "number", "minimum": 0, "maximum": 100},
                         "evidence": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "type": {"type": "string", "required": True},
-                                    "description": {"type": "string", "required": True},
-                                    "date": {"type": "string", "format": "date-time", "required": True}
-                                }
+                                    "type": {"type": "string"},
+                                    "description": {"type": "string"},
+                                    "date": {"type": "string", "format": "date-time"}
+                                },
+                                "required": ["type", "description", "date"]
                             }
                         }
-                    }
+                    },
+                    "required": ["skill", "current_level", "target_level", "progress"]
                 }
             },
             "engagement_metrics": {
@@ -111,35 +114,39 @@ ProgressReportSchema = SignalSchema(
                     "attendance": {
                         "type": "object",
                         "properties": {
-                            "present": {"type": "integer", "required": True},
-                            "absent": {"type": "integer", "required": True},
-                            "late": {"type": "integer", "required": True},
-                            "percentage": {"type": "number", "required": True}
-                        }
+                            "present": {"type": "integer"},
+                            "absent": {"type": "integer"},
+                            "late": {"type": "integer"},
+                            "percentage": {"type": "number"}
+                        },
+                        "required": ["present", "absent", "late", "percentage"]
                     },
                     "participation": {
                         "type": "object",
                         "properties": {
-                            "level": {"type": "string", "required": True},
-                            "activities_completed": {"type": "integer", "required": True},
-                            "contributions": {"type": "integer", "required": True}
-                        }
+                            "level": {"type": "string"},
+                            "activities_completed": {"type": "integer"},
+                            "contributions": {"type": "integer"}
+                        },
+                        "required": ["level", "activities_completed", "contributions"]
                     },
                     "time_spent": {
                         "type": "object",
                         "properties": {
-                            "total_hours": {"type": "number", "required": True},
+                            "total_hours": {"type": "number"},
                             "by_activity": {
                                 "type": "array",
                                 "items": {
                                     "type": "object",
                                     "properties": {
-                                        "activity_type": {"type": "string", "required": True},
-                                        "hours": {"type": "number", "required": True}
-                                    }
+                                        "activity_type": {"type": "string"},
+                                        "hours": {"type": "number"}
+                                    },
+                                    "required": ["activity_type", "hours"]
                                 }
                             }
-                        }
+                        },
+                        "required": ["total_hours"]
                     }
                 }
             },
@@ -148,11 +155,12 @@ ProgressReportSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "area": {"type": "string", "required": True},
-                        "suggestion": {"type": "string", "required": True},
-                        "priority": {"type": "string", "enum": ["high", "medium", "low"], "required": True},
+                        "area": {"type": "string"},
+                        "suggestion": {"type": "string"},
+                        "priority": {"type": "string", "enum": ["high", "medium", "low"]},
                         "resources": {"type": "array", "items": {"type": "string"}}
-                    }
+                    },
+                    "required": ["area", "suggestion", "priority"]
                 }
             },
             "feedback": {
@@ -160,12 +168,13 @@ ProgressReportSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "type": {"type": "string", "required": True},
-                        "content": {"type": "string", "required": True},
-                        "date": {"type": "string", "format": "date-time", "required": True},
-                        "provider": {"type": "string", "required": True},
+                        "type": {"type": "string"},
+                        "content": {"type": "string"},
+                        "date": {"type": "string", "format": "date-time"},
+                        "provider": {"type": "string"},
                         "action_items": {"type": "array", "items": {"type": "string"}}
-                    }
+                    },
+                    "required": ["type", "content", "date", "provider"]
                 }
             },
             "metadata": {
@@ -180,6 +189,7 @@ ProgressReportSchema = SignalSchema(
                     "notes": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "report_id", "learner_id", "period", "educational_context", "achievement_summary", "learning_objectives", "skill_development"]
     }
 ) 

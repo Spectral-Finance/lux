@@ -36,7 +36,6 @@ class ResourceRequirementSchema(SignalSchema):
                     "throughput": "500MB/s"
                 },
                 "gpu": {
-                    "required": true,
                     "memory": "8GB",
                     "cuda_compute": "7.5",
                     "features": ["CUDA", "TensorCores"]
@@ -125,7 +124,6 @@ class ResourceRequirementSchema(SignalSchema):
             description="Schema for representing task resource requirements",
             schema={
                 "type": "object",
-                "required": ["timestamp", "requirement_id", "task_id"],
                 "properties": {
                     "timestamp": {
                         "type": "string",
@@ -213,10 +211,6 @@ class ResourceRequirementSchema(SignalSchema):
                                 "type": "object",
                                 "description": "GPU requirements",
                                 "properties": {
-                                    "required": {
-                                        "type": "boolean",
-                                        "description": "Whether GPU is required"
-                                    },
                                     "memory": {
                                         "type": "string",
                                         "description": "Required GPU memory"
@@ -268,7 +262,6 @@ class ResourceRequirementSchema(SignalSchema):
                         "description": "Required software resources",
                         "items": {
                             "type": "object",
-                            "required": ["name", "version"],
                             "properties": {
                                 "name": {
                                     "type": "string",
@@ -280,12 +273,10 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "type": {
                                     "type": "string",
-                                    "enum": ["os", "library", "framework", "tool"],
                                     "description": "Software type"
                                 },
                                 "installation": {
                                     "type": "object",
-                                    "description": "Installation details",
                                     "properties": {
                                         "method": {
                                             "type": "string",
@@ -304,10 +295,10 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "configuration": {
                                     "type": "object",
-                                    "description": "Configuration requirements",
-                                    "additionalProperties": true
+                                    "description": "Software configuration"
                                 }
-                            }
+                            },
+                            "required": ["name", "version", "type"]
                         }
                     },
                     "human_resources": {
@@ -315,16 +306,15 @@ class ResourceRequirementSchema(SignalSchema):
                         "description": "Required human resources",
                         "items": {
                             "type": "object",
-                            "required": ["role", "count"],
                             "properties": {
                                 "role": {
                                     "type": "string",
-                                    "description": "Job role"
+                                    "description": "Role title"
                                 },
                                 "count": {
                                     "type": "integer",
                                     "minimum": 1,
-                                    "description": "Number of people needed"
+                                    "description": "Number of people required"
                                 },
                                 "skills": {
                                     "type": "array",
@@ -333,12 +323,10 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "experience_level": {
                                     "type": "string",
-                                    "enum": ["junior", "mid", "senior", "lead"],
                                     "description": "Required experience level"
                                 },
                                 "availability": {
                                     "type": "object",
-                                    "description": "Availability requirements",
                                     "properties": {
                                         "start_date": {
                                             "type": "string",
@@ -351,23 +339,23 @@ class ResourceRequirementSchema(SignalSchema):
                                             "description": "End date"
                                         },
                                         "hours_per_week": {
-                                            "type": "number",
-                                            "minimum": 0,
-                                            "maximum": 168,
+                                            "type": "integer",
                                             "description": "Required hours per week"
                                         },
                                         "time_zone": {
                                             "type": "string",
-                                            "description": "Preferred time zone"
+                                            "description": "Required time zone"
                                         }
-                                    }
+                                    },
+                                    "required": ["start_date", "end_date", "hours_per_week"]
                                 },
                                 "certifications": {
                                     "type": "array",
                                     "description": "Required certifications",
                                     "items": {"type": "string"}
                                 }
-                            }
+                            },
+                            "required": ["role", "count", "skills", "experience_level"]
                         }
                     },
                     "data_resources": {
@@ -375,7 +363,6 @@ class ResourceRequirementSchema(SignalSchema):
                         "description": "Required data resources",
                         "items": {
                             "type": "object",
-                            "required": ["dataset_id", "name", "type"],
                             "properties": {
                                 "dataset_id": {
                                     "type": "string",
@@ -387,7 +374,6 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "type": {
                                     "type": "string",
-                                    "enum": ["structured", "unstructured", "semi_structured"],
                                     "description": "Data type"
                                 },
                                 "format": {
@@ -400,7 +386,6 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "access_level": {
                                     "type": "string",
-                                    "enum": ["read_only", "read_write", "write_only"],
                                     "description": "Required access level"
                                 },
                                 "location": {
@@ -409,19 +394,10 @@ class ResourceRequirementSchema(SignalSchema):
                                 },
                                 "requirements": {
                                     "type": "object",
-                                    "description": "Data requirements",
-                                    "properties": {
-                                        "preprocessing": {
-                                            "type": "boolean",
-                                            "description": "Whether preprocessing is required"
-                                        },
-                                        "validation": {
-                                            "type": "boolean",
-                                            "description": "Whether validation is required"
-                                        }
-                                    }
+                                    "description": "Data requirements"
                                 }
-                            }
+                            },
+                            "required": ["dataset_id", "name", "type", "format", "access_level"]
                         }
                     },
                     "financial_resources": {
@@ -430,11 +406,9 @@ class ResourceRequirementSchema(SignalSchema):
                         "properties": {
                             "budget": {
                                 "type": "object",
-                                "description": "Budget details",
                                 "properties": {
                                     "amount": {
                                         "type": "number",
-                                        "minimum": 0,
                                         "description": "Budget amount"
                                     },
                                     "currency": {
@@ -443,18 +417,14 @@ class ResourceRequirementSchema(SignalSchema):
                                     },
                                     "period": {
                                         "type": "string",
-                                        "enum": ["one_time", "daily", "weekly", "monthly", "quarterly", "yearly"],
                                         "description": "Budget period"
                                     },
                                     "breakdown": {
                                         "type": "object",
-                                        "description": "Budget breakdown",
-                                        "additionalProperties": {
-                                            "type": "number",
-                                            "minimum": 0
-                                        }
+                                        "description": "Budget breakdown"
                                     }
-                                }
+                                },
+                                "required": ["amount", "currency", "period"]
                             },
                             "funding_source": {
                                 "type": "string",
@@ -462,26 +432,13 @@ class ResourceRequirementSchema(SignalSchema):
                             },
                             "cost_constraints": {
                                 "type": "object",
-                                "description": "Cost constraints",
-                                "properties": {
-                                    "max_hourly_rate": {
-                                        "type": "number",
-                                        "minimum": 0,
-                                        "description": "Maximum hourly rate"
-                                    },
-                                    "contingency": {
-                                        "type": "number",
-                                        "minimum": 0,
-                                        "maximum": 1,
-                                        "description": "Contingency percentage"
-                                    }
-                                }
+                                "description": "Cost constraints"
                             }
                         }
                     },
                     "metadata": {
                         "type": "object",
-                        "description": "Additional metadata about the resource requirement",
+                        "description": "Additional metadata",
                         "properties": {
                             "created_at": {
                                 "type": "string",
@@ -490,7 +447,7 @@ class ResourceRequirementSchema(SignalSchema):
                             },
                             "created_by": {
                                 "type": "string",
-                                "description": "Requirement creator"
+                                "description": "Creator identifier"
                             },
                             "last_updated": {
                                 "type": "string",
@@ -499,25 +456,24 @@ class ResourceRequirementSchema(SignalSchema):
                             },
                             "version": {
                                 "type": "string",
-                                "description": "Requirement version"
+                                "description": "Schema version"
                             },
                             "status": {
                                 "type": "string",
-                                "enum": ["draft", "review", "approved", "fulfilled"],
-                                "description": "Requirement status"
+                                "description": "Current status"
                             },
                             "priority": {
                                 "type": "string",
-                                "enum": ["low", "medium", "high", "critical"],
-                                "description": "Requirement priority"
+                                "description": "Priority level"
                             },
                             "tags": {
                                 "type": "array",
-                                "description": "Relevant tags",
+                                "description": "Resource tags",
                                 "items": {"type": "string"}
                             }
                         }
                     }
-                }
+                },
+                "required": ["timestamp", "requirement_id", "task_id"]
             }
         )

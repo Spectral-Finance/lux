@@ -14,63 +14,63 @@ EthicalDilemmaSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "dilemma_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "dilemma_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
             "context": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "background": {"type": "string", "required": True},
-                    "domain": {"type": "string", "required": True},
-                    "urgency": {"type": "string", "enum": ["immediate", "short_term", "long_term"], "required": True},
-                    "scope": {"type": "string", "enum": ["individual", "organizational", "societal"], "required": True}
-                }
+                    "background": {"type": "string"},
+                    "domain": {"type": "string"},
+                    "urgency": {"type": "string", "enum": ["immediate", "short_term", "long_term"]},
+                    "scope": {"type": "string", "enum": ["individual", "organizational", "societal"]}
+                },
+                "required": ["background", "domain", "urgency", "scope"]
             },
             "stakeholders": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "group": {"type": "string", "required": True},
-                        "interests": {"type": "array", "items": {"type": "string"}, "required": True},
-                        "impact_level": {"type": "string", "enum": ["high", "medium", "low"], "required": True},
-                        "considerations": {"type": "array", "items": {"type": "string"}, "required": True}
-                    }
+                        "group": {"type": "string"},
+                        "interests": {"type": "array", "items": {"type": "string"}},
+                        "impact_level": {"type": "string", "enum": ["high", "medium", "low"]},
+                        "considerations": {"type": "array", "items": {"type": "string"}}
+                    },
+                    "required": ["group", "interests", "impact_level", "considerations"]
                 }
             },
             "ethical_principles": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "principle": {"type": "string", "required": True},
-                        "relevance": {"type": "string", "required": True},
+                        "principle": {"type": "string"},
+                        "relevance": {"type": "string"},
                         "conflicts": {"type": "array", "items": {"type": "string"}},
-                        "priority": {"type": "integer", "minimum": 1, "maximum": 5, "required": True}
-                    }
+                        "priority": {"type": "integer", "minimum": 1, "maximum": 5}
+                    },
+                    "required": ["principle", "relevance", "priority"]
                 }
             },
             "options": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "description": {"type": "string", "required": True},
+                        "description": {"type": "string"},
                         "consequences": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "stakeholder": {"type": "string", "required": True},
-                                    "impact": {"type": "string", "required": True},
-                                    "likelihood": {"type": "string", "enum": ["high", "medium", "low"], "required": True},
+                                    "stakeholder": {"type": "string"},
+                                    "impact": {"type": "string"},
+                                    "likelihood": {"type": "string", "enum": ["high", "medium", "low"]},
                                     "timeframe": {"type": "string"}
-                                }
+                                },
+                                "required": ["stakeholder", "impact", "likelihood"]
                             }
                         },
                         "ethical_implications": {
@@ -78,29 +78,31 @@ EthicalDilemmaSchema = SignalSchema(
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "principle": {"type": "string", "required": True},
-                                    "alignment": {"type": "string", "enum": ["supports", "conflicts", "neutral"], "required": True},
-                                    "justification": {"type": "string", "required": True}
-                                }
+                                    "principle": {"type": "string"},
+                                    "alignment": {"type": "string", "enum": ["supports", "conflicts", "neutral"]},
+                                    "justification": {"type": "string"}
+                                },
+                                "required": ["principle", "alignment", "justification"]
                             }
                         }
-                    }
+                    },
+                    "required": ["description"]
                 }
             },
             "analysis_framework": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "approach": {"type": "string", "enum": ["utilitarian", "deontological", "virtue_ethics", "care_ethics", "hybrid"], "required": True},
+                    "approach": {"type": "string", "enum": ["utilitarian", "deontological", "virtue_ethics", "care_ethics", "hybrid"]},
                     "criteria": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "description": {"type": "string", "required": True},
-                                "weight": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                            }
+                                "name": {"type": "string"},
+                                "description": {"type": "string"},
+                                "weight": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                            },
+                            "required": ["name", "description", "weight"]
                         }
                     },
                     "considerations": {
@@ -108,34 +110,38 @@ EthicalDilemmaSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "factor": {"type": "string", "required": True},
-                                "importance": {"type": "string", "enum": ["critical", "important", "relevant"], "required": True},
-                                "rationale": {"type": "string", "required": True}
-                            }
+                                "factor": {"type": "string"},
+                                "importance": {"type": "string", "enum": ["critical", "important", "relevant"]},
+                                "rationale": {"type": "string"}
+                            },
+                            "required": ["factor", "importance", "rationale"]
                         }
                     }
-                }
+                },
+                "required": ["approach"]
             },
             "recommendations": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "option": {"type": "string", "required": True},
-                        "rationale": {"type": "string", "required": True},
+                        "option": {"type": "string"},
+                        "rationale": {"type": "string"},
                         "mitigations": {"type": "array", "items": {"type": "string"}},
                         "monitoring": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "metric": {"type": "string", "required": True},
-                                    "threshold": {"type": "string", "required": True},
-                                    "frequency": {"type": "string", "required": True}
-                                }
+                                    "metric": {"type": "string"},
+                                    "threshold": {"type": "string"},
+                                    "frequency": {"type": "string"}
+                                },
+                                "required": ["metric", "threshold", "frequency"]
                             }
                         }
-                    }
+                    },
+                    "required": ["option", "rationale"]
                 }
             },
             "metadata": {
@@ -160,6 +166,7 @@ EthicalDilemmaSchema = SignalSchema(
                     }
                 }
             }
-        }
+        },
+        "required": ["timestamp", "dilemma_id", "title", "description", "context", "stakeholders", "ethical_principles", "options", "analysis_framework"]
     }
 ) 

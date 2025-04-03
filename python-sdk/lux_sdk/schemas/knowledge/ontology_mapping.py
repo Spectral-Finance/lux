@@ -14,52 +14,50 @@ OntologyMappingSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "mapping_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "mapping_id": {"type": "string"},
             "source_ontology": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "id": {"type": "string", "required": True},
-                    "name": {"type": "string", "required": True},
-                    "version": {"type": "string", "required": True},
-                    "namespace": {"type": "string", "required": True}
-                }
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "version": {"type": "string"},
+                    "namespace": {"type": "string"}
+                },
+                "required": ["id", "name", "version", "namespace"]
             },
             "target_ontology": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "id": {"type": "string", "required": True},
-                    "name": {"type": "string", "required": True},
-                    "version": {"type": "string", "required": True},
-                    "namespace": {"type": "string", "required": True}
-                }
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "version": {"type": "string"},
+                    "namespace": {"type": "string"}
+                },
+                "required": ["id", "name", "version", "namespace"]
             },
             "mappings": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "source_concept": {"type": "string", "required": True},
-                        "target_concept": {"type": "string", "required": True},
+                        "source_concept": {"type": "string"},
+                        "target_concept": {"type": "string"},
                         "mapping_type": {
                             "type": "string",
-                            "enum": ["exact", "broader", "narrower", "related"],
-                            "required": True
+                            "enum": ["exact", "broader", "narrower", "related"]
                         },
                         "confidence": {
                             "type": "number",
                             "minimum": 0.0,
-                            "maximum": 1.0,
-                            "required": True
+                            "maximum": 1.0
                         },
                         "transformation_rules": {
                             "type": "array",
                             "items": {"type": "string"}
                         }
-                    }
+                    },
+                    "required": ["source_concept", "target_concept", "mapping_type", "confidence"]
                 }
             },
             "validation": {
@@ -91,6 +89,7 @@ OntologyMappingSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "mapping_id", "source_ontology", "target_ontology", "mappings"]
     }
 ) 

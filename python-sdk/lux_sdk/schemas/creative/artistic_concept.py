@@ -14,83 +14,86 @@ ArtisticConceptSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "concept_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "concept_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
             "medium": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "primary": {"type": "string", "required": True},
+                    "primary": {"type": "string"},
                     "secondary": {"type": "array", "items": {"type": "string"}},
-                    "techniques": {"type": "array", "items": {"type": "string"}, "required": True}
-                }
+                    "techniques": {"type": "array", "items": {"type": "string"}}
+                },
+                "required": ["primary", "techniques"]
             },
             "visual_elements": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "color_palette": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "color": {"type": "string", "required": True},
-                                "role": {"type": "string", "required": True},
-                                "hex_value": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$", "required": True}
-                            }
+                                "color": {"type": "string"},
+                                "role": {"type": "string"},
+                                "hex_value": {"type": "string", "pattern": "^#[0-9A-Fa-f]{6}$"}
+                            },
+                            "required": ["color", "role", "hex_value"]
                         }
                     },
                     "composition": {
                         "type": "object",
                         "properties": {
-                            "layout": {"type": "string", "required": True},
+                            "layout": {"type": "string"},
                             "focal_points": {"type": "array", "items": {"type": "string"}},
                             "balance": {"type": "string", "enum": ["symmetrical", "asymmetrical", "radial"]},
                             "perspective": {"type": "string"}
-                        }
+                        },
+                        "required": ["layout"]
                     },
                     "texture": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "type": {"type": "string", "required": True},
-                                "application": {"type": "string", "required": True}
-                            }
+                                "type": {"type": "string"},
+                                "application": {"type": "string"}
+                            },
+                            "required": ["type", "application"]
                         }
                     }
                 }
             },
             "style": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "movement": {"type": "string"},
                     "influences": {"type": "array", "items": {"type": "string"}},
                     "period": {"type": "string"},
-                    "characteristics": {"type": "array", "items": {"type": "string"}, "required": True}
-                }
+                    "characteristics": {"type": "array", "items": {"type": "string"}}
+                },
+                "required": ["characteristics"]
             },
             "thematic_elements": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "main_theme": {"type": "string", "required": True},
+                    "main_theme": {"type": "string"},
                     "sub_themes": {"type": "array", "items": {"type": "string"}},
                     "symbolism": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "element": {"type": "string", "required": True},
-                                "meaning": {"type": "string", "required": True}
-                            }
+                                "element": {"type": "string"},
+                                "meaning": {"type": "string"}
+                            },
+                            "required": ["element", "meaning"]
                         }
                     },
-                    "emotional_tone": {"type": "string", "required": True}
-                }
+                    "emotional_tone": {"type": "string"}
+                },
+                "required": ["main_theme", "emotional_tone"]
             },
             "technical_requirements": {
                 "type": "object",
@@ -109,10 +112,11 @@ ArtisticConceptSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
+                                "name": {"type": "string"},
                                 "quantity": {"type": "string"},
                                 "specifications": {"type": "string"}
-                            }
+                            },
+                            "required": ["name"]
                         }
                     },
                     "tools": {"type": "array", "items": {"type": "string"}},
@@ -131,11 +135,12 @@ ArtisticConceptSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "type": {"type": "string", "required": True},
-                        "source": {"type": "string", "required": True},
+                        "type": {"type": "string"},
+                        "source": {"type": "string"},
                         "description": {"type": "string"},
                         "url": {"type": "string"}
-                    }
+                    },
+                    "required": ["type", "source"]
                 }
             },
             "metadata": {
@@ -150,6 +155,7 @@ ArtisticConceptSchema = SignalSchema(
                     "license": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "concept_id", "title", "description", "medium", "visual_elements", "style", "thematic_elements"]
     }
 ) 

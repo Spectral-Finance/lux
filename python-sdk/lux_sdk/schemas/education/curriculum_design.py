@@ -14,16 +14,15 @@ CurriculumDesignSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "curriculum_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
-            "subject_area": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "curriculum_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
+            "subject_area": {"type": "string"},
             "educational_level": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "level": {"type": "string", "required": True},
+                    "level": {"type": "string"},
                     "grade_range": {
                         "type": "object",
                         "properties": {
@@ -38,86 +37,90 @@ CurriculumDesignSchema = SignalSchema(
                             "max": {"type": "integer"}
                         }
                     }
-                }
+                },
+                "required": ["level"]
             },
             "learning_pathways": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "pathway_id": {"type": "string", "required": True},
-                        "name": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
+                        "pathway_id": {"type": "string"},
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
                         "prerequisites": {"type": "array", "items": {"type": "string"}},
-                        "learning_outcomes": {"type": "array", "items": {"type": "string"}, "required": True},
+                        "learning_outcomes": {"type": "array", "items": {"type": "string"}},
                         "sequence": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "unit_id": {"type": "string", "required": True},
-                                    "title": {"type": "string", "required": True},
-                                    "duration": {"type": "string", "required": True},
-                                    "objectives": {"type": "array", "items": {"type": "string"}, "required": True}
-                                }
+                                    "unit_id": {"type": "string"},
+                                    "title": {"type": "string"},
+                                    "duration": {"type": "string"},
+                                    "objectives": {"type": "array", "items": {"type": "string"}}
+                                },
+                                "required": ["unit_id", "title", "duration", "objectives"]
                             }
                         }
-                    }
+                    },
+                    "required": ["pathway_id", "name", "description", "learning_outcomes"]
                 }
             },
             "course_structure": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "module_id": {"type": "string", "required": True},
-                        "title": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "duration": {"type": "string", "required": True},
-                        "learning_objectives": {"type": "array", "items": {"type": "string"}, "required": True},
+                        "module_id": {"type": "string"},
+                        "title": {"type": "string"},
+                        "description": {"type": "string"},
+                        "duration": {"type": "string"},
+                        "learning_objectives": {"type": "array", "items": {"type": "string"}},
                         "topics": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "topic_id": {"type": "string", "required": True},
-                                    "title": {"type": "string", "required": True},
-                                    "content": {"type": "string", "required": True},
+                                    "topic_id": {"type": "string"},
+                                    "title": {"type": "string"},
+                                    "content": {"type": "string"},
                                     "activities": {
                                         "type": "array",
                                         "items": {
                                             "type": "object",
                                             "properties": {
-                                                "activity_id": {"type": "string", "required": True},
-                                                "type": {"type": "string", "required": True},
-                                                "description": {"type": "string", "required": True},
+                                                "activity_id": {"type": "string"},
+                                                "type": {"type": "string"},
+                                                "description": {"type": "string"},
                                                 "duration": {"type": "string"},
                                                 "resources": {"type": "array", "items": {"type": "string"}}
-                                            }
+                                            },
+                                            "required": ["activity_id", "type", "description"]
                                         }
                                     }
-                                }
+                                },
+                                "required": ["topic_id", "title", "content"]
                             }
                         }
-                    }
+                    },
+                    "required": ["module_id", "title", "description", "duration", "learning_objectives"]
                 }
             },
             "assessment_strategy": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "formative_assessments": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "type": {"type": "string", "required": True},
-                                "frequency": {"type": "string", "required": True},
-                                "methods": {"type": "array", "items": {"type": "string"}, "required": True},
-                                "feedback_mechanism": {"type": "string", "required": True}
-                            }
+                                "type": {"type": "string"},
+                                "frequency": {"type": "string"},
+                                "methods": {"type": "array", "items": {"type": "string"}},
+                                "feedback_mechanism": {"type": "string"}
+                            },
+                            "required": ["type", "frequency", "methods", "feedback_mechanism"]
                         }
                     },
                     "summative_assessments": {
@@ -125,31 +128,34 @@ CurriculumDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "assessment_id": {"type": "string", "required": True},
-                                "type": {"type": "string", "required": True},
-                                "weight": {"type": "number", "required": True},
-                                "criteria": {"type": "array", "items": {"type": "string"}, "required": True},
+                                "assessment_id": {"type": "string"},
+                                "type": {"type": "string"},
+                                "weight": {"type": "number"},
+                                "criteria": {"type": "array", "items": {"type": "string"}},
                                 "rubric": {
                                     "type": "array",
                                     "items": {
                                         "type": "object",
                                         "properties": {
-                                            "criterion": {"type": "string", "required": True},
+                                            "criterion": {"type": "string"},
                                             "levels": {
                                                 "type": "array",
                                                 "items": {
                                                     "type": "object",
                                                     "properties": {
-                                                        "level": {"type": "string", "required": True},
-                                                        "description": {"type": "string", "required": True},
-                                                        "score": {"type": "number", "required": True}
-                                                    }
+                                                        "level": {"type": "string"},
+                                                        "description": {"type": "string"},
+                                                        "score": {"type": "number"}
+                                                    },
+                                                    "required": ["level", "description", "score"]
                                                 }
                                             }
-                                        }
+                                        },
+                                        "required": ["criterion"]
                                     }
                                 }
-                            }
+                            },
+                            "required": ["assessment_id", "type", "weight", "criteria"]
                         }
                     }
                 }
@@ -159,14 +165,15 @@ CurriculumDesignSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "resource_id": {"type": "string", "required": True},
-                        "type": {"type": "string", "required": True},
-                        "title": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
+                        "resource_id": {"type": "string"},
+                        "type": {"type": "string"},
+                        "title": {"type": "string"},
+                        "description": {"type": "string"},
                         "url": {"type": "string"},
                         "format": {"type": "string"},
                         "accessibility_features": {"type": "array", "items": {"type": "string"}}
-                    }
+                    },
+                    "required": ["resource_id", "type", "title", "description"]
                 }
             },
             "differentiation_strategies": {
@@ -174,19 +181,21 @@ CurriculumDesignSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "learner_profile": {"type": "string", "required": True},
+                        "learner_profile": {"type": "string"},
                         "adaptations": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "type": {"type": "string", "required": True},
-                                    "description": {"type": "string", "required": True},
+                                    "type": {"type": "string"},
+                                    "description": {"type": "string"},
                                     "resources": {"type": "array", "items": {"type": "string"}}
-                                }
+                                },
+                                "required": ["type", "description"]
                             }
                         }
-                    }
+                    },
+                    "required": ["learner_profile"]
                 }
             },
             "metadata": {
@@ -213,6 +222,7 @@ CurriculumDesignSchema = SignalSchema(
                     "license": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "curriculum_id", "title", "description", "subject_area", "educational_level", "learning_pathways", "course_structure", "assessment_strategy"]
     }
 ) 

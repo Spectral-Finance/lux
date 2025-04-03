@@ -14,124 +14,128 @@ FeedbackReportSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "report_id": {"type": "string", "required": True},
-            "learner_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "report_id": {"type": "string"},
+            "learner_id": {"type": "string"},
             "feedback_provider": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "id": {"type": "string", "required": True},
-                    "name": {"type": "string", "required": True},
-                    "role": {"type": "string", "required": True},
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "role": {"type": "string"},
                     "qualifications": {"type": "array", "items": {"type": "string"}}
-                }
+                },
+                "required": ["id", "name", "role"]
             },
             "feedback_context": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "course": {"type": "string", "required": True},
-                    "unit": {"type": "string", "required": True},
-                    "activity": {"type": "string", "required": True},
-                    "date": {"type": "string", "format": "date-time", "required": True},
-                    "setting": {"type": "string", "required": True}
-                }
+                    "course": {"type": "string"},
+                    "unit": {"type": "string"},
+                    "activity": {"type": "string"},
+                    "date": {"type": "string", "format": "date-time"},
+                    "setting": {"type": "string"}
+                },
+                "required": ["course", "unit", "activity", "date", "setting"]
             },
             "performance_assessment": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "overall_rating": {
                         "type": "object",
                         "properties": {
-                            "score": {"type": "number", "minimum": 0, "maximum": 100, "required": True},
-                            "grade": {"type": "string", "required": True},
-                            "descriptor": {"type": "string", "required": True}
-                        }
+                            "score": {"type": "number", "minimum": 0, "maximum": 100},
+                            "grade": {"type": "string"},
+                            "descriptor": {"type": "string"}
+                        },
+                        "required": ["score", "grade", "descriptor"]
                     },
                     "criteria_evaluation": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "criterion": {"type": "string", "required": True},
-                                "rating": {"type": "number", "required": True},
-                                "comments": {"type": "string", "required": True},
+                                "criterion": {"type": "string"},
+                                "rating": {"type": "number"},
+                                "comments": {"type": "string"},
                                 "evidence": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["criterion", "rating", "comments"]
                         }
                     }
                 }
             },
             "strengths": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "area": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "examples": {"type": "array", "items": {"type": "string"}, "required": True},
-                        "impact": {"type": "string", "required": True}
-                    }
+                        "area": {"type": "string"},
+                        "description": {"type": "string"},
+                        "examples": {"type": "array", "items": {"type": "string"}},
+                        "impact": {"type": "string"}
+                    },
+                    "required": ["area", "description", "examples", "impact"]
                 }
             },
             "areas_for_improvement": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "area": {"type": "string", "required": True},
-                        "current_level": {"type": "string", "required": True},
-                        "target_level": {"type": "string", "required": True},
-                        "gap_analysis": {"type": "string", "required": True},
+                        "area": {"type": "string"},
+                        "current_level": {"type": "string"},
+                        "target_level": {"type": "string"},
+                        "gap_analysis": {"type": "string"},
                         "improvement_strategies": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "strategy": {"type": "string", "required": True},
-                                    "description": {"type": "string", "required": True},
+                                    "strategy": {"type": "string"},
+                                    "description": {"type": "string"},
                                     "resources": {"type": "array", "items": {"type": "string"}},
                                     "timeline": {"type": "string"}
-                                }
+                                },
+                                "required": ["strategy", "description"]
                             }
                         }
-                    }
+                    },
+                    "required": ["area", "current_level", "target_level", "gap_analysis"]
                 }
             },
             "action_plan": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "goals": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "goal_id": {"type": "string", "required": True},
-                                "description": {"type": "string", "required": True},
-                                "priority": {"type": "string", "enum": ["high", "medium", "low"], "required": True},
+                                "goal_id": {"type": "string"},
+                                "description": {"type": "string"},
+                                "priority": {"type": "string", "enum": ["high", "medium", "low"]},
                                 "timeline": {
                                     "type": "object",
                                     "properties": {
-                                        "start_date": {"type": "string", "format": "date-time", "required": True},
-                                        "target_date": {"type": "string", "format": "date-time", "required": True},
+                                        "start_date": {"type": "string", "format": "date-time"},
+                                        "target_date": {"type": "string", "format": "date-time"},
                                         "milestones": {
                                             "type": "array",
                                             "items": {
                                                 "type": "object",
                                                 "properties": {
-                                                    "description": {"type": "string", "required": True},
-                                                    "date": {"type": "string", "format": "date-time", "required": True}
-                                                }
+                                                    "description": {"type": "string"},
+                                                    "date": {"type": "string", "format": "date-time"}
+                                                },
+                                                "required": ["description", "date"]
                                             }
                                         }
-                                    }
+                                    },
+                                    "required": ["start_date", "target_date"]
                                 }
-                            }
+                            },
+                            "required": ["goal_id", "description", "priority", "timeline"]
                         }
                     },
                     "support_resources": {
@@ -139,47 +143,50 @@ FeedbackReportSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "type": {"type": "string", "required": True},
-                                "name": {"type": "string", "required": True},
-                                "description": {"type": "string", "required": True},
+                                "type": {"type": "string"},
+                                "name": {"type": "string"},
+                                "description": {"type": "string"},
                                 "access_information": {"type": "string"}
-                            }
+                            },
+                            "required": ["type", "name", "description"]
                         }
                     }
                 }
             },
             "recommendations": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "type": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "rationale": {"type": "string", "required": True},
-                        "expected_outcomes": {"type": "array", "items": {"type": "string"}, "required": True},
+                        "type": {"type": "string"},
+                        "description": {"type": "string"},
+                        "rationale": {"type": "string"},
+                        "expected_outcomes": {"type": "array", "items": {"type": "string"}},
                         "implementation_steps": {"type": "array", "items": {"type": "string"}}
-                    }
+                    },
+                    "required": ["type", "description", "rationale", "expected_outcomes"]
                 }
             },
             "follow_up": {
                 "type": "object",
                 "properties": {
-                    "next_review_date": {"type": "string", "format": "date-time", "required": True},
-                    "monitoring_plan": {"type": "string", "required": True},
-                    "success_criteria": {"type": "array", "items": {"type": "string"}, "required": True},
+                    "next_review_date": {"type": "string", "format": "date-time"},
+                    "monitoring_plan": {"type": "string"},
+                    "success_criteria": {"type": "array", "items": {"type": "string"}},
                     "support_contacts": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "role": {"type": "string", "required": True},
-                                "contact_info": {"type": "string", "required": True}
-                            }
+                                "name": {"type": "string"},
+                                "role": {"type": "string"},
+                                "contact_info": {"type": "string"}
+                            },
+                            "required": ["name", "role", "contact_info"]
                         }
                     }
-                }
+                },
+                "required": ["next_review_date", "monitoring_plan", "success_criteria"]
             },
             "metadata": {
                 "type": "object",
@@ -193,6 +200,7 @@ FeedbackReportSchema = SignalSchema(
                     "notes": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "report_id", "learner_id", "feedback_provider", "feedback_context", "performance_assessment", "strengths", "areas_for_improvement", "action_plan", "recommendations"]
     }
 ) 

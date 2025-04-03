@@ -14,13 +14,12 @@ EnvironmentalStateSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "environment_id": {"type": "string", "required": True},
-            "name": {"type": "string", "required": True},
-            "type": {"type": "string", "enum": ["indoor", "outdoor", "mixed"], "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "environment_id": {"type": "string"},
+            "name": {"type": "string"},
+            "type": {"type": "string", "enum": ["indoor", "outdoor", "mixed"]},
             "sensor_data": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "atmospheric": {
                         "type": "object",
@@ -28,26 +27,29 @@ EnvironmentalStateSchema = SignalSchema(
                             "temperature": {
                                 "type": "object",
                                 "properties": {
-                                    "value": {"type": "number", "required": True},
-                                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit", "kelvin"], "required": True},
+                                    "value": {"type": "number"},
+                                    "unit": {"type": "string", "enum": ["celsius", "fahrenheit", "kelvin"]},
                                     "accuracy": {"type": "number"}
-                                }
+                                },
+                                "required": ["value", "unit"]
                             },
                             "humidity": {
                                 "type": "object",
                                 "properties": {
-                                    "relative": {"type": "number", "minimum": 0, "maximum": 100, "required": True},
+                                    "relative": {"type": "number", "minimum": 0, "maximum": 100},
                                     "absolute": {"type": "number"},
                                     "accuracy": {"type": "number"}
-                                }
+                                },
+                                "required": ["relative"]
                             },
                             "pressure": {
                                 "type": "object",
                                 "properties": {
-                                    "value": {"type": "number", "required": True},
-                                    "unit": {"type": "string", "enum": ["hPa", "mbar", "psi"], "required": True},
+                                    "value": {"type": "number"},
+                                    "unit": {"type": "string", "enum": ["hPa", "mbar", "psi"]},
                                     "accuracy": {"type": "number"}
-                                }
+                                },
+                                "required": ["value", "unit"]
                             },
                             "air_quality": {
                                 "type": "object",
@@ -67,9 +69,10 @@ EnvironmentalStateSchema = SignalSchema(
                             "intensity": {
                                 "type": "object",
                                 "properties": {
-                                    "value": {"type": "number", "required": True},
-                                    "unit": {"type": "string", "enum": ["lux", "foot_candles"], "required": True}
-                                }
+                                    "value": {"type": "number"},
+                                    "unit": {"type": "string", "enum": ["lux", "foot_candles"]}
+                                },
+                                "required": ["value", "unit"]
                             },
                             "color_temperature": {"type": "number"},
                             "spectrum": {
@@ -89,8 +92,8 @@ EnvironmentalStateSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "sensor_id": {"type": "string", "required": True},
-                                "detected": {"type": "boolean", "required": True},
+                                "sensor_id": {"type": "string"},
+                                "detected": {"type": "boolean"},
                                 "velocity": {
                                     "type": "object",
                                     "properties": {
@@ -99,8 +102,9 @@ EnvironmentalStateSchema = SignalSchema(
                                         "z": {"type": "number"}
                                     }
                                 },
-                                "timestamp": {"type": "string", "format": "date-time", "required": True}
-                            }
+                                "timestamp": {"type": "string", "format": "date-time"}
+                            },
+                            "required": ["sensor_id", "detected", "timestamp"]
                         }
                     }
                 }
@@ -110,14 +114,14 @@ EnvironmentalStateSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "object_id": {"type": "string", "required": True},
-                        "class": {"type": "string", "required": True},
-                        "confidence": {"type": "number", "minimum": 0, "maximum": 1, "required": True},
+                        "object_id": {"type": "string"},
+                        "class": {"type": "string"},
+                        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
                         "position": {
                             "type": "object",
                             "properties": {
-                                "x": {"type": "number", "required": True},
-                                "y": {"type": "number", "required": True},
+                                "x": {"type": "number"},
+                                "y": {"type": "number"},
                                 "z": {"type": "number"},
                                 "orientation": {
                                     "type": "object",
@@ -127,7 +131,8 @@ EnvironmentalStateSchema = SignalSchema(
                                         "yaw": {"type": "number"}
                                     }
                                 }
-                            }
+                            },
+                            "required": ["x", "y"]
                         },
                         "dimensions": {
                             "type": "object",
@@ -167,7 +172,8 @@ EnvironmentalStateSchema = SignalSchema(
                                 }
                             }
                         }
-                    }
+                    },
+                    "required": ["object_id", "class", "confidence"]
                 }
             },
             "spatial_relationships": {
@@ -175,17 +181,19 @@ EnvironmentalStateSchema = SignalSchema(
                 "items": {
                     "type": "object",
                     "properties": {
-                        "object1_id": {"type": "string", "required": True},
-                        "object2_id": {"type": "string", "required": True},
-                        "relationship": {"type": "string", "enum": ["above", "below", "left_of", "right_of", "in_front_of", "behind", "inside", "contains"], "required": True},
+                        "object1_id": {"type": "string"},
+                        "object2_id": {"type": "string"},
+                        "relationship": {"type": "string", "enum": ["above", "below", "left_of", "right_of", "in_front_of", "behind", "inside", "contains"]},
                         "distance": {
                             "type": "object",
                             "properties": {
-                                "value": {"type": "number", "required": True},
-                                "unit": {"type": "string", "enum": ["meters", "feet", "pixels"], "required": True}
-                            }
+                                "value": {"type": "number"},
+                                "unit": {"type": "string", "enum": ["meters", "feet", "pixels"]}
+                            },
+                            "required": ["value", "unit"]
                         }
-                    }
+                    },
+                    "required": ["object1_id", "object2_id", "relationship"]
                 }
             },
             "metadata": {
@@ -217,6 +225,7 @@ EnvironmentalStateSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "environment_id", "name", "type", "sensor_data"]
     }
 ) 

@@ -14,32 +14,32 @@ TextAnalysisSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "analysis_id": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "analysis_id": {"type": "string"},
             "text": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "content": {"type": "string", "required": True},
-                    "language": {"type": "string", "required": True},
-                    "encoding": {"type": "string", "required": True}
-                }
+                    "content": {"type": "string"},
+                    "language": {"type": "string"},
+                    "encoding": {"type": "string"}
+                },
+                "required": ["content", "language", "encoding"]
             },
             "linguistic_features": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "tokens": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "text": {"type": "string", "required": True},
-                                "pos": {"type": "string", "required": True},  # Part of speech
-                                "lemma": {"type": "string", "required": True},
-                                "start": {"type": "integer", "required": True},
-                                "end": {"type": "integer", "required": True}
-                            }
+                                "text": {"type": "string"},
+                                "pos": {"type": "string"},  # Part of speech
+                                "lemma": {"type": "string"},
+                                "start": {"type": "integer"},
+                                "end": {"type": "integer"}
+                            },
+                            "required": ["text", "pos", "lemma", "start", "end"]
                         }
                     },
                     "sentences": {
@@ -47,10 +47,11 @@ TextAnalysisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "text": {"type": "string", "required": True},
-                                "start": {"type": "integer", "required": True},
-                                "end": {"type": "integer", "required": True}
-                            }
+                                "text": {"type": "string"},
+                                "start": {"type": "integer"},
+                                "end": {"type": "integer"}
+                            },
+                            "required": ["text", "start", "end"]
                         }
                     },
                     "named_entities": {
@@ -58,12 +59,13 @@ TextAnalysisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "text": {"type": "string", "required": True},
-                                "type": {"type": "string", "required": True},
-                                "start": {"type": "integer", "required": True},
-                                "end": {"type": "integer", "required": True},
+                                "text": {"type": "string"},
+                                "type": {"type": "string"},
+                                "start": {"type": "integer"},
+                                "end": {"type": "integer"},
                                 "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
-                            }
+                            },
+                            "required": ["text", "type", "start", "end"]
                         }
                     }
                 }
@@ -76,18 +78,20 @@ TextAnalysisSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True},
+                                "name": {"type": "string"},
+                                "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0},
                                 "keywords": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["name", "confidence"]
                         }
                     },
                     "intent": {
                         "type": "object",
                         "properties": {
-                            "type": {"type": "string", "required": True},
-                            "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0, "required": True}
-                        }
+                            "type": {"type": "string"},
+                            "confidence": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+                        },
+                        "required": ["type", "confidence"]
                     }
                 }
             },
@@ -100,6 +104,7 @@ TextAnalysisSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "analysis_id", "text", "linguistic_features"]
     }
 ) 

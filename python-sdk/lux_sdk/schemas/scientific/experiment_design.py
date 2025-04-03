@@ -14,38 +14,38 @@ ExperimentDesignSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "experiment_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "experiment_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
             "hypotheses": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "id": {"type": "string", "required": True},
-                        "statement": {"type": "string", "required": True},
-                        "rationale": {"type": "string", "required": True},
-                        "predictions": {"type": "array", "items": {"type": "string"}, "required": True}
-                    }
+                        "id": {"type": "string"},
+                        "statement": {"type": "string"},
+                        "rationale": {"type": "string"},
+                        "predictions": {"type": "array", "items": {"type": "string"}}
+                    },
+                    "required": ["id", "statement", "rationale", "predictions"]
                 }
             },
             "variables": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "independent": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "type": {"type": "string", "required": True},
-                                "levels": {"type": "array", "items": {"type": "string"}, "required": True},
-                                "units": {"type": "string", "required": True},
+                                "name": {"type": "string"},
+                                "type": {"type": "string"},
+                                "levels": {"type": "array", "items": {"type": "string"}},
+                                "units": {"type": "string"},
                                 "control_value": {"type": "string"}
-                            }
+                            },
+                            "required": ["name", "type", "levels", "units"]
                         }
                     },
                     "dependent": {
@@ -53,10 +53,10 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "type": {"type": "string", "required": True},
-                                "measurement_method": {"type": "string", "required": True},
-                                "units": {"type": "string", "required": True},
+                                "name": {"type": "string"},
+                                "type": {"type": "string"},
+                                "measurement_method": {"type": "string"},
+                                "units": {"type": "string"},
                                 "expected_range": {
                                     "type": "object",
                                     "properties": {
@@ -64,7 +64,8 @@ ExperimentDesignSchema = SignalSchema(
                                         "max": {"type": "number"}
                                     }
                                 }
-                            }
+                            },
+                            "required": ["name", "type", "measurement_method", "units"]
                         }
                     },
                     "controlled": {
@@ -72,36 +73,39 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "value": {"type": "string", "required": True},
-                                "method": {"type": "string", "required": True}
-                            }
+                                "name": {"type": "string"},
+                                "value": {"type": "string"},
+                                "method": {"type": "string"}
+                            },
+                            "required": ["name", "value", "method"]
                         }
                     }
-                }
+                },
+                "required": ["independent", "dependent"]
             },
             "design": {
                 "type": "object",
-                "required": True,
                 "properties": {
-                    "type": {"type": "string", "enum": ["factorial", "randomized", "repeated_measures", "mixed"], "required": True},
+                    "type": {"type": "string", "enum": ["factorial", "randomized", "repeated_measures", "mixed"]},
                     "groups": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "size": {"type": "integer", "minimum": 1, "required": True},
-                                "treatment": {"type": "string", "required": True}
-                            }
+                                "name": {"type": "string"},
+                                "size": {"type": "integer", "minimum": 1},
+                                "treatment": {"type": "string"}
+                            },
+                            "required": ["name", "size", "treatment"]
                         }
                     },
                     "randomization": {
                         "type": "object",
                         "properties": {
-                            "method": {"type": "string", "required": True},
+                            "method": {"type": "string"},
                             "seed": {"type": "integer"}
-                        }
+                        },
+                        "required": ["method"]
                     },
                     "blinding": {
                         "type": "object",
@@ -110,30 +114,32 @@ ExperimentDesignSchema = SignalSchema(
                             "roles": {"type": "array", "items": {"type": "string"}}
                         }
                     }
-                }
+                },
+                "required": ["type", "groups"]
             },
             "protocols": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "name": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
+                        "name": {"type": "string"},
+                        "description": {"type": "string"},
                         "steps": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "number": {"type": "integer", "required": True},
-                                    "action": {"type": "string", "required": True},
+                                    "number": {"type": "integer"},
+                                    "action": {"type": "string"},
                                     "duration": {"type": "string"},
                                     "equipment": {"type": "array", "items": {"type": "string"}},
                                     "notes": {"type": "string"}
-                                }
+                                },
+                                "required": ["number", "action"]
                             }
                         }
-                    }
+                    },
+                    "required": ["name", "description", "steps"]
                 }
             },
             "quality_control": {
@@ -144,10 +150,11 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "equipment": {"type": "string", "required": True},
-                                "frequency": {"type": "string", "required": True},
+                                "equipment": {"type": "string"},
+                                "frequency": {"type": "string"},
                                 "standards": {"type": "array", "items": {"type": "string"}}
-                            }
+                            },
+                            "required": ["equipment", "frequency"]
                         }
                     },
                     "validation": {
@@ -155,10 +162,11 @@ ExperimentDesignSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "method": {"type": "string", "required": True},
-                                "criteria": {"type": "string", "required": True},
-                                "frequency": {"type": "string", "required": True}
-                            }
+                                "method": {"type": "string"},
+                                "criteria": {"type": "string"},
+                                "frequency": {"type": "string"}
+                            },
+                            "required": ["method", "criteria", "frequency"]
                         }
                     }
                 }
@@ -176,6 +184,7 @@ ExperimentDesignSchema = SignalSchema(
                     "ethics_approval": {"type": "string"}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "experiment_id", "title", "description", "hypotheses", "variables", "design", "protocols"]
     }
 ) 

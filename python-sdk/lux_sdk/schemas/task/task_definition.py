@@ -14,45 +14,46 @@ TaskDefinitionSchema = SignalSchema(
     schema={
         "type": "object",
         "properties": {
-            "timestamp": {"type": "string", "format": "date-time", "required": True},
-            "task_id": {"type": "string", "required": True},
-            "title": {"type": "string", "required": True},
-            "description": {"type": "string", "required": True},
+            "timestamp": {"type": "string", "format": "date-time"},
+            "task_id": {"type": "string"},
+            "title": {"type": "string"},
+            "description": {"type": "string"},
             "objectives": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "id": {"type": "string", "required": True},
-                        "description": {"type": "string", "required": True},
-                        "priority": {"type": "integer", "minimum": 1, "maximum": 5, "required": True},
+                        "id": {"type": "string"},
+                        "description": {"type": "string"},
+                        "priority": {"type": "integer", "minimum": 1, "maximum": 5},
                         "metrics": {
                             "type": "array",
                             "items": {
                                 "type": "object",
                                 "properties": {
-                                    "name": {"type": "string", "required": True},
-                                    "target": {"type": "number", "required": True},
-                                    "unit": {"type": "string", "required": True}
-                                }
+                                    "name": {"type": "string"},
+                                    "target": {"type": "number"},
+                                    "unit": {"type": "string"}
+                                },
+                                "required": ["name", "target", "unit"]
                             }
                         }
-                    }
+                    },
+                    "required": ["id", "description", "priority"]
                 }
             },
             "requirements": {
                 "type": "object",
-                "required": True,
                 "properties": {
                     "skills": {
                         "type": "array",
                         "items": {
                             "type": "object",
                             "properties": {
-                                "name": {"type": "string", "required": True},
-                                "level": {"type": "string", "enum": ["basic", "intermediate", "advanced"], "required": True}
-                            }
+                                "name": {"type": "string"},
+                                "level": {"type": "string", "enum": ["basic", "intermediate", "advanced"]}
+                            },
+                            "required": ["name", "level"]
                         }
                     },
                     "resources": {
@@ -60,10 +61,11 @@ TaskDefinitionSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "type": {"type": "string", "required": True},
-                                "quantity": {"type": "number", "required": True},
-                                "availability": {"type": "string", "required": True}
-                            }
+                                "type": {"type": "string"},
+                                "quantity": {"type": "number"},
+                                "availability": {"type": "string"}
+                            },
+                            "required": ["type", "quantity", "availability"]
                         }
                     },
                     "dependencies": {
@@ -71,9 +73,10 @@ TaskDefinitionSchema = SignalSchema(
                         "items": {
                             "type": "object",
                             "properties": {
-                                "task_id": {"type": "string", "required": True},
-                                "relationship": {"type": "string", "enum": ["blocks", "required_by", "related_to"], "required": True}
-                            }
+                                "task_id": {"type": "string"},
+                                "relationship": {"type": "string", "enum": ["blocks", "required_by", "related_to"]}
+                            },
+                            "required": ["task_id", "relationship"]
                         }
                     }
                 }
@@ -89,14 +92,14 @@ TaskDefinitionSchema = SignalSchema(
             },
             "success_criteria": {
                 "type": "array",
-                "required": True,
                 "items": {
                     "type": "object",
                     "properties": {
-                        "criterion": {"type": "string", "required": True},
-                        "measurement": {"type": "string", "required": True},
-                        "threshold": {"type": "string", "required": True}
-                    }
+                        "criterion": {"type": "string"},
+                        "measurement": {"type": "string"},
+                        "threshold": {"type": "string"}
+                    },
+                    "required": ["criterion", "measurement", "threshold"]
                 }
             },
             "metadata": {
@@ -109,6 +112,7 @@ TaskDefinitionSchema = SignalSchema(
                     "tags": {"type": "array", "items": {"type": "string"}}
                 }
             }
-        }
+        },
+        "required": ["timestamp", "task_id", "title", "description", "objectives", "requirements", "success_criteria"]
     }
 ) 
