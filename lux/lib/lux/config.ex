@@ -82,6 +82,33 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Twitter OAuth refresh token from configuration.
+  Raises if the key is not configured.
+  """
+  @spec twitter_oauth_refresh_token() :: api_key()
+  def twitter_oauth_refresh_token do
+    get_required_key(:api_keys, :twitter_oauth_refresh)
+  end
+
+  @doc """
+  Gets the Twitter client ID from configuration.
+  Raises if the key is not configured.
+  """
+  @spec twitter_client_id() :: api_key()
+  def twitter_client_id do
+    get_required_key(:api_keys, :twitter_client_id)
+  end
+
+  @doc """
+  Gets the Twitter client secret from configuration.
+  Raises if the key is not configured.
+  """
+  @spec twitter_client_secret() :: api_key()
+  def twitter_client_secret do
+    get_required_key(:api_keys, :twitter_client_secret)
+  end
+
+  @doc """
   Gets the Hyperliquid account's private key from configuration.
   Raises if the key is not configured.
   """
