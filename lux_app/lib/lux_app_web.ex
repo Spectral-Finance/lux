@@ -87,9 +87,12 @@ defmodule LuxAppWeb do
 
       # HTML escaping functionality
       import Phoenix.HTML
-      import Phoenix.HTML.Form
+
       # Core UI components
       import LuxAppWeb.CoreComponents
+
+      # Lux UI components
+      import LuxAppWeb.LuxComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

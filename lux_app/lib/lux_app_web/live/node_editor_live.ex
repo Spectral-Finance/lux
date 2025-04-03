@@ -2,47 +2,6 @@ defmodule LuxAppWeb.NodeEditorLive do
   use LuxAppWeb, :live_view
   require Logger
 
-  @node_types %{
-    "agent" => %{
-      label: "Agent",
-      description: "An autonomous agent that can perform tasks",
-      color: "#4ade80"
-    },
-    "prism" => %{
-      label: "Prism",
-      description: "Processes and transforms data",
-      color: "#60a5fa"
-    },
-    "lens" => %{
-      label: "Lens",
-      description: "Retrieves data from external sources",
-      color: "#c084fc"
-    },
-    "beam" => %{
-      label: "Beam",
-      description: "Executes actions in external systems",
-      color: "#fb923c"
-    }
-  }
-
-  @llm_providers [
-    OpenAI: "openai",
-    Anthropic: "anthropic"
-  ]
-
-  @llm_models %{
-    "openai" => [
-      "GPT-4o-mini": "gpt-4o-mini",
-      "GPT-4o": "gpt-4o",
-      "GPT-4": "gpt-4"
-    ],
-    "anthropic" => [
-      "Claude 3.7 Sonnet": "claude-3.7-sonnet",
-      "Claude 3.5 Sonnet": "claude-3-5-sonnet",
-      "Claude 3 Haiku": "claude-3-haiku"
-    ]
-  }
-
   def mount(_params, _session, socket) do
     nodes = [
       %{
@@ -285,7 +244,8 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   # Node management
   def handle_event("node_added", %{"node" => node}, socket) do
-    nodes = [node | socket.assigns.nodes]
+    added_node = Map.put_new(node, "data", initial_data(node["type"]))
+    nodes = [added_node | socket.assigns.nodes]
 
     # Broadcast node added to all clients
     send(self(), {:broadcast_node_added, node})
@@ -398,33 +358,7 @@ defmodule LuxAppWeb.NodeEditorLive do
     <div class="flex h-full w-screen bg-gray-900 text-white overflow-hidden">
       <.json_drop_zone id="json-dropzone" />
       <!-- Component Palette -->
-      <div class="w-64 border-r border-gray-700 p-4 overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4">Components</h2>
-        <div class="space-y-2">
-          <%= for {type, info} <- @node_types do %>
-            <div
-              class="p-3 bg-gray-800 rounded-md cursor-move border border-gray-700 hover:border-blue-500 transition-colors"
-              draggable="true"
-              phx-hook="DraggableNode"
-              id={"draggable-#{type}"}
-              data-type={type}
-            >
-              <div class="flex items-center">
-                <div
-                  class="w-8 h-8 rounded-full mr-2 flex items-center justify-center"
-                  style={"background: #{info.color}20"}
-                >
-                  <div class="w-5 h-5" style={"background: #{info.color}"}></div>
-                </div>
-                <div>
-                  <div class="font-medium">{info.label}</div>
-                  <div class="text-xs text-gray-400">{info.description}</div>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
+      <.palette />
       
     <!-- Node Editor Canvas -->
       <div
@@ -506,7 +440,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                 rx="10"
                 ry="10"
                 fill="none"
-                stroke={@node_types[node["type"]].color}
+                stroke={color(node["type"])}
                 stroke-width="3"
                 filter="url(#glow-selected)"
                 style={"opacity: #{if @selected_node && @selected_node["id"] == node["id"], do: "1", else: "0"}"}
@@ -519,22 +453,16 @@ defmodule LuxAppWeb.NodeEditorLive do
                 height="100"
                 rx="5"
                 ry="5"
-                fill={@node_types[node["type"]].color <> "20"}
-                stroke={@node_types[node["type"]].color}
+                fill={color(node["type"]) <> "20"}
+                stroke={color(node["type"])}
                 stroke-width="2"
               />
               <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["label"]}</text>
               <text x="10" y="50" fill="#999" font-size="12">{node["data"]["description"]}</text>
               
     <!-- Node Ports -->
-              <circle class="port input" cx="0" cy="50" r="5" fill={@node_types[node["type"]].color} />
-              <circle
-                class="port output"
-                cx="200"
-                cy="50"
-                r="5"
-                fill={@node_types[node["type"]].color}
-              />
+              <circle class="port input" cx="0" cy="50" r="5" fill={color(node["type"])} />
+              <circle class="port output" cx="200" cy="50" r="5" fill={color(node["type"])} />
             </g>
           <% end %>
         </svg>
@@ -585,10 +513,9 @@ defmodule LuxAppWeb.NodeEditorLive do
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                     rows="3"
                   >
-                    {options_for_select(
-                      @llm_providers,
+                    <.llm_provider_selector selected={
                       @selected_node["data"]["llm_config"]["provider"]
-                    )}
+                    } />
                   </select>
                 </div>
                 <div>
@@ -597,10 +524,10 @@ defmodule LuxAppWeb.NodeEditorLive do
                     name="node[data][llm_config][model]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                   >
-                    {options_for_select(
-                      @llm_models[@selected_node["data"]["llm_config"]["provider"]],
-                      @selected_node["data"]["llm_config"]["model"]
-                    )}
+                    <.llm_model_selector
+                      selected_provider={@selected_node["data"]["llm_config"]["provider"]}
+                      selected={@selected_node["data"]["llm_config"]["model"]}
+                    />
                   </select>
                 </div>
                 <div>
