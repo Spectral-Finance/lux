@@ -1,8 +1,8 @@
 """
 Composition Layout Schema
 
-This schema represents composition layouts and visual arrangements in creative works,
-including spatial relationships, visual hierarchy, and design principles.
+This schema represents composition and layout specifications,
+including canvas properties, elements, and spatial relationships.
 """
 
 from lux_sdk.signals import SignalSchema
@@ -10,7 +10,7 @@ from lux_sdk.signals import SignalSchema
 CompositionLayoutSchema = SignalSchema(
     name="composition_layout",
     version="1.0",
-    description="Schema for composition layouts and visual arrangements",
+    description="Schema for composition and layout specifications",
     schema={
         "type": "object",
         "properties": {
@@ -20,15 +20,11 @@ CompositionLayoutSchema = SignalSchema(
             },
             "layout_id": {
                 "type": "string",
-                "description": "Unique identifier for this composition layout"
+                "description": "Unique identifier for this layout"
             },
             "name": {
                 "type": "string",
-                "description": "Name of the composition layout"
-            },
-            "description": {
-                "type": "string",
-                "description": "Description of the layout's purpose and style"
+                "description": "Name of the composition"
             },
             "canvas": {
                 "type": "object",
@@ -45,21 +41,6 @@ CompositionLayoutSchema = SignalSchema(
                         "type": "string",
                         "enum": ["pixels", "points", "inches", "centimeters", "percent"],
                         "description": "Units of measurement"
-                    },
-                    "background": {
-                        "type": "object",
-                        "properties": {
-                            "color": {
-                                "type": "string",
-                                "description": "Background color"
-                            },
-                            "opacity": {
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1,
-                                "description": "Background opacity"
-                            }
-                        }
                     }
                 },
                 "required": ["width", "height", "units"]
@@ -75,79 +56,26 @@ CompositionLayoutSchema = SignalSchema(
                         },
                         "type": {
                             "type": "string",
-                            "enum": [
-                                "text",
-                                "image",
-                                "shape",
-                                "group",
-                                "vector",
-                                "container",
-                                "other"
-                            ],
+                            "enum": ["shape", "text", "image", "group"],
                             "description": "Type of element"
                         },
                         "position": {
                             "type": "object",
                             "properties": {
-                                "x": {
-                                    "type": "number",
-                                    "description": "X coordinate"
-                                },
-                                "y": {
-                                    "type": "number",
-                                    "description": "Y coordinate"
-                                },
-                                "z_index": {
-                                    "type": "integer",
-                                    "description": "Z-index for layering"
-                                }
+                                "x": {"type": "number"},
+                                "y": {"type": "number"},
+                                "z_index": {"type": "integer"}
                             },
                             "required": ["x", "y"]
                         },
                         "dimensions": {
                             "type": "object",
                             "properties": {
-                                "width": {
-                                    "type": "number",
-                                    "description": "Width of element"
-                                },
-                                "height": {
-                                    "type": "number",
-                                    "description": "Height of element"
-                                },
-                                "rotation": {
-                                    "type": "number",
-                                    "description": "Rotation angle in degrees"
-                                }
+                                "width": {"type": "number"},
+                                "height": {"type": "number"},
+                                "rotation": {"type": "number"}
                             },
                             "required": ["width", "height"]
-                        },
-                        "style": {
-                            "type": "object",
-                            "properties": {
-                                "fill": {
-                                    "type": "string",
-                                    "description": "Fill color"
-                                },
-                                "stroke": {
-                                    "type": "string",
-                                    "description": "Stroke color"
-                                },
-                                "stroke_width": {
-                                    "type": "number",
-                                    "description": "Stroke width"
-                                },
-                                "opacity": {
-                                    "type": "number",
-                                    "minimum": 0,
-                                    "maximum": 1,
-                                    "description": "Element opacity"
-                                }
-                            }
-                        },
-                        "content": {
-                            "type": "object",
-                            "description": "Element-specific content properties"
                         }
                     },
                     "required": ["element_id", "type", "position"]
@@ -156,120 +84,17 @@ CompositionLayoutSchema = SignalSchema(
             "grid": {
                 "type": "object",
                 "properties": {
-                    "columns": {
-                        "type": "integer",
-                        "description": "Number of columns"
+                    "enabled": {
+                        "type": "boolean",
+                        "description": "Whether grid is enabled"
                     },
-                    "rows": {
-                        "type": "integer",
-                        "description": "Number of rows"
+                    "size": {
+                        "type": "number",
+                        "description": "Grid cell size"
                     },
-                    "gutter": {
-                        "type": "object",
-                        "properties": {
-                            "horizontal": {
-                                "type": "number",
-                                "description": "Horizontal gutter size"
-                            },
-                            "vertical": {
-                                "type": "number",
-                                "description": "Vertical gutter size"
-                            }
-                        }
-                    },
-                    "margin": {
-                        "type": "object",
-                        "properties": {
-                            "top": {
-                                "type": "number",
-                                "description": "Top margin"
-                            },
-                            "right": {
-                                "type": "number",
-                                "description": "Right margin"
-                            },
-                            "bottom": {
-                                "type": "number",
-                                "description": "Bottom margin"
-                            },
-                            "left": {
-                                "type": "number",
-                                "description": "Left margin"
-                            }
-                        }
-                    }
-                }
-            },
-            "constraints": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "type": {
-                            "type": "string",
-                            "enum": [
-                                "alignment",
-                                "spacing",
-                                "size",
-                                "position",
-                                "proportion"
-                            ],
-                            "description": "Type of constraint"
-                        },
-                        "elements": {
-                            "type": "array",
-                            "items": {
-                                "type": "string",
-                                "description": "Element IDs involved in constraint"
-                            }
-                        },
-                        "parameters": {
-                            "type": "object",
-                            "description": "Constraint-specific parameters"
-                        }
-                    },
-                    "required": ["type", "elements"]
-                }
-            },
-            "principles": {
-                "type": "object",
-                "properties": {
-                    "balance": {
-                        "type": "string",
-                        "enum": ["symmetrical", "asymmetrical", "radial"],
-                        "description": "Type of visual balance"
-                    },
-                    "emphasis": {
-                        "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": "Element IDs with visual emphasis"
-                        }
-                    },
-                    "rhythm": {
-                        "type": "string",
-                        "enum": ["regular", "flowing", "progressive"],
-                        "description": "Visual rhythm pattern"
-                    },
-                    "unity": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "elements": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string",
-                                        "description": "Element IDs in unity group"
-                                    }
-                                },
-                                "method": {
-                                    "type": "string",
-                                    "enum": ["proximity", "similarity", "continuation", "closure"],
-                                    "description": "Method of achieving unity"
-                                }
-                            }
-                        }
+                    "snap_to_grid": {
+                        "type": "boolean",
+                        "description": "Whether elements should snap to grid"
                     }
                 }
             },
@@ -285,31 +110,18 @@ CompositionLayoutSchema = SignalSchema(
                         "format": "date-time",
                         "description": "Creation timestamp"
                     },
-                    "last_updated": {
-                        "type": "string",
-                        "format": "date-time",
-                        "description": "Last update timestamp"
-                    },
                     "version": {
                         "type": "string",
                         "description": "Version of the layout"
                     },
                     "tags": {
                         "type": "array",
-                        "items": {
-                            "type": "string",
-                            "description": "Relevant tags"
-                        }
+                        "items": {"type": "string"},
+                        "description": "Relevant tags"
                     }
                 }
             }
         },
-        "required": [
-            "timestamp",
-            "layout_id",
-            "name",
-            "canvas",
-            "elements"
-        ]
+        "required": ["timestamp", "layout_id", "name", "canvas", "elements"]
     }
 ) 
