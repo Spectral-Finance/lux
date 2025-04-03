@@ -14,7 +14,6 @@ from .feedback_loop import FeedbackLoopSchema
 from .coordination_protocol import CoordinationProtocolSchema
 from .responsibility_matrix import ResponsibilityMatrixSchema
 from .team_dynamics import TeamDynamicsSchema
-from .collaborative_goal import CollaborativeGoalSchema
 
 __all__ = [
     'TeamFormationSchema',
@@ -25,6 +24,5 @@ __all__ = [
     'FeedbackLoopSchema',
     'CoordinationProtocolSchema',
     'ResponsibilityMatrixSchema',
-    'TeamDynamicsSchema',
-    'CollaborativeGoalSchema'
+    'TeamDynamicsSchema'
 ] 

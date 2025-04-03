@@ -1,26 +1,28 @@
 """
 Data Schema Definition
 
-This schema represents the structure and properties of data schemas,
+This schema defines the structure for data schemas,
 including field definitions, relationships, and validation rules.
 """
 
 from lux_sdk.signals import SignalSchema
 
-DataSchemaDefinition = SignalSchema(
+DataSchemaSchema = SignalSchema(
     name="data_schema",
     version="1.0",
-    description="Schema for defining data structures, relationships, and validation rules",
+    description="Schema for defining data schemas and their properties",
     schema={
         "type": "object",
+        "description": "Schema for defining data schemas and their properties",
         "properties": {
             "timestamp": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "description": "The timestamp when the schema was created or last modified"
             },
             "schema_id": {
                 "type": "string",
-                "description": "Unique identifier for this schema"
+                "description": "Unique identifier for this schema definition"
             },
             "name": {
                 "type": "string",
@@ -30,66 +32,44 @@ DataSchemaDefinition = SignalSchema(
                 "type": "string",
                 "description": "Version of the schema"
             },
-            "description": {
-                "type": "string",
-                "description": "Description of what this schema represents"
-            },
             "fields": {
                 "type": "array",
+                "description": "Field definitions for the schema",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "name": {
-                            "type": "string",
-                            "description": "Name of the field"
-                        },
+                        "name": {"type": "string"},
                         "type": {
                             "type": "string",
-                            "enum": ["string", "number", "integer", "boolean", "array", "object", "date", "datetime", "binary"],
-                            "description": "Data type of the field"
+                            "enum": [
+                                "string",
+                                "number",
+                                "integer",
+                                "boolean",
+                                "array",
+                                "object",
+                                "date",
+                                "datetime",
+                                "binary",
+                                "null"
+                            ]
                         },
-                        "description": {
-                            "type": "string",
-                            "description": "Description of the field"
-                        },
-                        "required": {
-                            "type": "boolean",
-                            "description": "Whether this field is required"
-                        },
+                        "description": {"type": "string"},
+                        "required": {"type": "boolean"},
+                        "default": {"type": "string"},
                         "constraints": {
                             "type": "object",
                             "properties": {
-                                "min_length": {
-                                    "type": "integer",
-                                    "description": "Minimum length for string fields"
-                                },
-                                "max_length": {
-                                    "type": "integer",
-                                    "description": "Maximum length for string fields"
-                                },
-                                "pattern": {
-                                    "type": "string",
-                                    "description": "Regex pattern for validation"
-                                },
-                                "minimum": {
-                                    "type": "number",
-                                    "description": "Minimum value for numeric fields"
-                                },
-                                "maximum": {
-                                    "type": "number",
-                                    "description": "Maximum value for numeric fields"
-                                },
+                                "min_length": {"type": "integer"},
+                                "max_length": {"type": "integer"},
+                                "pattern": {"type": "string"},
                                 "enum": {
                                     "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    },
-                                    "description": "List of allowed values"
-                                }
+                                    "items": {"type": "string"}
+                                },
+                                "minimum": {"type": "number"},
+                                "maximum": {"type": "number"}
                             }
-                        },
-                        "default_value": {
-                            "description": "Default value for the field"
                         }
                     },
                     "required": ["name", "type"]
@@ -97,87 +77,61 @@ DataSchemaDefinition = SignalSchema(
             },
             "relationships": {
                 "type": "array",
+                "description": "Relationships between fields or with other schemas",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "name": {
-                            "type": "string",
-                            "description": "Name of the relationship"
-                        },
                         "type": {
                             "type": "string",
-                            "enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many"],
-                            "description": "Type of relationship"
+                            "enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many"]
                         },
-                        "source_field": {
-                            "type": "string",
-                            "description": "Field in this schema"
-                        },
-                        "target_schema": {
-                            "type": "string",
-                            "description": "Referenced schema"
-                        },
-                        "target_field": {
-                            "type": "string",
-                            "description": "Field in target schema"
-                        }
+                        "from_field": {"type": "string"},
+                        "to_schema": {"type": "string"},
+                        "to_field": {"type": "string"},
+                        "description": {"type": "string"}
                     },
-                    "required": ["name", "type", "source_field", "target_schema", "target_field"]
+                    "required": ["type", "from_field", "to_schema", "to_field"]
                 }
             },
             "validation_rules": {
                 "type": "array",
+                "description": "Rules for validating data against the schema",
                 "items": {
                     "type": "object",
                     "properties": {
-                        "rule_id": {
+                        "rule_type": {
                             "type": "string",
-                            "description": "Identifier for the validation rule"
+                            "enum": ["format", "range", "uniqueness", "custom"]
                         },
-                        "description": {
-                            "type": "string",
-                            "description": "Description of what the rule validates"
-                        },
-                        "type": {
-                            "type": "string",
-                            "enum": ["format", "range", "dependency", "custom"],
-                            "description": "Type of validation rule"
-                        },
-                        "expression": {
-                            "type": "string",
-                            "description": "Validation expression or logic"
-                        },
-                        "error_message": {
-                            "type": "string",
-                            "description": "Message to display when validation fails"
-                        }
+                        "field": {"type": "string"},
+                        "condition": {"type": "string"},
+                        "error_message": {"type": "string"}
                     },
-                    "required": ["rule_id", "type", "expression"]
+                    "required": ["rule_type", "field", "condition"]
                 }
             },
             "metadata": {
                 "type": "object",
+                "description": "Additional information about the schema",
                 "properties": {
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "created_by": {
-                        "type": "string"
-                    },
+                    "author": {"type": "string"},
+                    "created_at": {"type": "string", "format": "date-time"},
+                    "modified_at": {"type": "string", "format": "date-time"},
+                    "description": {"type": "string"},
                     "tags": {
                         "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                        "items": {"type": "string"}
                     }
-                }
+                },
+                "required": ["author", "created_at"]
             }
         },
-        "required": ["timestamp", "schema_id", "name", "version", "fields"]
-    }
-) 
+        "required": [
+            "timestamp",
+            "schema_id",
+            "name",
+            "version",
+            "fields",
+            "metadata"
+        ]
+    }) 

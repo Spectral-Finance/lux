@@ -7,7 +7,7 @@ including experimental measurements, observations, and research protocols.
 
 from lux_sdk.signals import SignalSchema
 
-ScientificDataCollectionSchema = SignalSchema(
+DataCollectionSchema = SignalSchema(
     name="scientific_data_collection",
     version="1.0",
     description="Schema for tracking scientific data collection activities and measurements",

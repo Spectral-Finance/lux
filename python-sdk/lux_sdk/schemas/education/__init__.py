@@ -13,9 +13,6 @@ from .feedback_report import FeedbackReportSchema
 from .skill_evaluation import SkillEvaluationSchema
 from .learning_resource import LearningResourceSchema
 from .competency_level import CompetencyLevelSchema
-from .teaching_strategy import TeachingStrategySchema
-from .adaptive_learning import AdaptiveLearningSchema
-from .peer_assessment import PeerAssessmentSchema
 
 __all__ = [
     'LearningObjectiveSchema',
@@ -25,8 +22,5 @@ __all__ = [
     'FeedbackReportSchema',
     'SkillEvaluationSchema',
     'LearningResourceSchema',
-    'CompetencyLevelSchema',
-    'TeachingStrategySchema',
-    'AdaptiveLearningSchema',
-    'PeerAssessmentSchema'
+    'CompetencyLevelSchema'
 ] 

@@ -9,12 +9,14 @@ from .experiment_design import ExperimentDesignSchema
 from .hypothesis_test import HypothesisTestSchema
 from .experiment_protocol import ExperimentProtocolSchema
 from .research_data import ResearchDataSchema
-from .data_collection import ScientificDataCollectionSchema
+from .data_collection import DataCollectionSchema
+from .statistical_analysis import StatisticalAnalysisSchema
 
 __all__ = [
-    'ExperimentProtocolSchema',
     'ExperimentDesignSchema',
-    'ResearchDataSchema',
     'HypothesisTestSchema',
-    'ScientificDataCollectionSchema'
+    'ExperimentProtocolSchema',
+    'ResearchDataSchema',
+    'DataCollectionSchema',
+    'StatisticalAnalysisSchema'
 ]

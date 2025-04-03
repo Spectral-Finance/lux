@@ -5,28 +5,28 @@ This module provides schemas for task execution and management,
 including task definition, planning, resource management, and progress tracking.
 """
 
-from .task_definition import TaskDefinitionSchema
+from .constraint_definition import ConstraintDefinitionSchema
+from .dependency_chain import DependencyChainSchema
+from .error_handling import ErrorHandlingSchema
 from .execution_plan import ExecutionPlanSchema
-from .resource_requirement import ResourceRequirementSchema
+from .optimization_goal import OptimizationGoalSchema
 from .progress_update import ProgressUpdateSchema
 from .quality_metric import QualityMetricSchema
-from .time_estimate import TimeEstimateSchema
-from .dependency_chain import DependencyChainSchema
-from .constraint_definition import ConstraintDefinitionSchema
-from .optimization_goal import OptimizationGoalSchema
-from .error_handling import ErrorHandlingSchema
+from .resource_requirement import ResourceRequirementSchema
+from .task_definition import TaskDefinitionSchema
 from .task_priority import TaskPrioritySchema
+from .time_estimate import TimeEstimateSchema
 
 __all__ = [
-    'TaskDefinitionSchema',
+    'ConstraintDefinitionSchema',
+    'DependencyChainSchema',
+    'ErrorHandlingSchema',
     'ExecutionPlanSchema',
-    'ResourceRequirementSchema',
+    'OptimizationGoalSchema',
     'ProgressUpdateSchema',
     'QualityMetricSchema',
+    'ResourceRequirementSchema',
+    'TaskDefinitionSchema',
+    'TaskPrioritySchema',
     'TimeEstimateSchema',
-    'DependencyChainSchema',
-    'ConstraintDefinitionSchema',
-    'OptimizationGoalSchema',
-    'ErrorHandlingSchema',
-    'TaskPrioritySchema'
 ] 

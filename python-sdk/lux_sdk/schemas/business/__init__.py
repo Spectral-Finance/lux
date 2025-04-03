@@ -13,9 +13,6 @@ from .strategy_plan import StrategyPlanSchema
 from .customer_feedback import CustomerFeedbackSchema
 from .resource_allocation import ResourceAllocationSchema
 from .performance_metric import PerformanceMetricSchema
-from .competitive_analysis import CompetitiveAnalysisSchema
-from .operational_process import OperationalProcessSchema
-from .compliance_check import ComplianceCheckSchema
 
 __all__ = [
     'MarketAnalysisSchema',
@@ -25,8 +22,5 @@ __all__ = [
     'StrategyPlanSchema',
     'CustomerFeedbackSchema',
     'ResourceAllocationSchema',
-    'PerformanceMetricSchema',
-    'CompetitiveAnalysisSchema',
-    'OperationalProcessSchema',
-    'ComplianceCheckSchema'
+    'PerformanceMetricSchema'
 ] 

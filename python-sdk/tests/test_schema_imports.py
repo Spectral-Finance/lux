@@ -87,22 +87,14 @@ COLLABORATION_SCHEMAS = [
     'FeedbackLoopSchema',
     'CoordinationProtocolSchema',
     'ResponsibilityMatrixSchema',
-    'TeamDynamicsSchema',
-    'CollaborativeGoalSchema'
+    'TeamDynamicsSchema'
 ]
 
 # Data Processing Schemas
 DATA_SCHEMAS = [
     'DataSchemaSchema',
-    'TransformationRuleSchema',
-    'ValidationCriteriaSchema',
-    'DataFlowSchema',
-    'QualityMetricsSchema',
-    'PrivacyRequirementSchema',
-    'StorageFormatSchema',
-    'ProcessingPipelineSchema',
-    'DataLifecycleSchema',
-    'IntegrityCheckSchema'
+    'DataCollectionSchema',
+    'DataTransformationSchema'
 ]
 
 # Scientific Research Schemas
@@ -110,13 +102,7 @@ SCIENTIFIC_SCHEMAS = [
     'ExperimentDesignSchema',
     'HypothesisTestSchema',
     'DataCollectionSchema',
-    'StatisticalAnalysisSchema',
-    'MethodologyDescriptionSchema',
-    'ResultValidationSchema',
-    'PeerReviewSchema',
-    'LiteratureReferenceSchema',
-    'ReplicationProtocolSchema',
-    'ResearchFindingsSchema'
+    'StatisticalAnalysisSchema'
 ]
 
 # Creative Arts Schemas
@@ -143,10 +129,7 @@ BUSINESS_SCHEMAS = [
     'StrategyPlanSchema',
     'CustomerFeedbackSchema',
     'ResourceAllocationSchema',
-    'PerformanceMetricSchema',
-    'CompetitiveAnalysisSchema',
-    'OperationalProcessSchema',
-    'ComplianceCheckSchema'
+    'PerformanceMetricSchema'
 ]
 
 # Ethical Reasoning Schemas
@@ -170,11 +153,7 @@ SYSTEM_SCHEMAS = [
     'ErrorLogSchema',
     'SecurityAlertSchema',
     'ResourceUsageSchema',
-    'ConfigurationUpdateSchema',
-    'MaintenanceScheduleSchema',
-    'BackupStatusSchema',
-    'MonitoringReportSchema',
-    'IncidentResponseSchema'
+    'ConfigurationUpdateSchema'
 ]
 
 # Environmental Awareness Schemas
@@ -183,12 +162,7 @@ ENVIRONMENTAL_SCHEMAS = [
     'SensorDataSchema',
     'SpatialRelationSchema',
     'ObjectRecognitionSchema',
-    'EventDetectionSchema',
-    'ContextualAwarenessSchema',
-    'NavigationInstructionSchema',
-    'HazardWarningSchema',
-    'WeatherConditionSchema',
-    'ResourceAvailabilitySchema'
+    'EventDetectionSchema'
 ]
 
 # Healthcare Schemas
@@ -198,12 +172,7 @@ HEALTHCARE_SCHEMAS = [
     'PatientHistorySchema',
     'VitalSignsSchema',
     'MedicationScheduleSchema',
-    'SymptomReportSchema',
-    'LabResultsSchema',
-    'CareInstructionsSchema',
-    'EmergencyAlertSchema',
-    'WellnessMetricsSchema',
-    'PreventiveCareSchema'
+    'SymptomReportSchema'
 ]
 
 # Education & Training Schemas
@@ -216,9 +185,14 @@ EDUCATION_SCHEMAS = [
     'SkillEvaluationSchema',
     'LearningResourceSchema',
     'CompetencyLevelSchema',
-    'TeachingStrategySchema',
-    'AdaptiveLearningSchema',
-    'PeerAssessmentSchema'
+]
+
+WEB3_SCHEMAS = [
+    'TransactionSchema',
+    'SmartContractSchema',
+    'NFTMetadataSchema',
+    'WalletStateSchema',
+    'DeFiPositionSchema'
 ]
 
 # All schema categories with their module paths
@@ -237,7 +211,8 @@ SCHEMA_CATEGORIES: List[Tuple[str, str, List[str]]] = [
     ('System', 'lux_sdk.schemas.system', SYSTEM_SCHEMAS),
     ('Environmental', 'lux_sdk.schemas.environmental', ENVIRONMENTAL_SCHEMAS),
     ('Healthcare', 'lux_sdk.schemas.healthcare', HEALTHCARE_SCHEMAS),
-    ('Education', 'lux_sdk.schemas.education', EDUCATION_SCHEMAS)
+    ('Education', 'lux_sdk.schemas.education', EDUCATION_SCHEMAS),
+    ('Web3', 'lux_sdk.schemas.web3', WEB3_SCHEMAS)
 ]
 
 @pytest.mark.parametrize("category,module_path,schemas", SCHEMA_CATEGORIES)

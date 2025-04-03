@@ -11,11 +11,6 @@ from .patient_history import PatientHistorySchema
 from .vital_signs import VitalSignsSchema
 from .medication_schedule import MedicationScheduleSchema
 from .symptom_report import SymptomReportSchema
-from .lab_results import LabResultsSchema
-from .care_instructions import CareInstructionsSchema
-from .emergency_alert import EmergencyAlertSchema
-from .wellness_metrics import WellnessMetricsSchema
-from .preventive_care import PreventiveCareSchema
 
 __all__ = [
     'MedicalDiagnosisSchema',
@@ -23,10 +18,5 @@ __all__ = [
     'PatientHistorySchema',
     'VitalSignsSchema',
     'MedicationScheduleSchema',
-    'SymptomReportSchema',
-    'LabResultsSchema',
-    'CareInstructionsSchema',
-    'EmergencyAlertSchema',
-    'WellnessMetricsSchema',
-    'PreventiveCareSchema'
+    'SymptomReportSchema'
 ] 
