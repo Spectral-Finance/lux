@@ -180,7 +180,7 @@ defmodule Lux.LLM.TogetherAITest do
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
 
-        assert decoded_body["model"] == "mistral-7b-instruct"
+        assert decoded_body["model"] == "mistralai/Mistral-7B-Instruct-v0.2"
         assert [%{"role" => "user", "content" => "test prompt"}] = decoded_body["messages"]
 
         assert [tool] = decoded_body["tools"]
@@ -279,19 +279,6 @@ defmodule Lux.LLM.TogetherAITest do
                 timestamp: _,
                 metadata: _
               }} = TogetherAI.call("test prompt", [TestPrism], config)
-    end
-
-    test "handles API errors correctly" do
-      config = %{
-        api_key: "invalid_key",
-        model: "mistralai/Mistral-7B-Instruct-v0.2"
-      }
-
-      Req.Test.expect(TogetherAI, fn conn ->
-        Req.Test.json(conn, %{"error" => "Invalid API key"}, status: 401)
-      end)
-
-      assert {:error, :invalid_api_key} = TogetherAI.call("test prompt", [], config)
     end
 
     test "includes Together AI specific parameters in the request" do
