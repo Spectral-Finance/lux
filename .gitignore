@@ -17,6 +17,7 @@
 # Python
 .venv/
 __pycache__/
+.coverage
 
 # Node.js
 node_modules/
