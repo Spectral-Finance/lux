@@ -1,3 +1,5 @@
+import { downloadJSON } from '../utils';
+
 const NodeEditorHooks = {
   DraggableNode: {
     mounted() {
@@ -209,6 +211,11 @@ const NodeEditorHooks = {
         console.log("Node updated event received");
         this.scheduleEdgePathUpdate(100);
       });
+
+      this.handleEvent("nodes_exported", (data) => {
+        console.log("Export JSON event received", data);
+        downloadJSON(data);
+      });
     },
 
     destroyed() {
@@ -405,6 +412,10 @@ const NodeEditorHooks = {
         
         // Update edge paths after cancelling drag
         this.scheduleEdgePathUpdate(50);
+      } else if (e.key === 'Backspace' && !e.target.matches('input, textarea')) {
+        this.pushEvent('node_removed', {
+          id: this.selectedNodeId
+        });
       }
     },
 

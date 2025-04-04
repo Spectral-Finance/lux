@@ -32,7 +32,7 @@ end
 config :lux_app, env: config_env()
 
 # Configure database based on environment variables in development
-if config_env() == :dev do
+if config_env() == :dev or config_env() == :test do
   config :lux_app, LuxApp.Repo,
     username: env!("POSTGRES_USER", :string, "postgres"),
     password: env!("POSTGRES_PASSWORD", :string, "postgres"),

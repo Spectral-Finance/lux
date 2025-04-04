@@ -673,4 +673,52 @@ defmodule LuxAppWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  @doc """
+  A drag and drop zone for JSON files.
+  """
+  attr :id, :string, required: true
+  attr :class, :string, default: nil
+
+  def json_drop_zone(assigns) do
+    ~H"""
+    <div
+      id={@id}
+      class={[
+        "border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-gray-400",
+        "fixed inset-0 pointer-events-none opacity-0 bg-gray-900/75 flex items-center justify-center z-[9999]",
+        "data-[dragging=true]:opacity-100 data-[dragging=true]:pointer-events-auto",
+        @class
+      ]}
+      phx-hook="JsonDropZone"
+    >
+      <div class="bg-white/95 backdrop-blur rounded-xl p-8 max-w-lg w-full mx-4 shadow-2xl border border-white/20">
+        <div class="space-y-4 text-center">
+          <div class="p-4 bg-indigo-50 rounded-full inline-flex mx-auto">
+            <svg
+              class="mx-auto h-12 w-12 text-indigo-500"
+              stroke="currentColor"
+              fill="none"
+              viewBox="0 0 48 48"
+              aria-hidden="true"
+            >
+              <path
+                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xl font-semibold text-gray-900">Drop your JSON file here</h3>
+            <p class="text-sm text-gray-500">
+              Drop anywhere on the screen to import your JSON configuration
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    """
+  end
 end
