@@ -54,6 +54,15 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Telegram Bot token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec telegram_bot_token() :: api_key()
+  def telegram_bot_token do
+    get_required_key(:api_keys, :telegram_bot)
+  end
+
+  @doc """
   Gets the Discord API key from configuration.
   Raises if the key is not configured.
   """

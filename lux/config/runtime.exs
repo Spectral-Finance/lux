@@ -23,11 +23,13 @@ if config_env() in [:dev, :test] do
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
     etherscan: env!("ETHERSCAN_API_KEY", :string!, "missing etherscan"),
     etherscan_pro: env!("ETHERSCAN_API_KEY_PRO", :string!, required: false) == "true",
+    telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, "missing open ai"),
     integration_anthropic: env!("INTEGRATION_ANTHROPIC_API_KEY", :string!, "missing anthropic"),
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
+    integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
     allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
 
   config :lux, Lux.Integrations.Allora,

@@ -117,3 +117,106 @@ We welcome contributions! Whether you want to add support for a new language, im
 ## License
 
 Lux is released under the MIT License. See [LICENSE](LICENSE) for details.
+
+### Using GitHub Codespaces
+
+Lux supports development using GitHub Codespaces, providing a pre-configured development environment with all necessary dependencies.
+
+#### Option 1: Using VS Code (Recommended for VS Code users)
+
+The simplest way to get started with VS Code is through GitHub's native Codespaces integration:
+
+1. Click the "Code" button on the GitHub repository
+2. Select "Create codespace on main"
+3. Wait for the environment to be created (this may take a few minutes)
+
+For more information, see the [official GitHub Codespaces documentation](https://docs.github.com/en/codespaces/developing-in-codespaces/developing-in-a-codespace).
+
+#### Option 2: Using Cursor
+
+For Cursor users, you'll need to set up SSH access to your Codespace as they currently do not support Codespaces directly. We provide a convenient setup script:
+
+```bash
+# Make the script executable if needed
+chmod +x scripts/setup-codespace-ssh.sh
+
+# Run the setup script
+./scripts/setup-codespace-ssh.sh
+
+The script will:
+1. Check for GitHub CLI installation and authentication
+2. Let you create a new Codespace or select an existing one with customizable options:
+   - Machine type (2-core to 16-core)
+   - Geographic region for optimal latency
+   - Git branch selection
+3. Configure SSH access for Cursor
+4. Set up a welcoming development environment
+5. Provide clear instructions for connecting
+
+Once complete, connect to your Codespace in Cursor:
+1. Open Cursor
+2. Press Cmd/Ctrl + Shift + P
+3. Type 'Connect to Host'
+4. Select your Codespace (it will be prefixed with 'codespaces-')
+
+#### Development Environment Features
+
+The Codespace comes with:
+- VS Code extensions for Elixir, Python, and JavaScript development
+- GitHub CLI
+- asdf version manager
+- All necessary development tools and plugins
+
+When you first access the workspace:
+- You'll be greeted with a welcome message showing available commands
+- If it's a new codespace, development dependencies will be automatically installed
+- The workspace will be ready at `/workspaces/lux`
+
+The environment will automatically:
+- Install development tools via asdf (based on .tool-versions)
+- Install all Elixir dependencies for both Lux and LuxApp
+- Set up a Python virtual environment
+- Install required Python packages
+- Configure VS Code settings for optimal development
+- Install and configure Livebook
+
+To set up the development environment:
+1. Wait for the automatic tool installation (triggered when folder opens)
+2. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+3. Type "Tasks: Run Build Task" and select it (or use Cmd/Ctrl + Shift + B)
+4. This will run the "Initialize Environment" task which:
+   - Installs Elixir dependencies for both Lux and LuxApp
+   - Sets up Python virtual environment and dependencies
+   - Installs Node.js dependencies
+   - Installs and configures Livebook
+
+To start the development servers:
+1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+2. Type "Tasks: Run Task" and select it
+3. Choose "Start All Services" to launch both LuxApp and Livebook
+4. Access:
+   - LuxApp at port 4000
+   - Livebook at port 4001 (no authentication required in dev mode)
+   - Additional ports 8080 and 8081 are available for your services
+
+Available Tasks:
+Setup Tasks:
+- "Initialize Environment" - Sets up all dependencies (default build task)
+- "Install Development Tools" - Installs tools via asdf (runs automatically)
+- "Install Elixir Dependencies" - Installs Lux dependencies
+- "Install LuxApp Dependencies" - Installs LuxApp dependencies
+- "Install Python Dependencies" - Sets up Python environment
+- "Install Node.js Dependencies" - Installs Node.js packages
+- "Install Livebook" - Installs Livebook
+
+Service Tasks:
+- "Start All Services" - Launches both servers (default test task)
+- "Start LuxApp Server" - Starts only the Phoenix server
+- "Start Livebook" - Starts only the Livebook server
+
+For development:
+- The main Lux library is in the `lux` directory
+- LuxApp is in the `lux_app` directory
+- Livebook notebooks can be created and run directly in the browser
+- All necessary ports are automatically forwarded
+- VS Code is configured for Elixir, Phoenix, and LiveView development
