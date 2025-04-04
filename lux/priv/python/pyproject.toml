@@ -7,14 +7,17 @@ readme = "README.md"
 packages = [{include = "lux"}]
 
 [tool.poetry.dependencies]
-python = "^3.12.3"
-web3 = "^6.15.11"
-eth-typing = "3.5.2"
+python = "^3.10"
+web3 = "^7.0.0"
+eth-typing = "^5.0.0"
 eth-tester = {extras = ["py-evm"], version = "^0.11.0b2"}
 nltk = "^3.9.1"
 setuptools = "^75.8.2"
 hyperliquid-python-sdk = "^0.10.1"
 ckzg = "^2.0.1"
+goat-sdk-plugin-uniswap = { git = "https://github.com/goat-sdk/goat.git", subdirectory = "python/src/plugins/uniswap" }
+goat-sdk-wallet-evm = { git = "https://github.com/goat-sdk/goat.git", subdirectory = "python/src/wallets/evm" }
+goat-sdk-plugin-erc20 = { git = "https://github.com/goat-sdk/goat.git", subdirectory = "python/src/plugins/erc20" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
