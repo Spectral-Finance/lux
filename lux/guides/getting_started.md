@@ -49,6 +49,13 @@ This will install required system packages including:
 - libwxgtk3.0-gtk3-dev
 - And other necessary dependencies
 
+If you are using WSL or WSL2:
+- Install asdf from git `git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.13.1`
+```
+echo -e '\n# Load asdf\n. "$HOME/.asdf/asdf.sh"\n. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+source ~/.bashrc
+```
+
 ### 3. Project Setup
 
 Run the complete setup:
