@@ -1,3 +1,11 @@
+import { NODE_WIDTH, NODE_HEIGHT } from '../consts';
+
+const createComponentNode = (type, data) => ({
+  type,
+  id: `${type}-${Date.now()}`,
+  data
+});
+
 const JsonDropZone = {
   mounted() {
     // Counter to track drag enter/leave events
@@ -47,18 +55,36 @@ const JsonDropZone = {
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        const content = JSON.parse(event.target.result);
-        // TODO: validate type properly (agent, lens, prism, beam)
-        if (typeof content === 'object' && content.type) {
-          this.pushEvent('node_added', {
-            node: {
-              ...content,
-              id: `${content.type}-${Date.now()}`,
-              position: { x, y }
+        try {
+          const parsedData = JSON.parse(event.target.result);
+          
+          const beams = parsedData.beams.map((data) => createComponentNode('beam', data));
+          const lenses = parsedData.lenses.map((data) => createComponentNode('lens', data));
+          const prisms = parsedData.prisms.map((data) => createComponentNode('prism', data));
+          const agent = {
+            type: 'agent',
+            id: `agent-${Date.now()}`,
+            data: {
+              ...parsedData,
+              beams: beams.map(beam => beam.id),
+              lenses: lenses.map(lens => lens.id),
+              prisms: prisms.map(prism => prism.id)
             }
+          };
+          
+          const nodes = [agent, ...beams, ...lenses, ...prisms].map((node, index) => ({
+            ...node,
+            position: {
+              x: x + NODE_WIDTH / 2 * index,
+              y: y + NODE_HEIGHT / 2 * index
+            }
+          }));
+          
+          nodes.forEach(node => {
+            this.pushEvent('node_added', { node });
           });
-        } else {
-          console.error('Invalid JSON file:', content);
+        } catch (error) {
+          console.error('Invalid JSON file:', error);
           this.pushEvent('node_added_error', { message: 'Invalid JSON file' });
         }
       };

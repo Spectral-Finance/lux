@@ -316,7 +316,18 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   def handle_event("clear_components", %{"type" => type}, socket) do
     new_selected_node = put_in(socket.assigns.selected_node, ["data", type], [])
-    {:noreply, socket |> assign(:selected_node, new_selected_node)}
+
+    nodes =
+      socket.assigns.nodes
+      |> Enum.map(fn node ->
+        if node["id"] == socket.assigns.selected_node["id"] do
+          new_selected_node
+        else
+          node
+        end
+      end)
+
+    {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, new_selected_node)}
   end
 
   # Broadcast event handlers
@@ -562,6 +573,7 @@ defmodule LuxAppWeb.NodeEditorLive do
   defp get_component_data(component_ids, assigns) do
     component_ids
     |> Enum.map(fn id -> Enum.find(assigns.nodes, &(&1["id"] == id)) end)
+    |> Enum.reject(&is_nil/1)
     |> Enum.map(fn component -> component["data"] end)
   end
 
