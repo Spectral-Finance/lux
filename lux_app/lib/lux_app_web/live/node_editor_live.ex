@@ -310,6 +310,11 @@ defmodule LuxAppWeb.NodeEditorLive do
     {:noreply, socket |> push_event("nodes_exported", %{nodes: nodes, edges: edges})}
   end
 
+  def handle_event("clear_components", %{"type" => type}, socket) do
+    new_selected_node = put_in(socket.assigns.selected_node, ["data", type], [])
+    {:noreply, socket |> assign(:selected_node, new_selected_node)}
+  end
+
   # Broadcast event handlers
   def handle_info({:broadcast_edge_created, edge}, socket) do
     {:noreply, socket |> push_event("edge_created", %{edge: edge})}
@@ -342,8 +347,8 @@ defmodule LuxAppWeb.NodeEditorLive do
       <.json_drop_zone id="json-dropzone" />
       <!-- Component Palette -->
       <.palette />
-
-      <!-- Node Editor Canvas -->
+      
+    <!-- Node Editor Canvas -->
       <div
         class="flex-1 relative"
         id="node-editor-canvas"
@@ -356,8 +361,8 @@ defmodule LuxAppWeb.NodeEditorLive do
             <pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse">
               <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#333" stroke-width="0.5" />
             </pattern>
-
-            <!-- Glow filters for nodes and ports -->
+            
+    <!-- Glow filters for nodes and ports -->
             <filter id="glow-selected" x="-20%" y="-20%" width="140%" height="140%">
               <feGaussianBlur stdDeviation="5" result="blur" />
               <feFlood flood-color="#fff" flood-opacity="0.3" result="color" />
@@ -380,8 +385,8 @@ defmodule LuxAppWeb.NodeEditorLive do
             </filter>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
-
-          <!-- Edges -->
+          
+    <!-- Edges -->
           <%= for edge <- @edges do %>
             <g class="edge">
               <!-- We'll implement the edge path calculation in JS -->
@@ -396,13 +401,13 @@ defmodule LuxAppWeb.NodeEditorLive do
               />
             </g>
           <% end %>
-
-          <!-- Drawing Edge (if any) -->
+          
+    <!-- Drawing Edge (if any) -->
           <%= if @drawing_edge do %>
             <path id="drawing-edge" stroke="#666" stroke-width="2" stroke-dasharray="5,5" fill="none" />
           <% end %>
-
-          <!-- Nodes -->
+          
+    <!-- Nodes -->
           <%= for node <- @nodes do %>
             <g
               class={"node #{if @selected_node && @selected_node["id"] == node["id"], do: "selected", else: ""}"}
@@ -428,8 +433,8 @@ defmodule LuxAppWeb.NodeEditorLive do
                 filter="url(#glow-selected)"
                 style={"opacity: #{if @selected_node && @selected_node["id"] == node["id"], do: "1", else: "0"}"}
               />
-
-              <!-- Main node rectangle -->
+              
+    <!-- Main node rectangle -->
               <rect
                 class="node-body"
                 width="200"
@@ -442,16 +447,16 @@ defmodule LuxAppWeb.NodeEditorLive do
               />
               <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["label"]}</text>
               <text x="10" y="50" fill="#999" font-size="12">{node["data"]["description"]}</text>
-
-              <!-- Node Ports -->
+              
+    <!-- Node Ports -->
               <circle class="port input" cx="0" cy="50" r="5" fill={color(node["type"])} />
               <circle class="port output" cx="200" cy="50" r="5" fill={color(node["type"])} />
             </g>
           <% end %>
         </svg>
       </div>
-
-      <!-- Properties Panel -->
+      
+    <!-- Properties Panel -->
       <div class="w-64 border-l border-gray-700 p-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Properties</h2>
         <%= if @selected_node do %>
@@ -490,39 +495,46 @@ defmodule LuxAppWeb.NodeEditorLive do
                   ><%= @selected_node["data"]["goal"] %></textarea>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-400 mb-1">LLM Provider</label>
-                  <select
-                    name="node[data][llm_config][provider]"
+                  <label class="block text-sm font-medium text-gray-400 mb-1">Module</label>
+                  <input
+                    type="text"
+                    name="node[data][module]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    rows="3"
-                  >
-                    <.llm_provider_selector selected={
-                      @selected_node["data"]["llm_config"]["provider"]
-                    } />
-                  </select>
+                    phx-debounce="blur"
+                    value={@selected_node["data"]["module"]}
+                  />
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-400 mb-1">LLM Model</label>
-                  <select
-                    name="node[data][llm_config][model]"
-                    class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                  >
-                    <.llm_model_selector
-                      selected_provider={@selected_node["data"]["llm_config"]["provider"]}
-                      selected={@selected_node["data"]["llm_config"]["model"]}
-                    />
-                  </select>
-                </div>
+                <.llm_provider_selector selected={@selected_node["data"]["llm_config"]["provider"]} />
+                <.llm_model_selector
+                  selected_provider={@selected_node["data"]["llm_config"]["provider"]}
+                  selected={@selected_node["data"]["llm_config"]["model"]}
+                />
                 <div>
                   <label class="block text-sm font-medium text-gray-400 mb-1">LLM Temperature</label>
                   <input
                     type="number"
                     name="node[data][llm_config][temperature]"
+                    step="0.1"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                     value={@selected_node["data"]["llm_config"]["temperature"]}
                     phx-debounce="blur"
                   />
                 </div>
+                <.component_selector
+                  type="beam"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["beams"]}
+                />
+                <.component_selector
+                  type="lens"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["lenses"]}
+                />
+                <.component_selector
+                  type="prism"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["prisms"]}
+                />
               <% end %>
             </div>
             <button

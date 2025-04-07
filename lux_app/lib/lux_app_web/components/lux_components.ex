@@ -1,4 +1,7 @@
 defmodule LuxAppWeb.LuxComponents do
+  @moduledoc """
+  This module contains the UI components for Lux's components.
+  """
   use Phoenix.Component
 
   import Phoenix.HTML.Form
@@ -26,7 +29,16 @@ defmodule LuxAppWeb.LuxComponents do
 
   def llm_provider_selector(assigns) do
     ~H"""
-    {options_for_select(@llm_providers, @selected)}
+    <div>
+      <label class="block text-sm font-medium text-gray-400 mb-1">LLM Provider</label>
+      <select
+        name="node[data][llm_config][provider]"
+        class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
+        rows="3"
+      >
+        {options_for_select(@llm_providers, @selected)}
+      </select>
+    </div>
     """
   end
 
@@ -36,7 +48,51 @@ defmodule LuxAppWeb.LuxComponents do
 
   def llm_model_selector(assigns) do
     ~H"""
-    {options_for_select(@llm_models[@selected_provider], @selected)}
+    <div>
+      <label class="block text-sm font-medium text-gray-400 mb-1">LLM Model</label>
+      <select
+        name="node[data][llm_config][model]"
+        class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
+      >
+        {options_for_select(@llm_models[@selected_provider], @selected)}
+      </select>
+    </div>
+    """
+  end
+
+  attr :nodes, :list, default: []
+  attr :type, :string, default: "beam"
+  attr :selected, :list, default: []
+
+  def component_selector(assigns) do
+    components =
+      assigns.nodes
+      |> Enum.filter(fn node -> node["type"] == assigns.type end)
+      |> Enum.map(fn node -> {node["data"]["label"], node["id"]} end)
+
+    assigns = assigns |> assign(components: components)
+
+    ~H"""
+    <div>
+      <div class="flex justify-between mb-2">
+        <label class="block text-sm font-medium text-gray-400 mb-1">{pluralize(@type)}</label>
+        <button
+          type="button"
+          phx-click="clear_components"
+          phx-value-type={pluralize(@type)}
+          class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 font-medium py-1 px-2 rounded"
+        >
+          Clear
+        </button>
+      </div>
+      <select
+        name={"node[data][#{pluralize(@type)}][]"}
+        class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
+        multiple
+      >
+        {options_for_select(@components, @selected)}
+      </select>
+    </div>
     """
   end
 
@@ -103,7 +159,10 @@ defmodule LuxAppWeb.LuxComponents do
       "label" => "New Agent",
       "description" => "Agent Description",
       "goal" => "Agent Goal",
-      "components" => [],
+      "module" => "NewAgent",
+      "beams" => [],
+      "lenses" => [],
+      "prisms" => [],
       "llm_config" => %{
         "provider" => "openai",
         "model" => "gpt-4o-mini",
@@ -136,4 +195,8 @@ defmodule LuxAppWeb.LuxComponents do
       "method" => "GET",
       "schema" => nil
     }
+
+  defp pluralize("beam"), do: "beams"
+  defp pluralize("lens"), do: "lenses"
+  defp pluralize("prism"), do: "prisms"
 end
