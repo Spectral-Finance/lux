@@ -68,7 +68,7 @@ defmodule LuxAppWeb.LuxComponents do
     components =
       assigns.nodes
       |> Enum.filter(fn node -> node["type"] == assigns.type end)
-      |> Enum.map(fn node -> {node["data"]["label"], node["id"]} end)
+      |> Enum.map(fn node -> {node["data"]["name"], node["id"]} end)
 
     assigns = assigns |> assign(components: components)
 
@@ -156,7 +156,7 @@ defmodule LuxAppWeb.LuxComponents do
 
   def initial_data("agent"),
     do: %{
-      "label" => "New Agent",
+      "name" => "New Agent",
       "description" => "Agent Description",
       "goal" => "Agent Goal",
       "module" => "NewAgent",
@@ -172,7 +172,7 @@ defmodule LuxAppWeb.LuxComponents do
 
   def initial_data("prism"),
     do: %{
-      "label" => "New Prism",
+      "name" => "New Prism",
       "description" => "Prism description",
       "input_schema" => nil,
       "output_schema" => nil
@@ -180,7 +180,7 @@ defmodule LuxAppWeb.LuxComponents do
 
   def initial_data("lens"),
     do: %{
-      "label" => "New Lens",
+      "name" => "New Lens",
       "description" => "Lens description",
       "url" => "",
       "method" => "GET",
@@ -189,7 +189,7 @@ defmodule LuxAppWeb.LuxComponents do
 
   def initial_data("beam"),
     do: %{
-      "label" => "New Beam",
+      "name" => "New Beam",
       "description" => "Beam description",
       "url" => "",
       "method" => "GET",

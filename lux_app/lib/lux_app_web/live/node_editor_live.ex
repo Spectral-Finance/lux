@@ -10,7 +10,7 @@ defmodule LuxAppWeb.NodeEditorLive do
         "position" => %{"x" => 400, "y" => 200},
         "data" => %{
           initial_data("agent")
-          | "label" => "Ultimate Assistant",
+          | "name" => "Ultimate Assistant",
             "description" => "Tools Agent",
             "goal" => "Help users with various tasks"
         }
@@ -460,7 +460,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                 stroke={color(node["type"])}
                 stroke-width="2"
               />
-              <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["label"]}</text>
+              <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["name"]}</text>
               <text x="10" y="50" fill="#999" font-size="12">{node["data"]["description"]}</text>
               
     <!-- Node Ports -->
@@ -475,7 +475,7 @@ defmodule LuxAppWeb.NodeEditorLive do
       <div class="w-64 border-l border-gray-700 p-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Properties</h2>
         <%= if @selected_node do %>
-          <form phx-submit="update_node" phx-change="update_node">
+          <form phx-submit="update_node" phx-change="update_node" id={@selected_node["id"]}>
             <input type="hidden" name="node[id]" value={@selected_node["id"]} />
             <div class="space-y-4">
               <div>
@@ -484,8 +484,8 @@ defmodule LuxAppWeb.NodeEditorLive do
                 </label>
                 <input
                   type="text"
-                  name="node[data][label]"
-                  value={@selected_node["data"]["label"]}
+                  name="node[data][name]"
+                  value={@selected_node["data"]["name"]}
                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                   phx-debounce="blur"
                 />

@@ -24,7 +24,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Test Agent",
+          "name" => "Test Agent",
           "description" => "Test description",
           "goal" => "Test goal",
           "components" => []
@@ -49,7 +49,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Agent to Remove",
+          "name" => "Agent to Remove",
           "description" => "Test description",
           "goal" => "Test goal",
           "components" => []
@@ -82,7 +82,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Agent to Select",
+          "name" => "Agent to Select",
           "description" => "Test description",
           "goal" => "Test goal",
           "components" => [],
@@ -118,7 +118,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Test description"
         }
       }
@@ -128,7 +128,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Test description"
         }
       }
@@ -201,7 +201,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 600, "y" => 200},
           "data" => %{
-            "label" => "Test Prism",
+            "name" => "Test Prism",
             "description" => "Test Description"
           }
         }
@@ -264,7 +264,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "node" => %{
           "id" => "agent-1",
           "data" => %{
-            "label" => "Updated Agent Name",
+            "name" => "Updated Agent Name",
             "description" => "Updated Description",
             "goal" => "Updated Goal"
           }
@@ -302,7 +302,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 600, "y" => 200},
           "data" => %{
-            "label" => "Test Prism",
+            "name" => "Test Prism",
             "description" => "Test Description"
           }
         }
@@ -318,7 +318,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "node" => %{
           "id" => "prism-test",
           "data" => %{
-            "label" => "Updated Prism Name",
+            "name" => "Updated Prism Name",
             "description" => "Updated Prism Description"
           }
         }
@@ -360,7 +360,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "id" => "agent-1",
           "data" => %{
             # Keep original name
-            "label" => "Ultimate Assistant",
+            "name" => "Ultimate Assistant",
             "description" => "This is a new description that should appear in the node",
             # Keep original goal
             "goal" => "Help users with various tasks"
@@ -382,7 +382,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       assert html =~
                ~s(<text x="10" y="50" fill="#999" font-size="12">This is a new description that should appear in the node</text>)
 
-      # Verify the label and goal weren't changed
+      # Verify the name and goal weren't changed
       assert html =~
                ~s(<text x="10" y="30" fill="white" font-weight="bold">Ultimate Assistant</text>)
 
@@ -397,16 +397,16 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       |> element("g.node[data-node-id='agent-1']")
       |> render_click()
 
-      # Test label update
+      # Test name update
       view
       |> element("form")
-      |> render_change(%{"node[data][label]" => "Real-time Label Update"})
+      |> render_change(%{"node[data][name]" => "Real-time Name Update"})
 
       html = render(view)
-      assert html =~ "Real-time Label Update"
+      assert html =~ "Real-time Name Update"
 
       assert html =~
-               ~s(<text x="10" y="30" fill="white" font-weight="bold">Real-time Label Update</text>)
+               ~s(<text x="10" y="30" fill="white" font-weight="bold">Real-time Name Update</text>)
 
       # Test description update
       view
@@ -446,7 +446,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 600, "y" => 200},
           "data" => %{
-            "label" => "Test Prism",
+            "name" => "Test Prism",
             "description" => "Test Description"
           }
         }
@@ -456,10 +456,10 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       |> element("g.node[data-node-id='prism-test']")
       |> render_click()
 
-      # Test label update with blur
+      # Test Name update with blur
       view
       |> element("form")
-      |> render_change(%{"node[data][label]" => "Real-time Prism Update"})
+      |> render_change(%{"node[data][name]" => "Real-time Prism Update"})
 
       html = render(view)
       assert html =~ "Real-time Prism Update"
@@ -648,7 +648,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 600, "y" => 200},
           "data" => %{
-            "label" => "Test Prism",
+            "name" => "Test Prism",
             "description" => "Test Description"
           }
         }
@@ -704,7 +704,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "lens",
           "position" => %{"x" => 200, "y" => 300},
           "data" => %{
-            "label" => "Test Lens",
+            "name" => "Test Lens",
             "description" => "Test Lens Description"
           }
         },
@@ -713,7 +713,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "beam",
           "position" => %{"x" => 700, "y" => 400},
           "data" => %{
-            "label" => "Test Beam",
+            "name" => "Test Beam",
             "description" => "Test Beam Description"
           }
         }
@@ -907,7 +907,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Edge test source"
         }
       }
@@ -917,7 +917,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Edge test target"
         }
       }
@@ -988,7 +988,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Edge test source"
         }
       }
@@ -998,7 +998,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Edge test target"
         }
       }
@@ -1049,7 +1049,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Edge movement test source"
         }
       }
@@ -1059,7 +1059,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Edge movement test target"
         }
       }
@@ -1134,7 +1134,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Edge selection test source"
         }
       }
@@ -1144,7 +1144,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Edge selection test target"
         }
       }
@@ -1203,7 +1203,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Edge stability test source",
           "llm_config" => %{
             "provider" => "openai",
@@ -1218,7 +1218,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Middle Prism",
+          "name" => "Middle Prism",
           "description" => "Edge stability test middle",
           "llm_config" => %{
             "provider" => "openai",
@@ -1233,7 +1233,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "lens",
         "position" => %{"x" => 500, "y" => 100},
         "data" => %{
-          "label" => "Target Lens",
+          "name" => "Target Lens",
           "description" => "Edge stability test target",
           "llm_config" => %{
             "provider" => "openai",
@@ -1345,7 +1345,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "agent",
           "position" => %{"x" => 300, "y" => 300},
           "data" => %{
-            "label" => "Test Node",
+            "name" => "Test Node",
             "description" => "Test Description",
             "llm_config" => %{
               "provider" => "openai",
@@ -1396,7 +1396,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "agent",
           "position" => %{"x" => 300, "y" => 300},
           "data" => %{
-            "label" => "Properties Test",
+            "name" => "Properties Test",
             "description" => "Testing Properties Panel",
             "goal" => "Test Goal",
             "llm_config" => %{
@@ -1424,7 +1424,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       assert html =~ "Test Goal"
 
       # Verify the form inputs are populated
-      assert has_element?(view, "input[name='node[data][label]'][value='Properties Test']")
+      assert has_element?(view, "input[name='node[data][name]'][value='Properties Test']")
 
       assert has_element?(
                view,
@@ -1445,7 +1445,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "agent",
           "position" => %{"x" => 200, "y" => 200},
           "data" => %{
-            "label" => "First Node",
+            "name" => "First Node",
             "description" => "First Description",
             "llm_config" => %{
               "provider" => "openai",
@@ -1459,7 +1459,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 500, "y" => 200},
           "data" => %{
-            "label" => "Second Node",
+            "name" => "Second Node",
             "description" => "Second Description",
             "llm_config" => %{
               "provider" => "anthropic",
@@ -1486,7 +1486,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       html = render(view)
       assert html =~ "First Node"
       assert html =~ "First Description"
-      assert has_element?(view, "input[name='node[data][label]'][value='First Node']")
+      assert has_element?(view, "input[name='node[data][name]'][value='First Node']")
 
       # Select the second node
       view
@@ -1497,10 +1497,10 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       html = render(view)
       assert html =~ "Second Node"
       assert html =~ "Second Description"
-      assert has_element?(view, "input[name='node[data][label]'][value='Second Node']")
+      assert has_element?(view, "input[name='node[data][name]'][value='Second Node']")
 
       # Verify first node's properties are no longer in the properties panel
-      refute has_element?(view, "input[name='node[data][label]'][value='First Node']")
+      refute has_element?(view, "input[name='node[data][name]'][value='First Node']")
     end
 
     test "edge creation with visual feedback", %{conn: conn} do
@@ -1515,7 +1515,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
           "type" => "prism",
           "position" => %{"x" => 600, "y" => 200},
           "data" => %{
-            "label" => "Target Node",
+            "name" => "Target Node",
             "description" => "Edge Target",
             "llm_config" => %{
               "provider" => "openai",
@@ -1602,7 +1602,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Source Agent",
+          "name" => "Source Agent",
           "description" => "Test description"
         }
       }
@@ -1612,7 +1612,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "prism",
         "position" => %{"x" => 300, "y" => 100},
         "data" => %{
-          "label" => "Target Prism",
+          "name" => "Target Prism",
           "description" => "Test description"
         }
       }
@@ -1660,7 +1660,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Drag Test Agent",
+          "name" => "Drag Test Agent",
           "description" => "Test description"
         }
       }
@@ -1706,7 +1706,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Select Test Agent",
+          "name" => "Select Test Agent",
           "description" => "Test description",
           "llm_config" => %{
             "provider" => "openai",
@@ -1740,7 +1740,7 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
         "type" => "agent",
         "position" => %{"x" => 100, "y" => 100},
         "data" => %{
-          "label" => "Edge Cancel Test",
+          "name" => "Edge Cancel Test",
           "description" => "Test description"
         }
       }
