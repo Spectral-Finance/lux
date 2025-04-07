@@ -299,15 +299,19 @@ defmodule LuxAppWeb.NodeEditorLive do
     {:noreply, socket}
   end
 
-  def handle_event("export_nodes", %{"node_id" => _}, socket) do
-    selected_node = socket.assigns.selected_node
-    {:noreply, socket |> push_event("nodes_exported", selected_node)}
+  def handle_event("export_agents", %{"node_id" => _}, socket) do
+    agent = export_agent(socket.assigns.selected_node, socket.assigns)
+    {:noreply, socket |> push_event("nodes_exported", agent)}
   end
 
-  def handle_event("export_nodes", _params, socket) do
-    nodes = socket.assigns.nodes
+  def handle_event("export_agents", _params, socket) do
+    agents =
+      socket.assigns.nodes
+      |> Enum.filter(&(&1["type"] == "agent"))
+      |> Enum.map(&export_agent(&1, socket.assigns))
+
     edges = socket.assigns.edges
-    {:noreply, socket |> push_event("nodes_exported", %{nodes: nodes, edges: edges})}
+    {:noreply, socket |> push_event("nodes_exported", %{nodes: agents, edges: edges})}
   end
 
   def handle_event("clear_components", %{"type" => type}, socket) do
@@ -535,15 +539,15 @@ defmodule LuxAppWeb.NodeEditorLive do
                   nodes={@nodes}
                   selected={@selected_node["data"]["prisms"]}
                 />
+                <button
+                  phx-click="export_agents"
+                  phx-value-node_id={@selected_node["id"]}
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md mt-4"
+                >
+                  Export Selected
+                </button>
               <% end %>
             </div>
-            <button
-              phx-click="export_nodes"
-              phx-value-node_id={@selected_node["id"]}
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md mt-4"
-            >
-              Export Selected
-            </button>
           </form>
         <% else %>
           <div class="text-gray-400 text-sm">
@@ -553,5 +557,20 @@ defmodule LuxAppWeb.NodeEditorLive do
       </div>
     </div>
     """
+  end
+
+  defp get_component_data(component_ids, assigns) do
+    component_ids
+    |> Enum.map(fn id -> Enum.find(assigns.nodes, &(&1["id"] == id)) end)
+    |> Enum.map(fn component -> component["data"] end)
+  end
+
+  defp export_agent(selected_node, assigns) do
+    data = selected_node["data"]
+
+    data
+    |> put_in(["beams"], get_component_data(data["beams"], assigns))
+    |> put_in(["lenses"], get_component_data(data["lenses"], assigns))
+    |> put_in(["prisms"], get_component_data(data["prisms"], assigns))
   end
 end

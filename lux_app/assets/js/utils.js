@@ -1,5 +1,5 @@
 export function downloadJSON(data) {
-  const filename = data.nodes && data.edges ? 'lux.json' : `${data.type}.json`;
+  const filename = data.nodes && data.edges ? 'lux.json' : `${data.label}.json`;
   const jsonContent = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonContent], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
