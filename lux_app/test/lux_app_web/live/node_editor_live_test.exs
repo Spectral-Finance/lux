@@ -1765,5 +1765,43 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       # Verify drawing edge is removed
       refute render(view) =~ "drawing-edge"
     end
+
+    test "export_agents event exports agents correctly", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/")
+
+      # Add a node
+      test_node = %{
+        "id" => "agent-export-test",
+        "type" => "agent",
+        "position" => %{"x" => 100, "y" => 100},
+        "data" => %{
+          "name" => "Export Test Agent",
+          "description" => "Test description"
+        }
+      }
+
+      view
+      |> element("#node-editor-canvas")
+      |> render_hook("node_added", %{"node" => test_node})
+
+      # Select the node
+      view
+      |> element("#node-editor-canvas")
+      |> render_hook("node_selected", %{"node_id" => "agent-export-test"})
+
+      # Click the export button
+      view
+      |> element("#node-editor-canvas")
+      |> render_hook("export_agents", %{"node_id" => "agent-export-test"})
+
+      # Verify that the export event was pushed to the client
+      assert_push_event(view, "nodes_exported", %{
+        "name" => "Export Test Agent",
+        "description" => "Test description",
+        "beams" => [],
+        "lenses" => [],
+        "prisms" => []
+      })
+    end
   end
 end
