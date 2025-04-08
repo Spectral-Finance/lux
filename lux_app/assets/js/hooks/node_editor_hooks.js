@@ -5,6 +5,7 @@ const NodeEditorHooks = {
     mounted() {
       this.el.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('node-type', this.el.dataset.type);
+        e.dataTransfer.setData('original-offset', JSON.stringify({x: e.offsetX, y: e.offsetY}));
       });
     }
   },
@@ -295,11 +296,12 @@ const NodeEditorHooks = {
     handleDrop(e) {
       e.preventDefault();
       const nodeType = e.dataTransfer.getData('node-type');
+      const originalOffset = JSON.parse(e.dataTransfer.getData('original-offset'));
       if (!nodeType) return;
 
       const svgRect = this.svg.getBoundingClientRect();
-      const x = e.clientX - svgRect.left;
-      const y = e.clientY - svgRect.top;
+      const x = e.clientX - svgRect.left - originalOffset.x;
+      const y = e.clientY - svgRect.top - originalOffset.y;
 
       // Generate a unique ID for the new node
       const nodeId = `${nodeType}-${Date.now()}`;

@@ -66,8 +66,8 @@ const JsonDropZone = {
 
       const svg = document.querySelector('#node-editor-canvas svg');
       const svgRect = svg.getBoundingClientRect();
-      const x = e.clientX - svgRect.left;
-      const y = e.clientY - svgRect.top;
+      const x = e.clientX - svgRect.left - NODE_WIDTH / 2;
+      const y = e.clientY - svgRect.top - NODE_HEIGHT / 2;
 
       const reader = new FileReader();
       reader.onload = (event) => {
