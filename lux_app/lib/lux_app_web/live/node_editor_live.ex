@@ -570,6 +570,8 @@ defmodule LuxAppWeb.NodeEditorLive do
     """
   end
 
+  defp get_component_data(nil, _assigns), do: []
+
   defp get_component_data(component_ids, assigns) do
     component_ids
     |> Enum.map(fn id -> Enum.find(assigns.nodes, &(&1["id"] == id)) end)

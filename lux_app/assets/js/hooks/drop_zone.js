@@ -1,10 +1,26 @@
 import { NODE_WIDTH, NODE_HEIGHT } from '../consts';
 
-const createComponentNode = (type, data) => ({
-  type,
-  id: `${type}-${Date.now()}`,
-  data
-});
+const createComponentNode = (type, data, index) => {
+  if (typeof data === 'string') {
+    const name = data.split('.').pop();
+    return {
+      type,
+      id: `${type}-${index}`,
+      data: {
+        name,
+        module: data,
+      }
+    }
+  } else if (typeof data === 'object' && data.name) {
+    return {
+      type,
+      id: `${type}-${index}`,
+      data
+    }
+  }
+
+  throw new Error('Cannot create component node from given data');
+};
 
 const JsonDropZone = {
   mounted() {
@@ -58,9 +74,9 @@ const JsonDropZone = {
         try {
           const parsedData = JSON.parse(event.target.result);
           
-          const beams = parsedData.beams.map((data) => createComponentNode('beam', data));
-          const lenses = parsedData.lenses.map((data) => createComponentNode('lens', data));
-          const prisms = parsedData.prisms.map((data) => createComponentNode('prism', data));
+          const beams = parsedData.beams.map((data, index) => createComponentNode('beam', data, index));
+          const lenses = parsedData.lenses.map((data, index) => createComponentNode('lens', data, index));
+          const prisms = parsedData.prisms.map((data, index) => createComponentNode('prism', data, index));
           const agent = {
             type: 'agent',
             id: `agent-${Date.now()}`,
@@ -75,8 +91,8 @@ const JsonDropZone = {
           const nodes = [agent, ...beams, ...lenses, ...prisms].map((node, index) => ({
             ...node,
             position: {
-              x: x + NODE_WIDTH / 2 * index,
-              y: y + NODE_HEIGHT / 2 * index
+              x: x + NODE_WIDTH / 3 * index,
+              y: y + NODE_HEIGHT / 3 * index
             }
           }));
           

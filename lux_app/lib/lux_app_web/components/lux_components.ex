@@ -25,7 +25,7 @@ defmodule LuxAppWeb.LuxComponents do
   }
 
   attr :llm_providers, :map, default: @llm_providers
-  attr :selected, :map, default: nil
+  attr :selected, :map, default: "openai"
 
   def llm_provider_selector(assigns) do
     ~H"""
@@ -43,10 +43,12 @@ defmodule LuxAppWeb.LuxComponents do
   end
 
   attr :llm_models, :map, default: @llm_models
-  attr :selected_provider, :string, default: nil
+  attr :selected_provider, :string, default: "openai"
   attr :selected, :string, default: nil
 
   def llm_model_selector(assigns) do
+    assigns = assign(assigns, :selected_provider, assigns.selected_provider || "openai")
+
     ~H"""
     <div>
       <label class="block text-sm font-medium text-gray-400 mb-1">LLM Model</label>
