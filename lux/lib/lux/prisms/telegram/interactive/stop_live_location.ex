@@ -90,15 +90,7 @@ defmodule Lux.Prisms.Telegram.Interactive.StopLiveLocation do
   def handler(params, agent) do
     with :ok <- validate_message_identifiers(params) do
       agent_name = agent[:name] || "Unknown Agent"
-
-      message_identifier = case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
-        {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
-          "message_id: #{message_id} in chat: #{chat_id}"
-        {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
-          "inline_message: #{inline_message_id}"
-        _ ->
-          "unknown message"
-      end
+      message_identifier = get_message_identifier(params)
 
       Logger.info("Agent #{agent_name} stopping live location for #{message_identifier}")
 
@@ -110,48 +102,76 @@ defmodule Lux.Prisms.Telegram.Interactive.StopLiveLocation do
 
       case Client.request(:post, "/stopMessageLiveLocation", request_opts) do
         {:ok, %{"result" => result}} when is_map(result) ->
-          Logger.info("Successfully stopped live location for #{message_identifier}")
-
-          # Build the response based on whether it's a chat message or inline message
-          response = %{stopped: true}
-
-          response = case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
-            {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
-              response
-              |> Map.put(:chat_id, chat_id)
-              |> Map.put(:message_id, message_id)
-            {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
-              Map.put(response, :inline_message_id, inline_message_id)
-            _ ->
-              response
-          end
-
-          {:ok, response}
+          handle_successful_response(message_identifier, params)
 
         {:ok, %{"result" => true}} ->
           # For inline messages, we might just get a success boolean
-          Logger.info("Successfully stopped live location for #{message_identifier}")
-
-          response = %{stopped: true}
-
-          # Add the inline_message_id if it exists
-          response = if inline_id = Map.get(params, :inline_message_id) do
-            Map.put(response, :inline_message_id, inline_id)
-          else
-            response
-          end
-
-          {:ok, response}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to stop live location: #{description} (HTTP #{status})"}
-
-        {:error, {status, description}} when is_binary(description) ->
-          {:error, "Failed to stop live location: #{description} (HTTP #{status})"}
+          handle_successful_boolean_response(message_identifier, params)
 
         {:error, error} ->
-          {:error, "Failed to stop live location: #{inspect(error)}"}
+          handle_error_response(error)
       end
+    end
+  end
+
+  defp handle_successful_response(message_identifier, params) do
+    Logger.info("Successfully stopped live location for #{message_identifier}")
+
+    # Build the response based on whether it's a chat message or inline message
+    response = %{stopped: true}
+
+    {:ok, add_message_identifier_to_response(response, params)}
+  end
+
+  defp handle_successful_boolean_response(message_identifier, params) do
+    Logger.info("Successfully stopped live location for #{message_identifier}")
+
+    response = %{stopped: true}
+
+    # Add the inline_message_id if it exists
+    response = if inline_id = Map.get(params, :inline_message_id) do
+      Map.put(response, :inline_message_id, inline_id)
+    else
+      response
+    end
+
+    {:ok, response}
+  end
+
+  defp handle_error_response(error) do
+    case error do
+      {status, %{"description" => description}} ->
+        {:error, "Failed to stop live location: #{description} (HTTP #{status})"}
+
+      {status, description} when is_binary(description) ->
+        {:error, "Failed to stop live location: #{description} (HTTP #{status})"}
+
+      _ ->
+        {:error, "Failed to stop live location: #{inspect(error)}"}
+    end
+  end
+
+  defp get_message_identifier(params) do
+    case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
+      {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
+        "message_id: #{message_id} in chat: #{chat_id}"
+      {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
+        "inline_message: #{inline_message_id}"
+      _ ->
+        "unknown message"
+    end
+  end
+
+  defp add_message_identifier_to_response(response, params) do
+    case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
+      {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
+        response
+        |> Map.put(:chat_id, chat_id)
+        |> Map.put(:message_id, message_id)
+      {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
+        Map.put(response, :inline_message_id, inline_message_id)
+      _ ->
+        response
     end
   end
 

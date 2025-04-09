@@ -163,22 +163,34 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessages do
 
   defp validate_message_ids(params) do
     case Map.fetch(params, :message_ids) do
-      {:ok, message_ids} when is_list(message_ids) and length(message_ids) >= 1 and length(message_ids) <= 100 ->
-        # Check all elements are integers
-        if Enum.all?(message_ids, &is_integer/1) do
-          # Check the list is in increasing order
-          if message_ids == Enum.sort(message_ids) do
-            {:ok, message_ids}
-          else
-            {:error, "message_ids must be specified in a strictly increasing order"}
-          end
-        else
-          {:error, "All message_ids must be integers"}
-        end
-      {:ok, _} ->
-        {:error, "message_ids must contain between 1 and 100 items"}
+      {:ok, message_ids} when is_list(message_ids) ->
+        validate_message_ids_length(message_ids)
       _ ->
         {:error, "Missing or invalid message_ids"}
+    end
+  end
+
+  defp validate_message_ids_length(message_ids) do
+    if length(message_ids) >= 1 and length(message_ids) <= 100 do
+      validate_message_ids_content(message_ids)
+    else
+      {:error, "message_ids must contain between 1 and 100 items"}
+    end
+  end
+
+  defp validate_message_ids_content(message_ids) do
+    if Enum.all?(message_ids, &is_integer/1) do
+      validate_message_ids_order(message_ids)
+    else
+      {:error, "All message_ids must be integers"}
+    end
+  end
+
+  defp validate_message_ids_order(message_ids) do
+    if message_ids == Enum.sort(message_ids) do
+      {:ok, message_ids}
+    else
+      {:error, "message_ids must be specified in a strictly increasing order"}
     end
   end
 end

@@ -138,15 +138,7 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocation do
          :ok <- validate_optional_params(params) do
 
       agent_name = agent[:name] || "Unknown Agent"
-
-      message_identifier = case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
-        {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
-          "message_id: #{message_id} in chat: #{chat_id}"
-        {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
-          "inline_message: #{inline_message_id}"
-        _ ->
-          "unknown message"
-      end
+      message_identifier = get_message_identifier(params)
 
       Logger.info("Agent #{agent_name} updating live location for #{message_identifier} to coordinates (#{latitude}, #{longitude})")
 
@@ -159,56 +151,84 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocation do
 
       case Client.request(:post, "/editMessageLiveLocation", request_opts) do
         {:ok, %{"result" => result}} when is_map(result) ->
-          Logger.info("Successfully updated live location for #{message_identifier}")
-
-          # Build the response based on whether it's a chat message or inline message
-          response = %{
-            updated: true,
-            latitude: latitude,
-            longitude: longitude
-          }
-
-          response = case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
-            {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
-              response
-              |> Map.put(:chat_id, chat_id)
-              |> Map.put(:message_id, message_id)
-            {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
-              Map.put(response, :inline_message_id, inline_message_id)
-            _ ->
-              response
-          end
-
-          {:ok, response}
+          handle_successful_response(message_identifier, params, latitude, longitude)
 
         {:ok, %{"result" => true}} ->
           # For inline messages, we might just get a success boolean
-          Logger.info("Successfully updated live location for #{message_identifier}")
-
-          response = %{
-            updated: true,
-            latitude: latitude,
-            longitude: longitude
-          }
-
-          # Add the inline_message_id if it exists
-          response = if inline_id = Map.get(params, :inline_message_id) do
-            Map.put(response, :inline_message_id, inline_id)
-          else
-            response
-          end
-
-          {:ok, response}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to update live location: #{description} (HTTP #{status})"}
-
-        {:error, {status, description}} when is_binary(description) ->
-          {:error, "Failed to update live location: #{description} (HTTP #{status})"}
+          handle_successful_boolean_response(message_identifier, params, latitude, longitude)
 
         {:error, error} ->
-          {:error, "Failed to update live location: #{inspect(error)}"}
+          handle_error_response(error)
       end
+    end
+  end
+
+  defp handle_successful_response(message_identifier, params, latitude, longitude) do
+    Logger.info("Successfully updated live location for #{message_identifier}")
+
+    # Build base response
+    response = %{
+      updated: true,
+      latitude: latitude,
+      longitude: longitude
+    }
+
+    {:ok, add_message_identifier_to_response(response, params)}
+  end
+
+  defp handle_successful_boolean_response(message_identifier, params, latitude, longitude) do
+    Logger.info("Successfully updated live location for #{message_identifier}")
+
+    response = %{
+      updated: true,
+      latitude: latitude,
+      longitude: longitude
+    }
+
+    # Add the inline_message_id if it exists
+    response = if inline_id = Map.get(params, :inline_message_id) do
+      Map.put(response, :inline_message_id, inline_id)
+    else
+      response
+    end
+
+    {:ok, response}
+  end
+
+  defp handle_error_response(error) do
+    case error do
+      {status, %{"description" => description}} ->
+        {:error, "Failed to update live location: #{description} (HTTP #{status})"}
+
+      {status, description} when is_binary(description) ->
+        {:error, "Failed to update live location: #{description} (HTTP #{status})"}
+
+      _ ->
+        {:error, "Failed to update live location: #{inspect(error)}"}
+    end
+  end
+
+  defp get_message_identifier(params) do
+    case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
+      {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
+        "message_id: #{message_id} in chat: #{chat_id}"
+      {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
+        "inline_message: #{inline_message_id}"
+      _ ->
+        "unknown message"
+    end
+  end
+
+  defp add_message_identifier_to_response(response, params) do
+    case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
+      {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
+        response
+        |> Map.put(:chat_id, chat_id)
+        |> Map.put(:message_id, message_id)
+      {nil, nil, inline_message_id} when not is_nil(inline_message_id) ->
+        Map.put(response, :inline_message_id, inline_message_id)
+      _ ->
+        response
     end
   end
 
@@ -239,23 +259,54 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocation do
   end
 
   defp validate_optional_params(params) do
-    # Validate horizontal_accuracy
-    horizontal_accuracy = Map.get(params, :horizontal_accuracy)
-    if not is_nil(horizontal_accuracy) and (not is_number(horizontal_accuracy) or horizontal_accuracy < 0 or horizontal_accuracy > 1500) do
-      {:error, "horizontal_accuracy must be between 0 and 1500"}
-    else
-      # Validate heading
-      heading = Map.get(params, :heading)
-      if not is_nil(heading) and (not is_integer(heading) or heading < 1 or heading > 360) do
-        {:error, "heading must be between 1 and 360"}
-      else
-        # Validate proximity_alert_radius
-        proximity_radius = Map.get(params, :proximity_alert_radius)
-        if not is_nil(proximity_radius) and (not is_integer(proximity_radius) or proximity_radius <= 0) do
-          {:error, "proximity_alert_radius must be a positive integer"}
-        else
-          :ok
+    case validate_horizontal_accuracy(params) do
+      :ok ->
+        case validate_heading(params) do
+          :ok -> validate_proximity_radius(params)
+          error -> error
         end
+      error -> error
+    end
+  end
+
+  defp validate_horizontal_accuracy(params) do
+    horizontal_accuracy = Map.get(params, :horizontal_accuracy)
+
+    if is_nil(horizontal_accuracy) do
+      :ok
+    else
+      if is_number(horizontal_accuracy) and horizontal_accuracy >= 0 and horizontal_accuracy <= 1500 do
+        :ok
+      else
+        {:error, "horizontal_accuracy must be between 0 and 1500"}
+      end
+    end
+  end
+
+  defp validate_heading(params) do
+    heading = Map.get(params, :heading)
+
+    if is_nil(heading) do
+      :ok
+    else
+      if is_integer(heading) and heading >= 1 and heading <= 360 do
+        :ok
+      else
+        {:error, "heading must be between 1 and 360"}
+      end
+    end
+  end
+
+  defp validate_proximity_radius(params) do
+    proximity_radius = Map.get(params, :proximity_alert_radius)
+
+    if is_nil(proximity_radius) do
+      :ok
+    else
+      if is_integer(proximity_radius) and proximity_radius > 0 do
+        :ok
+      else
+        {:error, "proximity_alert_radius must be a positive integer"}
       end
     end
   end

@@ -249,12 +249,17 @@ defmodule Lux.Prisms.Telegram.Interactive.SendInlineKeyboard do
   defp validate_inline_keyboard(params) do
     case Map.fetch(params, :inline_keyboard) do
       {:ok, inline_keyboard} when is_list(inline_keyboard) ->
-        if Enum.all?(inline_keyboard, fn row -> is_list(row) end) do
-          {:ok, inline_keyboard}
-        else
-          {:error, "Invalid inline_keyboard format: must be a list of button rows"}
-        end
-      _ -> {:error, "Missing or invalid inline_keyboard"}
+        validate_inline_keyboard_rows(inline_keyboard)
+      _ ->
+        {:error, "Missing or invalid inline_keyboard"}
+    end
+  end
+
+  defp validate_inline_keyboard_rows(inline_keyboard) do
+    if Enum.all?(inline_keyboard, &is_list/1) do
+      {:ok, inline_keyboard}
+    else
+      {:error, "Invalid inline_keyboard format: must be a list of button rows"}
     end
   end
 end

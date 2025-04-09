@@ -162,7 +162,8 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocationTest do
           message_id: @message_id,
           latitude: @latitude,
           longitude: @longitude,
-          horizontal_accuracy: 2000  # Outside valid range
+          horizontal_accuracy: 2000,  # Outside valid range
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -174,7 +175,8 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocationTest do
           message_id: @message_id,
           latitude: @latitude,
           longitude: @longitude,
-          heading: 361  # Outside valid range
+          heading: 361,  # Outside valid range
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )
@@ -186,7 +188,8 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocationTest do
           message_id: @message_id,
           latitude: @latitude,
           longitude: @longitude,
-          proximity_alert_radius: 0  # Must be positive
+          proximity_alert_radius: 0,  # Must be positive
+          plug: {Req.Test, __MODULE__}
         },
         @agent_ctx
       )

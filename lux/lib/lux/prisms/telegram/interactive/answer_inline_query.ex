@@ -117,57 +117,74 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerInlineQuery do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
-    # Validate inline_query_id
-    inline_query_id_result = case Map.fetch(params, :inline_query_id) do
-      {:ok, value} when is_binary(value) and value != "" -> {:ok, value}
-      {:ok, value} when is_integer(value) -> {:ok, to_string(value)}
-      _ -> {:error, "Missing or invalid inline_query_id"}
-    end
-
-    # Validate results
-    results_result = case Map.fetch(params, :results) do
-      {:ok, value} when is_list(value) and value != [] -> {:ok, value}
-      _ -> {:error, "Missing or invalid results"}
-    end
-
-    with {:ok, inline_query_id} <- inline_query_id_result,
-         {:ok, _results} <- results_result do
+    with {:ok, inline_query_id} <- validate_inline_query_id(params),
+         {:ok, results} <- validate_results(params) do
 
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} answering inline query #{inline_query_id}")
 
-      # Build the request body
-      request_body = Map.take(params, [:inline_query_id, :results, :cache_time,
-                              :is_personal, :next_offset, :button])
-
-      # Ensure results is properly formatted as JSON string if not already
-      request_body = if is_list(request_body[:results]) do
-        # Convert results to JSON string
-        Map.update!(request_body, :results, &Jason.encode!/1)
-      else
-        request_body
-      end
-
-      # Prepare request options
+      # Build and prepare the request
+      request_body = prepare_request_body(params)
       request_opts = %{json: request_body}
 
       case Client.request(:post, "/answerInlineQuery", request_opts) do
         {:ok, %{"result" => true}} ->
-          Logger.info("Successfully answered inline query #{inline_query_id}")
-          {:ok, %{
-            answered: true,
-            inline_query_id: inline_query_id
-          }}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to answer inline query: #{description} (HTTP #{status})"}
-
-        {:error, {status, description}} when is_binary(description) ->
-          {:error, "Failed to answer inline query: #{description} (HTTP #{status})"}
+          handle_successful_response(inline_query_id)
 
         {:error, error} ->
-          {:error, "Failed to answer inline query: #{inspect(error)}"}
+          handle_error_response(error)
       end
+    end
+  end
+
+  defp validate_inline_query_id(params) do
+    case Map.fetch(params, :inline_query_id) do
+      {:ok, value} when is_binary(value) and value != "" -> {:ok, value}
+      {:ok, value} when is_integer(value) -> {:ok, to_string(value)}
+      _ -> {:error, "Missing or invalid inline_query_id"}
+    end
+  end
+
+  defp validate_results(params) do
+    case Map.fetch(params, :results) do
+      {:ok, value} when is_list(value) and value != [] -> {:ok, value}
+      _ -> {:error, "Missing or invalid results"}
+    end
+  end
+
+  defp prepare_request_body(params) do
+    # Build the request body
+    request_body = Map.take(params, [:inline_query_id, :results, :cache_time,
+                              :is_personal, :next_offset, :button])
+
+    # Ensure results is properly formatted as JSON string if not already
+    if is_list(request_body[:results]) do
+      # Convert results to JSON string
+      Map.update!(request_body, :results, &Jason.encode!/1)
+    else
+      request_body
+    end
+  end
+
+  defp handle_successful_response(inline_query_id) do
+    Logger.info("Successfully answered inline query #{inline_query_id}")
+
+    {:ok, %{
+      answered: true,
+      inline_query_id: inline_query_id
+    }}
+  end
+
+  defp handle_error_response(error) do
+    case error do
+      {status, %{"description" => description}} ->
+        {:error, "Failed to answer inline query: #{description} (HTTP #{status})"}
+
+      {status, description} when is_binary(description) ->
+        {:error, "Failed to answer inline query: #{description} (HTTP #{status})"}
+
+      _ ->
+        {:error, "Failed to answer inline query: #{inspect(error)}"}
     end
   end
 end

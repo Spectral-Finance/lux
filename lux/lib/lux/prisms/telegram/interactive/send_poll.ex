@@ -257,47 +257,77 @@ defmodule Lux.Prisms.Telegram.Interactive.SendPoll do
 
   defp validate_options(params) do
     case Map.fetch(params, :options) do
-      {:ok, options} when is_list(options) and length(options) >= 2 and length(options) <= 10 ->
-        # Verify all options are valid (either non-empty strings or maps with text field)
-        if Enum.all?(options, fn option ->
-          (is_binary(option) and String.length(option) > 0 and String.length(option) <= 100) or
-          (is_map(option) and is_binary(option[:text]) and String.length(option[:text]) > 0 and String.length(option[:text]) <= 100)
-        end) do
-          # Transform any map options to their text value
-          formatted_options = Enum.map(options, fn
-            option when is_binary(option) -> option
-            option when is_map(option) -> option[:text]
-          end)
-          {:ok, formatted_options}
-        else
-          {:error, "All poll options must be non-empty strings or maps with text field, 1-100 characters each"}
-        end
-      {:ok, options} when is_list(options) and length(options) < 2 ->
-        {:error, "Options must contain at least 2 items"}
-      {:ok, options} when is_list(options) and length(options) > 10 ->
-        {:error, "Options cannot contain more than 10 items"}
-      {:ok, _} ->
-        {:error, "Options must be a list containing 2-10 items"}
+      {:ok, options} when is_list(options) ->
+        validate_options_list(options)
       _ ->
         {:error, "Missing or invalid options"}
     end
   end
 
-  defp validate_quiz_params(params) do
-    if Map.get(params, :type) == "quiz" do
-      case Map.fetch(params, :correct_option_id) do
-        {:ok, correct_option_id} when is_integer(correct_option_id) ->
-          options = Map.get(params, :options, [])
-          if correct_option_id >= 0 and correct_option_id < length(options) do
-            :ok
-          else
-            {:error, "correct_option_id must be a valid index in the options array"}
-          end
-        _ ->
-          {:error, "Quiz polls must have a correct_option_id specified"}
-      end
+  defp validate_options_list(options) do
+    cond do
+      length(options) < 2 ->
+        {:error, "Options must contain at least 2 items"}
+      length(options) > 10 ->
+        {:error, "Options cannot contain more than 10 items"}
+      true ->
+        validate_options_content(options)
+    end
+  end
+
+  defp validate_options_content(options) do
+    if valid_option_formats?(options) do
+      # Transform any map options to their text value
+      formatted_options = format_options(options)
+      {:ok, formatted_options}
     else
+      {:error, "All poll options must be non-empty strings or maps with text field, 1-100 characters each"}
+    end
+  end
+
+  defp valid_option_formats?(options) do
+    Enum.all?(options, fn option ->
+      valid_string_option?(option) or valid_map_option?(option)
+    end)
+  end
+
+  defp valid_string_option?(option) do
+    is_binary(option) and String.length(option) > 0 and String.length(option) <= 100
+  end
+
+  defp valid_map_option?(option) do
+    is_map(option) and is_binary(option[:text]) and
+      String.length(option[:text]) > 0 and String.length(option[:text]) <= 100
+  end
+
+  defp format_options(options) do
+    Enum.map(options, fn
+      option when is_binary(option) -> option
+      option when is_map(option) -> option[:text]
+    end)
+  end
+
+  defp validate_quiz_params(params) do
+    # Only validate quiz params if the type is "quiz"
+    if Map.get(params, :type) != "quiz" do
       :ok
+    else
+      validate_correct_option_id(params)
+    end
+  end
+
+  defp validate_correct_option_id(params) do
+    case Map.fetch(params, :correct_option_id) do
+      {:ok, correct_option_id} when is_integer(correct_option_id) ->
+        options = Map.get(params, :options, [])
+
+        if correct_option_id >= 0 and correct_option_id < length(options) do
+          :ok
+        else
+          {:error, "correct_option_id must be a valid index in the options array"}
+        end
+      _ ->
+        {:error, "Quiz polls must have a correct_option_id specified"}
     end
   end
 end
