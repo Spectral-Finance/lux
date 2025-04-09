@@ -204,7 +204,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendLocation do
   defp validate_live_period(params) do
     case Map.get(params, :live_period) do
       nil -> :ok
-      period when is_integer(period) and period >= 60 and period <= 86400 -> :ok
+      period when is_integer(period) and period >= 60 and period <= 86_400 -> :ok
       _ -> {:error, "Invalid live_period: must be between 60 and 86400 seconds"}
     end
   end

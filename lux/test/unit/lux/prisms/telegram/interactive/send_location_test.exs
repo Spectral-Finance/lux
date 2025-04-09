@@ -210,7 +210,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendLocationTest do
         chat_id: @chat_id,
         latitude: @latitude,
         longitude: @longitude,
-        live_period: 100000 # Maximum is 86400 (24 hours)
+        live_period: 100_000 # Maximum is 86400 (24 hours)
       }, @agent_ctx)
       assert {:error, "Invalid live_period: must be between 60 and 86400 seconds"} = result
     end

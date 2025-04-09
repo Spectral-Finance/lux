@@ -48,7 +48,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendStickerTest do
                 "height" => 128,
                 "file_size" => 4246
               },
-              "file_size" => 17214
+              "file_size" => 17_214
             }
           }
         }))

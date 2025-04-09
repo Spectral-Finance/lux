@@ -45,11 +45,11 @@ defmodule Lux.Prisms.Telegram.Interactive.SendAnimationTest do
                 "file_unique_id" => "AQAD_AwAArk4mFJy",
                 "width" => 320,
                 "height" => 240,
-                "file_size" => 12345
+                "file_size" => 12_345
               },
               "file_name" => "animation.gif",
               "mime_type" => "image/gif",
-              "file_size" => 54321
+              "file_size" => 54_321
             }
           }
         }))

@@ -41,7 +41,7 @@ defmodule Lux.Prisms.Telegram.Media.SendDocumentTest do
               "file_unique_id" => "document_unique_id",
               "file_name" => "document.pdf",
               "mime_type" => "application/pdf",
-              "file_size" => 12345
+              "file_size" => 12_345
             },
             "caption" => @caption
           }
@@ -85,7 +85,7 @@ defmodule Lux.Prisms.Telegram.Media.SendDocumentTest do
               "file_unique_id" => "document_unique_id",
               "file_name" => "document.pdf",
               "mime_type" => "application/pdf",
-              "file_size" => 12345
+              "file_size" => 12_345
             }
           }
         }))
@@ -130,7 +130,7 @@ defmodule Lux.Prisms.Telegram.Media.SendDocumentTest do
               "file_unique_id" => "document_unique_id",
               "file_name" => "document.pdf",
               "mime_type" => "application/pdf",
-              "file_size" => 12345
+              "file_size" => 12_345
             },
             "caption" => markdown_caption,
             "caption_entities" => [

@@ -39,7 +39,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoNoteTest do
               "file_unique_id" => "unique123",
               "length" => 360,
               "duration" => 30,
-              "file_size" => 123456
+              "file_size" => 123_456
             }
           }
         }))
@@ -81,7 +81,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoNoteTest do
               "file_unique_id" => "unique123",
               "length" => 360,
               "duration" => 30,
-              "file_size" => 123456
+              "file_size" => 123_456
             }
           }
         }))
@@ -127,7 +127,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoNoteTest do
               "file_unique_id" => "unique123",
               "length" => 360,
               "duration" => 30,
-              "file_size" => 123456
+              "file_size" => 123_456
             }
           }
         }))

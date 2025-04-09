@@ -43,7 +43,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoTest do
               "height" => 720,
               "duration" => 30,
               "mime_type" => "video/mp4",
-              "file_size" => 1234567
+              "file_size" => 1_234_567
             },
             "caption" => @caption
           }
@@ -89,7 +89,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoTest do
               "height" => 720,
               "duration" => 30,
               "mime_type" => "video/mp4",
-              "file_size" => 1234567
+              "file_size" => 1_234_567
             }
           }
         }))
@@ -136,7 +136,7 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoTest do
               "height" => 720,
               "duration" => 30,
               "mime_type" => "video/mp4",
-              "file_size" => 1234567
+              "file_size" => 1_234_567
             },
             "caption" => markdown_caption,
             "caption_entities" => [
