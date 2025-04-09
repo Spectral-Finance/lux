@@ -118,7 +118,7 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerInlineQuery do
   """
   def handler(params, agent) do
     with {:ok, inline_query_id} <- validate_inline_query_id(params),
-         {:ok, results} <- validate_results(params) do
+         {:ok, _results} <- validate_results(params) do
 
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} answering inline query #{inline_query_id}")

@@ -239,14 +239,6 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocation do
     end
   end
 
-  defp validate_param(params, key, _type) do
-    case Map.fetch(params, key) do
-      {:ok, value} when is_binary(value) and value != "" -> {:ok, value}
-      {:ok, value} when is_integer(value) -> {:ok, value}
-      _ -> {:error, "Missing or invalid #{key}"}
-    end
-  end
-
   defp validate_message_identifiers(params) do
     case {Map.get(params, :chat_id), Map.get(params, :message_id), Map.get(params, :inline_message_id)} do
       {chat_id, message_id, nil} when not is_nil(chat_id) and not is_nil(message_id) ->
