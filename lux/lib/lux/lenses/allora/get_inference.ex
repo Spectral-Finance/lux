@@ -103,6 +103,7 @@ defmodule Lux.Lenses.Allora.GetInference do
       ]
     }
 
+  @impl true
   def before_focus(%{topic_id: topic_id} = params) do
     signature_format = Map.get(params, :signature_format, "ethereum-11155111")
     url = "#{Allora.base_url()}/allora/consumer/#{signature_format}?allora_topic_id=#{topic_id}&inference_value_type=uint256"
