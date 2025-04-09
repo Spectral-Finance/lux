@@ -191,7 +191,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendPoll do
   def handler(params, agent) do
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, question} <- validate_param(params, :question),
-         {:ok, options} <- validate_options(params) do
+         {:ok, _options} <- validate_options(params) do
 
       # Validate quiz-specific parameters if applicable
       with :ok <- validate_quiz_params(params) do
@@ -257,15 +257,27 @@ defmodule Lux.Prisms.Telegram.Interactive.SendPoll do
 
   defp validate_options(params) do
     case Map.fetch(params, :options) do
-      {:ok, options} when is_list(options) and length(options) >= 2 ->
-        # Verify all options are non-empty strings
-        if Enum.all?(options, fn option -> is_binary(option) and String.length(option) > 0 end) do
-          {:ok, options}
+      {:ok, options} when is_list(options) and length(options) >= 2 and length(options) <= 10 ->
+        # Verify all options are valid (either non-empty strings or maps with text field)
+        if Enum.all?(options, fn option ->
+          (is_binary(option) and String.length(option) > 0 and String.length(option) <= 100) or
+          (is_map(option) and is_binary(option[:text]) and String.length(option[:text]) > 0 and String.length(option[:text]) <= 100)
+        end) do
+          # Transform any map options to their text value
+          formatted_options = Enum.map(options, fn
+            option when is_binary(option) -> option
+            option when is_map(option) -> option[:text]
+          end)
+          {:ok, formatted_options}
         else
-          {:error, "All poll options must be non-empty strings"}
+          {:error, "All poll options must be non-empty strings or maps with text field, 1-100 characters each"}
         end
-      {:ok, _} ->
+      {:ok, options} when is_list(options) and length(options) < 2 ->
         {:error, "Options must contain at least 2 items"}
+      {:ok, options} when is_list(options) and length(options) > 10 ->
+        {:error, "Options cannot contain more than 10 items"}
+      {:ok, _} ->
+        {:error, "Options must be a list containing 2-10 items"}
       _ ->
         {:error, "Missing or invalid options"}
     end
