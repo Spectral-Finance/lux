@@ -26,11 +26,6 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
           type: :integer,
           description: "Slippage tolerance in basis points (e.g. 50 for 0.5%)",
           default: 50
-        },
-        api_key: %{
-          type: :string,
-          description: "Uniswap API key for higher rate limits",
-          default: nil
         }
       },
       required: ["from_token", "to_token", "amount"]
@@ -76,7 +71,6 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
   defp validate_params(input) do
     input = Map.put_new(input, :chain_id, 1)
     input = Map.put_new(input, :slippage, 50)
-    input = Map.put_new(input, :api_key, nil)
 
     required_params = ["from_token", "to_token", "amount"]
     missing_params = Enum.filter(required_params, &(not Map.has_key?(input, String.to_atom(&1))))
@@ -88,6 +82,8 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
   end
 
   defp execute_swap(params) do
+    api_key = Lux.Config.uniswap_api_key()
+
     python_result =
       python variables: %{
                from_token: params.from_token,
@@ -95,7 +91,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwap do
                amount: params.amount,
                chain_id: params.chain_id,
                slippage: params.slippage,
-               api_key: params.api_key
+               api_key: api_key
              } do
         ~PY"""
         result = None
