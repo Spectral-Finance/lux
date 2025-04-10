@@ -135,11 +135,9 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
     mock_python_code = """
     import sys
 
-    # Remove the modules from sys.modules
-    if "goat_plugins" in sys.modules:
-        del sys.modules["goat_plugins"]
-    if "goat_plugins.uniswap" in sys.modules:
-        del sys.modules["goat_plugins.uniswap"]
+    # Remove the goat_wallets module from sys.modules
+    if "goat_wallets.evm" in sys.modules:
+        del sys.modules["goat_wallets.evm"]
 
     def import_package(name):
         return {"success": False, "error": "No module named 'goat_plugins'"}
@@ -154,7 +152,7 @@ defmodule Lux.Prisms.GoatSdk.UniswapSwapTest do
     }
 
     result = UniswapSwap.handler(input, %{})
-    assert {:error, "Failed to import required packages: No module named 'goat_plugins'"} = result
+    assert {:error, "No module named 'goat_wallets.evm'; 'goat_wallets' is not a package"} = result
   end
 
   test "handler/2 uses default values for optional parameters" do
