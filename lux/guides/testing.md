@@ -41,6 +41,7 @@ Integration tests require actual API keys as they interact with external service
 ```bash
 # test.override.envrc
 INTEGRATION_OPENAI_API_KEY="your-openai-key"
+INTEGRATION_TOGETHER_API_KEY="your-together-key"
 ALCHEMY_API_KEY="your-alchemy-key"
 # Add other required API keys
 ```

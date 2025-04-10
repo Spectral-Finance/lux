@@ -1,6 +1,6 @@
-defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
+defmodule Lux.Prisms.Discord.Messages.ReactToMessageTest do
   use UnitAPICase, async: true
-  alias Lux.Prisms.Discord.Messages.ReactToMessagePrism
+  alias Lux.Prisms.Discord.Messages.ReactToMessage
 
   @channel_id "123456789012345678"
   @message_id "987654321098765432"
@@ -28,8 +28,10 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
 
       assert {:ok, %{
         reacted: true,
-        emoji: @unicode_emoji
-      }} = ReactToMessagePrism.handler(
+        emoji: @unicode_emoji,
+        message_id: @message_id,
+        channel_id: @channel_id
+      }} = ReactToMessage.handler(
         %{
           channel_id: @channel_id,
           message_id: @message_id,
@@ -54,8 +56,10 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
 
       assert {:ok, %{
         reacted: true,
-        emoji: @custom_emoji
-      }} = ReactToMessagePrism.handler(
+        emoji: @custom_emoji,
+        message_id: @message_id,
+        channel_id: @channel_id
+      }} = ReactToMessage.handler(
         %{
           channel_id: @channel_id,
           message_id: @message_id,
@@ -80,7 +84,7 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
         }))
       end)
 
-      assert {:error, {403, "Missing Permissions"}} = ReactToMessagePrism.handler(
+      assert {:error, {403, "Missing Permissions"}} = ReactToMessage.handler(
         %{
           channel_id: @channel_id,
           message_id: @message_id,
@@ -94,7 +98,7 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
 
   describe "schema validation" do
     test "validates input schema" do
-      prism = ReactToMessagePrism.view()
+      prism = ReactToMessage.view()
       assert prism.input_schema.required == ["channel_id", "message_id", "emoji"]
       assert Map.has_key?(prism.input_schema.properties, :channel_id)
       assert Map.has_key?(prism.input_schema.properties, :message_id)
@@ -102,10 +106,12 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessagePrismTest do
     end
 
     test "validates output schema" do
-      prism = ReactToMessagePrism.view()
+      prism = ReactToMessage.view()
       assert prism.output_schema.required == ["reacted"]
       assert Map.has_key?(prism.output_schema.properties, :reacted)
       assert Map.has_key?(prism.output_schema.properties, :emoji)
+      assert Map.has_key?(prism.output_schema.properties, :message_id)
+      assert Map.has_key?(prism.output_schema.properties, :channel_id)
     end
   end
 end

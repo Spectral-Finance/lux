@@ -169,8 +169,11 @@ defmodule Lux.Lens do
 
   def authenticate(%__MODULE__{auth: nil} = lens), do: lens
 
-  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens),
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_binary(key),
     do: update_headers(lens, [{"Authorization", "Bearer #{key}"}])
+
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_function(key, 0),
+    do: update_headers(lens, [{"Authorization", "Bearer #{key.()}"}])
 
   def authenticate(
         %__MODULE__{auth: %{type: :basic, username: username, password: password}} = lens
