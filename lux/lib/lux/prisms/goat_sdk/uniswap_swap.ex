@@ -1,4 +1,7 @@
 defmodule Lux.Prisms.GoatSdk.UniswapSwap do
+  @moduledoc """
+  Implements a swap between two tokens using Uniswap.
+  """
   use Lux.Prism,
     name: "Uniswap Swap",
     description: "Implements a swap between two tokens using Uniswap",
