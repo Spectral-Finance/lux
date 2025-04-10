@@ -2,29 +2,6 @@ defmodule LuxAppWeb.NodeEditorLive do
   use LuxAppWeb, :live_view
   require Logger
 
-  @node_types %{
-    "agent" => %{
-      label: "Agent",
-      description: "An autonomous agent that can perform tasks",
-      color: "#4ade80"
-    },
-    "prism" => %{
-      label: "Prism",
-      description: "Processes and transforms data",
-      color: "#60a5fa"
-    },
-    "lens" => %{
-      label: "Lens",
-      description: "Retrieves data from external sources",
-      color: "#c084fc"
-    },
-    "beam" => %{
-      label: "Beam",
-      description: "Executes actions in external systems",
-      color: "#fb923c"
-    }
-  }
-
   def mount(_params, _session, socket) do
     nodes = [
       %{
@@ -32,24 +9,10 @@ defmodule LuxAppWeb.NodeEditorLive do
         "type" => "agent",
         "position" => %{"x" => 400, "y" => 200},
         "data" => %{
-          "label" => "Ultimate Assistant",
-          "description" => "Tools Agent",
-          "goal" => "Help users with various tasks",
-          "llm_config" => %{
-            "provider" => "openai",
-            "model" => "gpt-4o-mini",
-            "temperature" => 0.5
-          },
-          "components" => [
-            %{
-              "id" => "comp-1",
-              "type" => "prism",
-              "name" => "Chat Model",
-              "label" => "Chat Model"
-            },
-            %{"id" => "comp-2", "type" => "lens", "name" => "Memory", "label" => "Memory"},
-            %{"id" => "comp-3", "type" => "beam", "name" => "Tool", "label" => "Tool"}
-          ]
+          initial_data("agent")
+          | "name" => "Ultimate Assistant",
+            "description" => "Tools Agent",
+            "goal" => "Help users with various tasks"
         }
       }
     ]
@@ -60,7 +23,6 @@ defmodule LuxAppWeb.NodeEditorLive do
      socket
      |> assign(:nodes, nodes)
      |> assign(:edges, edges)
-     |> assign(:node_types, @node_types)
      |> assign(:selected_node, nil)
      |> assign(:dragging_node, nil)
      |> assign(:drawing_edge, nil)}
@@ -265,7 +227,8 @@ defmodule LuxAppWeb.NodeEditorLive do
 
   # Node management
   def handle_event("node_added", %{"node" => node}, socket) do
-    nodes = [node | socket.assigns.nodes]
+    added_node = Map.put_new(node, "data", initial_data(node["type"]))
+    nodes = [added_node | socket.assigns.nodes]
 
     # Broadcast node added to all clients
     send(self(), {:broadcast_node_added, node})
@@ -311,40 +274,35 @@ defmodule LuxAppWeb.NodeEditorLive do
     {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, selected_node)}
   end
 
-  def handle_event(
-        "update_property",
-        %{"value" => value, "field" => field},
-        socket
-      ) do
-    node_id = socket.assigns.selected_node["id"]
+  def handle_event("export_agents", %{"node_id" => _}, socket) do
+    agent = export_agent(socket.assigns.selected_node, socket.assigns)
+    {:noreply, socket |> push_event("nodes_exported", agent)}
+  end
+
+  def handle_event("export_agents", _params, socket) do
+    agents =
+      socket.assigns.nodes
+      |> Enum.filter(&(&1["type"] == "agent"))
+      |> Enum.map(&export_agent(&1, socket.assigns))
+
+    edges = socket.assigns.edges
+    {:noreply, socket |> push_event("nodes_exported", %{nodes: agents, edges: edges})}
+  end
+
+  def handle_event("clear_components", %{"type" => type}, socket) do
+    new_selected_node = put_in(socket.assigns.selected_node, ["data", type], [])
 
     nodes =
-      Enum.map(socket.assigns.nodes, fn
-        %{"id" => ^node_id} = node ->
-          put_in(node, ["data", field], value)
-
-        node ->
+      socket.assigns.nodes
+      |> Enum.map(fn node ->
+        if node["id"] == socket.assigns.selected_node["id"] do
+          new_selected_node
+        else
           node
+        end
       end)
 
-    # Update both nodes list and selected node
-    selected_node = Enum.find(nodes, &(&1["id"] == socket.assigns.selected_node["id"]))
-    {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, selected_node)}
-  end
-
-  def handle_event("update_property", _params, socket) do
-    {:noreply, socket}
-  end
-
-  def handle_event("export_nodes", %{"node_id" => _}, socket) do
-    selected_node = socket.assigns.selected_node
-    {:noreply, socket |> push_event("nodes_exported", selected_node)}
-  end
-
-  def handle_event("export_nodes", _params, socket) do
-    nodes = socket.assigns.nodes
-    edges = socket.assigns.edges
-    {:noreply, socket |> push_event("nodes_exported", %{nodes: nodes, edges: edges})}
+    {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, new_selected_node)}
   end
 
   # Broadcast event handlers
@@ -378,33 +336,7 @@ defmodule LuxAppWeb.NodeEditorLive do
     <div class="flex h-full w-screen bg-gray-900 text-white overflow-hidden">
       <.json_drop_zone id="json-dropzone" />
       <!-- Component Palette -->
-      <div class="w-64 border-r border-gray-700 p-4 overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4">Components</h2>
-        <div class="space-y-2">
-          <%= for {type, info} <- @node_types do %>
-            <div
-              class="p-3 bg-gray-800 rounded-md cursor-move border border-gray-700 hover:border-blue-500 transition-colors"
-              draggable="true"
-              phx-hook="DraggableNode"
-              id={"draggable-#{type}"}
-              data-type={type}
-            >
-              <div class="flex items-center">
-                <div
-                  class="w-8 h-8 rounded-full mr-2 flex items-center justify-center"
-                  style={"background: #{info.color}20"}
-                >
-                  <div class="w-5 h-5" style={"background: #{info.color}"}></div>
-                </div>
-                <div>
-                  <div class="font-medium">{info.label}</div>
-                  <div class="text-xs text-gray-400">{info.description}</div>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
+      <.palette />
       
     <!-- Node Editor Canvas -->
       <div
@@ -486,7 +418,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                 rx="10"
                 ry="10"
                 fill="none"
-                stroke={@node_types[node["type"]].color}
+                stroke={color(node["type"])}
                 stroke-width="3"
                 filter="url(#glow-selected)"
                 style={"opacity: #{if @selected_node && @selected_node["id"] == node["id"], do: "1", else: "0"}"}
@@ -499,22 +431,16 @@ defmodule LuxAppWeb.NodeEditorLive do
                 height="100"
                 rx="5"
                 ry="5"
-                fill={@node_types[node["type"]].color <> "20"}
-                stroke={@node_types[node["type"]].color}
+                fill={color(node["type"]) <> "20"}
+                stroke={color(node["type"])}
                 stroke-width="2"
               />
-              <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["label"]}</text>
+              <text x="10" y="30" fill="white" font-weight="bold">{node["data"]["name"]}</text>
               <text x="10" y="50" fill="#999" font-size="12">{node["data"]["description"]}</text>
               
     <!-- Node Ports -->
-              <circle class="port input" cx="0" cy="50" r="5" fill={@node_types[node["type"]].color} />
-              <circle
-                class="port output"
-                cx="200"
-                cy="50"
-                r="5"
-                fill={@node_types[node["type"]].color}
-              />
+              <circle class="port input" cx="0" cy="50" r="5" fill={color(node["type"])} />
+              <circle class="port output" cx="200" cy="50" r="5" fill={color(node["type"])} />
             </g>
           <% end %>
         </svg>
@@ -524,7 +450,7 @@ defmodule LuxAppWeb.NodeEditorLive do
       <div class="w-64 border-l border-gray-700 p-4 overflow-y-auto">
         <h2 class="text-xl font-bold mb-4">Properties</h2>
         <%= if @selected_node do %>
-          <form phx-submit="update_node">
+          <form phx-submit="update_node" phx-change="update_node" id={@selected_node["id"]}>
             <input type="hidden" name="node[id]" value={@selected_node["id"]} />
             <div class="space-y-4">
               <div>
@@ -533,11 +459,10 @@ defmodule LuxAppWeb.NodeEditorLive do
                 </label>
                 <input
                   type="text"
-                  name="node[data][label]"
-                  value={@selected_node["data"]["label"]}
+                  name="node[data][name]"
+                  value={@selected_node["data"]["name"]}
                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                  phx-blur="update_property"
-                  phx-value-field="label"
+                  phx-debounce="blur"
                 />
               </div>
               <div>
@@ -546,8 +471,7 @@ defmodule LuxAppWeb.NodeEditorLive do
                   name="node[data][description]"
                   class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                   rows="3"
-                  phx-blur="update_property"
-                  phx-value-field="description"
+                  phx-debounce="blur"
                 ><%= @selected_node["data"]["description"] %></textarea>
               </div>
               <%= if @selected_node["type"] == "agent" do %>
@@ -557,63 +481,59 @@ defmodule LuxAppWeb.NodeEditorLive do
                     name="node[data][goal]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
                     rows="3"
-                    phx-blur="update_property"
-                    phx-value-field="goal"
+                    phx-debounce="blur"
                   ><%= @selected_node["data"]["goal"] %></textarea>
                 </div>
                 <div>
-                  <label class="block text-sm font-medium text-gray-400 mb-1">LLM Provider</label>
-                  <select
-                    name="node[data][llm_provider]"
+                  <label class="block text-sm font-medium text-gray-400 mb-1">Module</label>
+                  <input
+                    type="text"
+                    name="node[data][module]"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    rows="3"
-                    phx-blur="update_property"
-                    phx-value-field="llm_provider"
-                  >
-                    <option value="openai">OpenAI</option>
-                    <option value="anthropic">Anthropic</option>
-                    <option value="gemini">Gemini</option>
-                    <option value="claude">Claude</option>
-                    <option value="groq">Groq</option>
-                    <option value="azure">Azure</option>
-                  </select>
+                    phx-debounce="blur"
+                    value={@selected_node["data"]["module"]}
+                  />
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-400 mb-1">LLM Model</label>
-                  <select
-                    name="node[data][llm_model]"
-                    class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    value={@selected_node["data"]["llm_model"]}
-                    phx-blur="update_property"
-                    phx-value-field="llm_model"
-                  >
-                    <option value="gpt-4">GPT-4</option>
-                    <option value="gpt-4o">GPT-4o</option>
-                    <option value="gpt-4o-mini">GPT-4o-mini</option>
-                    <option value="gpt-3.5-turbo">GPT-3.5-turbo</option>
-                    <option value="gpt-3.5-turbo-16k">GPT-3.5-turbo-16k</option>
-                  </select>
-                </div>
+                <.llm_provider_selector selected={@selected_node["data"]["llm_config"]["provider"]} />
+                <.llm_model_selector
+                  selected_provider={@selected_node["data"]["llm_config"]["provider"]}
+                  selected={@selected_node["data"]["llm_config"]["model"]}
+                />
                 <div>
                   <label class="block text-sm font-medium text-gray-400 mb-1">LLM Temperature</label>
                   <input
                     type="number"
-                    name="node[data][llm_temperature]"
+                    name="node[data][llm_config][temperature]"
+                    step="0.1"
                     class="w-full bg-gray-800 border border-gray-700 rounded-md px-3 py-2 text-sm"
-                    value={@selected_node["data"]["llm_temperature"]}
-                    phx-blur="update_property"
-                    phx-value-field="llm_temperature"
+                    value={@selected_node["data"]["llm_config"]["temperature"]}
+                    phx-debounce="blur"
                   />
                 </div>
+                <.component_selector
+                  type="beam"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["beams"]}
+                />
+                <.component_selector
+                  type="lens"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["lenses"]}
+                />
+                <.component_selector
+                  type="prism"
+                  nodes={@nodes}
+                  selected={@selected_node["data"]["prisms"]}
+                />
+                <button
+                  phx-click="export_agents"
+                  phx-value-node_id={@selected_node["id"]}
+                  class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md mt-4"
+                >
+                  Export Selected
+                </button>
               <% end %>
             </div>
-            <button
-              phx-click="export_nodes"
-              phx-value-node_id={@selected_node["id"]}
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md mt-4"
-            >
-              Export Selected
-            </button>
           </form>
         <% else %>
           <div class="text-gray-400 text-sm">
@@ -623,5 +543,24 @@ defmodule LuxAppWeb.NodeEditorLive do
       </div>
     </div>
     """
+  end
+
+  defp get_component_data(nil, _assigns), do: []
+
+  defp get_component_data(component_ids, assigns) do
+    component_ids
+    |> Enum.map(fn id -> Enum.find(assigns.nodes, &(&1["id"] == id)) end)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.map(fn component -> component["data"] end)
+  end
+
+  defp export_agent(selected_node, assigns) do
+    data = selected_node["data"]
+
+    data
+    |> put_in(["id"], selected_node["id"])
+    |> put_in(["beams"], get_component_data(data["beams"], assigns))
+    |> put_in(["lenses"], get_component_data(data["lenses"], assigns))
+    |> put_in(["prisms"], get_component_data(data["prisms"], assigns))
   end
 end

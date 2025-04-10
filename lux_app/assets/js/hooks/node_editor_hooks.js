@@ -5,6 +5,7 @@ const NodeEditorHooks = {
     mounted() {
       this.el.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('node-type', this.el.dataset.type);
+        e.dataTransfer.setData('original-offset', JSON.stringify({x: e.offsetX, y: e.offsetY}));
       });
     }
   },
@@ -295,11 +296,12 @@ const NodeEditorHooks = {
     handleDrop(e) {
       e.preventDefault();
       const nodeType = e.dataTransfer.getData('node-type');
+      const originalOffset = JSON.parse(e.dataTransfer.getData('original-offset'));
       if (!nodeType) return;
 
       const svgRect = this.svg.getBoundingClientRect();
-      const x = e.clientX - svgRect.left;
-      const y = e.clientY - svgRect.top;
+      const x = e.clientX - svgRect.left - originalOffset.x;
+      const y = e.clientY - svgRect.top - originalOffset.y;
 
       // Generate a unique ID for the new node
       const nodeId = `${nodeType}-${Date.now()}`;
@@ -309,8 +311,7 @@ const NodeEditorHooks = {
         node: {
           id: nodeId,
           type: nodeType,
-          position: { x, y },
-          data: this.getInitialNodeData(nodeType)
+          position: { x, y }
         }
       });
       
@@ -671,42 +672,6 @@ const NodeEditorHooks = {
         y: parseFloat(match[2])
       };
     },
-
-    getInitialNodeData(type) {
-      switch (type) {
-        case 'agent':
-          return {
-            label: 'New Agent',
-            description: 'Agent description',
-            goal: 'Agent goal',
-            components: []
-          };
-        case 'prism':
-          return {
-            label: 'New Prism',
-            description: 'Prism description',
-            input_schema: null,
-            output_schema: null
-          };
-        case 'lens':
-          return {
-            label: 'New Lens',
-            description: 'Lens description',
-            url: '',
-            method: 'GET',
-            schema: null
-          };
-        case 'beam':
-          return {
-            label: 'New Beam',
-            description: 'Beam description',
-            input_schema: null,
-            output_schema: null
-          };
-        default:
-          return { label: 'New Node' };
-      }
-    }
   }
 };
 

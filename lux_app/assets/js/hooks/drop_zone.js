@@ -1,3 +1,27 @@
+import { NODE_WIDTH, NODE_HEIGHT } from '../consts';
+
+const createComponentNode = (type, data, index) => {
+  if (typeof data === 'string') {
+    const name = data.split('.').pop();
+    return {
+      type,
+      id: `${type}-${index}`,
+      data: {
+        name,
+        module: data,
+      }
+    }
+  } else if (typeof data === 'object' && data.name) {
+    return {
+      type,
+      id: `${type}-${index}`,
+      data
+    }
+  }
+
+  throw new Error('Cannot create component node from given data');
+};
+
 const JsonDropZone = {
   mounted() {
     // Counter to track drag enter/leave events
@@ -42,23 +66,41 @@ const JsonDropZone = {
 
       const svg = document.querySelector('#node-editor-canvas svg');
       const svgRect = svg.getBoundingClientRect();
-      const x = e.clientX - svgRect.left;
-      const y = e.clientY - svgRect.top;
+      const x = e.clientX - svgRect.left - NODE_WIDTH / 2;
+      const y = e.clientY - svgRect.top - NODE_HEIGHT / 2;
 
       const reader = new FileReader();
       reader.onload = (event) => {
-        const content = JSON.parse(event.target.result);
-        // TODO: validate type properly (agent, lens, prism, beam)
-        if (typeof content === 'object' && content.type) {
-          this.pushEvent('node_added', {
-            node: {
-              ...content,
-              id: `${content.type}-${Date.now()}`,
-              position: { x, y }
+        try {
+          const parsedData = JSON.parse(event.target.result);
+          
+          const beams = parsedData.beams.map((data, index) => createComponentNode('beam', data, index));
+          const lenses = parsedData.lenses.map((data, index) => createComponentNode('lens', data, index));
+          const prisms = parsedData.prisms.map((data, index) => createComponentNode('prism', data, index));
+          const agent = {
+            type: 'agent',
+            id: `agent-${Date.now()}`,
+            data: {
+              ...parsedData,
+              beams: beams.map(beam => beam.id),
+              lenses: lenses.map(lens => lens.id),
+              prisms: prisms.map(prism => prism.id)
             }
+          };
+          
+          const nodes = [agent, ...beams, ...lenses, ...prisms].map((node, index) => ({
+            ...node,
+            position: {
+              x: x + NODE_WIDTH / 3 * index,
+              y: y + NODE_HEIGHT / 3 * index
+            }
+          }));
+          
+          nodes.forEach(node => {
+            this.pushEvent('node_added', { node });
           });
-        } else {
-          console.error('Invalid JSON file:', content);
+        } catch (error) {
+          console.error('Invalid JSON file:', error);
           this.pushEvent('node_added_error', { message: 'Invalid JSON file' });
         }
       };
