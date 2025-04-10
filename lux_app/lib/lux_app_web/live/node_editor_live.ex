@@ -274,31 +274,6 @@ defmodule LuxAppWeb.NodeEditorLive do
     {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, selected_node)}
   end
 
-  def handle_event(
-        "update_property",
-        %{"value" => value, "field" => field},
-        socket
-      ) do
-    node_id = socket.assigns.selected_node["id"]
-
-    nodes =
-      Enum.map(socket.assigns.nodes, fn
-        %{"id" => ^node_id} = node ->
-          put_in(node, ["data", field], value)
-
-        node ->
-          node
-      end)
-
-    # Update both nodes list and selected node
-    selected_node = Enum.find(nodes, &(&1["id"] == socket.assigns.selected_node["id"]))
-    {:noreply, socket |> assign(:nodes, nodes) |> assign(:selected_node, selected_node)}
-  end
-
-  def handle_event("update_property", _params, socket) do
-    {:noreply, socket}
-  end
-
   def handle_event("export_agents", %{"node_id" => _}, socket) do
     agent = export_agent(socket.assigns.selected_node, socket.assigns)
     {:noreply, socket |> push_event("nodes_exported", agent)}
@@ -583,6 +558,7 @@ defmodule LuxAppWeb.NodeEditorLive do
     data = selected_node["data"]
 
     data
+    |> put_in(["id"], selected_node["id"])
     |> put_in(["beams"], get_component_data(data["beams"], assigns))
     |> put_in(["lenses"], get_component_data(data["lenses"], assigns))
     |> put_in(["prisms"], get_component_data(data["prisms"], assigns))
