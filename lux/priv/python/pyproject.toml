@@ -9,8 +9,9 @@ packages = [{include = "lux"}]
 [tool.poetry.dependencies]
 python = "^3.12.3"
 web3 = ">=6.20.3"
+eth-account = "^0.13.6"
 eth-typing = "^5.0.0"
-eth-tester = {extras = ["py-evm"], version = "^0.11.0b2"}
+eth-tester = {extras = ["py-evm"], version = "^0.12.1b1"}
 nltk = "^3.9.1"
 setuptools = "^75.8.2"
 hyperliquid-python-sdk = "^0.10.1"
