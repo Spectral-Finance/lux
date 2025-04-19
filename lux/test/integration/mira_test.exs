@@ -9,10 +9,10 @@ defmodule Lux.Integration.LLM.MiraTest do
   describe "simple text request and response, no tools or structure output" do
     setup do
       config = %{
-        api_key: Application.get_env(:lux, :api_keys)[:integration_mira],
+        api_key: "your_test_api_key",
         model: "llama-3.1-8b-instruct",
         temperature: 0.7,
-        stream: false
+        stream: falsex
       }
 
       %{config: config}
@@ -22,6 +22,7 @@ defmodule Lux.Integration.LLM.MiraTest do
       assert {:ok,
               %Signal{
                 id: _,
+                topic: nil,
                 metadata: %{
                   id: _,
                   usage: %{
@@ -33,7 +34,7 @@ defmodule Lux.Integration.LLM.MiraTest do
                   system_fingerprint: _
                 },
                 payload: %{
-                  model: "llama-3.1-8b-instruct",
+                  model: "meta-llama/llama-3.1-8b-instruct",
                   content: content,
                   tool_calls: nil,
                   tool_calls_results: nil,
@@ -52,7 +53,7 @@ defmodule Lux.Integration.LLM.MiraTest do
   describe "call/3" do
     test "makes correct API call with tools" do
       config = %{
-        api_key: "test_key",
+        api_key: "your_test_api_key",
         model: "llama-3.1-8b-instruct"
       }
 
@@ -93,25 +94,29 @@ defmodule Lux.Integration.LLM.MiraTest do
         assert is_boolean(decoded_body["stream"])
 
         Req.Test.json(conn, %{
-          "model" => "llama-3.1-8b-instruct",
-          "choices" => [
-            %{
-              "message" => %{
-                "content" => ~s({"result": "Test response"})
-              },
-              "finish_reason" => "stop"
-            }
-          ]
+          "data" => %{
+            "model" => "meta-llama/llama-3.1-8b-instruct",
+            "choices" => [
+              %{
+                "message" => %{
+                  "content" => ~s({"text": "Test response"})
+                },
+                "finish_reason" => "stop"
+              }
+            ]
+          }
         })
       end)
 
       assert {:ok,
               %Signal{
+                id: _,
                 schema_id: ResponseSignal,
+                topic: nil,
                 payload: %{
-                  content: %{"result" => "Test response"},
+                  content: %{"text" => _},
                   finish_reason: "stop",
-                  model: "llama-3.1-8b-instruct",
+                  model: "meta-llama/llama-3.1-8b-instruct",
                   tool_calls: nil,
                   tool_calls_results: nil
                 },
@@ -120,7 +125,11 @@ defmodule Lux.Integration.LLM.MiraTest do
                 timestamp: _,
                 metadata: %{
                   id: _,
-                  usage: _,
+                  usage: %{
+                    "completion_tokens" => _,
+                    "prompt_tokens" => _,
+                    "total_tokens" => _
+                  },
                   created: _,
                   system_fingerprint: _
                 }
