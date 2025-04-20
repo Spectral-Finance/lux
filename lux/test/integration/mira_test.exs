@@ -12,7 +12,7 @@ defmodule Lux.Integration.LLM.MiraTest do
         api_key: "your_test_api_key",
         model: "llama-3.1-8b-instruct",
         temperature: 0.7,
-        stream: falsex
+        stream: false
       }
 
       %{config: config}
