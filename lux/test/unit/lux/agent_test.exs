@@ -436,7 +436,12 @@ defmodule Lux.AgentTest do
       end
 
       signal = Lux.Signal.new(%{schema_id: PythonSignal, payload: %{test: "signal"}})
-      assert {:ok, %{"message" => "Hello, prism!"}} = PythonAgent.handle_signal(signal, %{})
+
+      assert {:ok,
+              %{
+                "success" => true,
+                "data" => %{"message" => "Hello, prism!"}
+              }} = PythonAgent.handle_signal(signal, %{})
     end
 
     test "ignore unspecified signal" do

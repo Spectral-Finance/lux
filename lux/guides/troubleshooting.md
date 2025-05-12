@@ -181,7 +181,7 @@ If you're still experiencing issues:
 1. **Check Existing Issues**: Visit our [GitHub Issues](https://github.com/spectrallabs/lux/issues) to see if others have encountered the same problem.
 
 2. **Join Our Community**:
-   - [Discord Server](https://discord.gg/luxframework)
+   - [Discord Server](https://discord.gg/dsRPcjeH)
    - [GitHub Discussions](https://github.com/spectrallabs/lux/discussions)
 
 3. **Debug Information**: When reporting issues, please include:

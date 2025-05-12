@@ -1,6 +1,9 @@
 # IDE settings (project-wide)
 .idea/
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 *.swp
 *.swo
 .project

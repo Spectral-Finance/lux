@@ -300,6 +300,7 @@ setup-deps: ## Install project dependencies
 	fi
 	@mix local.hex --force
 	@mix local.rebar --force
+	@mix deps.get
 	@mix setup 
 
 test: ## Run test suite

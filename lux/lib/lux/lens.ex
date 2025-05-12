@@ -41,6 +41,7 @@ defmodule Lux.Lens do
 
   defstruct after_focus: nil,
             name: nil,
+            module_name: nil,
             url: nil,
             method: :get,
             params: %{},
@@ -51,6 +52,7 @@ defmodule Lux.Lens do
 
   @type t :: %__MODULE__{
           name: String.t(),
+          module_name: String.t(),
           url: String.t(),
           method: atom(),
           params: map(),
@@ -71,15 +73,14 @@ defmodule Lux.Lens do
 
       # Register compile-time attributes
       Module.register_attribute(__MODULE__, :lens_struct, persist: false)
+      Module.register_attribute(__MODULE__, :lens_module_name, persist: false)
+
+      @lens_module_name __MODULE__ |> Module.split() |> Enum.join(".")
 
       # Create the struct at compile time
       @lens_struct Lux.Lens.new(
-                     name:
-                       Keyword.get(
-                         unquote(opts),
-                         :name,
-                         __MODULE__ |> Module.split() |> List.last()
-                       ),
+                     name: Keyword.get(unquote(opts), :name, @lens_module_name),
+                     module_name: @lens_module_name,
                      description: Keyword.get(unquote(opts), :description, ""),
                      url: Keyword.get(unquote(opts), :url),
                      method: Keyword.get(unquote(opts), :method, :get),
@@ -115,9 +116,11 @@ defmodule Lux.Lens do
 
   @callback after_focus(response :: any()) :: {:ok, any()} | {:error, any()}
 
+  # credo:disable-for-next-line
   def new(attrs) when is_map(attrs) do
     %__MODULE__{
       name: attrs[:name] || "",
+      module_name: attrs[:module_name] || "",
       url: attrs[:url] || "",
       method: attrs[:method] || :get,
       params: attrs[:params] || %{},
@@ -166,8 +169,11 @@ defmodule Lux.Lens do
 
   def authenticate(%__MODULE__{auth: nil} = lens), do: lens
 
-  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens),
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_binary(key),
     do: update_headers(lens, [{"Authorization", "Bearer #{key}"}])
+
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_function(key, 0),
+    do: update_headers(lens, [{"Authorization", "Bearer #{key.()}"}])
 
   def authenticate(
         %__MODULE__{auth: %{type: :basic, username: username, password: password}} = lens

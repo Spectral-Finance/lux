@@ -32,49 +32,45 @@ defmodule Lux.LLM.OpenAITest do
     end
   end
 
+  defmodule TestLens do
+    @moduledoc false
+    use Lux.Lens,
+      name: "WeatherAPI",
+      description: "Gets weather data",
+      schema: %{
+        type: "object",
+        properties: %{
+          location: %{
+            type: "string",
+            description: "City name"
+          },
+          units: %{
+            type: "string",
+            description: "Temperature units"
+          }
+        }
+      }
+  end
+
   setup do
     Req.Test.verify_on_exit!()
   end
 
   describe "tool_to_function/1" do
     test "converts a beam to an OpenAI function" do
-      beam =
-        Lux.Beam.new(
-          name: "TestBeam",
-          description: "A test beam",
-          input_schema: %{
-            type: "object",
-            properties: %{
-              "value" => %{
-                type: "string",
-                description: "Test value"
-              },
-              "amount" => %{
-                type: "float",
-                description: "Test amount"
-              }
-            }
-          }
-        )
+      beam = TestBeam.view()
 
       function = OpenAI.tool_to_function(beam)
 
       assert %{
                type: "function",
                function: %{
-                 name: "TestBeam",
+                 name: "Lux_LLM_OpenAITest_TestBeam",
                  description: "A test beam",
                  parameters: %{
-                   type: "object",
+                   type: :object,
                    properties: %{
-                     "value" => %{
-                       type: "string",
-                       description: "Test value"
-                     },
-                     "amount" => %{
-                       type: "float",
-                       description: "Test amount"
-                     }
+                    value: %{type: :string}
                    }
                  }
                }
@@ -82,34 +78,20 @@ defmodule Lux.LLM.OpenAITest do
     end
 
     test "converts a prism to an OpenAI function" do
-      prism =
-        Lux.Prism.new(%{
-          name: "test_prism",
-          description: "A test prism",
-          input_schema: %{
-            type: "object",
-            properties: %{
-              "query" => %{
-                type: "string",
-                description: "Search query"
-              }
-            }
-          }
-        })
+      prism = TestPrism.view()
 
       function = OpenAI.tool_to_function(prism)
 
       assert %{
                type: "function",
                function: %{
-                 name: "test_prism",
+                 name: "Lux_LLM_OpenAITest_TestPrism",
                  description: "A test prism",
                  parameters: %{
-                   type: "object",
+                   type: :object,
                    properties: %{
-                     "query" => %{
-                       type: "string",
-                       description: "Search query"
+                     value: %{
+                       type: :string
                      }
                    }
                  }
@@ -118,31 +100,14 @@ defmodule Lux.LLM.OpenAITest do
     end
 
     test "converts a lens to an OpenAI function" do
-      lens =
-        Lux.Lens.new(
-          name: "WeatherAPI",
-          description: "Gets weather data",
-          schema: %{
-            type: "object",
-            properties: %{
-              location: %{
-                type: "string",
-                description: "City name"
-              },
-              units: %{
-                type: "string",
-                description: "Temperature units"
-              }
-            }
-          }
-        )
+      lens = TestLens.view()
 
       function = OpenAI.tool_to_function(lens)
 
       assert %{
                type: "function",
                function: %{
-                 name: "WeatherAPI",
+                 name: "Lux_LLM_OpenAITest_TestLens",
                  description: "Gets weather data",
                  parameters: %{
                    type: "object",
@@ -169,20 +134,7 @@ defmodule Lux.LLM.OpenAITest do
         model: "gpt-3.5-turbo"
       }
 
-      beam =
-        Lux.Beam.new(
-          name: "TestBeam",
-          description: "A test beam",
-          input_schema: %{
-            type: "object",
-            properties: %{
-              "value" => %{
-                type: "string",
-                description: "Test value"
-              }
-            }
-          }
-        )
+      beam = TestBeam.view()
 
       Req.Test.expect(OpenAI, fn conn ->
         assert conn.method == "POST"
@@ -201,7 +153,7 @@ defmodule Lux.LLM.OpenAITest do
 
         assert [tool] = decoded_body["tools"]
         assert tool["type"] == "function"
-        assert tool["function"]["name"] == "TestBeam"
+        assert tool["function"]["name"] == "Lux_LLM_OpenAITest_TestBeam"
 
         Req.Test.json(conn, %{
           "model" => "gpt-3.5-turbo",

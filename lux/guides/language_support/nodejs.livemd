@@ -2,7 +2,7 @@
 
 ```elixir
 Mix.install([
-  {:lux, "~> 0.4.0"},
+  {:lux, ">= 0.5.0"},
   {:kino, "~> 0.14.2"}
 ])
 
@@ -10,6 +10,10 @@ Application.ensure_all_started([:lux])
 ```
 
 ## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Fnodejs.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
 
 Lux provides robust support for Node.js, allowing you to leverage the vast JavaScript ecosystem in your agents. This guide explains how to use Node.js effectively with Lux.
 
