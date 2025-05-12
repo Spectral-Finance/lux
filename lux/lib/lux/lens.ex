@@ -103,7 +103,7 @@ defmodule Lux.Lens do
         __MODULE__.view()
         |> Map.update!(:params, &Map.merge(&1, input))
         |> Lux.Lens.authenticate()
-        |> Map.update!(:params, &before_focus(&1))
+        |> before_focus()
         |> Lux.Lens.focus(opts)
       end
 
