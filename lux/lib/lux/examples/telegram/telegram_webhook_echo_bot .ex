@@ -431,7 +431,7 @@ defmodule Lux.Examples.Telegram.WebhookEchoBot do
     IO.puts("Cleaning up...")
 
     # First check if the webhook is actually set
-    webhook_status = check_webhook_status(token)
+    _webhook_status = check_webhook_status(token)
 
     # Delete the webhook with retries
     try do

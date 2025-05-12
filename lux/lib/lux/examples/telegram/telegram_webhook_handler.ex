@@ -3,7 +3,6 @@ defmodule TelegramWebhookHandler do
   A Plug for handling Telegram webhook requests.
   """
   use Plug.Router
-  @behaviour Plug
 
   alias Lux.Lenses.Telegram.Client
   require Logger

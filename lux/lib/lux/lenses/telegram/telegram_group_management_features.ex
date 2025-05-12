@@ -533,7 +533,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeatures do
 
     # Get all new members and restrict them
     case TelegramBotLens.get_chat_member_count(chat_id) do
-      {:ok, count} ->
+      {:ok, _count} ->
         # Get recent members (this is a simplified approach)
         # In a real implementation, you would need to track new members
         {:ok, _} = set_chat_permissions(chat_id, permissions)
@@ -836,7 +836,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeatures do
 
   Returns the chat ID of the created channel on success.
   """
-  def create_admin_log_channel(group_chat_id, log_channel_title) do
+  def create_admin_log_channel(group_chat_id, _log_channel_title) do
     # This is a simplified implementation
     # In a real implementation, you would need to:
     # 1. Create a new channel

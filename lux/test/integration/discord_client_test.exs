@@ -12,7 +12,7 @@ defmodule Lux.Integration.Discord.ClientTest do
       %{config: config}
     end
 
-    test "can fetch current bot user information", %{config: config} do
+    test "can fetch current bot user information", %{config: _config} do
       assert {:ok, %{
         "accent_color" => _,
         "avatar" => _,

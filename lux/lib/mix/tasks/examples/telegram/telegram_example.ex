@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Telegram.Example do
         # Run the example with the provided chat ID and token
         Lux.Examples.TelegramExample.run(chat_id, token)
 
-      [chat_id] ->
+      [_chat_id] ->
         # No token provided, show usage
         Mix.shell().error("Error: No bot token provided")
         Mix.shell().info("Usage: mix telegram.example CHAT_ID BOT_TOKEN")

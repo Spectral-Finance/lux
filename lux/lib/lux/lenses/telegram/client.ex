@@ -6,8 +6,6 @@ defmodule Lux.Lenses.Telegram.Client do
   with built-in rate limiting and error handling.
   """
 
-  alias Lux.Lenses.Telegram.RateLimiter
-  alias Lux.Lenses.Telegram.ErrorHandler
   require Logger
 
   @doc """
@@ -18,51 +16,18 @@ defmodule Lux.Lenses.Telegram.Client do
   - `lens`: The Lens struct for the Telegram Bot API
   - `params`: The parameters for the API request
   - `opts`: Options for the request
-    - `max_retries`: Maximum number of retry attempts (default: 3)
-    - `initial_delay`: Initial delay in milliseconds (default: 1000)
-    - `max_delay`: Maximum delay in milliseconds (default: 30000)
-    - `skip_rate_limit`: Skip rate limiting (default: false)
-    - `skip_retries`: Skip retry logic (default: false)
 
   ## Returns
 
   Returns the result of the API request or an error.
   """
-  def request(lens, params, opts \\ []) do
+  def request(lens, params, _opts \\ []) do
     method = Map.get(params, "method") || Map.get(params, :method)
-    skip_rate_limit = Keyword.get(opts, :skip_rate_limit, false)
-    skip_retries = Keyword.get(opts, :skip_retries, false)
 
     Logger.debug("Making Telegram API request: #{inspect(method)}")
 
-    # Apply rate limiting and retries based on options
-    cond do
-      skip_rate_limit && skip_retries ->
-        # Skip both rate limiting and retries
-        make_request(lens, params)
 
-      skip_rate_limit ->
-        # Skip rate limiting but use retries
-        ErrorHandler.with_retries(
-          fn -> make_request(lens, params) end,
-          opts
-        )
-
-      skip_retries ->
-        # Use rate limiting but skip retries
-        RateLimiter.with_rate_limit(params, fn ->
-          make_request(lens, params)
-        end)
-
-      true ->
-        # Use both rate limiting and retries (default)
-        RateLimiter.with_rate_limit(params, fn ->
-          ErrorHandler.with_retries(
-            fn -> make_request(lens, params) end,
-            opts
-          )
-        end)
-    end
+    make_request(lens, params)
   end
 
   @doc """
@@ -87,19 +52,19 @@ defmodule Lux.Lenses.Telegram.Client do
       {:ok, %{status: status, body: body}} ->
         end_time = System.monotonic_time(:millisecond)
         method = Map.get(params, "method") || Map.get(params, :method)
-        Logger.warn("Telegram API request failed with status #{status}: #{inspect(method)} (#{end_time - start_time}ms)")
+        Logger.warning("Telegram API request failed with status #{status}: #{inspect(method)} (#{end_time - start_time}ms)")
         {:error, body}
 
       {:error, %Req.TransportError{reason: reason}} ->
         end_time = System.monotonic_time(:millisecond)
         method = Map.get(params, "method") || Map.get(params, :method)
-        Logger.warn("Telegram API transport error: #{inspect(method)} - #{inspect(reason)} (#{end_time - start_time}ms)")
+        Logger.warning("Telegram API transport error: #{inspect(method)} - #{inspect(reason)} (#{end_time - start_time}ms)")
         {:error, inspect(reason)}
 
       {:error, error} ->
         end_time = System.monotonic_time(:millisecond)
         method = Map.get(params, "method") || Map.get(params, :method)
-        Logger.warn("Telegram API error: #{inspect(method)} - #{inspect(error)} (#{end_time - start_time}ms)")
+        Logger.warning("Telegram API error: #{inspect(method)} - #{inspect(error)} (#{end_time - start_time}ms)")
         {:error, inspect(error)}
     end
   end

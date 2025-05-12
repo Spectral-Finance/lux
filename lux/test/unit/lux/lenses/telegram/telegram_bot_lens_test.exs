@@ -1,5 +1,5 @@
 defmodule Lux.Lenses.TelegramBotLensTest do
-  use UnitAPICase, async: true
+  use UnitAPICase, async: false
 
   # Note: Tests for interactive features (polls, games, live location, stickers, inline queries)
   # have been moved to Lux.Lenses.TelegramInteractiveFeaturesTest

@@ -3,7 +3,7 @@ defmodule Lux.Prisms.Telegram.Media.SendMediaGroupTest do
 
   alias Lux.Prisms.Telegram.Media.SendMediaGroup
 
-  @bot_token "test_telegram_bot_token"
+  @bot_token "test-integration-telegram-bot-token"
 
   setup do
     Req.Test.verify_on_exit!()

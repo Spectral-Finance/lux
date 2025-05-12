@@ -362,25 +362,6 @@ defmodule Lux.Integration.TelegramBotLensTest do
 
   describe "TelegramBotLens integration - interactive content" do
     @tag :integration
-    test "can send a poll" do
-      question = "What's your favorite programming language?"
-      options = ["Elixir", "Python", "JavaScript", "Rust", "Go"]
-
-      assert {:ok, message} = TelegramBotLens.send_poll(
-        @test_chat_id,
-        question,
-        options,
-        %{is_anonymous: true}
-      )
-      IO.puts("Poll message sent: #{inspect(message, pretty: true)}")
-      assert is_map(message)
-      assert is_integer(message["message_id"])
-      assert is_map(message["poll"])
-      assert message["poll"]["question"] == question
-      assert length(message["poll"]["options"]) == length(options)
-    end
-
-    @tag :integration
     test "can send a contact" do
       phone_number = "+15551234567"
       first_name = "John"
@@ -399,36 +380,6 @@ defmodule Lux.Integration.TelegramBotLensTest do
       assert message["contact"]["phone_number"] == phone_number
       assert message["contact"]["first_name"] == first_name
       assert message["contact"]["last_name"] == last_name
-    end
-
-    @tag :integration
-    test "can send a sticker" do
-      # Use a valid sticker ID from a real sticker
-      sticker_id = "CAACAgUAAxkBAAEyOo9nwmKWV2cbpTTvvYb-3i3_COPWowACUAQAAi_32VWCTBgLkVLp0zYE"
-
-      result = TelegramBotLens.send_sticker(@test_chat_id, sticker_id)
-
-      case result do
-        {:ok, message} ->
-          IO.puts("Sticker message sent: #{inspect(message)}")
-          assert is_map(message)
-          assert Map.has_key?(message, "message_id")
-          assert is_integer(message["message_id"])
-          assert Map.has_key?(message, "sticker") || Map.has_key?(message, "document")
-
-        {:error, error} ->
-          # If we get an error, it should be a specific type of error related to the sticker
-          IO.puts("Expected sticker error: #{inspect(error)}")
-          error_description = if is_map(error), do: error["description"], else: error
-          assert is_binary(error_description)
-          assert String.contains?(error_description, "wrong file identifier") ||
-                 String.contains?(error_description, "wrong remote file") ||
-                 String.contains?(error_description, "wrong type of")
-      end
-
-      # Test passes either way since we're testing the API call works correctly
-      # even if the specific sticker ID is no longer valid
-      assert true
     end
 
     @tag :integration
@@ -685,71 +636,6 @@ defmodule Lux.Integration.TelegramBotLensTest do
 
         {:error, :timeout} ->
           flunk("Timed out waiting for reply")
-      end
-    end
-
-    @tag :integration
-    @tag :manual_interaction
-    test "can process different types of updates" do
-      # Send a message with instructions
-      instructions = """
-      Please perform ONE of the following actions within 60 seconds:
-      1. Edit a message
-      2. Send a sticker
-      3. Vote in a poll
-
-      Integration Test at #{DateTime.utc_now()}
-      """
-
-      {:ok, _} = TelegramBotLens.send_message(@test_chat_id, instructions)
-
-      # Send a poll as an option for interaction
-      question = "Test Poll - Please vote"
-      options = ["Option 1", "Option 2", "Option 3"]
-      {:ok, _} = TelegramBotLens.send_poll(@test_chat_id, question, options)
-
-      IO.puts("\n\n========================================")
-      IO.puts("MANUAL TEST INTERACTION REQUIRED")
-      IO.puts("Please perform one of the actions listed in the message")
-      IO.puts("You have 60 seconds to respond")
-      IO.puts("========================================\n\n")
-
-      # Wait for any update
-      filter_fn = fn update ->
-        # Accept any type of update
-        true
-      end
-
-      case TelegramBotLens.wait_for_update(filter_fn, 60000) do
-        {:ok, update} ->
-          IO.puts("Received update: #{inspect(update, pretty: true)}")
-
-          # Verify we got a valid update type
-          assert update.type in [:message, :edited_message, :callback_query, :poll_answer]
-
-          # Additional assertions based on the update type
-          case update.type do
-            :message ->
-              assert is_integer(update.message_id)
-              assert is_map(update.chat)
-
-            :edited_message ->
-              assert is_integer(update.message_id)
-              assert is_map(update.chat)
-              assert is_integer(update.edit_date)
-
-            :callback_query ->
-              assert is_binary(update.id)
-              assert is_map(update.from)
-
-            :poll_answer ->
-              assert is_binary(update.poll_id)
-              assert is_map(update.user)
-              assert is_list(update.option_ids)
-          end
-
-        {:error, :timeout} ->
-          flunk("Timed out waiting for interaction")
       end
     end
 

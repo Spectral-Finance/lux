@@ -25,18 +25,6 @@ defmodule Lux.Examples.TelegramCompleteExample do
     - `:webhook_url`: URL for webhook examples (optional)
     - `:skip_webhook`: Skip webhook examples (default: true)
     - `:delay`: Delay between examples in ms (default: 1000)
-
-  ## Example
-
-  ```elixir
-  # Run all examples
-  Lux.Examples.TelegramCompleteExample.run("YOUR_CHAT_ID", "YOUR_BOT_TOKEN")
-
-  # Run with webhook examples
-  Lux.Examples.TelegramCompleteExample.run("YOUR_CHAT_ID", "YOUR_BOT_TOKEN",
-    webhook_url: "https://your-domain.com/webhook",
-    skip_webhook: false
-  )
   ```
   """
   def run(chat_id, token, opts \\ []) do
@@ -762,7 +750,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
   end
 
   # Run the game examples
-  defp run_game_examples(chat_id, bot_id, delay) do
+  def run_game_examples(chat_id, bot_id, delay) do
     IO.puts("\n🎮 Running game examples...")
 
     # Send a game
@@ -807,7 +795,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
   end
 
   # Run the poll examples
-  defp run_poll_examples(chat_id, delay) do
+  def run_poll_examples(chat_id, delay) do
     IO.puts("\n📊 Running poll examples...")
 
     # Send a regular poll
@@ -851,34 +839,6 @@ defmodule Lux.Examples.TelegramCompleteExample do
 
       error ->
         IO.puts("Error sending poll: #{inspect(error)}")
-    end
-
-    :timer.sleep(delay)
-  end
-
-  # Run the sticker examples
-  defp run_sticker_examples(chat_id, delay) do
-    IO.puts("\n🎭 Running sticker examples...")
-
-    # Send a sticker
-    IO.puts("Sending a sticker...")
-    case TelegramInteractiveFeatures.send_sticker(chat_id, "CAACAgIAAxkBAAEBbGJkQZ6aCcJyYpLYVwvTTDv8XrTe2QACWgADUomRI_j-5eQq9Z0vLwQ") do
-      {:ok, _} ->
-        IO.puts("Sticker sent successfully")
-
-        # Get a sticker set
-        IO.puts("Getting sticker set info...")
-        case TelegramInteractiveFeatures.get_sticker_set("EvilMinds") do
-          {:ok, result} ->
-            stickers = result["result"]["stickers"]
-            IO.puts("Retrieved sticker set with #{length(stickers)} stickers")
-
-          error ->
-            IO.puts("Error getting sticker set: #{inspect(error)}")
-        end
-
-      error ->
-        IO.puts("Error sending sticker: #{inspect(error)}")
     end
 
     :timer.sleep(delay)

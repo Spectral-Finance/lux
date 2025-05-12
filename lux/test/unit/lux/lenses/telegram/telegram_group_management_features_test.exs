@@ -1,5 +1,5 @@
 defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
-  use UnitAPICase, async: true
+  use UnitAPICase, async: false
 
   alias Lux.Lenses.TelegramGroupManagementFeatures
 

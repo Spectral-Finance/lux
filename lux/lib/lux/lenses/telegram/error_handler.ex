@@ -24,15 +24,15 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
     cond do
       # Network errors - retry with backoff
       String.contains?(error, "timeout") ->
-        Logger.warn("Network timeout error detected, will retry: #{inspect(error)}")
+        Logger.warning("Network timeout error detected, will retry: #{inspect(error)}")
         {:retry, 1000}
 
       String.contains?(error, "connection") ->
-        Logger.warn("Connection error detected, will retry: #{inspect(error)}")
+        Logger.warning("Connection error detected, will retry: #{inspect(error)}")
         {:retry, 1000}
 
       String.contains?(error, "network") ->
-        Logger.warn("Network error detected, will retry: #{inspect(error)}")
+        Logger.warning("Network error detected, will retry: #{inspect(error)}")
         {:retry, 1000}
 
       # Rate limiting errors - retry after specified time
@@ -41,26 +41,26 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
         case Regex.run(~r/retry after (\d+)/, error) do
           [_, seconds] ->
             delay = String.to_integer(seconds) * 1000
-            Logger.warn("Rate limit error detected, will retry after #{delay}ms: #{inspect(error)}")
+            Logger.warning("Rate limit error detected, will retry after #{delay}ms: #{inspect(error)}")
             {:retry, delay}
 
           _ ->
             # Default to 5 seconds if we can't extract the retry time
-            Logger.warn("Rate limit error detected, will retry after 5000ms: #{inspect(error)}")
+            Logger.warning("Rate limit error detected, will retry after 5000ms: #{inspect(error)}")
             {:retry, 5000}
         end
 
       # Server errors - retry with backoff
       String.contains?(error, "Bad Gateway") ->
-        Logger.warn("Bad Gateway error detected, will retry: #{inspect(error)}")
+        Logger.warning("Bad Gateway error detected, will retry: #{inspect(error)}")
         {:retry, 2000}
 
       String.contains?(error, "Service Unavailable") ->
-        Logger.warn("Service Unavailable error detected, will retry: #{inspect(error)}")
+        Logger.warning("Service Unavailable error detected, will retry: #{inspect(error)}")
         {:retry, 3000}
 
       String.contains?(error, "Gateway Timeout") ->
-        Logger.warn("Gateway Timeout error detected, will retry: #{inspect(error)}")
+        Logger.warning("Gateway Timeout error detected, will retry: #{inspect(error)}")
         {:retry, 4000}
 
       # Bot was blocked or kicked - don't retry
@@ -90,12 +90,12 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
   end
 
   def handle_error(%{"error_code" => code, "description" => description}) do
-    Logger.warn("Telegram API error code #{code}: #{description}")
+    Logger.warning("Telegram API error code #{code}: #{description}")
     handle_error_code(code, description)
   end
 
   def handle_error(%{"ok" => false, "description" => description}) do
-    Logger.warn("Telegram API error: #{description}")
+    Logger.warning("Telegram API error: #{description}")
     handle_error(description)
   end
 
@@ -178,23 +178,23 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
     case Regex.run(~r/retry after (\d+)/, description) do
       [_, seconds] ->
         delay = String.to_integer(seconds) * 1000
-        Logger.warn("Rate limit error (code #{code}), will retry after #{delay}ms")
+        Logger.warning("Rate limit error (code #{code}), will retry after #{delay}ms")
         {:retry, delay}
 
       _ ->
         # Default to 5 seconds if we can't extract the retry time
-        Logger.warn("Rate limit error (code #{code}), will retry after 5000ms")
+        Logger.warning("Rate limit error (code #{code}), will retry after 5000ms")
         {:retry, 5000}
     end
   end
 
   defp handle_error_code(code, _description) when code >= 500 and code < 600 do
-    Logger.warn("Server error (code #{code}), will retry after 2000ms")
+    Logger.warning("Server error (code #{code}), will retry after 2000ms")
     {:retry, 2000}
   end
 
   defp handle_error_code(code, description) do
-    Logger.warn("Unhandled error code #{code}, delegating to text-based handler")
+    Logger.warning("Unhandled error code #{code}, delegating to text-based handler")
     # For other error codes, use the text-based handler
     handle_error(description)
   end
