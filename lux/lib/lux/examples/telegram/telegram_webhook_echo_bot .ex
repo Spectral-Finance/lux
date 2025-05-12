@@ -489,8 +489,8 @@ defmodule Lux.Examples.Telegram.WebhookEchoBot do
         IO.puts("🛑 Stopping ngrok process...")
 
         # Try to get the OS pid of the ngrok process
-        case Port.info(ngrok_port) do
-          %{os_pid: os_pid} when is_integer(os_pid) ->
+        case Port.info(ngrok_port) |> Enum.find(fn {key, value} ->  key == :os_pid end) do
+          {:os_pid, os_pid} when is_integer(os_pid) ->
             # On Unix systems, try to send SIGTERM to the process
             case :os.type() do
               {:unix, _} ->
