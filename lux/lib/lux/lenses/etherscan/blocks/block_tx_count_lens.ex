@@ -9,7 +9,7 @@ defmodule Lux.Lenses.Etherscan.BlockTxCount do
   ```elixir
   # Get transaction count for a specific block
   Lux.Lenses.Etherscan.BlockTxCount.focus(%{
-    blockno: 2165403
+    blockno: 2_165_403
   })
   ```
   """

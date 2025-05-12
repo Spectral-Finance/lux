@@ -14,14 +14,14 @@ defmodule Lux.Lenses.Etherscan.DailyAvgNetDifficulty do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-01", difficulty: 12345678901234.56},
-          %{utc_date: "2023-01-02", difficulty: 12345678901235.67},
-          %{utc_date: "2023-01-03", difficulty: 12345678901236.78}
+          %{utc_date: "2023-01-01", difficulty: 12_345_678_901_234.56},
+          %{utc_date: "2023-01-02", difficulty: 12_345_678_901_235.67},
+          %{utc_date: "2023-01-03", difficulty: 12_345_678_901_236.78}
         ],
         daily_avg_net_difficulty: [
-          %{utc_date: "2023-01-01", difficulty: 12345678901234.56},
-          %{utc_date: "2023-01-02", difficulty: 12345678901235.67},
-          %{utc_date: "2023-01-03", difficulty: 12345678901236.78}
+          %{utc_date: "2023-01-01", difficulty: 12_345_678_901_234.56},
+          %{utc_date: "2023-01-02", difficulty: 12_345_678_901_235.67},
+          %{utc_date: "2023-01-03", difficulty: 12_345_678_901_236.78}
         ]
       }}
 
@@ -35,14 +35,14 @@ defmodule Lux.Lenses.Etherscan.DailyAvgNetDifficulty do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-05", difficulty: 12345678901238.90},
-          %{utc_date: "2023-01-04", difficulty: 12345678901237.89},
-          %{utc_date: "2023-01-03", difficulty: 12345678901236.78}
+          %{utc_date: "2023-01-05", difficulty: 12_345_678_901_238.90},
+          %{utc_date: "2023-01-04", difficulty: 12_345_678_901_237.89},
+          %{utc_date: "2023-01-03", difficulty: 12_345_678_901_236.78}
         ],
         daily_avg_net_difficulty: [
-          %{utc_date: "2023-01-05", difficulty: 12345678901238.90},
-          %{utc_date: "2023-01-04", difficulty: 12345678901237.89},
-          %{utc_date: "2023-01-03", difficulty: 12345678901236.78}
+          %{utc_date: "2023-01-05", difficulty: 12_345_678_901_238.90},
+          %{utc_date: "2023-01-04", difficulty: 12_345_678_901_237.89},
+          %{utc_date: "2023-01-03", difficulty: 12_345_678_901_236.78}
         ]
       }}
   """

@@ -39,7 +39,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
           "status" => "1",
           "message" => "OK",
           "result" => %{
-            "ethbtc" => "0.05123",
+            "ethbtc" => "0.05_123",
             "ethbtc_timestamp" => "1677123456",
             "ethusd" => "1850.45",
             "ethusd_timestamp" => "1677123456"
@@ -52,7 +52,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
 
       # Verify the result
       assert {:ok, %{result: eth_price, eth_price: eth_price}} = result
-      assert eth_price.eth_btc == 0.05123
+      assert eth_price.eth_btc == 0.05_123
       assert eth_price.eth_btc_timestamp == 1_677_123_456
       assert eth_price.eth_usd == 1850.45
       assert eth_price.eth_usd_timestamp == 1_677_123_456
@@ -74,7 +74,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
           "status" => "1",
           "message" => "OK",
           "result" => %{
-            "ethbtc" => "0.05123",
+            "ethbtc" => "0.05_123",
             "ethbtc_timestamp" => "1677123456",
             "ethusd" => "1850.45",
             "ethusd_timestamp" => "1677123456"
@@ -87,7 +87,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
 
       # Verify the result
       assert {:ok, %{result: eth_price}} = result
-      assert eth_price.eth_btc == 0.05123
+      assert eth_price.eth_btc == 0.05_123
       assert eth_price.eth_usd == 1850.45
     end
 
@@ -151,7 +151,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
         "status" => "1",
         "message" => "OK",
         "result" => %{
-          "ethbtc" => "0.05123",
+          "ethbtc" => "0.05_123",
           "ethbtc_timestamp" => "1677123456",
           "ethusd" => "1850.45",
           "ethusd_timestamp" => "1677123456"
@@ -163,7 +163,7 @@ defmodule Lux.Lenses.Etherscan.EthPriceLensTest do
 
       # Verify the result
       assert {:ok, %{result: eth_price, eth_price: eth_price}} = result
-      assert eth_price.eth_btc == 0.05123
+      assert eth_price.eth_btc == 0.05_123
       assert eth_price.eth_btc_timestamp == 1_677_123_456
       assert eth_price.eth_usd == 1850.45
       assert eth_price.eth_usd_timestamp == 1_677_123_456

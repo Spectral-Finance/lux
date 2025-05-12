@@ -2,11 +2,11 @@ import Config
 
 # Anthropic API configuration
 config :lux, :anthropic_models,
-  default: "claude-3-sonnet-20240229",
+  default: "claude-3-sonnet-20_240_229",
   available: [
-    "claude-3-opus-20240229",
-    "claude-3-sonnet-20240229",
-    "claude-3-haiku-20240307"
+    "claude-3-opus-20_240_229",
+    "claude-3-sonnet-20_240_229",
+    "claude-3-haiku-20_240_307"
   ]
 
 # Token cache configuration

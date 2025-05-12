@@ -14,9 +14,9 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessage do
       iex> ReactToMessage.handler(%{
       ...>   channel_id: "123456789",
       ...>   message_id: "987654321",
-      ...>   emoji: "custom_emoji:123456789"
+      ...>   emoji: "custom_emoji:123_456_789"
       ...> }, %{name: "Agent"})
-      {:ok, %{reacted: true, emoji: "custom_emoji:123456789", message_id: "987654321", channel_id: "123456789"}}
+      {:ok, %{reacted: true, emoji: "custom_emoji:123_456_789", message_id: "987654321", channel_id: "123456789"}}
   """
 
   use Lux.Prism,

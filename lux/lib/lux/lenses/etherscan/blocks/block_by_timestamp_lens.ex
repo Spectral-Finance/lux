@@ -7,12 +7,12 @@ defmodule Lux.Lenses.Etherscan.BlockByTimestamp do
   ```elixir
   # Get block number by timestamp (default chainid: 1 for Ethereum, closest: "before")
   Lux.Lenses.Etherscan.BlockByTimestamp.focus(%{
-    timestamp: 1578638524
+    timestamp: 1_578_638_524
   })
 
   # Get block number by timestamp with specific parameters
   Lux.Lenses.Etherscan.BlockByTimestamp.focus(%{
-    timestamp: 1578638524,
+    timestamp: 1_578_638_524,
     closest: "after",
     chainid: 1
   })

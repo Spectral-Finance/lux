@@ -14,14 +14,14 @@ defmodule Lux.Lenses.Etherscan.EthDailyPrice do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-01", eth_usd: 1234.56, eth_btc: 0.07654},
-          %{utc_date: "2023-01-02", eth_usd: 1345.67, eth_btc: 0.07765},
-          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07876}
+          %{utc_date: "2023-01-01", eth_usd: 1234.56, eth_btc: 0.07_654},
+          %{utc_date: "2023-01-02", eth_usd: 1345.67, eth_btc: 0.07_765},
+          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07_876}
         ],
         eth_daily_price: [
-          %{utc_date: "2023-01-01", eth_usd: 1234.56, eth_btc: 0.07654},
-          %{utc_date: "2023-01-02", eth_usd: 1345.67, eth_btc: 0.07765},
-          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07876}
+          %{utc_date: "2023-01-01", eth_usd: 1234.56, eth_btc: 0.07_654},
+          %{utc_date: "2023-01-02", eth_usd: 1345.67, eth_btc: 0.07_765},
+          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07_876}
         ]
       }}
 
@@ -35,14 +35,14 @@ defmodule Lux.Lenses.Etherscan.EthDailyPrice do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-05", eth_usd: 1678.90, eth_btc: 0.08098},
-          %{utc_date: "2023-01-04", eth_usd: 1567.89, eth_btc: 0.07987},
-          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07876}
+          %{utc_date: "2023-01-05", eth_usd: 1678.90, eth_btc: 0.08_098},
+          %{utc_date: "2023-01-04", eth_usd: 1567.89, eth_btc: 0.07_987},
+          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07_876}
         ],
         eth_daily_price: [
-          %{utc_date: "2023-01-05", eth_usd: 1678.90, eth_btc: 0.08098},
-          %{utc_date: "2023-01-04", eth_usd: 1567.89, eth_btc: 0.07987},
-          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07876}
+          %{utc_date: "2023-01-05", eth_usd: 1678.90, eth_btc: 0.08_098},
+          %{utc_date: "2023-01-04", eth_usd: 1567.89, eth_btc: 0.07_987},
+          %{utc_date: "2023-01-03", eth_usd: 1456.78, eth_btc: 0.07_876}
         ]
       }}
   """

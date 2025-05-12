@@ -7,12 +7,12 @@ defmodule Lux.Lenses.Etherscan.BlockReward do
   ```elixir
   # Get block rewards for a specific block (default chainid: 1 for Ethereum)
   Lux.Lenses.Etherscan.BlockReward.focus(%{
-    blockno: 2165403
+    blockno: 2_165_403
   })
 
   # Get block rewards for a specific block on a specific chain
   Lux.Lenses.Etherscan.BlockReward.focus(%{
-    blockno: 2165403,
+    blockno: 2_165_403,
     chainid: 1
   })
   ```

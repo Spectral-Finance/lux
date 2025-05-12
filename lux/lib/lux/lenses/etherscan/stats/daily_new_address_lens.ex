@@ -14,14 +14,14 @@ defmodule Lux.Lenses.Etherscan.DailyNewAddress do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-01", new_address_count: 12345},
-          %{utc_date: "2023-01-02", new_address_count: 23456},
-          %{utc_date: "2023-01-03", new_address_count: 34567}
+          %{utc_date: "2023-01-01", new_address_count: 12_345},
+          %{utc_date: "2023-01-02", new_address_count: 23_456},
+          %{utc_date: "2023-01-03", new_address_count: 34_567}
         ],
         daily_new_address: [
-          %{utc_date: "2023-01-01", new_address_count: 12345},
-          %{utc_date: "2023-01-02", new_address_count: 23456},
-          %{utc_date: "2023-01-03", new_address_count: 34567}
+          %{utc_date: "2023-01-01", new_address_count: 12_345},
+          %{utc_date: "2023-01-02", new_address_count: 23_456},
+          %{utc_date: "2023-01-03", new_address_count: 34_567}
         ]
       }}
 
@@ -35,14 +35,14 @@ defmodule Lux.Lenses.Etherscan.DailyNewAddress do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-05", new_address_count: 56789},
-          %{utc_date: "2023-01-04", new_address_count: 45678},
-          %{utc_date: "2023-01-03", new_address_count: 34567}
+          %{utc_date: "2023-01-05", new_address_count: 56_789},
+          %{utc_date: "2023-01-04", new_address_count: 45_678},
+          %{utc_date: "2023-01-03", new_address_count: 34_567}
         ],
         daily_new_address: [
-          %{utc_date: "2023-01-05", new_address_count: 56789},
-          %{utc_date: "2023-01-04", new_address_count: 45678},
-          %{utc_date: "2023-01-03", new_address_count: 34567}
+          %{utc_date: "2023-01-05", new_address_count: 56_789},
+          %{utc_date: "2023-01-04", new_address_count: 45_678},
+          %{utc_date: "2023-01-03", new_address_count: 34_567}
         ]
       }}
   """

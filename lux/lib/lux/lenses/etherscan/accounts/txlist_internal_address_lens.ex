@@ -15,7 +15,7 @@ defmodule Lux.Lenses.Etherscan.TxListInternalAddress do
     address: "0x2c1ba59d6f58433fb1eaee7d20b26ed83bda51a3",
     chainid: 1,
     startblock: 0,
-    endblock: 2702578,
+    endblock: 2_702_578,
     page: 1,
     offset: 10,
     sort: "asc"
@@ -65,7 +65,7 @@ defmodule Lux.Lenses.Etherscan.TxListInternalAddress do
         },
         offset: %{
           type: :integer,
-          description: "Number of transactions to return per page (max 10000)",
+          description: "Number of transactions to return per page (max 10_000)",
           default: 10
         },
         sort: %{

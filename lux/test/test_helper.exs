@@ -1,4 +1,4 @@
-ExUnit.start(exclude: [:skip, :integration, :unit])
+ExUnit.start(exclude: [:skip, :integration, :unit, :external])
 
 defmodule UnitAPICase do
   @moduledoc false

@@ -30,11 +30,11 @@ defmodule Lux.Lenses.Allora.GetInferenceTest do
             "signature" => "0xabc123",
             "inference_data" => %{
               "network_inference" => "1234567890",
-              "network_inference_normalized" => "0.12345",
+              "network_inference_normalized" => "0.12_345",
               "confidence_interval_percentiles" => ["0.1", "0.5", "0.9"],
               "confidence_interval_percentiles_normalized" => ["0.1", "0.5", "0.9"],
               "confidence_interval_values" => ["1200000000", "1234567890", "1300000000"],
-              "confidence_interval_values_normalized" => ["0.12", "0.12345", "0.13"],
+              "confidence_interval_values_normalized" => ["0.12", "0.12_345", "0.13"],
               "topic_id" => "1",
               "timestamp" => 1_679_529_600,
               "extra_data" => ""
@@ -46,7 +46,7 @@ defmodule Lux.Lenses.Allora.GetInferenceTest do
       assert {:ok, result} = GetInference.focus(%{topic_id: 1}, %{})
       assert result.signature == "0xabc123"
       assert result.inference_data.network_inference == "1234567890"
-      assert result.inference_data.network_inference_normalized == "0.12345"
+      assert result.inference_data.network_inference_normalized == "0.12_345"
       assert result.inference_data.confidence_interval_percentiles == ["0.1", "0.5", "0.9"]
       assert result.inference_data.topic_id == "1"
       assert result.inference_data.timestamp == 1_679_529_600

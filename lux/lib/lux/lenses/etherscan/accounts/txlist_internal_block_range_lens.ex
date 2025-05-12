@@ -8,13 +8,13 @@ defmodule Lux.Lenses.Etherscan.TxListInternalBlockRange do
   # Get internal transactions by block range
   Lux.Lenses.Etherscan.TxListInternalBlockRange.focus(%{
     startblock: 13_481_773,
-    endblock: 13491773
+    endblock: 13_491_773
   })
 
   # With additional parameters
   Lux.Lenses.Etherscan.TxListInternalBlockRange.focus(%{
     startblock: 13_481_773,
-    endblock: 13491773,
+    endblock: 13_491_773,
     chainid: 1,
     page: 1,
     offset: 10,
@@ -60,7 +60,7 @@ defmodule Lux.Lenses.Etherscan.TxListInternalBlockRange do
         },
         offset: %{
           type: :integer,
-          description: "Number of transactions to return per page (max 10000)",
+          description: "Number of transactions to return per page (max 10_000)",
           default: 10
         },
         sort: %{

@@ -48,17 +48,17 @@ defmodule Lux.Lenses.Etherscan.EthDailyPriceLensTest do
             %{
               "UTCDate" => "2023-01-01",
               "value" => "1234.56",
-              "ethBtc" => "0.07654"
+              "ethBtc" => "0.07_654"
             },
             %{
               "UTCDate" => "2023-01-02",
               "value" => "1345.67",
-              "ethBtc" => "0.07765"
+              "ethBtc" => "0.07_765"
             },
             %{
               "UTCDate" => "2023-01-03",
               "value" => "1456.78",
-              "ethBtc" => "0.07876"
+              "ethBtc" => "0.07_876"
             }
           ]
         })
@@ -75,19 +75,19 @@ defmodule Lux.Lenses.Etherscan.EthDailyPriceLensTest do
       first_day = Enum.at(price_data, 0)
       assert first_day.utc_date == "2023-01-01"
       assert first_day.eth_usd == 1234.56
-      assert first_day.eth_btc == 0.07654
+      assert first_day.eth_btc == 0.07_654
 
       # Verify second day's data
       second_day = Enum.at(price_data, 1)
       assert second_day.utc_date == "2023-01-02"
       assert second_day.eth_usd == 1345.67
-      assert second_day.eth_btc == 0.07765
+      assert second_day.eth_btc == 0.07_765
 
       # Verify third day's data
       third_day = Enum.at(price_data, 2)
       assert third_day.utc_date == "2023-01-03"
       assert third_day.eth_usd == 1456.78
-      assert third_day.eth_btc == 0.07876
+      assert third_day.eth_btc == 0.07_876
     end
 
     test "makes correct API call with descending sort" do
@@ -113,17 +113,17 @@ defmodule Lux.Lenses.Etherscan.EthDailyPriceLensTest do
             %{
               "UTCDate" => "2023-01-05",
               "value" => "1678.90",
-              "ethBtc" => "0.08098"
+              "ethBtc" => "0.08_098"
             },
             %{
               "UTCDate" => "2023-01-04",
               "value" => "1567.89",
-              "ethBtc" => "0.07987"
+              "ethBtc" => "0.07_987"
             },
             %{
               "UTCDate" => "2023-01-03",
               "value" => "1456.78",
-              "ethBtc" => "0.07876"
+              "ethBtc" => "0.07_876"
             }
           ]
         })
@@ -296,12 +296,12 @@ defmodule Lux.Lenses.Etherscan.EthDailyPriceLensTest do
           %{
             "UTCDate" => "2023-01-01",
             "value" => "1234.56",
-            "ethBtc" => "0.07654"
+            "ethBtc" => "0.07_654"
           },
           %{
             "UTCDate" => "2023-01-02",
             "value" => "1345.67",
-            "ethBtc" => "0.07765"
+            "ethBtc" => "0.07_765"
           }
         ]
       }
@@ -314,10 +314,10 @@ defmodule Lux.Lenses.Etherscan.EthDailyPriceLensTest do
       assert length(price_data) == 2
       assert Enum.at(price_data, 0).utc_date == "2023-01-01"
       assert Enum.at(price_data, 0).eth_usd == 1234.56
-      assert Enum.at(price_data, 0).eth_btc == 0.07654
+      assert Enum.at(price_data, 0).eth_btc == 0.07_654
       assert Enum.at(price_data, 1).utc_date == "2023-01-02"
       assert Enum.at(price_data, 1).eth_usd == 1345.67
-      assert Enum.at(price_data, 1).eth_btc == 0.07765
+      assert Enum.at(price_data, 1).eth_btc == 0.07_765
     end
 
     test "processes empty result" do

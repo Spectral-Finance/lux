@@ -19,7 +19,7 @@ defmodule Lux.LLM.AnthropicTest do
         {:ok, body, _conn} = Plug.Conn.read_body(conn)
         decoded_body = Jason.decode!(body)
 
-        assert decoded_body["model"] == "claude-3-opus-20240229"
+        assert decoded_body["model"] == "claude-3-opus-20_240_229"
         assert [%{"role" => "user", "content" => "Hello, Claude!"}] = decoded_body["messages"]
 
         Req.Test.json(conn, %{
@@ -32,7 +32,7 @@ defmodule Lux.LLM.AnthropicTest do
               "text" => "This is a test response from Claude."
             }
           ],
-          "model" => "claude-3-opus-20240229",
+          "model" => "claude-3-opus-20_240_229",
           "stop_reason" => "end_turn"
         })
       end)
@@ -40,7 +40,7 @@ defmodule Lux.LLM.AnthropicTest do
       result =
         Anthropic.call("Hello, Claude!", [], %{
           api_key: "test_api_key",
-          model: "claude-3-opus-20240229"
+          model: "claude-3-opus-20_240_229"
         })
 
       assert {:ok, response} = result
@@ -64,7 +64,7 @@ defmodule Lux.LLM.AnthropicTest do
       result =
         Anthropic.call("Hello, Claude!", [], %{
           api_key: "invalid_api_key",
-          model: "claude-3-opus-20240229"
+          model: "claude-3-opus-20_240_229"
         })
 
       assert {:error, error_message} = result
@@ -79,7 +79,7 @@ defmodule Lux.LLM.AnthropicTest do
       result =
         Anthropic.call("Hello, Claude!", [], %{
           api_key: "test_api_key",
-          model: "claude-3-opus-20240229"
+          model: "claude-3-opus-20_240_229"
         })
 
       assert {:error, error_message} = result
@@ -126,7 +126,7 @@ defmodule Lux.LLM.AnthropicTest do
               }
             }
           ],
-          "model" => "claude-3-opus-20240229",
+          "model" => "claude-3-opus-20_240_229",
           "stop_reason" => "tool_use"
         })
       end)
@@ -134,7 +134,7 @@ defmodule Lux.LLM.AnthropicTest do
       result =
         Anthropic.call("Use the test tool", [test_tool], %{
           api_key: "test_api_key",
-          model: "claude-3-opus-20240229"
+          model: "claude-3-opus-20_240_229"
         })
 
       assert {:ok, response} = result
