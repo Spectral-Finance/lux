@@ -57,7 +57,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendLocation do
         },
         live_period: %{
           type: :integer,
-          description: "Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86400)"
+          description: "Period in seconds for which the location will be updated (see Live Locations, should be between 60 and 86_400)"
         },
         heading: %{
           type: :integer,
@@ -205,7 +205,7 @@ defmodule Lux.Prisms.Telegram.Interactive.SendLocation do
     case Map.get(params, :live_period) do
       nil -> :ok
       period when is_integer(period) and period >= 60 and period <= 86_400 -> :ok
-      _ -> {:error, "Invalid live_period: must be between 60 and 86400 seconds"}
+      _ -> {:error, "Invalid live_period: must be between 60 and 86_400 seconds"}
     end
   end
 end

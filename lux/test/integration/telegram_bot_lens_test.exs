@@ -363,7 +363,7 @@ defmodule Lux.Integration.TelegramBotLensTest do
   describe "TelegramBotLens integration - interactive content" do
     @tag :integration
     test "can send a contact" do
-      phone_number = "+15551234567"
+      phone_number = "+15_551_234_567"
       first_name = "John"
       last_name = "Doe"
 
@@ -416,7 +416,7 @@ defmodule Lux.Integration.TelegramBotLensTest do
       latitude = 48.8584
       longitude = 2.2945
       title = "Eiffel Tower"
-      address = "Champ de Mars, 5 Av. Anatole France, 75007 Paris, France"
+      address = "Champ de Mars, 5 Av. Anatole France, 75_007 Paris, France"
 
       assert {:ok, message} = TelegramBotLens.send_venue(
         @test_chat_id,
@@ -623,7 +623,7 @@ defmodule Lux.Integration.TelegramBotLensTest do
         String.contains?(String.upcase(update.text), "TEST REPLY")
       end
 
-      case TelegramBotLens.wait_for_update(filter_fn, 60000) do
+      case TelegramBotLens.wait_for_update(filter_fn, 60_000) do
         {:ok, update} ->
           IO.puts("Received reply: #{inspect(update, pretty: true)}")
           assert update.type == :message

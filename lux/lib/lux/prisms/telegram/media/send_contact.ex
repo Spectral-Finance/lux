@@ -17,7 +17,7 @@ defmodule Lux.Prisms.Telegram.Media.SendContact do
       # Send a contact with required parameters
       iex> SendContact.handler(%{
       ...>   chat_id: 123_456_789,
-      ...>   phone_number: "+1234567890",
+      ...>   phone_number: "+1_234_567_890",
       ...>   first_name: "John"
       ...> }, %{name: "Agent"})
       {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789}}
@@ -25,10 +25,10 @@ defmodule Lux.Prisms.Telegram.Media.SendContact do
       # Send a contact with all optional parameters
       iex> SendContact.handler(%{
       ...>   chat_id: 123_456_789,
-      ...>   phone_number: "+1234567890",
+      ...>   phone_number: "+1_234_567_890",
       ...>   first_name: "John",
       ...>   last_name: "Doe",
-      ...>   vcard: "BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+1234567890\\nEND:VCARD"
+      ...>   vcard: "BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+1_234_567_890\\nEND:VCARD"
       ...> }, %{name: "Agent"})
       {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789}}
   """

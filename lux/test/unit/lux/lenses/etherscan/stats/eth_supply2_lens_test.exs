@@ -178,10 +178,10 @@ defmodule Lux.Lenses.Etherscan.EthSupply2LensTest do
         "status" => "1",
         "message" => "OK",
         "result" => %{
-          "EthSupply" => "123456789.123456789",
+          "EthSupply" => "123456789.123_456_789",
           "Eth2Staking" => "12345.6789",
-          "BurntFees" => "9876.54321",
-          "WithdrawnTotal" => "1234.56789"
+          "BurntFees" => "9876.54_321",
+          "WithdrawnTotal" => "1234.56_789"
         }
       }
 
@@ -190,10 +190,10 @@ defmodule Lux.Lenses.Etherscan.EthSupply2LensTest do
 
       # Verify the result
       assert {:ok, %{result: eth_supply_details}} = result
-      assert eth_supply_details.eth_supply == 123_456_789.123456789
+      assert eth_supply_details.eth_supply == 123_456_789.123_456_789
       assert eth_supply_details.eth2_staking == 12_345.6789
-      assert eth_supply_details.burnt_fees == 9_876.54321
-      assert eth_supply_details.withdrawn_eth == 1_234.56789
+      assert eth_supply_details.burnt_fees == 9_876.54_321
+      assert eth_supply_details.withdrawn_eth == 1_234.56_789
     end
 
     test "processes non-numeric result" do

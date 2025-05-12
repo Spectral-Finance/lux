@@ -11,7 +11,7 @@ defmodule Lux.Lenses.Telegram.ErrorHandlerTest do
 
     test "handles rate limiting errors" do
       error = "Too Many Requests: retry after 10"
-      assert {:retry, 10000} = ErrorHandler.handle_error(error)
+      assert {:retry, 10_000} = ErrorHandler.handle_error(error)
     end
 
     test "handles server errors" do

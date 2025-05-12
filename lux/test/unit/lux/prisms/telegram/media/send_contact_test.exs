@@ -13,7 +13,7 @@ defmodule Lux.Prisms.Telegram.Media.SendContactTest do
   describe "handler/2" do
     test "sends a contact with required parameters" do
       chat_id = 123_456_789
-      phone_number = "+1234567890"
+      phone_number = "+1_234_567_890"
       first_name = "John"
 
       Req.Test.expect(TelegramClientMock, fn request ->
@@ -57,10 +57,10 @@ defmodule Lux.Prisms.Telegram.Media.SendContactTest do
 
     test "sends a contact with all optional parameters" do
       chat_id = 123_456_789
-      phone_number = "+1234567890"
+      phone_number = "+1_234_567_890"
       first_name = "John"
       last_name = "Doe"
-      vcard = "BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+1234567890\\nEND:VCARD"
+      vcard = "BEGIN:VCARD\\nVERSION:3.0\\nFN:John Doe\\nTEL:+1_234_567_890\\nEND:VCARD"
 
       Req.Test.expect(TelegramClientMock, fn request ->
         assert request.method == "POST"
@@ -137,7 +137,7 @@ defmodule Lux.Prisms.Telegram.Media.SendContactTest do
       assert {:error, "Missing or invalid phone_number"} = result
 
       result = SendContact.handler(
-        %{chat_id: 123_456_789, phone_number: "+1234567890"},
+        %{chat_id: 123_456_789, phone_number: "+1_234_567_890"},
         %{name: "TestAgent", plug: {Req.Test, __MODULE__}}
       )
 
@@ -159,7 +159,7 @@ defmodule Lux.Prisms.Telegram.Media.SendContactTest do
       result = SendContact.handler(
         %{
           chat_id: 123_456_789,
-          phone_number: "+1234567890",
+          phone_number: "+1_234_567_890",
           first_name: "John"
         },
         %{name: "TestAgent", plug: {Req.Test, __MODULE__}}

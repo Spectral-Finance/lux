@@ -37,8 +37,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "poll" => %{
               "id" => "poll123",
               "question" => "What's your favorite color?",
@@ -76,8 +76,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "poll" => %{
               "id" => "quiz123",
               "question" => "What is Elixir?",
@@ -143,8 +143,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "game" => %{
               "title" => "Test Game",
               "description" => "A test game",
@@ -164,7 +164,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         assert String.ends_with?(conn.request_path, "setGameScore")
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
-        assert body["user_id"] == 123456789
+        assert body["user_id"] == 123_456_789
         assert body["score"] == 100
         assert body["chat_id"] == "987654321"
         assert body["message_id"] == 42
@@ -173,14 +173,14 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
             "game" => %{"title" => "Test Game", "score" => 100}
           }
         })
       end)
 
       assert {:ok, %{"game" => %{"score" => 100}}} =
-        TelegramInteractiveFeatures.set_game_score(123456789, 100, %{
+        TelegramInteractiveFeatures.set_game_score(123_456_789, 100, %{
           chat_id: "987654321",
           message_id: 42
         })
@@ -192,7 +192,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         assert String.ends_with?(conn.request_path, "getGameHighScores")
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
-        assert body["user_id"] == 123456789
+        assert body["user_id"] == 123_456_789
         assert body["chat_id"] == "987654321"
         assert body["message_id"] == 42
 
@@ -201,7 +201,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "result" => [
             %{
               "position" => 1,
-              "user" => %{"id" => 123456789, "first_name" => "Player 1"},
+              "user" => %{"id" => 123_456_789, "first_name" => "Player 1"},
               "score" => 100
             }
           ]
@@ -209,7 +209,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
       end)
 
       assert {:ok, [%{"score" => 100}]} =
-        TelegramInteractiveFeatures.get_game_high_scores(123456789, %{
+        TelegramInteractiveFeatures.get_game_high_scores(123_456_789, %{
           chat_id: "987654321",
           message_id: 42
         })
@@ -230,8 +230,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "location" => %{
               "latitude" => 37.7749,
               "longitude" => -122.4194,
@@ -260,8 +260,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "location" => %{
               "latitude" => 37.7750,
               "longitude" => -122.4195,
@@ -288,8 +288,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "location" => %{
               "latitude" => 37.7750,
               "longitude" => -122.4195
@@ -315,8 +315,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "sticker" => %{
               "file_id" => "sticker_file_id",
               "width" => 512,
@@ -455,8 +455,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 1,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "poll" => %{
             "id" => "quiz123",
             "question" => "What is Elixir?",
@@ -524,8 +524,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 1,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "game" => %{
             "title" => "Test Game",
             "description" => "A test game",
@@ -546,7 +546,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
       assert String.ends_with?(conn.request_path, "setGameScore")
 
       body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
-      assert body["user_id"] == 123456789
+      assert body["user_id"] == 123_456_789
       assert body["score"] == 100
       assert body["chat_id"] == "987654321"
       assert body["message_id"] == 42
@@ -555,14 +555,14 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 42,
-          "from" => %{"id" => 987654321, "is_bot" => true},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
           "game" => %{"title" => "Test Game", "score" => 100}
         }
       })
     end)
 
     assert {:ok, %{"game" => %{"score" => 100}}} =
-      TelegramInteractiveFeatures.set_game_score(123456789, 100, %{
+      TelegramInteractiveFeatures.set_game_score(123_456_789, 100, %{
         chat_id: "987654321",
         message_id: 42
       })
@@ -575,7 +575,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
       assert String.ends_with?(conn.request_path, "getGameHighScores")
 
       body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
-      assert body["user_id"] == 123456789
+      assert body["user_id"] == 123_456_789
       assert body["chat_id"] == "987654321"
       assert body["message_id"] == 42
 
@@ -584,7 +584,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "result" => [
           %{
             "position" => 1,
-            "user" => %{"id" => 123456789, "first_name" => "Player 1"},
+            "user" => %{"id" => 123_456_789, "first_name" => "Player 1"},
             "score" => 100
           }
         ]
@@ -592,7 +592,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
     end)
 
     assert {:ok, [%{"score" => 100}]} =
-      TelegramInteractiveFeatures.get_game_high_scores(123456789, %{
+      TelegramInteractiveFeatures.get_game_high_scores(123_456_789, %{
         chat_id: "987654321",
         message_id: 42
       })
@@ -614,8 +614,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 1,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "location" => %{
             "latitude" => 37.7749,
             "longitude" => -122.4194,
@@ -645,8 +645,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 42,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "location" => %{
             "latitude" => 37.7750,
             "longitude" => -122.4195,
@@ -674,8 +674,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 42,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "location" => %{
             "latitude" => 37.7750,
             "longitude" => -122.4195
@@ -702,8 +702,8 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
         "ok" => true,
         "result" => %{
           "message_id" => 1,
-          "from" => %{"id" => 987654321, "is_bot" => true},
-          "chat" => %{"id" => 123456789},
+          "from" => %{"id" => 987_654_321, "is_bot" => true},
+          "chat" => %{"id" => 123_456_789},
           "sticker" => %{
             "file_id" => "sticker_file_id",
             "width" => 512,
@@ -855,7 +855,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
       TelegramInteractiveFeatures.process_inline_query(%{
         "id" => "query123",
         "query" => "test",
-        "from" => %{"id" => 123456789, "first_name" => "Test User"}
+        "from" => %{"id" => 123_456_789, "first_name" => "Test User"}
       })
   end
 
@@ -868,7 +868,7 @@ defmodule Lux.Lenses.TelegramInteractiveFeaturesTest do
       TelegramInteractiveFeatures.process_inline_query(%{
         "id" => "query123",
         "query" => "test",
-        "from" => %{"id" => 123456789, "first_name" => "Test User"}
+        "from" => %{"id" => 123_456_789, "first_name" => "Test User"}
       })
   end
 end

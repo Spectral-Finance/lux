@@ -72,7 +72,7 @@ defmodule Lux.Lenses.Etherscan.TokenAddressContractTx do
         },
         offset: %{
           type: :integer,
-          description: "Number of transfer records to return per page (max 10000)",
+          description: "Number of transfer records to return per page (max 10_000)",
           default: 100
         },
         sort: %{

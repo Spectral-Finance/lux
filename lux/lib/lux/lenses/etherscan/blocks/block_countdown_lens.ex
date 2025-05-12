@@ -7,12 +7,12 @@ defmodule Lux.Lenses.Etherscan.BlockCountdown do
   ```elixir
   # Get estimated time remaining for a future block (default chainid: 1 for Ethereum)
   Lux.Lenses.Etherscan.BlockCountdown.focus(%{
-    blockno: 16701588
+    blockno: 16_701_588
   })
 
   # Get estimated time remaining for a future block on a specific chain
   Lux.Lenses.Etherscan.BlockCountdown.focus(%{
-    blockno: 16701588,
+    blockno: 16_701_588,
     chainid: 1
   })
   ```

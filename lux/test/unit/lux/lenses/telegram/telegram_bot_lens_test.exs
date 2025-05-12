@@ -41,7 +41,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
         Req.Test.json(conn, %{
           "ok" => true,
           "result" => %{
-            "id" => 123456789,
+            "id" => 123_456_789,
             "is_bot" => true,
             "first_name" => "Test Bot",
             "username" => "test_bot"
@@ -51,7 +51,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
       assert {:ok, %{
         "result" => %{
-          "id" => 123456789,
+          "id" => 123_456_789,
           "username" => "test_bot"
         }
       }} = TelegramBotLens.focus(%{
@@ -74,9 +74,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "text" => "Hello, world!"
           }
         })
@@ -111,9 +111,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "photo" => [
               %{"file_id" => "photo1", "file_size" => 1234, "width" => 100, "height" => 100},
               %{"file_id" => "photo2", "file_size" => 5678, "width" => 800, "height" => 600}
@@ -153,14 +153,14 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "document" => %{
               "file_id" => "doc1",
               "file_name" => "file.pdf",
               "mime_type" => "application/pdf",
-              "file_size" => 12345
+              "file_size" => 12_345
             },
             "caption" => "Test document"
           }
@@ -297,18 +297,18 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "result" => [
             %{
               "message_id" => 1,
-              "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-              "chat" => %{"id" => 123456789, "type" => "private"},
-              "date" => 1234567890,
+              "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+              "chat" => %{"id" => 123_456_789, "type" => "private"},
+              "date" => 1_234_567_890,
               "photo" => [
                 %{"file_id" => "photo1", "file_size" => 1234, "width" => 100, "height" => 100}
               ]
             },
             %{
               "message_id" => 2,
-              "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-              "chat" => %{"id" => 123456789, "type" => "private"},
-              "date" => 1234567890,
+              "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+              "chat" => %{"id" => 123_456_789, "type" => "private"},
+              "date" => 1_234_567_890,
               "photo" => [
                 %{"file_id" => "photo2", "file_size" => 5678, "width" => 800, "height" => 600}
               ],
@@ -341,8 +341,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "voice" => %{
               "file_id" => "voice1",
               "duration" => 10
@@ -352,8 +352,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1,
         "voice" => %{"duration" => 10, "file_id" => "voice1"}
       }} = TelegramBotLens.send_voice(
@@ -377,8 +377,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "animation" => %{
               "file_id" => "anim1",
               "width" => 320,
@@ -396,8 +396,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "height" => 240,
           "width" => 320
         },
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_animation(
         "123456789",
@@ -422,8 +422,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "venue" => %{
               "location" => %{
                 "latitude" => 37.7749,
@@ -437,8 +437,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1,
         "venue" => %{
           "address" => "123 Main St",
@@ -461,7 +461,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["phone_number"] == "+1234567890"
+        assert body["phone_number"] == "+1_234_567_890"
         assert body["first_name"] == "John"
         assert body["last_name"] == "Doe"
 
@@ -469,10 +469,10 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "contact" => %{
-              "phone_number" => "+1234567890",
+              "phone_number" => "+1_234_567_890",
               "first_name" => "John",
               "last_name" => "Doe"
             }
@@ -481,17 +481,17 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
+        "chat" => %{"id" => 123_456_789},
         "contact" => %{
           "first_name" => "John",
           "last_name" => "Doe",
-          "phone_number" => "+1234567890"
+          "phone_number" => "+1_234_567_890"
         },
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_contact(
         "123456789",
-        "+1234567890",
+        "+1_234_567_890",
         "John",
         %{last_name: "Doe"}
       )
@@ -510,8 +510,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "dice" => %{
               "emoji" => "🎲",
               "value" => 6
@@ -521,9 +521,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
+        "chat" => %{"id" => 123_456_789},
         "dice" => %{"emoji" => "🎲", "value" => 6},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_dice("123456789", %{emoji: "🎲"})
     end
@@ -542,18 +542,18 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "text" => "Updated text",
-            "edit_date" => 1234567890
+            "edit_date" => 1_234_567_890
           }
         })
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "edit_date" => 1234567890,
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "edit_date" => 1_234_567_890,
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 42,
         "text" => "Updated text"
       }} = TelegramBotLens.edit_message_text("123456789", 42, "Updated text")
@@ -573,19 +573,19 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "caption" => "Updated caption",
-            "edit_date" => 1234567890
+            "edit_date" => 1_234_567_890
           }
         })
       end)
 
       assert {:ok, %{
         "caption" => "Updated caption",
-        "chat" => %{"id" => 123456789},
-        "edit_date" => 1234567890,
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "edit_date" => 1_234_567_890,
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 42
       }} = TelegramBotLens.edit_message_caption("123456789", 42, "Updated caption")
     end
@@ -618,7 +618,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
         Req.Test.json(conn, %{
           "ok" => true,
           "result" => %{
-            "id" => 123456789,
+            "id" => 123_456_789,
             "is_bot" => true,
             "first_name" => "Test Bot",
             "username" => "test_bot"
@@ -626,7 +626,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
         })
       end)
 
-      assert {:ok, %{"id" => 123456789, "username" => "test_bot"}} =
+      assert {:ok, %{"id" => 123_456_789, "username" => "test_bot"}} =
         TelegramBotLens.get_me()
     end
 
@@ -645,9 +645,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "text" => "Hello, world!"
           }
         })
@@ -673,9 +673,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "photo" => [
               %{"file_id" => "photo1", "file_size" => 1234, "width" => 100, "height" => 100},
               %{"file_id" => "photo2", "file_size" => 5678, "width" => 800, "height" => 600}
@@ -687,11 +687,11 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
       assert {:ok, %{
         "caption" => "Beautiful sunset",
-        "chat" => %{"id" => 123456789, "type" => "private"},
-        "date" => 1234567890,
+        "chat" => %{"id" => 123_456_789, "type" => "private"},
+        "date" => 1_234_567_890,
         "from" => %{
           "first_name" => "Test Bot",
-          "id" => 987654321,
+          "id" => 987_654_321,
           "is_bot" => true
         },
         "message_id" => 1,
@@ -721,14 +721,14 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "document" => %{
               "file_id" => "doc1",
               "file_name" => "file.pdf",
               "mime_type" => "application/pdf",
-              "file_size" => 12345
+              "file_size" => 12_345
             },
             "caption" => "Important document"
           }
@@ -737,17 +737,17 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
       assert {:ok, %{
         "caption" => "Important document",
-        "chat" => %{"id" => 123456789, "type" => "private"},
-        "date" => 1234567890,
+        "chat" => %{"id" => 123_456_789, "type" => "private"},
+        "date" => 1_234_567_890,
         "document" => %{
           "file_id" => "doc1",
           "file_name" => "file.pdf",
-          "file_size" => 12345,
+          "file_size" => 12_345,
           "mime_type" => "application/pdf"
         },
         "from" => %{
           "first_name" => "Test Bot",
-          "id" => 987654321,
+          "id" => 987_654_321,
           "is_bot" => true
         },
         "message_id" => 1
@@ -772,8 +772,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "video" => %{
               "file_id" => "video1",
               "width" => 1280,
@@ -785,8 +785,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1,
         "video" => %{
           "duration" => 30,
@@ -815,8 +815,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "audio" => %{
               "file_id" => "audio1",
               "duration" => 180,
@@ -832,8 +832,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "file_id" => "audio1",
           "title" => "Test Track"
         },
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_audio(
           "123456789",
@@ -857,9 +857,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-            "chat" => %{"id" => 123456789, "type" => "private"},
-            "date" => 1234567890,
+            "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "private"},
+            "date" => 1_234_567_890,
             "location" => %{
               "latitude" => 37.7749,
               "longitude" => -122.4194
@@ -879,19 +879,19 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
         # Parse the request body JSON
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
-        assert body["offset"] == 123456789
+        assert body["offset"] == 123_456_789
         assert body["limit"] == 10
 
         Req.Test.json(conn, %{
           "ok" => true,
           "result" => [
             %{
-              "update_id" => 123456790,
+              "update_id" => 123_456_790,
               "message" => %{
                 "message_id" => 1,
-                "from" => %{"id" => 123456789, "first_name" => "User"},
-                "chat" => %{"id" => 123456789, "type" => "private"},
-                "date" => 1234567890,
+                "from" => %{"id" => 123_456_789, "first_name" => "User"},
+                "chat" => %{"id" => 123_456_789, "type" => "private"},
+                "date" => 1_234_567_890,
                 "text" => "Hello, bot!"
               }
             }
@@ -899,8 +899,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
         })
       end)
 
-      assert {:ok, [%{"update_id" => 123456790, "message" => %{"text" => "Hello, bot!"}}]} =
-        TelegramBotLens.get_updates(%{offset: 123456789, limit: 10})
+      assert {:ok, [%{"update_id" => 123_456_790, "message" => %{"text" => "Hello, bot!"}}]} =
+        TelegramBotLens.get_updates(%{offset: 123_456_789, limit: 10})
     end
 
     test "set_webhook/2" do
@@ -984,18 +984,18 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "result" => [
             %{
               "message_id" => 1,
-              "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-              "chat" => %{"id" => 123456789, "type" => "private"},
-              "date" => 1234567890,
+              "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+              "chat" => %{"id" => 123_456_789, "type" => "private"},
+              "date" => 1_234_567_890,
               "photo" => [
                 %{"file_id" => "photo1", "file_size" => 1234, "width" => 100, "height" => 100}
               ]
             },
             %{
               "message_id" => 2,
-              "from" => %{"id" => 987654321, "is_bot" => true, "first_name" => "Test Bot"},
-              "chat" => %{"id" => 123456789, "type" => "private"},
-              "date" => 1234567890,
+              "from" => %{"id" => 987_654_321, "is_bot" => true, "first_name" => "Test Bot"},
+              "chat" => %{"id" => 123_456_789, "type" => "private"},
+              "date" => 1_234_567_890,
               "photo" => [
                 %{"file_id" => "photo2", "file_size" => 5678, "width" => 800, "height" => 600}
               ],
@@ -1028,8 +1028,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "voice" => %{
               "file_id" => "voice1",
               "duration" => 10
@@ -1039,8 +1039,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1,
         "voice" => %{"duration" => 10, "file_id" => "voice1"}
       }} = TelegramBotLens.send_voice(
@@ -1064,8 +1064,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "animation" => %{
               "file_id" => "anim1",
               "width" => 320,
@@ -1083,8 +1083,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "height" => 240,
           "width" => 320
         },
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_animation(
         "123456789",
@@ -1109,8 +1109,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "venue" => %{
               "location" => %{
                 "latitude" => 37.7749,
@@ -1124,8 +1124,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1,
         "venue" => %{
           "address" => "123 Main St",
@@ -1148,7 +1148,7 @@ defmodule Lux.Lenses.TelegramBotLensTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["phone_number"] == "+1234567890"
+        assert body["phone_number"] == "+1_234_567_890"
         assert body["first_name"] == "John"
         assert body["last_name"] == "Doe"
 
@@ -1156,10 +1156,10 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "contact" => %{
-              "phone_number" => "+1234567890",
+              "phone_number" => "+1_234_567_890",
               "first_name" => "John",
               "last_name" => "Doe"
             }
@@ -1168,17 +1168,17 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
+        "chat" => %{"id" => 123_456_789},
         "contact" => %{
           "first_name" => "John",
           "last_name" => "Doe",
-          "phone_number" => "+1234567890"
+          "phone_number" => "+1_234_567_890"
         },
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_contact(
         "123456789",
-        "+1234567890",
+        "+1_234_567_890",
         "John",
         %{last_name: "Doe"}
       )
@@ -1197,8 +1197,8 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 1,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "dice" => %{
               "emoji" => "🎲",
               "value" => 6
@@ -1208,9 +1208,9 @@ defmodule Lux.Lenses.TelegramBotLensTest do
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
+        "chat" => %{"id" => 123_456_789},
         "dice" => %{"emoji" => "🎲", "value" => 6},
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 1
       }} = TelegramBotLens.send_dice("123456789", %{emoji: "🎲"})
     end
@@ -1229,18 +1229,18 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "text" => "Updated text",
-            "edit_date" => 1234567890
+            "edit_date" => 1_234_567_890
           }
         })
       end)
 
       assert {:ok, %{
-        "chat" => %{"id" => 123456789},
-        "edit_date" => 1234567890,
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "edit_date" => 1_234_567_890,
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 42,
         "text" => "Updated text"
       }} = TelegramBotLens.edit_message_text("123456789", 42, "Updated text")
@@ -1260,19 +1260,19 @@ defmodule Lux.Lenses.TelegramBotLensTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 987654321, "is_bot" => true},
-            "chat" => %{"id" => 123456789},
+            "from" => %{"id" => 987_654_321, "is_bot" => true},
+            "chat" => %{"id" => 123_456_789},
             "caption" => "Updated caption",
-            "edit_date" => 1234567890
+            "edit_date" => 1_234_567_890
           }
         })
       end)
 
       assert {:ok, %{
         "caption" => "Updated caption",
-        "chat" => %{"id" => 123456789},
-        "edit_date" => 1234567890,
-        "from" => %{"id" => 987654321, "is_bot" => true},
+        "chat" => %{"id" => 123_456_789},
+        "edit_date" => 1_234_567_890,
+        "from" => %{"id" => 987_654_321, "is_bot" => true},
         "message_id" => 42
       }} = TelegramBotLens.edit_message_caption("123456789", 42, "Updated caption")
     end

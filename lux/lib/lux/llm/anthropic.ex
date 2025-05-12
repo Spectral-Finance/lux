@@ -37,7 +37,7 @@ defmodule Lux.LLM.Anthropic do
           }
 
     defstruct endpoint: "https://api.anthropic.com/v1/messages",
-              model: "claude-3-opus-20240229",
+              model: "claude-3-opus-20_240_229",
               api_key: nil,
               temperature: 0.7,
               max_tokens: 4096,

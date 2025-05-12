@@ -6,7 +6,7 @@ defmodule Lux.Prisms.HyperliquidCancelOrderPrism do
 
       iex> Lux.Prisms.HyperliquidCancelOrderPrism.run(%{
       ...>   coin: "ETH",
-      ...>   order_id: 123456,
+      ...>   order_id: 123_456,
       ...>   vault_address: "0x0403369c02199a0cb827f4d6492927e9fa5668d5" # Optional
       ...> })
       {:ok,
@@ -14,7 +14,7 @@ defmodule Lux.Prisms.HyperliquidCancelOrderPrism do
          status: "success",
          cancelled_order: %{
            "coin" => "ETH",
-           "order_id" => 123456,
+           "order_id" => 123_456,
            "result" => %{
               # ... cancellation response from Hyperliquid
            }

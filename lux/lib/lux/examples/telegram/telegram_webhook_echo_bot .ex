@@ -344,7 +344,7 @@ defmodule Lux.Examples.Telegram.WebhookEchoBot do
   end
 
   # Wait for ngrok to output its public URL
-  defp wait_for_ngrok_url(port, timeout \\ 30000) do
+  defp wait_for_ngrok_url(port, timeout \\ 30_000) do
     start_time = System.monotonic_time(:millisecond)
     wait_for_ngrok_url_loop(port, start_time, timeout, [])
   end

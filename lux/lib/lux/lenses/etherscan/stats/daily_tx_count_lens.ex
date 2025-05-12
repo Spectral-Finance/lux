@@ -14,14 +14,14 @@ defmodule Lux.Lenses.Etherscan.DailyTxCount do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-01", tx_count: 1234567},
-          %{utc_date: "2023-01-02", tx_count: 1345678},
-          %{utc_date: "2023-01-03", tx_count: 1456789}
+          %{utc_date: "2023-01-01", tx_count: 1_234_567},
+          %{utc_date: "2023-01-02", tx_count: 1_345_678},
+          %{utc_date: "2023-01-03", tx_count: 1_456_789}
         ],
         daily_tx_count: [
-          %{utc_date: "2023-01-01", tx_count: 1234567},
-          %{utc_date: "2023-01-02", tx_count: 1345678},
-          %{utc_date: "2023-01-03", tx_count: 1456789}
+          %{utc_date: "2023-01-01", tx_count: 1_234_567},
+          %{utc_date: "2023-01-02", tx_count: 1_345_678},
+          %{utc_date: "2023-01-03", tx_count: 1_456_789}
         ]
       }}
 
@@ -35,14 +35,14 @@ defmodule Lux.Lenses.Etherscan.DailyTxCount do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-05", tx_count: 1678901},
-          %{utc_date: "2023-01-04", tx_count: 1567890},
-          %{utc_date: "2023-01-03", tx_count: 1456789}
+          %{utc_date: "2023-01-05", tx_count: 1_678_901},
+          %{utc_date: "2023-01-04", tx_count: 1_567_890},
+          %{utc_date: "2023-01-03", tx_count: 1_456_789}
         ],
         daily_tx_count: [
-          %{utc_date: "2023-01-05", tx_count: 1678901},
-          %{utc_date: "2023-01-04", tx_count: 1567890},
-          %{utc_date: "2023-01-03", tx_count: 1456789}
+          %{utc_date: "2023-01-05", tx_count: 1_678_901},
+          %{utc_date: "2023-01-04", tx_count: 1_567_890},
+          %{utc_date: "2023-01-03", tx_count: 1_456_789}
         ]
       }}
   """

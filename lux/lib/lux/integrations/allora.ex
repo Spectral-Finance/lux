@@ -89,13 +89,13 @@ defmodule Lux.Integrations.Allora do
      {:ok, inference} = Lux.Lenses.Allora.GetInference.focus(%{
        asset: "BTC",
        timeframe: "5m",
-       signature_format: "ethereum-11155111"
+       signature_format: "ethereum-11_155_111"
      })
 
      # Get prediction by topic ID
      {:ok, inference} = Lux.Lenses.Allora.GetInference.focus(%{
        topic_id: 123,
-       signature_format: "ethereum-11155111"
+       signature_format: "ethereum-11_155_111"
      })
      ```
 
@@ -120,8 +120,8 @@ defmodule Lux.Integrations.Allora do
 
   ### Inference Response
       %{
-        prediction: 65432.1,            # Predicted price
-        confidence_interval: [65400.0, 65500.0],
+        prediction: 65_432.1,            # Predicted price
+        confidence_interval: [65_400.0, 65_500.0],
         signature: "0x...",             # Cryptographic signature
         timestamp: "2024-03-28T12:00:00Z",
         metadata: %{

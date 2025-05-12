@@ -8,7 +8,7 @@ defmodule Lux.Prisms.EthBlockNumPrism do
       ...>   network: "mainnet"
       ...> })
       {:ok, %{
-        block_number: 123456,
+        block_number: 123_456,
         network: "mainnet"
       }}
   """

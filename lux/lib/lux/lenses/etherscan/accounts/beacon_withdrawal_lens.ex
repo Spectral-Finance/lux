@@ -13,8 +13,8 @@ defmodule Lux.Lenses.Etherscan.BeaconWithdrawal do
   # Get beacon chain withdrawals for an address with pagination and block range
   Lux.Lenses.Etherscan.BeaconWithdrawal.focus(%{
     address: "0xB9D7934878B5FB9610B3fE8A5e441e8fad7E293f",
-    startblock: 17000000,
-    endblock: 18000000,
+    startblock: 17_000_000,
+    endblock: 18_000_000,
     page: 1,
     offset: 10,
     sort: "desc"

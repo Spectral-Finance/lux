@@ -43,8 +43,8 @@ defmodule Lux.Lenses.Etherscan.GasOracleLensTest do
             "SafeGasPrice" => "20",
             "ProposeGasPrice" => "22",
             "FastGasPrice" => "25",
-            "suggestBaseFee" => "19.123456789",
-            "gasUsedRatio" => "0.374502284698551,0.5519324043028,0.999999999999999"
+            "suggestBaseFee" => "19.123_456_789",
+            "gasUsedRatio" => "0.374_502_284_698_551,0.5_519_324_043_028,0.999_999_999_999_999"
           }
         })
       end)
@@ -57,8 +57,8 @@ defmodule Lux.Lenses.Etherscan.GasOracleLensTest do
       assert gas_oracle.safe_gas_price == 20.0
       assert gas_oracle.propose_gas_price == 22.0
       assert gas_oracle.fast_gas_price == 25.0
-      assert gas_oracle.suggest_base_fee == 19.123456789
-      assert gas_oracle.gas_used_ratio == "0.374502284698551,0.5519324043028,0.999999999999999"
+      assert gas_oracle.suggest_base_fee == 19.123_456_789
+      assert gas_oracle.gas_used_ratio == "0.374_502_284_698_551,0.5_519_324_043_028,0.999_999_999_999_999"
       assert gas_oracle.last_block == 16_916_759
     end
 
@@ -82,8 +82,8 @@ defmodule Lux.Lenses.Etherscan.GasOracleLensTest do
             "SafeGasPrice" => "20",
             "ProposeGasPrice" => "22",
             "FastGasPrice" => "25",
-            "suggestBaseFee" => "19.123456789",
-            "gasUsedRatio" => "0.374502284698551,0.5519324043028,0.999999999999999"
+            "suggestBaseFee" => "19.123_456_789",
+            "gasUsedRatio" => "0.374_502_284_698_551,0.5_519_324_043_028,0.999_999_999_999_999"
           }
         })
       end)
@@ -183,8 +183,8 @@ defmodule Lux.Lenses.Etherscan.GasOracleLensTest do
           "SafeGasPrice" => "20",
           "ProposeGasPrice" => "22",
           "FastGasPrice" => "25",
-          "suggestBaseFee" => "19.123456789",
-          "gasUsedRatio" => "0.374502284698551,0.5519324043028,0.999999999999999"
+          "suggestBaseFee" => "19.123_456_789",
+          "gasUsedRatio" => "0.374_502_284_698_551,0.5_519_324_043_028,0.999_999_999_999_999"
         }
       }
 
@@ -196,8 +196,8 @@ defmodule Lux.Lenses.Etherscan.GasOracleLensTest do
       assert gas_oracle.safe_gas_price == 20.0
       assert gas_oracle.propose_gas_price == 22.0
       assert gas_oracle.fast_gas_price == 25.0
-      assert gas_oracle.suggest_base_fee == 19.123456789
-      assert gas_oracle.gas_used_ratio == "0.374502284698551,0.5519324043028,0.999999999999999"
+      assert gas_oracle.suggest_base_fee == 19.123_456_789
+      assert gas_oracle.gas_used_ratio == "0.374_502_284_698_551,0.5_519_324_043_028,0.999_999_999_999_999"
       assert gas_oracle.last_block == 16_916_759
     end
 

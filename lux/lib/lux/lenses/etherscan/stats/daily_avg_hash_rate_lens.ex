@@ -14,14 +14,14 @@ defmodule Lux.Lenses.Etherscan.DailyAvgHashRate do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-01", hash_rate_ghs: 1234567.89},
-          %{utc_date: "2023-01-02", hash_rate_ghs: 1345678.90},
-          %{utc_date: "2023-01-03", hash_rate_ghs: 1456789.01}
+          %{utc_date: "2023-01-01", hash_rate_ghs: 1_234_567.89},
+          %{utc_date: "2023-01-02", hash_rate_ghs: 1_345_678.90},
+          %{utc_date: "2023-01-03", hash_rate_ghs: 1_456_789.01}
         ],
         daily_avg_hash_rate: [
-          %{utc_date: "2023-01-01", hash_rate_ghs: 1234567.89},
-          %{utc_date: "2023-01-02", hash_rate_ghs: 1345678.90},
-          %{utc_date: "2023-01-03", hash_rate_ghs: 1456789.01}
+          %{utc_date: "2023-01-01", hash_rate_ghs: 1_234_567.89},
+          %{utc_date: "2023-01-02", hash_rate_ghs: 1_345_678.90},
+          %{utc_date: "2023-01-03", hash_rate_ghs: 1_456_789.01}
         ]
       }}
 
@@ -35,14 +35,14 @@ defmodule Lux.Lenses.Etherscan.DailyAvgHashRate do
       ...> })
       {:ok, %{
         result: [
-          %{utc_date: "2023-01-05", hash_rate_ghs: 1678901.23},
-          %{utc_date: "2023-01-04", hash_rate_ghs: 1567890.12},
-          %{utc_date: "2023-01-03", hash_rate_ghs: 1456789.01}
+          %{utc_date: "2023-01-05", hash_rate_ghs: 1_678_901.23},
+          %{utc_date: "2023-01-04", hash_rate_ghs: 1_567_890.12},
+          %{utc_date: "2023-01-03", hash_rate_ghs: 1_456_789.01}
         ],
         daily_avg_hash_rate: [
-          %{utc_date: "2023-01-05", hash_rate_ghs: 1678901.23},
-          %{utc_date: "2023-01-04", hash_rate_ghs: 1567890.12},
-          %{utc_date: "2023-01-03", hash_rate_ghs: 1456789.01}
+          %{utc_date: "2023-01-05", hash_rate_ghs: 1_678_901.23},
+          %{utc_date: "2023-01-04", hash_rate_ghs: 1_567_890.12},
+          %{utc_date: "2023-01-03", hash_rate_ghs: 1_456_789.01}
         ]
       }}
   """

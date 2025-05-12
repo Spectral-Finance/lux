@@ -34,7 +34,7 @@ defmodule Mix.Tasks.Telegram.DeleteWebhook do
         Usage: mix telegram.delete_webhook YOUR_BOT_TOKEN
 
         Example:
-          mix telegram.delete_webhook 123456789:ABCdefGHIjklMNOpqrSTUvwxYZ
+          mix telegram.delete_webhook 123_456_789:ABCdefGHIjklMNOpqrSTUvwxYZ
         """
     end
   end

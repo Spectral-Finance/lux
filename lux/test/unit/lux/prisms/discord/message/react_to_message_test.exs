@@ -5,7 +5,7 @@ defmodule Lux.Prisms.Discord.Messages.ReactToMessageTest do
   @channel_id "123456789012345678"
   @message_id "987654321098765432"
   @unicode_emoji "👍"
-  @custom_emoji "custom_emoji:123456789"
+  @custom_emoji "custom_emoji:123_456_789"
   @agent_ctx %{agent: %{name: "TestAgent"}}
 
   setup do

@@ -30,19 +30,19 @@ defmodule Lux.Lenses.Allora.GetInference do
       # Fetch inference by topic ID
       iex> GetInference.focus(%{
       ...>   topic_id: 1,
-      ...>   signature_format: "ethereum-11155111"  # Ethereum Sepolia testnet
+      ...>   signature_format: "ethereum-11_155_111"  # Ethereum Sepolia testnet
       ...> })
       {:ok, %{
         signature: "0x...",
         inference_data: %{
           network_inference: "1234567890",
-          network_inference_normalized: "0.12345",
+          network_inference_normalized: "0.12_345",
           confidence_interval_percentiles: ["0.1", "0.5", "0.9"],
           confidence_interval_percentiles_normalized: ["0.1", "0.5", "0.9"],
           confidence_interval_values: ["1200000000", "1234567890", "1300000000"],
-          confidence_interval_values_normalized: ["0.12", "0.12345", "0.13"],
+          confidence_interval_values_normalized: ["0.12", "0.12_345", "0.13"],
           topic_id: "1",
-          timestamp: 1679529600,
+          timestamp: 1_679_529_600,
           extra_data: ""
         }
       }}
@@ -51,7 +51,7 @@ defmodule Lux.Lenses.Allora.GetInference do
       iex> GetInference.focus(%{
       ...>   asset: "BTC",
       ...>   timeframe: "5m",
-      ...>   signature_format: "ethereum-11155111"
+      ...>   signature_format: "ethereum-11_155_111"
       ...> })
       {:ok, %{...}}
 
@@ -59,7 +59,7 @@ defmodule Lux.Lenses.Allora.GetInference do
       iex> GetInference.focus(%{
       ...>   asset: "ETH",
       ...>   timeframe: "8h",
-      ...>   signature_format: "ethereum-11155111"
+      ...>   signature_format: "ethereum-11_155_111"
       ...> })
       {:ok, %{...}}
   """
@@ -93,8 +93,8 @@ defmodule Lux.Lenses.Allora.GetInference do
         },
         signature_format: %{
           type: :string,
-          description: "The signature format to use (e.g. ethereum-11155111 for Sepolia testnet)",
-          default: "ethereum-11155111"
+          description: "The signature format to use (e.g. ethereum-11_155_111 for Sepolia testnet)",
+          default: "ethereum-11_155_111"
         }
       },
       oneOf: [
@@ -104,7 +104,7 @@ defmodule Lux.Lenses.Allora.GetInference do
     }
 
   def before_focus(%{topic_id: topic_id} = params) do
-    signature_format = Map.get(params, :signature_format, "ethereum-11155111")
+    signature_format = Map.get(params, :signature_format, "ethereum-11_155_111")
     url = "#{Allora.base_url()}/allora/consumer/#{signature_format}?allora_topic_id=#{topic_id}&inference_value_type=uint256"
 
     Logger.debug("Allora GetInference before_focus (topic): #{inspect(%{url: url, params: params})}")
@@ -113,7 +113,7 @@ defmodule Lux.Lenses.Allora.GetInference do
   end
 
   def before_focus(%{asset: asset, timeframe: timeframe} = params) do
-    signature_format = Map.get(params, :signature_format, "ethereum-11155111")
+    signature_format = Map.get(params, :signature_format, "ethereum-11_155_111")
     url = "#{Allora.base_url()}/allora/consumer/price/#{signature_format}/#{asset}/#{timeframe}"
 
     Logger.debug("Allora GetInference before_focus (price): #{inspect(%{url: url, params: params})}")
@@ -136,7 +136,7 @@ defmodule Lux.Lenses.Allora.GetInference do
       ...>     "signature" => "0x...",
       ...>     "inference_data" => %{
       ...>       "network_inference" => "1234567890",
-      ...>       "network_inference_normalized" => "0.12345",
+      ...>       "network_inference_normalized" => "0.12_345",
       ...>       "confidence_interval_percentiles" => ["0.1", "0.5", "0.9"],
       ...>       "confidence_interval_values" => ["1200000000", "1234567890", "1300000000"]
       ...>     }

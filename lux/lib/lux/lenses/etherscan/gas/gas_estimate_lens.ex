@@ -7,12 +7,12 @@ defmodule Lux.Lenses.Etherscan.GasEstimate do
   ```elixir
   # Get estimated confirmation time for a transaction with a specific gas price (default chainid: 1 for Ethereum)
   Lux.Lenses.Etherscan.GasEstimate.focus(%{
-    gasprice: 2000000000
+    gasprice: 2_000_000_000
   })
 
   # Get estimated confirmation time for a transaction with a specific gas price on a specific chain
   Lux.Lenses.Etherscan.GasEstimate.focus(%{
-    gasprice: 2000000000,
+    gasprice: 2_000_000_000,
     chainid: 1
   })
   ```

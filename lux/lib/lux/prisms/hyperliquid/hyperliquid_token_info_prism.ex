@@ -8,7 +8,7 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidTokenInfoPrism do
       {:ok, %{
         prices: %{
           "BTC" => %{
-            "funding" => "0.0000125",
+            "funding" => "0.0_000_125",
             "markPx" => "104050.0",
             # ...other fields
           },

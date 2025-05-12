@@ -8,15 +8,15 @@ defmodule Lux.Lenses.Etherscan.GetLogs do
   # Get event logs for an address with block range (default chainid: 1 for Ethereum)
   Lux.Lenses.Etherscan.GetLogs.focus(%{
     address: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
-    fromBlock: 12878196,
-    toBlock: 12878196
+    fromBlock: 12_878_196,
+    toBlock: 12_878_196
   })
 
   # Get event logs for an address with block range and pagination
   Lux.Lenses.Etherscan.GetLogs.focus(%{
     address: "0xbd3531da5cf5857e7cfaa92426877b022e612cf8",
-    fromBlock: 12878196,
-    toBlock: 12878196,
+    fromBlock: 12_878_196,
+    toBlock: 12_878_196,
     page: 1,
     offset: 1000,
     chainid: 1
@@ -24,8 +24,8 @@ defmodule Lux.Lenses.Etherscan.GetLogs do
 
   # Get event logs filtered by topics
   Lux.Lenses.Etherscan.GetLogs.focus(%{
-    fromBlock: 12878196,
-    toBlock: 12879196,
+    fromBlock: 12_878_196,
+    toBlock: 12_879_196,
     topic0: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
     topic0_1_opr: "and",
     topic1: "0x0000000000000000000000000000000000000000000000000000000000000000"
@@ -34,8 +34,8 @@ defmodule Lux.Lenses.Etherscan.GetLogs do
   # Get event logs by address filtered by topics
   Lux.Lenses.Etherscan.GetLogs.focus(%{
     address: "0x59728544b08ab483533076417fbbb2fd0b17ce3a",
-    fromBlock: 15073139,
-    toBlock: 15074139,
+    fromBlock: 15_073_139,
+    toBlock: 15_074_139,
     topic0: "0x27c4f0403323142b599832f26acd21c74a9e5b809f2215726e244a4ac588cd7d",
     topic0_1_opr: "and",
     topic1: "0x00000000000000000000000023581767a106ae21c074b2276d25e5c3e136a68b"

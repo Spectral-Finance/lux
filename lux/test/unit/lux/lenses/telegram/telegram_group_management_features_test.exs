@@ -30,8 +30,8 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
-        assert body["until_date"] == 1735689600  # Optional parameter
+        assert body["user_id"] == 987_654_321
+        assert body["until_date"] == 1_735_689_600  # Optional parameter
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -42,8 +42,8 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.ban_chat_member(
           "123456789",
-          987654321,
-          %{until_date: 1735689600}
+          987_654_321,
+          %{until_date: 1_735_689_600}
         )
     end
 
@@ -54,7 +54,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
         assert body["only_if_banned"] == true  # Optional parameter
 
         Req.Test.json(conn, %{
@@ -66,7 +66,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.unban_chat_member(
           "123456789",
-          987654321,
+          987_654_321,
           %{only_if_banned: true}
         )
     end
@@ -78,10 +78,10 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
         assert body["permissions"]["can_send_messages"] == false
         assert body["permissions"]["can_send_media_messages"] == false
-        assert body["until_date"] == 1735689600  # Optional parameter
+        assert body["until_date"] == 1_735_689_600  # Optional parameter
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -97,9 +97,9 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.restrict_chat_member(
           "123456789",
-          987654321,
+          987_654_321,
           permissions,
-          %{until_date: 1735689600}
+          %{until_date: 1_735_689_600}
         )
     end
 
@@ -110,7 +110,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
         assert body["can_delete_messages"] == true
         assert body["can_restrict_members"] == true
 
@@ -123,7 +123,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.promote_chat_member(
           "123456789",
-          987654321,
+          987_654_321,
           %{
             can_delete_messages: true,
             can_restrict_members: true
@@ -138,7 +138,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
         assert body["custom_title"] == "Group Moderator"
 
         Req.Test.json(conn, %{
@@ -150,7 +150,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.set_chat_administrator_custom_title(
           "123456789",
-          987654321,
+          987_654_321,
           "Group Moderator"
         )
     end
@@ -162,7 +162,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["sender_chat_id"] == "-100987654321"
+        assert body["sender_chat_id"] == "-100_987_654_321"
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -173,7 +173,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.ban_chat_sender_chat(
           "123456789",
-          "-100987654321"
+          "-100_987_654_321"
         )
     end
 
@@ -184,7 +184,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["sender_chat_id"] == "-100987654321"
+        assert body["sender_chat_id"] == "-100_987_654_321"
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -195,7 +195,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.unban_chat_sender_chat(
           "123456789",
-          "-100987654321"
+          "-100_987_654_321"
         )
     end
   end
@@ -239,16 +239,16 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
         assert body["name"] == "Special Invite"
-        assert body["expire_date"] == 1735689600
+        assert body["expire_date"] == 1_735_689_600
         assert body["member_limit"] == 10
 
         Req.Test.json(conn, %{
           "ok" => true,
           "result" => %{
             "invite_link" => "https://t.me/joinchat/AAAAAAAAAAAAAAAAAAAA",
-            "creator" => %{"id" => 12345, "is_bot" => true, "first_name" => "Bot"},
+            "creator" => %{"id" => 12_345, "is_bot" => true, "first_name" => "Bot"},
             "name" => "Special Invite",
-            "expire_date" => 1735689600,
+            "expire_date" => 1_735_689_600,
             "member_limit" => 10,
             "creates_join_request" => false
           }
@@ -260,7 +260,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "123456789",
           %{
             name: "Special Invite",
-            expire_date: 1735689600,
+            expire_date: 1_735_689_600,
             member_limit: 10
           }
         )
@@ -275,15 +275,15 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
         assert body["chat_id"] == "123456789"
         assert body["invite_link"] == "https://t.me/joinchat/AAAAAAAAAAAAAAAAAAAA"
         assert body["name"] == "Updated Invite"
-        assert body["expire_date"] == 1735689600
+        assert body["expire_date"] == 1_735_689_600
 
         Req.Test.json(conn, %{
           "ok" => true,
           "result" => %{
             "invite_link" => "https://t.me/joinchat/AAAAAAAAAAAAAAAAAAAA",
-            "creator" => %{"id" => 12345, "is_bot" => true, "first_name" => "Bot"},
+            "creator" => %{"id" => 12_345, "is_bot" => true, "first_name" => "Bot"},
             "name" => "Updated Invite",
-            "expire_date" => 1735689600,
+            "expire_date" => 1_735_689_600,
             "member_limit" => 10,
             "creates_join_request" => false
           }
@@ -296,7 +296,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "https://t.me/joinchat/AAAAAAAAAAAAAAAAAAAA",
           %{
             name: "Updated Invite",
-            expire_date: 1735689600
+            expire_date: 1_735_689_600
           }
         )
     end
@@ -314,7 +314,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "ok" => true,
           "result" => %{
             "invite_link" => "https://t.me/joinchat/AAAAAAAAAAAAAAAAAAAA",
-            "creator" => %{"id" => 12345, "is_bot" => true, "first_name" => "Bot"},
+            "creator" => %{"id" => 12_345, "is_bot" => true, "first_name" => "Bot"},
             "is_revoked" => true
           }
         })
@@ -334,7 +334,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -345,7 +345,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.approve_chat_join_request(
           "123456789",
-          987654321
+          987_654_321
         )
     end
 
@@ -356,7 +356,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
 
         body = Jason.decode!(conn.adapter |> elem(1) |> Map.get(:req_body))
         assert body["chat_id"] == "123456789"
-        assert body["user_id"] == 987654321
+        assert body["user_id"] == 987_654_321
 
         Req.Test.json(conn, %{
           "ok" => true,
@@ -367,7 +367,7 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
       assert {:ok, true} =
         TelegramGroupManagementFeatures.decline_chat_join_request(
           "123456789",
-          987654321
+          987_654_321
         )
     end
   end
@@ -630,9 +630,9 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 12345, "is_bot" => true, "first_name" => "Bot"},
-            "chat" => %{"id" => 123456789, "type" => "channel"},
-            "date" => 1609459200,
+            "from" => %{"id" => 12_345, "is_bot" => true, "first_name" => "Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "channel"},
+            "date" => 1_609_459_200,
             "text" => "Updated post text",
             "entities" => []
           }
@@ -663,9 +663,9 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "ok" => true,
           "result" => %{
             "message_id" => 42,
-            "from" => %{"id" => 12345, "is_bot" => true, "first_name" => "Bot"},
-            "chat" => %{"id" => 123456789, "type" => "channel"},
-            "date" => 1609459200,
+            "from" => %{"id" => 12_345, "is_bot" => true, "first_name" => "Bot"},
+            "chat" => %{"id" => 123_456_789, "type" => "channel"},
+            "date" => 1_609_459_200,
             "photo" => [%{"file_id" => "photo_file_id"}],
             "caption" => "Updated caption"
           }
@@ -717,12 +717,12 @@ defmodule Lux.Lenses.TelegramGroupManagementFeaturesTest do
           "ok" => true,
           "result" => [
             %{
-              "user" => %{"id" => 12345, "is_bot" => false, "first_name" => "Admin"},
+              "user" => %{"id" => 12_345, "is_bot" => false, "first_name" => "Admin"},
               "status" => "creator",
               "is_anonymous" => false
             },
             %{
-              "user" => %{"id" => 67890, "is_bot" => true, "first_name" => "Bot"},
+              "user" => %{"id" => 67_890, "is_bot" => true, "first_name" => "Bot"},
               "status" => "administrator",
               "can_delete_messages" => true,
               "can_restrict_members" => true

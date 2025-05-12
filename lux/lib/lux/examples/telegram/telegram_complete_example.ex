@@ -298,7 +298,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     end
 
     # Send contact
-    case TelegramBotLens.send_contact(chat_id, "+15551234567", "John", %{
+    case TelegramBotLens.send_contact(chat_id, "+15_551_234_567", "John", %{
       last_name: "Doe"
     }) do
       {:ok, message} ->
@@ -310,7 +310,7 @@ defmodule Lux.Examples.TelegramCompleteExample do
     # Send venue
     case TelegramBotLens.send_venue(chat_id, 48.8584, 2.2945,
       "Eiffel Tower",
-      "Champ de Mars, 5 Av. Anatole France, 75007 Paris, France"
+      "Champ de Mars, 5 Av. Anatole France, 75_007 Paris, France"
     ) do
       {:ok, message} ->
         IO.puts("✅ Venue sent (ID: #{message["message_id"]})")

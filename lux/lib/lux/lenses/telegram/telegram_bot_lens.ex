@@ -30,14 +30,14 @@ defmodule Lux.Lenses.TelegramBotLens do
   # Send a message
   TelegramBotLens.focus(%{
     method: "sendMessage",
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     text: "Hello from Lux!"
   })
 
   # Send a photo
   TelegramBotLens.focus(%{
     method: "sendPhoto",
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     photo: "https://example.com/image.jpg",
     caption: "Check out this photo!"
   })
@@ -45,7 +45,7 @@ defmodule Lux.Lenses.TelegramBotLens do
   # Send a document
   TelegramBotLens.focus(%{
     method: "sendDocument",
-    chat_id: 123456789,
+    chat_id: 123_456_789,
     document: "https://example.com/file.pdf",
     caption: "Here's the document you requested"
   })
@@ -1012,7 +1012,7 @@ defmodule Lux.Lenses.TelegramBotLens do
   ## Parameters
 
   - `filter_fn`: A function that takes a processed update and returns true if it matches
-  - `timeout_ms`: Maximum time to wait in milliseconds (default: 30000)
+  - `timeout_ms`: Maximum time to wait in milliseconds (default: 30_000)
   - `opts`: Options for getting updates (limit, etc.)
 
   ## Returns
@@ -1020,7 +1020,7 @@ defmodule Lux.Lenses.TelegramBotLens do
   Returns `{:ok, update}` if a matching update is found within the timeout,
   or `{:error, :timeout}` if the timeout is reached.
   """
-  def wait_for_update(filter_fn, timeout_ms \\ 30000, opts \\ %{}) when is_function(filter_fn, 1) do
+  def wait_for_update(filter_fn, timeout_ms \\ 30_000, opts \\ %{}) when is_function(filter_fn, 1) do
     # Record the start time
     start_time = System.monotonic_time(:millisecond)
 

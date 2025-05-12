@@ -114,7 +114,7 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
   - `opts`: Options for retries
     - `max_retries`: Maximum number of retry attempts (default: 3)
     - `initial_delay`: Initial delay in milliseconds (default: 1000)
-    - `max_delay`: Maximum delay in milliseconds (default: 30000)
+    - `max_delay`: Maximum delay in milliseconds (default: 30_000)
 
   ## Returns
 
@@ -123,7 +123,7 @@ defmodule Lux.Lenses.Telegram.ErrorHandler do
   def with_retries(fun, opts \\ []) do
     max_retries = Keyword.get(opts, :max_retries, 3)
     initial_delay = Keyword.get(opts, :initial_delay, 1000)
-    max_delay = Keyword.get(opts, :max_delay, 30000)
+    max_delay = Keyword.get(opts, :max_delay, 30_000)
 
     do_with_retries(fun, max_retries, initial_delay, max_delay, 0)
   end

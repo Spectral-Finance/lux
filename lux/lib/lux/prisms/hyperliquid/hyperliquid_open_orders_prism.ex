@@ -14,7 +14,7 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidOpenOrdersPrism do
          "open_orders" => [
            %{
              "coin" => "ETH",
-             "oid" => 123456,
+             "oid" => 123_456,
              "sz" => "0.1",
              "limit_px" => "2800.0",
              "order_type" => %{
@@ -23,7 +23,7 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidOpenOrdersPrism do
                }
              },
              "side" => "B",
-             "timestamp" => 1678901234567
+             "timestamp" => 1_678_901_234_567
            }
          ]
        }}

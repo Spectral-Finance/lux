@@ -21,13 +21,13 @@ defmodule Mix.Tasks.Telegram.GroupManagementExample do
 
   ```
   # Run the complete example
-  mix telegram.group_management_example 123456789 YOUR_BOT_TOKEN
+  mix telegram.group_management_example 123_456_789 YOUR_BOT_TOKEN
 
   # Run only the member management section with a specific user
-  mix telegram.group_management_example 123456789 YOUR_BOT_TOKEN member 987654321
+  mix telegram.group_management_example 123_456_789 YOUR_BOT_TOKEN member 987_654_321
 
   # Run only the permission management section
-  mix telegram.group_management_example 123456789 YOUR_BOT_TOKEN permission
+  mix telegram.group_management_example 123_456_789 YOUR_BOT_TOKEN permission
   ```
   """
 
