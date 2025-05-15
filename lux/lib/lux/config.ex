@@ -91,6 +91,15 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Uniswap API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec uniswap_api_key() :: api_key()
+  def uniswap_api_key do
+    get_required_key(:api_keys, :uniswap)
+  end
+
+  @doc """
   Gets the Hyperliquid account's private key from configuration.
   Raises if the key is not configured.
   """

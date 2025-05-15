@@ -24,6 +24,7 @@ if config_env() in [:dev, :test] do
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
     etherscan: env!("ETHERSCAN_API_KEY", :string!, "missing etherscan"),
     etherscan_pro: env!("ETHERSCAN_API_KEY_PRO", :string!, required: false) == "true",
+    uniswap: env!("UNISWAP_API_KEY", :string!, "missing uniswap"),
     telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, "missing open ai"),
     integration_anthropic: env!("INTEGRATION_ANTHROPIC_API_KEY", :string!, "missing anthropic"),
