@@ -192,7 +192,11 @@ defmodule Lux.LLM.OpenAI do
     end
   end
 
-  def tool_to_function(%Beam{module_name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Beam{
+        module_name: name,
+        description: description,
+        input_schema: input_schema
+      }) do
     %{
       type: "function",
       function: %{
@@ -204,7 +208,11 @@ defmodule Lux.LLM.OpenAI do
     }
   end
 
-  def tool_to_function(%Prism{module_name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Prism{
+        module_name: name,
+        description: description,
+        input_schema: input_schema
+      }) do
     %{
       type: "function",
       function: %{
@@ -256,6 +264,8 @@ defmodule Lux.LLM.OpenAI do
       |> ResponseSignal.validate()
     end
   end
+
+  def parse_content(""), do: {:ok, nil}
 
   def parse_content(content) when is_binary(content) do
     case Jason.decode(content) do
