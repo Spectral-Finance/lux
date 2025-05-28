@@ -177,18 +177,21 @@ defmodule Lux.LLM.OpenAI do
   end
 
   def tool_to_function(tool_module) when is_atom(tool_module) and not is_nil(tool_module) do
-    cond do
-      Lux.prism?(tool_module) ->
-        tool_to_function(tool_module.view())
+    case Code.ensure_loaded(tool_module) do
+      {:module, ^tool_module} ->
+        cond do
+          Lux.prism?(tool_module) -> tool_to_function(tool_module.view())
+          Lux.beam?(tool_module) -> tool_to_function(tool_module.view())
+          Lux.lens?(tool_module) -> tool_to_function(tool_module.view())
+          true -> raise "Unsupported tool type: #{inspect(tool_module)}"
+        end
 
-      Lux.beam?(tool_module) ->
-        tool_to_function(tool_module.view())
+      {:error, :nofile} ->
+        {:error,
+         "Failed to load tool module #{tool_module}: It doesn't seems to be implemented or reacheable"}
 
-      Lux.lens?(tool_module) ->
-        tool_to_function(tool_module.view())
-
-      true ->
-        raise "Unsupported tool type: #{inspect(tool_module)}"
+      {:error, error} ->
+        {:error, "Failed to load tool module #{tool_module}: #{inspect(error)}"}
     end
   end
 
