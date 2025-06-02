@@ -69,7 +69,7 @@ defmodule Lux.MixProject do
       {:req, "~> 0.5.0"},
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
-      {:ex_json_schema, "~> 0.10.2"},
+      {:ex_json_schema, "~> 0.11.1"},
       {:nodejs, "~> 3.1"},
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
