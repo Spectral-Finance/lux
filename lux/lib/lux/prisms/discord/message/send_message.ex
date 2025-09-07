@@ -79,17 +79,12 @@ defmodule Lux.Prisms.Discord.Messages.SendMessage do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} sending message to channel #{channel_id}: #{content}")
 
-      case Client.request(:post, "/channels/#{channel_id}/messages", %{json: %{content: content}}) do
+      Client.request(:post, "/channels/#{channel_id}/messages", %{json: %{content: content}})
+      |> Client.handle_response(__MODULE__)
+      |> case do
         {:ok, %{"id" => message_id}} ->
-          Logger.info("Successfully sent message #{message_id} to channel #{channel_id}")
           {:ok, %{sent: true, message_id: message_id, content: content, channel_id: channel_id}}
-        {:error, {status, %{"message" => message}}} ->
-          error = {status, message}
-          Logger.error("Failed to send message to channel #{channel_id}: #{inspect(error)}")
-          {:error, error}
-        {:error, error} ->
-          Logger.error("Failed to send message to channel #{channel_id}: #{inspect(error)}")
-          {:error, error}
+        error -> error
       end
     end
   end

@@ -81,6 +81,34 @@ defmodule Lux.Integrations.Discord.Client do
     end
   end
 
+  @doc """
+  Handles the response from a Discord API request and logs appropriate messages.
+
+  ## Parameters
+
+    * `result` - The result tuple from the request
+    * `caller_module` - The module that made the request (used for logging context)
+
+  ## Examples
+
+      iex> handle_response({:ok, %{"id" => "123"}}, __MODULE__)
+      {:ok, %{"id" => "123"}}
+  """
+  @spec handle_response(
+    {:ok, map()} | {:error, term()},
+    module()
+  ) :: {:ok, map()} | {:error, term()}
+  def handle_response(result, caller_module) do
+    case result do
+      {:ok, response} ->
+        Logger.info("[#{inspect(caller_module)}] Discord API request successful")
+        {:ok, response}
+      error ->
+        Logger.error("[#{inspect(caller_module)}] Discord API request failed: #{inspect(error)}")
+        error
+    end
+  end
+
   defp build_auth_header(token, token_type) do
     case token_type do
       :bot -> "Bot #{token}"
