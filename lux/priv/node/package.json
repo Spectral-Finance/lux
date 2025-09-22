@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "nypm": "^0.6.0",
+    "nypm": "^0.6.2",
     "web3": "^4.16.0"
   }
 }
