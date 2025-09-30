@@ -41,6 +41,7 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
 - [Role Management](lux/guides/role_management.md) - Managing agent roles
 - [Companies](lux/guides/companies.md) - Organizing agents into companies
+- [Ollama Integration](lux/guides/ollama.md) - Run local models without leaving your machine
 
 ### Development
 - [Contributing Guide](lux/guides/contributing.md) - Help improve Lux

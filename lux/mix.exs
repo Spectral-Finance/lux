@@ -81,6 +81,7 @@ defmodule Lux.MixProject do
       {:dialyxir, "~> 1.4.5", only: :dev, runtime: false},
       {:dotenvy, "~> 1.1.0", only: [:dev, :test]},
       {:mock, "~> 0.3.0", only: [:test]},
+      {:bypass, "~> 2.1", only: :test},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
       {:excoveralls, "~> 0.18", only: :test}

@@ -22,3 +22,13 @@ config :venomous, :snake_manager, %{
     python_executable: "python3"
   ]
 }
+
+config :lux, Lux.LLM.Ollama,
+  endpoint: {:runtime_config, :ollama, [:endpoint], "http://localhost:11434"},
+  model: {:runtime_config, :ollama, [:model], "llama3"},
+  max_concurrency: {:runtime_config, :ollama, [:max_concurrency], 2},
+  model_ttl: {:runtime_config, :ollama, [:model_ttl], :timer.minutes(30)},
+  cleanup_interval: {:runtime_config, :ollama, [:cleanup_interval], :timer.minutes(10)},
+  auto_pull: {:runtime_config, :ollama, [:auto_pull], true},
+  request_timeout: {:runtime_config, :ollama, [:request_timeout], 30_000},
+  pull_timeout: {:runtime_config, :ollama, [:pull_timeout], 120_000}
