@@ -61,7 +61,7 @@ jobs:
           git diff --staged --quiet || git commit -m "Update Python dependencies"
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.13.0'
 

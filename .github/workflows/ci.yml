@@ -39,7 +39,7 @@ jobs:
           python-version: '3.12.3'
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.13.0'
 
@@ -210,7 +210,7 @@ jobs:
           elixir-version: 'v1.18.1-otp-27'
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22.13.0'
 
