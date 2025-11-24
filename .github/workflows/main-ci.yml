@@ -24,7 +24,7 @@ jobs:
       lux: ${{ steps.filter.outputs.lux }}
       lux_app: ${{ steps.filter.outputs.lux_app }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - uses: dorny/paths-filter@v3
         id: filter
@@ -44,7 +44,7 @@ jobs:
       run:
         working-directory: lux
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
@@ -219,7 +219,7 @@ jobs:
           --health-retries 5
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
