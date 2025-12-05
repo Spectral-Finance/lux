@@ -9,6 +9,18 @@ config :lux, :open_ai_models,
 config :lux, :together_ai_models,
   default: "mistralai/Mistral-7B-Instruct-v0.2"
 
+# Ollama local model configuration
+config :lux, :ollama_models,
+  default: "llama3.2",
+  smartest: "llama3.2:70b",
+  fastest: "llama3.2:1b",
+  coding: "codellama"
+
+# Ollama module configuration
+config :lux, Lux.LLM.Ollama,
+  endpoint: "http://localhost:11434",
+  receive_timeout: 120_000
+
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
   perpetual_workers: 2,
