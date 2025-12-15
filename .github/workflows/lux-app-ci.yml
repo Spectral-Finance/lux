@@ -48,7 +48,7 @@ jobs:
           node-version: '22.13.0'
 
       - name: Cache Mix deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             lux_app/deps
@@ -58,7 +58,7 @@ jobs:
             ${{ runner.os }}-mix-lux-app-
 
       - name: Cache Node.js deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux_app/assets/node_modules
           key: ${{ runner.os }}-node-lux-app-${{ hashFiles('lux_app/assets/package-lock.json') }}
@@ -66,7 +66,7 @@ jobs:
             ${{ runner.os }}-node-lux-app-
 
       - name: Cache Dialyzer PLTs
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             lux_app/priv/plts/*.plt
@@ -82,7 +82,7 @@ jobs:
         run: mkdir -p priv/plts
 
       - name: Restore PLT cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: plt_cache
         with:
           path: |
@@ -100,7 +100,7 @@ jobs:
         run: mix dialyzer --plt
 
       - name: Save PLT cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: steps.plt_cache.outputs.cache-hit != 'true'
         with:
           path: |

@@ -51,7 +51,7 @@ jobs:
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
 
       - name: Cache Poetry
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.local
           key: ${{ runner.os }}-poetry-2.0.0
@@ -67,7 +67,7 @@ jobs:
           installer-parallel: true
 
       - name: Cache Mix deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux/deps
           key: ${{ runner.os }}-mix-deps-lux-${{ hashFiles('lux/mix.lock') }}
@@ -75,7 +75,7 @@ jobs:
             ${{ runner.os }}-mix-deps-lux-
 
       - name: Cache Mix build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux/_build
           key: ${{ runner.os }}-mix-build-lux-${{ hashFiles('lux/mix.lock', 'lux/lib/**/*.ex', 'lux/test/**/*.ex') }}
@@ -84,7 +84,7 @@ jobs:
             ${{ runner.os }}-mix-build-lux-
 
       - name: Cache Poetry deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux/.venv
           key: ${{ runner.os }}-poetry-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
@@ -92,7 +92,7 @@ jobs:
             ${{ runner.os }}-poetry-lux-
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
@@ -100,7 +100,7 @@ jobs:
             ${{ runner.os }}-pip-lux-
 
       - name: Cache Python bytecode
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux/**/__pycache__
           key: ${{ runner.os }}-python-bytecode-lux-${{ hashFiles('lux/priv/python/**/*.py') }}
@@ -108,7 +108,7 @@ jobs:
             ${{ runner.os }}-python-bytecode-lux-
 
       - name: Cache Node.js deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux/priv/node/node_modules
           key: ${{ runner.os }}-node-lux-${{ hashFiles('lux/priv/node/package-lock.json') }}
@@ -122,7 +122,7 @@ jobs:
         run: mkdir -p priv/plts
 
       - name: Restore PLT cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         id: plt_cache
         with:
           path: |
@@ -140,7 +140,7 @@ jobs:
         run: mix dialyzer --plt
 
       - name: Save PLT cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         if: steps.plt_cache.outputs.cache-hit != 'true'
         with:
           path: |
@@ -215,7 +215,7 @@ jobs:
           node-version: '22.13.0'
 
       - name: Cache Mix deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             lux_app/deps
@@ -225,7 +225,7 @@ jobs:
             ${{ runner.os }}-mix-lux-app-
 
       - name: Cache Node.js deps
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux_app/assets/node_modules
           key: ${{ runner.os }}-node-lux-app-${{ hashFiles('lux_app/assets/package-lock.json') }}
@@ -233,7 +233,7 @@ jobs:
             ${{ runner.os }}-node-lux-app-
 
       - name: Cache Dialyzer PLTs
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: lux_app/priv/plts
           key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
