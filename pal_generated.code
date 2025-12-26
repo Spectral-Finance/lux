@@ -1,0 +1,233 @@
+<GENERATED-CODE>
+I will create one new file for the `DMManager` module.
+
+1.  Create the new file `lib/lux/twitter_automation/dm_manager.ex` with the complete `GenServer` implementation for managing Direct Messages.
+
+<NEWFILE: lib/lux/twitter_automation/dm_manager.ex>
+```elixir
+defmodule Lux.TwitterAutomation.DMManager do
+  @moduledoc """
+  Manages sending Direct Messages with templating, rate limiting, and safety features.
+
+  Features:
+  - DM templates with placeholder interpolation (e.g., {{username}})
+  - Rate limiting (15 DMs per 15 minutes per authenticated user)
+  - Opt-out list to prevent messaging specific users
+  - History tracking to avoid sending the same DM template to a user twice
+  - Integration with QueueManager for asynchronous sending
+  """
+
+  use GenServer
+  require Logger
+
+  alias Lux.TwitterAutomation.QueueManager
+
+  @rate_limit_window_minutes 15
+  @rate_limit_count 15
+
+  ## Client API
+
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
+  end
+
+  @doc """
+  Sends a direct message to a user using a pre-defined template.
+
+  `recipient_details` should be a map containing at least `:user_id` and `:username`.
+  Example: `%{user_id: "12345", username: "elixirlang"}`
+  """
+  def send_dm(recipient_details, template_name, authenticated_user_id) do
+    GenServer.call(
+      __MODULE__,
+      {:send_dm, recipient_details, template_name, authenticated_user_id}
+    )
+  end
+
+  @doc "Adds or updates a DM template."
+  def add_template(name, template_string) when is_atom(name) and is_binary(template_string) do
+    GenServer.call(__MODULE__, {:add_template, name, template_string})
+  end
+
+  @doc "Deletes a DM template."
+  def delete_template(name) when is_atom(name) do
+    GenServer.call(__MODULE__, {:delete_template, name})
+  end
+
+  @doc "Adds a user to the opt-out list (will not receive DMs)."
+  def add_to_opt_out(user_id) do
+    GenServer.call(__MODULE__, {:add_to_opt_out, user_id})
+  end
+
+  @doc "Removes a user from the opt-out list."
+  def remove_from_opt_out(user_id) do
+    GenServer.call(__MODULE__, {:remove_from_opt_out, user_id})
+  end
+
+  @doc "Gets the current status of the DMManager."
+  def get_status do
+    GenServer.call(__MODULE__, :get_status)
+  end
+
+  ## Server Callbacks
+
+  @impl true
+  def init(_opts) do
+    {:ok,
+     %{
+       templates: %{},
+       opt_out_list: MapSet.new(),
+       dm_history: %{},  # %{recipient_id => MapSet.new([:template_name])}
+       rate_limit_tracker: %{}  # %{auth_user_id => [timestamp1, ...]}
+     }}
+  end
+
+  @impl true
+  def handle_call(
+        {:send_dm, recipient_details, template_name, auth_user_id},
+        _from,
+        state
+      ) do
+    with :ok <- check_opt_out(state, recipient_details.user_id),
+         :ok <- check_dm_history(state, recipient_details.user_id, template_name),
+         :ok <- check_rate_limit(state, auth_user_id),
+         {:ok, template_string} <- fetch_template(state, template_name) do
+      # Interpolate and enqueue
+      text = interpolate_template(template_string, recipient_details)
+
+      case QueueManager.enqueue(:send_dm, %{
+             recipient_user_id: recipient_details.user_id,
+             text: text,
+             source_user_id: auth_user_id
+           }, :high) do
+        {:ok, queue_id} ->
+          new_state = track_dm_sent(state, auth_user_id, recipient_details.user_id, template_name)
+          Logger.info("Queued DM to #{recipient_details.user_id} using template #{template_name}")
+          {:reply, {:ok, queue_id}, new_state}
+
+        error ->
+          {:reply, error, state}
+      end
+    else
+      {:error, reason} ->
+        Logger.warn("Failed to send DM to #{recipient_details.user_id}: #{reason}")
+        {:reply, {:error, reason}, state}
+    end
+  end
+
+  @impl true
+  def handle_call({:add_template, name, template_string}, _from, state) do
+    new_templates = Map.put(state.templates, name, template_string)
+    Logger.info("Added/Updated DM template: #{name}")
+    {:reply, :ok, %{state | templates: new_templates}}
+  end
+
+  @impl true
+  def handle_call({:delete_template, name}, _from, state) do
+    {_value, new_templates} = Map.pop(state.templates, name)
+    Logger.info("Deleted DM template: #{name}")
+    {:reply, :ok, %{state | templates: new_templates}}
+  end
+
+  @impl true
+  def handle_call({:add_to_opt_out, user_id}, _from, state) do
+    new_opt_out_list = MapSet.put(state.opt_out_list, user_id)
+    Logger.info("Added user #{user_id} to DM opt-out list")
+    {:reply, :ok, %{state | opt_out_list: new_opt_out_list}}
+  end
+
+  @impl true
+  def handle_call({:remove_from_opt_out, user_id}, _from, state) do
+    new_opt_out_list = MapSet.delete(state.opt_out_list, user_id)
+    Logger.info("Removed user #{user_id} from DM opt-out list")
+    {:reply, :ok, %{state | opt_out_list: new_opt_out_list}}
+  end
+
+  @impl true
+  def handle_call(:get_status, _from, state) do
+    status = %{
+      template_count: map_size(state.templates),
+      opt_out_count: MapSet.size(state.opt_out_list),
+      dm_history_user_count: map_size(state.dm_history)
+    }
+
+    {:reply, {:ok, status}, state}
+  end
+
+  ## Private Functions
+
+  defp check_opt_out(state, user_id) do
+    if MapSet.member?(state.opt_out_list, user_id) do
+      {:error, :opted_out}
+    else
+      :ok
+    end
+  end
+
+  defp check_dm_history(state, user_id, template_name) do
+    sent_templates = Map.get(state.dm_history, user_id, MapSet.new())
+
+    if MapSet.member?(sent_templates, template_name) do
+      {:error, :duplicate_template}
+    else
+      :ok
+    end
+  end
+
+  defp check_rate_limit(state, auth_user_id) do
+    timestamps = Map.get(state.rate_limit_tracker, auth_user_id, [])
+    window_start = DateTime.add(DateTime.utc_now(), -@rate_limit_window_minutes * 60, :second)
+
+    recent_dms =
+      Enum.count(timestamps, fn timestamp ->
+        DateTime.compare(timestamp, window_start) == :gt
+      end)
+
+    if recent_dms >= @rate_limit_count do
+      {:error, :rate_limited}
+    else
+      :ok
+    end
+  end
+
+  defp fetch_template(state, template_name) do
+    case Map.get(state.templates, template_name) do
+      nil -> {:error, :template_not_found}
+      template_string -> {:ok, template_string}
+    end
+  end
+
+  defp interpolate_template(template_string, vars) do
+    Enum.reduce(vars, template_string, fn {key, value}, acc ->
+      String.replace(acc, "{{#{key}}}", to_string(value))
+    end)
+  end
+
+  defp track_dm_sent(state, auth_user_id, recipient_user_id, template_name) do
+    # Update rate limit tracker
+    now = DateTime.utc_now()
+    window_start = DateTime.add(now, -(@rate_limit_window_minutes + 1) * 60, :second)
+
+    user_timestamps =
+      state.rate_limit_tracker
+      |> Map.get(auth_user_id, [])
+      |> Enum.filter(&DateTime.after?(&1, window_start))
+
+    new_timestamps = [now | user_timestamps]
+    new_rate_limit_tracker = Map.put(state.rate_limit_tracker, auth_user_id, new_timestamps)
+
+    # Update DM history
+    user_history = Map.get(state.dm_history, recipient_user_id, MapSet.new())
+    new_user_history = MapSet.put(user_history, template_name)
+    new_dm_history = Map.put(state.dm_history, recipient_user_id, new_user_history)
+
+    %{
+      state
+      | rate_limit_tracker: new_rate_limit_tracker,
+        dm_history: new_dm_history
+    }
+  end
+end
+```
+</NEWFILE>
+</GENERATED-CODE>
