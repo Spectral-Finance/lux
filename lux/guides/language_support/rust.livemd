@@ -1,0 +1,256 @@
+# Rust Integration
+
+```elixir
+Mix.install([
+  {:lux, path: "."}
+])
+```
+
+## Overview
+
+Lux provides native Rust integration through NIFs (Native Implemented Functions), enabling high-performance code execution directly within the BEAM VM. Unlike Python and Node.js integrations which use external processes, Rust code runs in the same memory space as Elixir, providing:
+
+- **Zero-copy data transfer** for binaries
+- **Minimal latency** for function calls (nanoseconds vs milliseconds)
+- **Direct memory sharing** with Elixir
+- **Full type safety** via the Rustler type system
+
+## Setup
+
+### Prerequisites
+
+1. **Rust toolchain**: Install via [rustup](https://rustup.rs/)
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+2. **Build the NIF**:
+   ```bash
+   cd priv/rust
+   cargo build --release
+   ```
+
+### Verification
+
+Check if the Rust integration is available:
+
+```elixir
+Lux.Rust.available?()
+```
+
+Get version information:
+
+```elixir
+Lux.Rust.version()
+```
+
+## Basic Usage
+
+### Executing Built-in Functions
+
+Lux.Rust comes with several built-in functions for common operations:
+
+```elixir
+# Arithmetic operations
+{:ok, result} = Lux.Rust.execute("add", %{a: 40, b: 2})
+# => {:ok, 42}
+
+{:ok, result} = Lux.Rust.execute("multiply", %{a: 6, b: 7})
+# => {:ok, 42}
+
+# String operations
+{:ok, result} = Lux.Rust.execute("concat", %{a: "Hello, ", b: "World!"})
+# => {:ok, "Hello, World!"}
+
+# JSON operations
+{:ok, parsed} = Lux.Rust.execute("json_parse", %{json: ~s({"name": "Alice", "age": 30})})
+# => {:ok, %{"name" => "Alice", "age" => 30}}
+
+{:ok, json} = Lux.Rust.execute("json_stringify", %{value: %{x: 1, y: 2}})
+# => {:ok, "{\"x\":1,\"y\":2}"}
+```
+
+### Expression Evaluation
+
+For simple arithmetic expressions with variables:
+
+```elixir
+# Simple expressions
+{:ok, result} = Lux.Rust.eval("2 + 3 * 4")
+# => {:ok, 14}
+
+# With variables
+{:ok, result} = Lux.Rust.eval("x + y", variables: %{x: 10, y: 5})
+# => {:ok, 15}
+
+# String concatenation
+{:ok, result} = Lux.Rust.eval("greeting + name",
+  variables: %{greeting: "Hello, ", name: "World!"})
+# => {:ok, "Hello, World!"}
+```
+
+### Bang Functions
+
+Use `execute!/2` and `eval!/2` when you want to raise on errors:
+
+```elixir
+# Returns value directly, raises on error
+result = Lux.Rust.execute!("add", %{a: 1, b: 2})
+# => 3
+
+result = Lux.Rust.eval!("x * 2", variables: %{x: 21})
+# => 42
+```
+
+## Type System
+
+### Elixir to Rust Type Mapping
+
+| Elixir Type | Rust Type |
+|-------------|-----------|
+| `nil` | `RustValue::Nil` |
+| `true/false` | `RustValue::Boolean` |
+| `integer` | `RustValue::Integer (i64)` |
+| `float` | `RustValue::Float (f64)` |
+| `binary/string` | `RustValue::String` |
+| `atom` | `RustValue::Atom` |
+| `list` | `RustValue::List` |
+| `map` | `RustValue::Map` |
+| `tuple` | `RustValue::Tuple` |
+
+### Type Coercion
+
+Numeric types are automatically coerced when needed:
+
+```elixir
+# Integer + Float = Float
+{:ok, result} = Lux.Rust.execute("add", %{a: 1, b: 2.5})
+# => {:ok, 3.5}
+```
+
+## Error Handling
+
+Errors are returned as `{:error, message}` tuples:
+
+```elixir
+# Unknown function
+{:error, msg} = Lux.Rust.execute("unknown_func", %{})
+# => {:error, "Unknown function: unknown_func"}
+
+# Missing argument
+{:error, msg} = Lux.Rust.execute("add", %{a: 1})
+# => {:error, "Missing required argument: b"}
+
+# Type mismatch
+{:error, msg} = Lux.Rust.execute("add", %{a: "hello", b: 1})
+# => {:error, "Type mismatch: add requires numeric arguments"}
+
+# Division by zero
+{:error, msg} = Lux.Rust.eval("x / y", variables: %{x: 10, y: 0})
+# => {:error, "Division by zero"}
+```
+
+## Adding Custom Functions
+
+To add new Rust functions, edit `priv/rust/src/lib.rs`:
+
+### 1. Add to the dispatch table
+
+```rust
+fn dispatch_function<'a>(env: Env<'a>, func_name: &str, args: Term<'a>) -> RustResult<Term<'a>> {
+    match func_name {
+        "add" => builtin_add(env, args),
+        "multiply" => builtin_multiply(env, args),
+        // Add your function here
+        "my_function" => my_function(env, args),
+        _ => Err(RustError::UnknownFunction(func_name.to_string())),
+    }
+}
+```
+
+### 2. Implement the function
+
+```rust
+fn my_function<'a>(env: Env<'a>, args: Term<'a>) -> RustResult<Term<'a>> {
+    // Decode arguments
+    let map: HashMap<String, RustValue> = decode_map(env, args)?;
+
+    // Get required arguments
+    let input = map
+        .get("input")
+        .ok_or_else(|| RustError::MissingArgument("input".to_string()))?;
+
+    // Perform computation
+    let result = match input {
+        RustValue::String(s) => RustValue::String(s.to_uppercase()),
+        _ => return Err(RustError::TypeMismatch("string expected".into())),
+    };
+
+    // Encode and return result
+    Ok(encode_value(env, &result))
+}
+```
+
+### 3. Rebuild the NIF
+
+```bash
+cd priv/rust
+cargo build --release
+```
+
+## Performance Considerations
+
+### When to Use Rust
+
+Rust NIFs are ideal for:
+
+- **CPU-intensive computations** - Cryptography, data processing, parsing
+- **Batch operations** - Processing large datasets
+- **Performance-critical paths** - Hot loops, real-time processing
+- **Memory-efficient operations** - Working with large binaries
+
+### When to Avoid
+
+NIFs have some limitations:
+
+- **Long-running operations** - Can block schedulers; use dirty schedulers or spawn processes
+- **Simple operations** - Overhead may exceed benefit for trivial tasks
+- **Frequent cross-language calls** - Batching is more efficient
+
+### Dirty Schedulers
+
+For CPU-intensive work that may take longer than 1ms, use dirty schedulers:
+
+```rust
+#[rustler::nif(schedule = "DirtyCpu")]
+fn heavy_computation<'a>(env: Env<'a>, data: Term<'a>) -> NifResult<Term<'a>> {
+    // Long-running computation here
+}
+```
+
+## Troubleshooting
+
+### NIF Not Loading
+
+If you see `{:error, :nif_not_loaded}`:
+
+1. Ensure Rust is installed: `rustc --version`
+2. Build the NIF: `cd priv/rust && cargo build --release`
+3. Check for compilation errors in the cargo output
+4. Verify the library exists: `ls priv/rust/target/release/liblux_rust.*`
+
+### Memory Issues
+
+If you encounter memory issues:
+
+1. Ensure you're not holding references across NIF calls
+2. Use `Binary` for large data instead of copying
+3. Profile memory usage with `:recon`
+
+### Segmentation Faults
+
+If the BEAM crashes:
+
+1. Check for unsafe Rust code
+2. Verify all error paths return proper values
+3. Use `#[cfg(debug_assertions)]` for extra validation in development
