@@ -71,6 +71,7 @@ defmodule Lux.MixProject do
       {:crontab, "~> 1.1"},
       {:ex_json_schema, "~> 0.10.2"},
       {:nodejs, "~> 3.1"},
+      {:rustler, "~> 0.36", runtime: false},
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
@@ -117,6 +118,8 @@ defmodule Lux.MixProject do
         "priv/python/README.md",
         "priv/node/*.json",
         "priv/node/*.mjs",
+        "priv/rust/Cargo.toml",
+        "priv/rust/src/*.rs",
         ".formatter.exs",
         "mix.exs",
         "../README.md",
@@ -155,7 +158,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+          "guides/language_support/rust.livemd"
         ],
         Setup: [
           "guides/troubleshooting.md",
