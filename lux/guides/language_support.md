@@ -24,14 +24,17 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 - Support for modern ES modules and async/await
 - Full access to Node.js APIs
 
-## Future Language Support
+### Rust Integration
+[Learn more about Rust integration](language_support/rust.livemd)
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+Native Rust integration provides high-performance native code execution:
+- Write Rust expressions directly in your Elixir files using `~RS` sigils
+- High-performance NIF-based execution
+- Seamless type conversion between Elixir and Rust
+- Fast JSON serialization via serde_json
+- Memory-safe interop with the BEAM
+
+## Future Language Support
 
 ### Custom Language Integration
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
@@ -48,12 +51,13 @@ Check out our [Contributing Guide](contributing.md) for details on adding langua
    - Use Python for ML/AI tasks and data processing
    - Use Node.js for web integration and text processing
    - Use Elixir for coordination and state management
-   - Consider Rust (coming soon) for performance-critical components
+   - Use Rust for performance-critical components and compute-intensive tasks
 
 2. **Package Management**
    - Add custom Python modules under `priv/python/`
    - Use `poetry` for Python dependency management
    - Use `npm`/`yarn` for Node.js dependencies
+   - Use `cargo` for Rust dependencies in `priv/rust/`
    - Follow the language's best practices for versioning
 
 3. **Performance Considerations**

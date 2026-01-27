@@ -1,0 +1,197 @@
+# Rust Integration in Lux
+
+```elixir
+Mix.install([
+  {:lux, ">= 0.5.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:lux])
+```
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Frust.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+Lux provides native Rust integration through NIFs (Native Implemented Functions),
+enabling high-performance code execution for compute-intensive tasks.
+
+## Setup
+
+### Prerequisites
+
+1. **Rust toolchain**: Install via [rustup](https://rustup.rs/)
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+2. **Build the NIF**: From the `lux` directory
+   ```bash
+   cd priv/rust
+   cargo build --release
+   ```
+
+## Basic Usage
+
+### Using the `~RS` Sigil
+
+The simplest way to run Rust expressions is with the `~RS` sigil:
+
+```elixir
+require Lux.Rust
+
+# Simple arithmetic
+Lux.Rust.rust do
+  ~RS"10 + 5"
+end
+# => {:ok, 15}
+
+# With variables
+Lux.Rust.rust variables: %{x: 40, y: 2} do
+  ~RS"x + y"
+end
+# => {:ok, 42}
+```
+
+### Using `eval/2`
+
+For programmatic usage:
+
+```elixir
+# Simple evaluation
+Lux.Rust.eval("x * 2", variables: %{x: 21})
+# => {:ok, 42}
+
+# With error handling
+case Lux.Rust.eval("x / y", variables: %{x: 10, y: 0}) do
+  {:ok, result} -> IO.puts("Result: #{result}")
+  {:error, reason} -> IO.puts("Error: #{inspect(reason)}")
+end
+```
+
+### Expression Limitations
+
+The expression evaluator currently supports only **single binary operations**:
+
+```elixir
+# Supported: single operation
+Lux.Rust.eval("x + y", variables: %{x: 10, y: 5})   # => {:ok, 15}
+Lux.Rust.eval("a * b", variables: %{a: 3, b: 4})    # => {:ok, 12}
+
+# NOT supported: multiple operations (no operator precedence)
+# Use Elixir's Code.eval_string/1 for complex expressions instead
+```
+
+## JSON Operations
+
+Rust's serde_json provides fast JSON serialization:
+
+```elixir
+# Convert to JSON
+{:ok, json} = Lux.Rust.to_json(%{name: "Alice", age: 30})
+# => {:ok, "{\"age\":30,\"name\":\"Alice\"}"}
+
+# Parse JSON
+{:ok, data} = Lux.Rust.from_json(~s({"name":"Bob","score":100}))
+# => {:ok, %{"name" => "Bob", "score" => 100}}
+```
+
+## Type Conversions
+
+The following types are automatically converted between Elixir and Rust:
+
+| Elixir Type | Rust Type |
+|-------------|-----------|
+| `nil` | `LuxValue::Nil` |
+| `true`/`false` | `LuxValue::Bool(bool)` |
+| `integer` | `LuxValue::Integer(i64)` |
+| `float` | `LuxValue::Float(f64)` |
+| `binary/string` | `LuxValue::String(String)` |
+| `list` | `LuxValue::List(Vec<LuxValue>)` |
+| `map` | `LuxValue::Map(HashMap<String, LuxValue>)` |
+
+## Health Check
+
+Verify the Rust integration is working:
+
+```elixir
+Lux.Rust.health_check()
+# => {:ok, %{"language" => "rust", "status" => "ok", "version" => "0.1.0"}}
+
+Lux.Rust.version()
+# => "0.1.0"
+```
+
+## Error Handling
+
+Rust errors are propagated to Elixir as tuples:
+
+```elixir
+# Division by zero
+Lux.Rust.eval("x / y", variables: %{x: 10, y: 0})
+# => {:error, "Division by zero"}
+
+# Parse error
+Lux.Rust.eval("invalid syntax here")
+# => {:error, "Parse error: Cannot evaluate expression: invalid syntax here"}
+
+# Using eval! raises on error
+Lux.Rust.eval!("undefined_var")
+# => ** (RuntimeError) Rust error: ...
+```
+
+## Performance Considerations
+
+### When to Use Rust
+
+- **Compute-intensive tasks**: Mathematical operations, data processing
+- **JSON serialization**: High-throughput JSON encoding/decoding
+- **Memory-efficient operations**: When you need precise memory control
+
+### NIF Guidelines
+
+1. **Keep NIFs short**: NIFs block the BEAM scheduler. Keep execution under 1ms.
+2. **Use dirty schedulers**: For longer operations, consider dirty NIFs.
+3. **Avoid side effects**: NIFs should be pure functions when possible.
+
+## Extending the Rust Integration
+
+To add custom Rust functions:
+
+1. Add your function to `priv/rust/src/lib.rs`:
+   ```rust
+   #[rustler::nif]
+   fn my_function(arg: LuxValue) -> NifResult<LuxValue> {
+       // Your implementation
+       Ok(arg)
+   }
+   ```
+
+2. Register it in the `rustler::init!` macro
+
+3. Add the Elixir wrapper in `lib/lux/rust.ex`
+
+4. Rebuild with `cargo build --release`
+
+## Troubleshooting
+
+### NIF Not Loaded
+
+If you see `nif_not_loaded` errors:
+
+1. Ensure Rust is installed: `rustc --version`
+2. Build the NIF: `cd priv/rust && cargo build --release`
+3. Check the library exists: `ls priv/rust/target/release/liblux_rust.*`
+
+### Compilation Errors
+
+- Ensure you have Rust 1.70+ installed
+- Run `cargo check` in `priv/rust` to see detailed errors
+
+## Next Steps
+
+- Explore the [Language Support](../language_support.md) overview
+- Check out the [Python Integration](python.livemd) for comparison
+- Read about [Testing](../testing.md) Rust code
