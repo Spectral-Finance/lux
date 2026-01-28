@@ -30,7 +30,9 @@ rustler::init!("Elixir.Lux.Rust.Native");
 fn eval(code: String, variables: HashMap<String, LuxValue>) -> NifResult<LuxValue> {
     // Input validation
     if code.len() > MAX_CODE_LENGTH {
-        return Err(Error::Term(Box::new("Code exceeds maximum length".to_string())));
+        return Err(Error::Term(Box::new(
+            "Code exceeds maximum length".to_string(),
+        )));
     }
     if variables.len() > MAX_VARIABLES {
         return Err(Error::Term(Box::new("Too many variables".to_string())));
@@ -195,7 +197,9 @@ fn compute_result(op: &str, left: NumericValue, right: NumericValue) -> Result<L
 
     // Check for overflow/infinity
     if result.is_infinite() || result.is_nan() {
-        return Err(LuxError::TypeError("Arithmetic overflow or invalid result".to_string()));
+        return Err(LuxError::TypeError(
+            "Arithmetic overflow or invalid result".to_string(),
+        ));
     }
 
     Ok(LuxValue::Float(result))

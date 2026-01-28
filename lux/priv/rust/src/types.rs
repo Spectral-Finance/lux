@@ -74,7 +74,7 @@ impl<'a> Decoder<'a> for LuxValue {
                 return Err(Error::BadArg);
             }
             let values: NifResult<Vec<LuxValue>> =
-                tuple.into_iter().map(|t| LuxValue::decode(t)).collect();
+                tuple.into_iter().map(LuxValue::decode).collect();
             return Ok(LuxValue::List(values?));
         }
 
@@ -85,7 +85,7 @@ impl<'a> Decoder<'a> for LuxValue {
                     return Err(Error::BadArg);
                 }
                 let values: NifResult<Vec<LuxValue>> =
-                    list.into_iter().map(|t| LuxValue::decode(t)).collect();
+                    list.into_iter().map(LuxValue::decode).collect();
                 return Ok(LuxValue::List(values?));
             }
         }

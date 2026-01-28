@@ -21,6 +21,8 @@ defmodule Lux.Rust do
   For operations that may take more than 1ms, consider using dirty schedulers.
   """
 
+  alias __MODULE__.Native
+
   @type eval_option :: {:variables, map()}
 
   @type eval_options :: [eval_option()]
@@ -56,7 +58,7 @@ defmodule Lux.Rust do
       end)
       |> Map.new()
 
-    case Lux.Rust.Native.eval(code, variables) do
+    case Native.eval(code, variables) do
       {:error, _} = error -> error
       result -> {:ok, result}
     end
@@ -97,7 +99,7 @@ defmodule Lux.Rust do
   """
   @spec to_json(term()) :: {:ok, String.t()} | {:error, term()}
   def to_json(value) do
-    case Lux.Rust.Native.to_json(value) do
+    case Native.to_json(value) do
       {:error, _} = error -> error
       result -> {:ok, result}
     end
@@ -115,7 +117,7 @@ defmodule Lux.Rust do
   """
   @spec from_json(String.t()) :: {:ok, term()} | {:error, term()}
   def from_json(json) do
-    case Lux.Rust.Native.from_json(json) do
+    case Native.from_json(json) do
       {:error, _} = error -> error
       result -> {:ok, result}
     end
@@ -133,7 +135,7 @@ defmodule Lux.Rust do
   """
   @spec version() :: String.t()
   def version do
-    Lux.Rust.Native.version()
+    Native.version()
   rescue
     _ -> "unknown"
   end
@@ -148,7 +150,7 @@ defmodule Lux.Rust do
   """
   @spec health_check() :: {:ok, map()} | {:error, term()}
   def health_check do
-    case Lux.Rust.Native.health_check() do
+    case Native.health_check() do
       {:error, _} = error -> error
       result -> {:ok, result}
     end
