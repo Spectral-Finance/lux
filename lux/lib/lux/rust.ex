@@ -12,7 +12,7 @@ defmodule Lux.Rust do
       iex> Lux.Rust.rust variables: %{x: 40, y: 2} do
       ...>   ~RS"x + y"
       ...> end
-      {:ok, 42}
+      42
 
   ## Performance
 
@@ -21,9 +21,7 @@ defmodule Lux.Rust do
   For operations that may take more than 1ms, consider using dirty schedulers.
   """
 
-  @type eval_option ::
-          {:variables, map()}
-          | {:timeout, pos_integer()}
+  @type eval_option :: {:variables, map()}
 
   @type eval_options :: [eval_option()]
 
@@ -48,12 +46,13 @@ defmodule Lux.Rust do
   def eval(code, opts \\ []) do
     variables = Keyword.get(opts, :variables, %{})
 
-    # Convert atom keys to string keys for Rust
+    # Convert all keys to string keys for Rust
     variables =
       variables
       |> Enum.map(fn
         {k, v} when is_atom(k) -> {Atom.to_string(k), v}
-        {k, v} -> {k, v}
+        {k, v} when is_binary(k) -> {k, v}
+        {k, v} -> {to_string(k), v}
       end)
       |> Map.new()
 
@@ -176,18 +175,18 @@ defmodule Lux.Rust do
       iex> Lux.Rust.rust variables: %{x: 40, y: 2} do
       ...>   ~RS"x + y"
       ...> end
-      {:ok, 42}
+      42
 
       iex> require Lux.Rust
       iex> Lux.Rust.rust do
       ...>   ~RS"10 * 5"
       ...> end
-      {:ok, 50}
+      50
   """
   defmacro rust(opts \\ [], do: {:sigil_RS, _, [{:<<>>, _, [code]}, []]}) do
     quote do
       variables = Keyword.get(unquote(opts), :variables, %{})
-      Lux.Rust.eval(unquote(code), variables: variables)
+      Lux.Rust.eval!(unquote(code), variables: variables)
     end
   end
 
@@ -233,8 +232,13 @@ defmodule Lux.Rust.Native do
       end)
 
     case result do
-      :ok -> :ok
-      :not_found -> :ok  # Allow graceful degradation when NIF not built
+      :ok ->
+        :ok
+
+      :not_found ->
+        require Logger
+        Logger.warning("Lux.Rust NIF not loaded. Run 'mix rust.build' to enable Rust support.")
+        :ok
     end
   end
 

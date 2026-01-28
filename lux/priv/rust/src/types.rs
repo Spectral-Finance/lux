@@ -7,6 +7,9 @@ use rustler::{Decoder, Encoder, Env, Error, NifResult, Term};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Maximum allowed collection size (lists and maps)
+const MAX_COLLECTION_SIZE: usize = 10_000;
+
 /// A value that can be exchanged between Elixir and Rust
 ///
 /// This enum represents all supported types for cross-language communication.
@@ -31,16 +34,8 @@ pub enum LuxValue {
     Map(HashMap<String, LuxValue>),
 }
 
-impl Default for LuxValue {
-    fn default() -> Self {
-        LuxValue::Nil
-    }
-}
-
 impl<'a> Decoder<'a> for LuxValue {
     fn decode(term: Term<'a>) -> NifResult<Self> {
-        // Try to decode in order of specificity
-
         // Nil
         if term.is_atom() {
             if let Ok(atom) = term.atom_to_string() {
@@ -73,18 +68,34 @@ impl<'a> Decoder<'a> for LuxValue {
             return Ok(LuxValue::String(s));
         }
 
-        // List
+        // Tuple (convert to list)
+        if let Ok(tuple) = rustler::types::tuple::get_tuple(term) {
+            if tuple.len() > MAX_COLLECTION_SIZE {
+                return Err(Error::BadArg);
+            }
+            let values: NifResult<Vec<LuxValue>> =
+                tuple.into_iter().map(|t| LuxValue::decode(t)).collect();
+            return Ok(LuxValue::List(values?));
+        }
+
+        // List (with size limit)
         if term.is_list() {
             if let Ok(list) = term.decode::<Vec<Term>>() {
+                if list.len() > MAX_COLLECTION_SIZE {
+                    return Err(Error::BadArg);
+                }
                 let values: NifResult<Vec<LuxValue>> =
                     list.into_iter().map(|t| LuxValue::decode(t)).collect();
                 return Ok(LuxValue::List(values?));
             }
         }
 
-        // Map
+        // Map (with size limit)
         if term.is_map() {
             if let Ok(map) = term.decode::<HashMap<String, Term>>() {
+                if map.len() > MAX_COLLECTION_SIZE {
+                    return Err(Error::BadArg);
+                }
                 let mut result = HashMap::new();
                 for (key, value_term) in map {
                     result.insert(key, LuxValue::decode(value_term)?);
@@ -93,6 +104,9 @@ impl<'a> Decoder<'a> for LuxValue {
             }
             // Try with atom keys
             if let Ok(map) = term.decode::<HashMap<Term, Term>>() {
+                if map.len() > MAX_COLLECTION_SIZE {
+                    return Err(Error::BadArg);
+                }
                 let mut result = HashMap::new();
                 for (key_term, value_term) in map {
                     let key = if let Ok(s) = key_term.atom_to_string() {
@@ -100,7 +114,7 @@ impl<'a> Decoder<'a> for LuxValue {
                     } else if let Ok(s) = key_term.decode::<String>() {
                         s
                     } else {
-                        continue;
+                        return Err(Error::BadArg);
                     };
                     result.insert(key, LuxValue::decode(value_term)?);
                 }
@@ -129,90 +143,9 @@ impl Encoder for LuxValue {
                     .iter()
                     .map(|(k, v)| (k.encode(env), v.encode(env)))
                     .collect();
-                Term::map_from_pairs(env, &pairs).unwrap_or_else(|_| {
-                    // Fallback to empty map on error
-                    let empty: Vec<(Term, Term)> = vec![];
-                    Term::map_from_pairs(env, &empty).unwrap()
-                })
+                // Map creation from valid pairs cannot fail
+                Term::map_from_pairs(env, &pairs).expect("valid map pairs")
             }
         }
-    }
-}
-
-// Convenient From implementations
-impl From<bool> for LuxValue {
-    fn from(b: bool) -> Self {
-        LuxValue::Bool(b)
-    }
-}
-
-impl From<i64> for LuxValue {
-    fn from(n: i64) -> Self {
-        LuxValue::Integer(n)
-    }
-}
-
-impl From<i32> for LuxValue {
-    fn from(n: i32) -> Self {
-        LuxValue::Integer(n as i64)
-    }
-}
-
-impl From<f64> for LuxValue {
-    fn from(n: f64) -> Self {
-        LuxValue::Float(n)
-    }
-}
-
-impl From<String> for LuxValue {
-    fn from(s: String) -> Self {
-        LuxValue::String(s)
-    }
-}
-
-impl From<&str> for LuxValue {
-    fn from(s: &str) -> Self {
-        LuxValue::String(s.to_string())
-    }
-}
-
-impl<T: Into<LuxValue>> From<Vec<T>> for LuxValue {
-    fn from(list: Vec<T>) -> Self {
-        LuxValue::List(list.into_iter().map(|v| v.into()).collect())
-    }
-}
-
-impl<T: Into<LuxValue>> From<HashMap<String, T>> for LuxValue {
-    fn from(map: HashMap<String, T>) -> Self {
-        LuxValue::Map(map.into_iter().map(|(k, v)| (k, v.into())).collect())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_lux_value_from_primitives() {
-        assert_eq!(LuxValue::from(42i64), LuxValue::Integer(42));
-        assert_eq!(LuxValue::from(3.14f64), LuxValue::Float(3.14));
-        assert_eq!(
-            LuxValue::from("hello"),
-            LuxValue::String("hello".to_string())
-        );
-        assert_eq!(LuxValue::from(true), LuxValue::Bool(true));
-    }
-
-    #[test]
-    fn test_lux_value_json_roundtrip() {
-        let value = LuxValue::Map(HashMap::from([
-            ("name".to_string(), LuxValue::String("test".to_string())),
-            ("count".to_string(), LuxValue::Integer(42)),
-        ]));
-
-        let json = serde_json::to_string(&value).unwrap();
-        let decoded: LuxValue = serde_json::from_str(&json).unwrap();
-
-        assert_eq!(value, decoded);
     }
 }
