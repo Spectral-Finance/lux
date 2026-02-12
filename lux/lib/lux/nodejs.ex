@@ -54,7 +54,9 @@ defmodule Lux.NodeJS do
     |> do_eval(variables, opts, &NodeJS.call/3)
     |> case do
       {:ok, result} -> {:ok, result}
-      {:error, "Call timed out."} -> {:error, :timeout}
+      {:error, "Call timed out."} ->
+        restart_nodejs_supervisor()
+        {:error, :timeout}
       {:error, error} -> {:error, error}
     end
   end
@@ -104,6 +106,10 @@ defmodule Lux.NodeJS do
       {:ok, %{"error" => error}} ->
         {:error, error}
 
+      {:error, "Call timed out."} ->
+        restart_nodejs_supervisor()
+        {:error, :timeout}
+
       {:error, error} ->
         {:error, error}
     end
@@ -147,5 +153,17 @@ defmodule Lux.NodeJS do
   defp create_file_name(code) do
     hash = :sha |> :crypto.hash(code) |> Base.encode16(case: :lower)
     Path.join(["node_modules", "lux", "#{hash}.mjs"])
+  end
+
+  defp restart_nodejs_supervisor do
+    Lux.Supervisor
+    |> Supervisor.which_children()
+    |> Enum.find_value(fn {_id, pid, _type, modules} ->
+      if pid != :undefined and modules == [NodeJS.Supervisor], do: pid, else: nil
+    end)
+    |> case do
+      nil -> :ok
+      pid -> Process.exit(pid, :kill)
+    end
   end
 end
