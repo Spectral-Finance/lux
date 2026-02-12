@@ -104,6 +104,20 @@ defmodule Lux.NodeJSTest do
 
       assert {:error, :timeout} = result
     end
+
+    test "keeps working after timeout" do
+      timeout_result =
+        nodejs timeout: 10 do
+          ~JS"""
+          export const main = async () => {
+             await new Promise(resolve => setTimeout(() => resolve(), 1000))
+          }
+          """
+        end
+
+      assert {:error, :timeout} = timeout_result
+      assert {:ok, 4} = eval("export const main = () => 2 + 2")
+    end
   end
 
   describe "web3 integration" do
