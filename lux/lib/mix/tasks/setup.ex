@@ -26,41 +26,53 @@ defmodule Mix.Tasks.Setup do
     e in ErlangError ->
       case e do
         %ErlangError{original: :enoent} -> {:error, :not_found}
-        _ -> reraise e, __STACKTRACE__
-      end
-  end
+        require Logger
 
-  @impl Mix.Task
-  def run(opts \\ []) do
-    install_deps? = Keyword.get(opts, :install_deps, true)
+          defp install_deps(install_deps?) do
+            if install_deps? do
+              Mix.shell().info("==> Installing Elixir dependencies...")
+              {:ok, _} = Mix.Dep.get_all()
+              :ok
+            else
+              :ok
+            end
+          end
 
-    Mix.shell().info("\n==> Setting up Lux for development\n")
-    # Step 1: Install Elixir dependencies
-    Mix.shell().info("==> Installing Elixir dependencies...")
+          defp setup_virtualenv() do
+            virtualenv_path = Path.join(@priv_python_dir, ".venv")
+            if File.exists?(virtualenv_path) do
+              Logger.info("Virtual environment already exists.")
+              :ok
+            else
+              Logger.info("Creating virtual environment...")
+              System.cmd("python3", ["-m", "venv", virtualenv_path], stderr_to_stdout: true)
+              :ok
+            end
+          with :ok <- install_deps(install_deps?),
+                     # Step 2: Check and setup Poetry
+                     Mix.shell().info("\n==> Checking Poetry installation..."),
+                     {:ok, poetry_path} <- find_poetry(),
+                     # Step 3: Setup Python virtual environment
+                     Mix.shell().info("\n==> Setting up Python virtual environment..."),
+                     :ok <- setup_virtualenv(poetry_path),
+                     # Step 4: Install Python dependencies
+                     Mix.shell().info("\n==> Installing Python dependencies..."),
+                     :ok <- install_python_deps(poetry_path),
+                     # Step 5: Install Node.js dependencies
+                     Mix.shell().info("\n==> Installing Node.js dependencies..."),
+                     :ok <- install_nodejs_deps() do
+                  Mix.shell().info("""
+                  \n==> Setup completed successfully! 🎉
 
-    with :ok <- install_deps(install_deps?),
-         # Step 2: Check and setup Poetry
-         Mix.shell().info("\n==> Checking Poetry installation..."),
-         {:ok, poetry_path} <- find_poetry(),
-         # Step 3: Setup Python virtual environment
-         Mix.shell().info("\n==> Setting up Python virtual environment..."),
-         :ok <- setup_virtualenv(),
-         # Step 4: Install Python dependencies
-         Mix.shell().info("\n==> Installing Python dependencies..."),
-         :ok <- install_python_deps(poetry_path),
-         # Step 5: Install Node.js dependencies
-         Mix.shell().info("\n==> Installing Node.js dependencies..."),
-         :ok <- install_nodejs_deps() do
-      Mix.shell().info("""
-      \n==> Setup completed successfully! 🎉
+                  You can now:
+                  • Activate the Python virtual environment:
+                      source #{@priv_python_dir}/.venv/bin/activate
 
-      You can now:
-      • Activate the Python virtual environment:
-          source #{@priv_python_dir}/.venv/bin/activate
-
-      • Run tests:
-          mix test.unit         # Run Elixir unit tests
-          mix test.integration  # Run Elixir integration tests
+                  • Run tests:
+                      mix test.unit         # Run Elixir unit tests
+                      mix test.integration  # Run Elixir integration tests
+                      mix python.test       # Run Python
+          ... [truncated]
           mix python.test       # Run Python tests
 
       • Generate documentation:
