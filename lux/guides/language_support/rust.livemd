@@ -1,0 +1,74 @@
+# Lines 1-52 of lux/guides/language_support/rust.livemd
+# Lines 1-22 of lux/guides/language_support/rust.livemd
+# Rust Language Support Guide
+
+This guide provides information on how to interact with Rust functionality using Lux.
+
+## Setting Up the Rust Module
+
+To set up and use the Rust module in Lux, follow these steps:
+
+1. Ensure you have Rust installed on your system.
+2. Add the necessary dependencies to your `mix.exs` file.
+3. Configure the Rust module in your project.
+
+Example `mix.exs` configuration:
+defmodule YourProject.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :your_project,
+      version: "0.1.0",
+      elixir: "~> 1.12",
+      start_permanent: Mix.env() == :prod,
+      deps: deps()
+    ]
+  end
+
+  defp deps do
+    [
+      {:rustler, "~> 0.28"}
+    ]
+  end
+end
+
+## Running Rust Code
+
+To run Rust code, use the `run_rust_code/1` function from the `Lux.Rust` module.
+
+defmodule Lux.Rust do
+  @moduledoc """
+  Module for interacting with Rust functionality.
+  """
+
+  def run_rust_code(code) do
+    # Placeholder implementation
+    IO.puts("Running Rust code: #{code}")
+  end
+end
+
+## Configuring Cache Directory
+
+To configure the cache directory, use the `cache_dir/1` function from the `Lux.Rust` module.
+
+defmodule Lux.Rust do
+  @moduledoc """
+  Module for interacting with Rust functionality.
+  """
+
+  def run_rust_code(code) do
+    # Placeholder implementation
+    IO.puts("Running Rust code: #{code}")
+  end
+
+  def cache_dir(path) do
+    # Placeholder implementation
+    IO.puts("Setting cache directory to: #{path}")
+  end
+end
+
+Example usage:
+
+Lux.Rust.run_rust_code("println!(\"Hello, world!\");")
+Lux.Rust.cache_dir("/path/to/cache/dir")
