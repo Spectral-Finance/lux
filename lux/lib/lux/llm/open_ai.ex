@@ -9,6 +9,7 @@ defmodule Lux.LLM.OpenAI do
   alias Lux.Lens
   alias Lux.LLM.ResponseSignal
   alias Lux.Prism
+  alias HTTPoison
 
   require Beam
   require Lens

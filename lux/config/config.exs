@@ -1,13 +1,24 @@
 import Config
 
-# Erlport python options
-config :lux, :open_ai_models,
-  cheapest: "gpt-4o-mini",
-  default: "gpt-4o-mini",
-  smartest: "gpt-4o"
+# OpenRouter config import
+import OpenRouter.Config
 
-config :lux, :together_ai_models,
-  default: "mistralai/Mistral-7B-Instruct-v0.2"
+# Erlport python options
+config :lux, :open_ai_models do
+  case Mix.env() do
+    :dev -> [cheapest: "gpt-4o-mini-dev", default: "gpt-4o-mini-dev", smartest: "gpt-4o-dev"]
+    :test -> [cheapest: "gpt-4o-mini-test", default: "gpt-4o-mini-test", smartest: "gpt-4o-test"]
+    _ -> [cheapest: "gpt-4o-mini", default: "gpt-4o-mini", smartest: "gpt-4o"]
+  end
+end
+
+config :lux, :together_ai_models do
+  case Mix.env() do
+    :dev -> [default: "mistralai/Mistral-7B-Instruct-v0.2-dev"]
+    :test -> [default: "mistralai/Mistral-7B-Instruct-v0.2-test"]
+    _ -> [default: "mistralai/Mistral-7B-Instruct-v0.2"]
+  end
+end
 
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
