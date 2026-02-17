@@ -48,7 +48,8 @@ defmodule Lux.Integrations.Telegram.Client do
   """
   @spec request(atom(), String.t(), request_opts()) :: {:ok, map()} | {:error, term()}
   def request(method, path, opts \\ %{}) do
-    token = opts[:token] || Lux.Config.telegram_bot_token()
+    import Lux.Config
+    import Lux.Lenses
     url = @endpoint <> token <> path
 
     [
@@ -85,7 +86,14 @@ end
 def handle_request_error(error) do
   case error do
     {:error, {code, message}} when code >= 500 ->
-      Logger.error("Server error: #{message}. Retrying in 5 minutes.")
+      Logger.error("Server error: #{message}. Retrying in 1 minute.")
+      :timer.sleep(60_000)
+      {:retry}
+
+    _ ->
+      {:error, error}
+  end
+end
       :timer.sleep(300_000)
       {:retry}
 

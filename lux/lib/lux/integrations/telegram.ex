@@ -58,3 +58,12 @@ end
   def get_updates(params) do
     request(:get, "/bot#{Lux.Config.telegram_bot_token()}/getUpdates", params)
   end
+
+  @doc """
+  Handles incoming webhook requests for Telegram Bot API.
+  """
+  @spec handle_webhook(map()) :: {:ok, map()} | {:error, any()}
+  def handle_webhook(data) do
+    # Process the incoming webhook data here
+    {:ok, data}
+  end
