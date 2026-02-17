@@ -80,6 +80,9 @@ defmodule Lux.Beams.Hyperliquid.TradeRiskManagementBeam do
   alias Lux.Prisms.Hyperliquid.HyperliquidRiskAssessmentPrism
   alias Lux.Prisms.Hyperliquid.HyperliquidTokenInfoPrism
   alias Lux.Prisms.Hyperliquid.HyperliquidUserStatePrism
+  alias Lux.Beams.Hyperliquid.PositionManager
+  alias Lux.Beams.Hyperliquid.LiquidationMonitor
+  alias Lux.Beams.Hyperliquid.PNLTracker
 
   require Logger
 

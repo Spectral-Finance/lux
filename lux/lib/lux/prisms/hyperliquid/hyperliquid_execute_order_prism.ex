@@ -214,3 +214,89 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism do
     end
   end
 end
+
+# Lines 1-120 of lux/lib/lux/prisms/hyperliquid/hyperliquid_execute_order_prism.ex
+defmodule Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism do
+  @moduledoc """
+  A prism that executes orders on the Hyperliquid exchange.
+
+  ## Example
+
+      # Limit order
+      iex> Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism.run(%{
+      ...>   coin: "ETH",
+      ...>   is_buy: true,
+      ...>   sz: 0.0051,
+      ...>   limit_px: 2800.0,
+      ...>   order_type: %{limit: %{tif: "Gtc"}},
+      ...>   reduce_only: false,
+      ...>   vault_address: "0x0403369c02199a0cb827f4d6492927e9fa5668d5"
+      ...> })
+      {:ok,
+       %{
+         "status" => "success",
+         "order_result" => %{
+           # ... response from Hyperliquid
+         }
+       }}
+
+      # Trigger order (Stop Loss)
+      iex> Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism.run(%{
+      ...>   coin: "ETH",
+      ...>   is_buy: false,
+      ...>   sz: 0.1,
+      ...>   limit_px: 2800.0,
+      ...>   order_type: %{
+      ...>     trigger: %{
+      ...>       triggerPx: 2900.0,
+      ...>       isMarket: true,
+      ...>       tpsl: "sl"
+      ...>     }
+      ...>   },
+      ...>   reduce_only: true
+      ...> })
+
+  The prism reads authentication details from configuration:
+  - :hyperliquid_private_key - Ethereum account private key for authentication
+  - :hyperliquid_address - (Optional) Ethereum account address
+  """
+
+  use Lux.Prism,
+    name: "Hyperliquid Order Execution",
+    description: "Executes orders on Hyperliquid exchange",
+    input_schema: %{
+      type: :object,
+      properties: %{
+        coin: %{
+          type: :string,
+          description: "Trading pair symbol (e.g., 'ETH', 'BTC')"
+        },
+        is_buy: %{
+          type: :boolean,
+          description: "True for buy orders, false for sell orders"
+        },
+        sz: %{
+          type: :number,
+          description: "Order size in base currency"
+        },
+        limit_px: %{
+          type: :number,
+          description: "Limit price for the order"
+        },
+        order_type: %{
+          type: :object,
+          description: "Order type configuration",
+          oneOf: [
+            # Limit order type
+            %{
+              type: :object,
+              properties: %{
+                limit: %{
+                  type: :object,
+                  properties: %{
+                    tif: %{
+                      type: :string,
+                      description:
+                        "Time in force: Alo (Allow Limit Only), Ioc (Immediate or Cancel), Gtc (Good Till Cancel)",
+       
+... [truncated]
