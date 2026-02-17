@@ -6,6 +6,9 @@ defmodule Lux.Lenses.SushiswapLens do
   use Lux.Lens,
     name: "Sushiswap Lens",
     description: "Fetches price and liquidity depth for specific pairs on SushiSwap.",
+    url: "https://api.thegraph.com/subgraphs/name/sushi-v2/v2",
+    method: :post,
+    headers: [{"content-type", "application/json"}],
     schema: %{
       type: "object",
       properties: %{
@@ -18,25 +21,25 @@ defmodule Lux.Lenses.SushiswapLens do
     {:ok, state}
   end
 
-  def focus(inputs, _opts) do
-    # Implementing real-time fetch via SushiSwap Subgraph API
-    # Logic: HTTP POST to SushiSwap GraphQL endpoint
-    case fetch_from_subgraph(inputs["pair_address"]) do
-      {:ok, data} ->
-        %{
-          status: "success",
-          price_usd: data.price,
-          liquidity_usd: data.liquidity,
-          timestamp: DateTime.utc_now()
-        }
-      {:error, reason} ->
-        %{status: "error", message: reason}
-    end
+  @doc """
+  Transforms the Subgraph response into a more usable format.
+  """
+  @impl true
+  def after_focus(%{"data" => %{"pair" => data}}) do
+    {:ok, %{
+      status: "success",
+      price_usd: data["token0Price"],
+      liquidity_usd: data["reserveUSD"],
+      timestamp: DateTime.utc_now()
+    }}
   end
 
-  defp fetch_from_subgraph(_address) do
-    # Simulated high-fidelity fetch logic
-    # In production, this uses HTTPoison or Req to query https://api.thegraph.com/subgraphs/name/sushi-v2/v2
-    {:ok, %{price: 1.05, liquidity: 1_000_000}}
+  @impl true
+  def after_focus(%{"errors" => errors}) do
+    {:error, errors}
+  end
+
+  def after_focus(response) do
+    {:error, "Unexpected response format: #{inspect(response)}"}
   end
 end
