@@ -19,6 +19,11 @@ defmodule Lux.Lenses.MultiChainAggregationLens do
           type: "array",
           items: %{type: "string"},
           description: "Smart contract event signatures to filter for."
+        },
+        timeout: %{
+          type: "integer",
+          default: 5000,
+          description: "Timeout in milliseconds for each RPC call."
         }
       },
       required: ["chains"]
@@ -30,13 +35,15 @@ defmodule Lux.Lenses.MultiChainAggregationLens do
 
   def focus(inputs, _state) do
     # Implementation: Concurrent RPC management
-    # normalizes results into a unified manifold
+    # uses defined timeout to ensure manifold stability
+    timeout = inputs["timeout"] || 5000
+
     results = 
       inputs["chains"]
       |> Enum.map(fn chain -> 
         Task.async(fn -> fetch_chain_data(chain, inputs["event_filters"]) end)
       end)
-      |> Enum.map(&Task.await/1)
+      |> Enum.map(fn task -> Task.await(task, timeout) end)
 
     %{
       status: "success",
