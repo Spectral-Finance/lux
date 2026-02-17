@@ -33,24 +33,31 @@ defmodule Lux.Lenses.MultiChainAggregationLens do
     {:ok, state}
   end
 
-  def focus(inputs, _state) do
+  @impl true
+  def focus(inputs, _opts) do
     # Implementation: Concurrent RPC management
     # uses defined timeout to ensure manifold stability
     timeout = inputs["timeout"] || 5000
 
-    results = 
+    results =
       inputs["chains"]
-      |> Enum.map(fn chain -> 
+      |> Enum.map(fn chain ->
         Task.async(fn -> fetch_chain_data(chain, inputs["event_filters"]) end)
       end)
-      |> Enum.map(fn task -> Task.await(task, timeout) end)
+      |> Enum.map(fn task ->
+        case Task.yield(task, timeout) || Task.shutdown(task) do
+          {:ok, result} -> result
+          {:exit, _reason} -> %{chain: "unknown", error: "Process exited"}
+          nil -> %{chain: "unknown", error: "Timeout"}
+        end
+      end)
 
-    %{
+    {:ok, %{
       status: "success",
       aggregated_data: results,
       total_events: length(results),
       timestamp: DateTime.utc_now()
-    }
+    }}
   end
 
   defp fetch_chain_data(chain, _filters) do
