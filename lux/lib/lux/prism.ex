@@ -27,6 +27,7 @@ defmodule Lux.Prism do
   use Lux.Types
 
   require Logger
+  import Rustler
 
   @typedoc """
   A schema is either a map of key-value pairs that describe the structure of the data,
@@ -41,60 +42,115 @@ defmodule Lux.Prism do
 
   defstruct [
     :id,
-    :name,
-    :module_name,
-    :handler,
-    :description,
-    :examples,
-    :input_schema,
-    :output_schema
-  ]
+          :name,
+          :module_name,
+          :handler,
+          :description,
+          :examples,
+          :input_schema,
+          :output_schema
+        ]
 
-  @type t :: %__MODULE__{
-          id: String.t(),
-          name: String.t(),
-          module_name: String.t(),
-          handler: handler(),
-          description: nullable(String.t()),
-          examples: nullable([String.t()]),
-          input_schema: nullable(schema()),
-          output_schema: nullable(schema())
+      @type t :: %__MODULE__{
+              id: String.t(),
+              name: String.t(),
+              module_name: String.t(),
+              handler: handler(),
+              description: nullable(String.t()),
+              examples: nullable([String.t()]),
+              input_schema: nullable(schema()),
+              output_schema: nullable(schema())
+            }
+
+      @doc """
+      Creates a new prism from a map or keyword list.
+      """
+      @spec new(map() | keyword()) :: t()
+      def new(attrs) when is_map(attrs) do
+        %__MODULE__{
+          id: attrs[:id] || "",
+          name: attrs[:name] || "",
+          module_name: attrs[:module_name] || "",
+          handler: attrs[:handler] || nil,
+          description: attrs[:description] || "",
+          examples: attrs[:examples] || [],
+          input_schema: resolve_schema(attrs[:input_schema]),
+          output_schema: resolve_schema(attrs[:output_schema])
         }
+      end
 
-  @doc """
-  Creates a new prism from a map or keyword list.
-  """
-  @spec new(map() | keyword()) :: t()
-  def new(attrs) when is_map(attrs) do
-    %__MODULE__{
-      id: attrs[:id] || "",
-      name: attrs[:name] || "",
-      module_name: attrs[:module_name] || "",
-      handler: attrs[:handler] || nil,
-      description: attrs[:description] || "",
-      examples: attrs[:examples] || [],
-      input_schema: resolve_schema(attrs[:input_schema]),
-      output_schema: resolve_schema(attrs[:output_schema])
-    }
-  end
+      def new(attrs) when is_list(attrs) do
+        attrs |> Map.new() |> new()
+      end
 
-  def new(attrs) when is_list(attrs) do
-    attrs |> Map.new() |> new()
-  end
+      @doc """
+      A handler is the function that will be called when the prism is executed.
+      """
+      @callback handler(input :: any(), context :: any()) :: {:ok, any()} | {:error, any()}
 
-  @doc """
-  A handler is the function that will be called when the prism is executed.
-  """
-  @callback handler(input :: any(), context :: any()) :: {:ok, any()} | {:error, any()}
+      defmacro __using__(opts) do
+        quote do
+          @behaviour Lux.Prism
 
-  defmacro __using__(opts) do
-    quote do
-      @behaviour Lux.Prism
+          alias Lux.Prism
 
-      alias Lux.Prism
+          # Register compile-time attributes
 
-      # Register compile-time attributes
-      Module.register_attribute(__MODULE__, :prism_config, persist: false)
+    ... [truncated]
+          :new_prism_key,
+          :new_prism_value
+        ]
+
+      @type t :: %__MODULE__{
+              id: String.t(),
+              name: String.t(),
+              module_name: String.t(),
+              handler: handler(),
+              description: nullable(String.t()),
+              examples: nullable([String.t()]),
+              input_schema: nullable(schema()),
+              output_schema: nullable(schema()),
+              new_prism_key: any(),
+              new_prism_value: any()
+            }
+
+      @doc """
+      Creates a new prism from a map or keyword list.
+      """
+      @spec new(map() | keyword()) :: t()
+      def new(attrs) when is_map(attrs) do
+        %__MODULE__{
+          id: attrs[:id] || "",
+          name: attrs[:name] || "",
+          module_name: attrs[:module_name] || "",
+          handler: attrs[:handler] || nil,
+          description: attrs[:description] || "",
+          examples: attrs[:examples] || [],
+          input_schema: resolve_schema(attrs[:input_schema]),
+          output_schema: resolve_schema(attrs[:output_schema]),
+          new_prism_key: attrs[:new_prism_key],
+          new_prism_value: attrs[:new_prism_value]
+        }
+      end
+
+      def new(attrs) when is_list(attrs) do
+        attrs |> Map.new() |> new()
+      end
+
+      @doc """
+      A handler is the function that will be called when the prism is executed.
+      """
+      @callback handler(input :: any(), context :: any()) :: {:ok, any()} | {:error, any()}
+
+      defmacro __using__(opts) do
+        quote do
+          @behaviour Lux.Prism
+
+          alias Lux.Prism
+
+          # Register compile-time attributes
+
+    ... [truncated]
       Module.register_attribute(__MODULE__, :prism_struct, persist: false)
       Module.register_attribute(__MODULE__, :prism_module_name, persist: false)
 
