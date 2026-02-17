@@ -1,0 +1,12 @@
+# Lines 1-7 of lux/priv/rust/Cargo.toml
+[package]
+name = "lux_rust"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+mix = { version = "1.14", path = "../.." }
+
+[dev-dependencies]
+example_dep_1 = "0.1"
+example_dep_2 = "0.2"

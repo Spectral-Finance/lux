@@ -58,13 +58,26 @@ defmodule Lux.Rust do
   """
 
   def run_rust_code(code) do
-    # Placeholder implementation
-    IO.puts("Running Rust code: #{code}")
+    # New implementation using Rust module
+    Rust.run(code)
   end
 
   def cache_dir(path) do
-    # Placeholder implementation
-    IO.puts("Setting cache directory to: #{path}")
+    # New implementation using Rust module
+    Rust.set_cache_dir(path)
+  end
+
+  def prism_enabled?() do
+    # Check if Prism functionality is enabled
+    Application.get_env(:your_project, :prism_enabled, false)
+  end
+
+  def run_prism_code(code) do
+    if prism_enabled?() do
+      Rust.prism_run(code)
+    else
+      IO.puts("Prism functionality is disabled.")
+    end
   end
 end
 
