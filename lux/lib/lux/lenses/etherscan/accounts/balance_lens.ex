@@ -7,13 +7,14 @@ defmodule Lux.Lenses.Etherscan.Balance do
   ```elixir
   # Get ETH balance for an address (default chainid: 1 for Ethereum)
   Lux.Lenses.Etherscan.Balance.focus(%{
-    address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e"
+    address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    chainid: :eth
   })
 
   # Get ETH balance for an address on a specific chain (e.g., 137 for Polygon)
   Lux.Lenses.Etherscan.Balance.focus(%{
     address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-    chainid: 137
+    chainid: :polygon
   })
   ```
   """
@@ -70,4 +71,8 @@ defmodule Lux.Lenses.Etherscan.Balance do
   def after_focus(response) do
     Base.process_response(response)
   end
+end
+
+def fetch_balances(params) when is_list(params) do
+  Enum.map(params, fn param -> focus(param) end)
 end
