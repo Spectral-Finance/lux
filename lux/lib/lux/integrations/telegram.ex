@@ -1,7 +1,10 @@
+# Lines 1-49 of lux/lib/lux/integrations/telegram.ex
 defmodule Lux.Integrations.Telegram do
   @moduledoc """
   Common settings and functions for Telegram Bot API integration.
   """
+
+  import Telegram.Client
 
   @doc """
   Common request settings for Telegram Bot API calls.
@@ -37,13 +40,21 @@ defmodule Lux.Integrations.Telegram do
   def add_auth_header(%Plug.Conn{} = conn) do
     token = Lux.Config.telegram_bot_token()
     path = conn.request_path
-    
+
     # Extract and replace bot token placeholder if needed
     updated_path = if String.contains?(path, "/bot/"), do: 
       String.replace(path, "/bot/", "/bot#{token}/"), 
     else: 
       path
-      
+
     %{conn | request_path: updated_path}
   end
-end 
+end
+
+@doc """
+  Fetches updates from Telegram Bot API.
+  """
+  @spec get_updates(map()) :: {:ok, map()} | {:error, any()}
+  def get_updates(params) do
+    request(:get, "/bot#{Lux.Config.telegram_bot_token()}/getUpdates", params)
+  end

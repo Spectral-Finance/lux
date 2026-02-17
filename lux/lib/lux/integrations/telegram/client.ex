@@ -60,30 +60,36 @@ defmodule Lux.Integrations.Telegram.Client do
       json: opts[:json]
     ]
     |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
-    |> maybe_add_plug(opts[:plug])
-    |> Req.new()
-    |> Req.request()
-    |> case do
-      {:ok, %{status: status} = response} when status in 200..299 ->
-        case response.body do
-          %{"ok" => true} = body -> {:ok, body}
-          body -> {:error, body}
-        end
-
-      {:ok, %{status: 401}} ->
-        {:error, :invalid_token}
-
-      {:ok, %{status: status, body: %{"description" => message}}} ->
-        {:error, {status, message}}
-
-      {:ok, %{status: status, body: body}} ->
-        {:error, {status, body}}
-
-      {:error, error} ->
-        {:error, error}
-    end
+          |> maybe_add_plug(opts[:plug])
+          |> Req.new()
+          |> Req.request()
+          |> handle_response()
   end
 
   defp maybe_add_plug(options, nil), do: options
   defp maybe_add_plug(options, plug), do: Keyword.put(options, :plug, plug)
+end
+
+def handle_rate_limit_error(error) do
+  case error do
+    {:error, {429, _message}} ->
+      Logger.warn("Rate limit exceeded. Retrying in 1 minute.")
+      :timer.sleep(60_000)
+      {:retry}
+
+    _ ->
+      {:error, error}
+  end
+end
+
+def handle_request_error(error) do
+  case error do
+    {:error, {code, message}} when code >= 500 ->
+      Logger.error("Server error: #{message}. Retrying in 5 minutes.")
+      :timer.sleep(300_000)
+      {:retry}
+
+    _ ->
+      {:error, error}
+  end
 end
