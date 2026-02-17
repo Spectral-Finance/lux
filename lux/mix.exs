@@ -8,6 +8,8 @@ defmodule Lux.MixProject do
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
+      compilers: [:rustler] ++ Mix.compilers(),
+      rustler_crates: [lux_rust: [path: "native/lux_rust"]],
       dialyzer: [
         plt_add_apps: [:mix],
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
@@ -83,7 +85,9 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:jason, "~> 1.4"},
+      {:rustler, "~> 0.35.0"}
     ]
   end
 

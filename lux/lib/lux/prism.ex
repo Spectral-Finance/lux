@@ -164,6 +164,11 @@ defmodule Lux.Prism do
     handler.(input, context)
   end
 
+
+  def run(%__MODULE__{handler: {:rust, _module}}, input, context) do
+    Lux.Rust.run(input, context)
+  end
+
   def run(%__MODULE__{handler: {:python, path}}, input, context) do
     run(path, ".py", input, context)
   end
