@@ -43,7 +43,8 @@ defmodule Lux.Lenses.Etherscan.GetLogs do
   ```
   """
 
-  alias Lux.Lenses.Etherscan.Base
+  import Lux.Lenses.Etherscan.Base
+  import Ecto.Query
 
   use Lux.Lens,
     name: "Etherscan.GetLogs",
