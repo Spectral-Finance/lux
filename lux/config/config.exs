@@ -9,6 +9,9 @@ config :lux, :open_ai_models,
 config :lux, :together_ai_models,
   default: "mistralai/Mistral-7B-Instruct-v0.2"
 
+config :lux, :ollama_models,
+  default: "llama3.2:latest"
+
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
   perpetual_workers: 2,
