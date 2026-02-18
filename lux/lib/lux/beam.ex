@@ -438,3 +438,16 @@ defmodule Lux.Beam do
   defp validate_definition(definition) when is_list(definition), do: :ok
   defp validate_definition(_), do: {:error, :invalid_definition}
 end
+
+def dispatch_webhook(ctx) do
+    webhook_url = ctx.webhook_url
+    payload = ctx.payload
+
+    case HTTPoison.post(webhook_url, Jason.encode!(payload), [{"Content-Type", "application/json"}]) do
+      {:ok, %HTTPoison.Response{status_code: 200}} ->
+        {:ok, ctx}
+
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        {:error, {:webhook_dispatch_failed, reason}}
+    end
+  end

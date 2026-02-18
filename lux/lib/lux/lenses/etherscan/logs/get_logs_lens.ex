@@ -179,3 +179,16 @@ defmodule Lux.Lenses.Etherscan.GetLogs do
     end
   end
 end
+
+def fetch_logs(params) do
+  Base.request(params)
+end
+
+# Lines 1-120 of lux/lib/lux/lenses/etherscan/logs/get_logs_lens.ex
+defmodule Lux.Lenses.Etherscan.GetLogs do
+  @moduledoc """
+  Lens for fetching event logs from an address with optional filtering by block range from the Etherscan API.
+
+  ## Examples
+
+  
