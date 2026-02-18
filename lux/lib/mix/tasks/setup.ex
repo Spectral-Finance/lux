@@ -50,7 +50,10 @@ defmodule Mix.Tasks.Setup do
          :ok <- install_python_deps(poetry_path),
          # Step 5: Install Node.js dependencies
          Mix.shell().info("\n==> Installing Node.js dependencies..."),
-         :ok <- install_nodejs_deps() do
+         :ok <- install_nodejs_deps(),
+         # Step 6: Check Rust/Cargo toolchain
+         Mix.shell().info("\n==> Checking Rust/Cargo toolchain..."),
+         :ok <- check_cargo_toolchain() do
       Mix.shell().info("""
       \n==> Setup completed successfully! 🎉
 
@@ -196,6 +199,35 @@ defmodule Mix.Tasks.Setup do
         """)
 
         exit({:shutdown, 1})
+    end
+  end
+
+  defp check_cargo_toolchain do
+    case safe_cmd("cargo", ["--version"], stderr_to_stdout: true) do
+      {version, 0} ->
+        Mix.shell().info("Found Cargo: #{String.trim(version)}")
+
+        case safe_cmd("rustc", ["--version"], stderr_to_stdout: true) do
+          {rustc_version, 0} ->
+            Mix.shell().info("Found Rust: #{String.trim(rustc_version)}")
+            :ok
+
+          _ ->
+            Mix.shell().info("rustc not found - Rust features will be limited")
+            :ok
+        end
+
+      {:error, :not_found} ->
+        Mix.shell().info("""
+        Cargo/Rust not found (optional).
+        To enable Rust integration, install via: https://rustup.rs
+        """)
+
+        :ok
+
+      _ ->
+        Mix.shell().info("Cargo not found (optional). Rust features will be unavailable.")
+        :ok
     end
   end
 

@@ -1,0 +1,296 @@
+# Rust/Cargo Integration in Lux
+
+```elixir
+Mix.install([{:lux, path: ".."}])
+```
+
+## Overview
+
+Lux provides comprehensive Rust integration through the `Lux.Cargo` module, enabling seamless
+Cargo package management, dependency resolution, build system integration, and Rust code
+evaluation directly from Elixir.
+
+Unlike Python and Node.js which use interpreters, Rust is a compiled language. Lux handles
+this transparently — the `eval/2` function and `~RUST` sigil create temporary Cargo projects,
+compile, and run them automatically.
+
+## Prerequisites
+
+You need the Rust toolchain installed. The easiest way is via [rustup](https://rustup.rs):
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+Verify the installation:
+
+```bash
+cargo --version
+rustc --version
+```
+
+The `mix setup` task will check for Cargo/Rust automatically and report the status.
+
+## Quick Start
+
+### Evaluating Rust Code
+
+The simplest way to run Rust code from Elixir:
+
+```elixir
+# Simple evaluation
+{:ok, result} = Lux.Cargo.eval("""
+fn main() {
+    let sum: i32 = (1..=100).sum();
+    println!("{}", sum);
+}
+""")
+
+IO.puts("Sum of 1..100 = #{result}")
+```
+
+### Using the ~RUST Sigil
+
+For a more ergonomic experience, use the `~RUST` sigil (similar to `~PY` and `~JS`):
+
+```elixir
+require Lux.Cargo
+import Lux.Cargo
+
+result = rust do
+  ~RUST"""
+  fn main() {
+      let fibonacci: Vec<u64> = {
+          let mut fib = vec![0, 1];
+          for i in 2..20 {
+              let next = fib[i - 1] + fib[i - 2];
+              fib.push(next);
+          }
+          fib
+      };
+      println!("{:?}", fibonacci);
+  }
+  """
+end
+
+IO.inspect(result)
+```
+
+### With External Dependencies
+
+You can include crate dependencies:
+
+```elixir
+{:ok, result} = Lux.Cargo.eval("""
+use serde_json::json;
+
+fn main() {
+    let data = json!({
+        "name": "Lux",
+        "version": "0.5.0",
+        "languages": ["elixir", "python", "nodejs", "rust"]
+    });
+    println!("{}", serde_json::to_string_pretty(&data).unwrap());
+}
+""", dependencies: %{"serde_json" => "1.0"})
+
+IO.puts(result)
+```
+
+## Project Management
+
+### Initializing Projects
+
+Create new Cargo projects programmatically:
+
+```elixir
+# Create a library project
+{:ok, lib_path} = Lux.Cargo.init("/tmp/my_rust_lib")
+
+# Create a binary project
+{:ok, bin_path} = Lux.Cargo.init("/tmp/my_rust_app", type: :bin)
+
+# Use a specific Rust edition
+{:ok, path} = Lux.Cargo.init("/tmp/legacy_project", edition: "2018")
+```
+
+### Managing Dependencies
+
+```elixir
+project_path = "/tmp/my_rust_lib"
+{:ok, _} = Lux.Cargo.init(project_path)
+
+# Add a dependency
+:ok = Lux.Cargo.add_dependency(project_path, "serde", "1.0")
+
+# Add a dependency with features
+:ok = Lux.Cargo.add_dependency(project_path, "tokio", "1.0", features: ["full"])
+
+# Remove a dependency
+:ok = Lux.Cargo.remove_dependency(project_path, "serde")
+
+# Update all dependencies
+{:ok, _} = Lux.Cargo.update_dependencies(project_path)
+
+# List resolved dependencies from Cargo.lock
+{:ok, deps} = Lux.Cargo.list_dependencies(project_path)
+IO.inspect(deps)
+```
+
+### Cargo.toml Management
+
+```elixir
+# Parse an existing Cargo.toml
+{:ok, parsed} = Lux.Cargo.parse_cargo_toml(project_path)
+IO.inspect(parsed)
+# => %{name: "my_rust_lib", version: "0.1.0", edition: "2021", dependencies: %{}}
+
+# Generate a Cargo.toml string
+toml = Lux.Cargo.generate_cargo_toml("my_crate", "1.0.0", "2021", %{
+  "serde" => "1.0",
+  "tokio" => %{version: "1.0", features: ["full"]}
+})
+IO.puts(toml)
+```
+
+## Build System Integration
+
+### Building Projects
+
+```elixir
+project_path = "/tmp/my_rust_lib"
+
+# Debug build
+{:ok, output} = Lux.Cargo.build(project_path)
+
+# Release build
+{:ok, output} = Lux.Cargo.build(project_path, release: true)
+
+# Build with specific features
+{:ok, output} = Lux.Cargo.build(project_path, features: ["async", "logging"])
+
+# Cross-compilation
+{:ok, output} = Lux.Cargo.build(project_path, target: "x86_64-unknown-linux-gnu")
+```
+
+### Running Tests
+
+```elixir
+# Run all tests
+{:ok, output} = Lux.Cargo.test(project_path)
+
+# Run tests in release mode
+{:ok, output} = Lux.Cargo.test(project_path, release: true)
+```
+
+### Quick Checking
+
+Use `check/1` for fast compilation checking without producing binaries:
+
+```elixir
+{:ok, output} = Lux.Cargo.check(project_path)
+```
+
+## Version Management
+
+### Toolchain Info
+
+```elixir
+{:ok, versions} = Lux.Cargo.toolchain_version()
+IO.puts("Cargo: #{versions.cargo}")
+IO.puts("Rustc: #{versions.rustc}")
+```
+
+### Searching Crates
+
+```elixir
+# Search for crates on crates.io
+{:ok, crates} = Lux.Cargo.search_crate("serde")
+
+Enum.each(crates, fn crate ->
+  IO.puts("#{crate.name} v#{crate.version} - #{crate.description}")
+end)
+
+# Check if a specific version exists
+{:ok, exists?} = Lux.Cargo.check_crate_version("serde", "1.0.193")
+IO.puts("serde 1.0.193 exists: #{exists?}")
+```
+
+## Package Caching
+
+Lux maintains a package cache to speed up repeated builds:
+
+```elixir
+# Ensure cache directory exists
+{:ok, cache_path} = Lux.Cargo.ensure_cache()
+
+# Check cache size
+{:ok, bytes} = Lux.Cargo.cache_size()
+IO.puts("Cache size: #{div(bytes, 1024)} KB")
+
+# Get cache environment variables
+env = Lux.Cargo.setup_cache_env()
+IO.inspect(env)
+
+# Clear the cache when needed
+:ok = Lux.Cargo.clear_cache()
+```
+
+## Using Rust in Prisms
+
+You can use Rust for compute-intensive tasks in your Lux Prisms:
+
+```elixir
+defmodule MyApp.Prisms.RustComputePrism do
+  use Lux.Prism,
+    name: "Rust Compute",
+    description: "Performs heavy computation using Rust"
+
+  def handler(%{"numbers" => numbers}, _ctx) do
+    numbers_str = Enum.join(numbers, ", ")
+
+    code = """
+    fn main() {
+        let numbers: Vec<f64> = vec![#{numbers_str}];
+        let mean = numbers.iter().sum::<f64>() / numbers.len() as f64;
+        let variance = numbers.iter()
+            .map(|x| (x - mean).powi(2))
+            .sum::<f64>() / numbers.len() as f64;
+        let std_dev = variance.sqrt();
+        println!("{:.4},{:.4},{:.4}", mean, variance, std_dev);
+    }
+    """
+
+    case Lux.Cargo.eval(code) do
+      {:ok, result} ->
+        [mean, variance, std_dev] =
+          result |> String.split(",") |> Enum.map(&String.to_float/1)
+
+        {:ok, %{mean: mean, variance: variance, std_dev: std_dev}}
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+end
+```
+
+## Best Practices
+
+1. **Use `eval/2` for quick prototyping** — it creates temporary projects, so it's not
+   suitable for production workloads that need performance.
+
+2. **Use `init/2` + `build/2` for persistent projects** — when you need to maintain
+   a Rust project across multiple builds.
+
+3. **Leverage package caching** — `setup_cache_env/0` configures `CARGO_HOME` to avoid
+   re-downloading crate registries.
+
+4. **Use `check/1` before `build/2`** — `cargo check` is much faster than a full build
+   and catches most compilation errors.
+
+5. **Prefer release builds for benchmarking** — Rust debug builds are significantly slower.
+   Use `build(path, release: true)` when measuring performance.
+
+6. **Handle missing toolchain gracefully** — Always pattern match on `{:error, _}` results.
+   The Cargo toolchain may not be installed in all environments.
