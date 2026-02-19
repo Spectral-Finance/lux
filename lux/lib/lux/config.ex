@@ -91,6 +91,23 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Coinbase API key from configuration.
+  The key format is: organizations/{org_id}/apiKeys/{key_id}
+  """
+  @spec coinbase_api_key() :: api_key()
+  def coinbase_api_key do
+    get_required_key(:api_keys, :coinbase_api_key)
+  end
+
+  @doc """
+  Gets the Coinbase API secret (EC private key) from configuration.
+  """
+  @spec coinbase_api_secret() :: String.t()
+  def coinbase_api_secret do
+    get_required_key(:api_keys, :coinbase_api_secret)
+  end
+
+  @doc """
   Gets the Hyperliquid account's private key from configuration.
   Raises if the key is not configured.
   """
