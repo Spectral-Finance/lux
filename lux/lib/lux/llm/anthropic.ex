@@ -5,9 +5,11 @@ defmodule Lux.LLM.Anthropic do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
+  alias Lux.LLM.Provider.{Info, ModelInfo}
   alias Lux.Prism
 
   require Beam
@@ -15,6 +17,49 @@ defmodule Lux.LLM.Anthropic do
   require Logger
 
   @endpoint "https://api.anthropic.com/v1/messages"
+
+  @impl Lux.LLM.Provider
+  def provider_info do
+    %Info{
+      name: :anthropic,
+      display_name: "Anthropic",
+      module: __MODULE__,
+      default_model: "claude-3-5-sonnet-20241022",
+      base_url: @endpoint,
+      models: [
+        %ModelInfo{
+          name: "claude-3-5-sonnet-20241022",
+          capabilities: [:chat, :tool_use, :vision, :json_mode, :streaming],
+          context_window: 200_000,
+          max_output_tokens: 8192,
+          cost_per_input_token: 0.000003,
+          cost_per_output_token: 0.000015
+        },
+        %ModelInfo{
+          name: "claude-3-opus-20240229",
+          capabilities: [:chat, :tool_use, :vision, :streaming],
+          context_window: 200_000,
+          max_output_tokens: 4096,
+          cost_per_input_token: 0.000015,
+          cost_per_output_token: 0.000075
+        },
+        %ModelInfo{
+          name: "claude-3-haiku-20240307",
+          capabilities: [:chat, :tool_use, :vision, :streaming],
+          context_window: 200_000,
+          max_output_tokens: 4096,
+          cost_per_input_token: 0.00000025,
+          cost_per_output_token: 0.00000125
+        }
+      ]
+    }
+  end
+
+  @impl Lux.LLM.Provider
+  def configured?(config) do
+    api_key = Map.get(config, :api_key) || Application.get_env(:lux, :api_keys)[:anthropic]
+    not is_nil(api_key)
+  end
 
   defmodule Config do
     @moduledoc """
