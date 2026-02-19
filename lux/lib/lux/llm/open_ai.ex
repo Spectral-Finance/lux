@@ -4,9 +4,11 @@ defmodule Lux.LLM.OpenAI do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
+  alias Lux.LLM.Provider.{Info, ModelInfo}
   alias Lux.LLM.ResponseSignal
   alias Lux.Prism
 
@@ -15,6 +17,65 @@ defmodule Lux.LLM.OpenAI do
   require Logger
 
   @endpoint "https://api.openai.com/v1/chat/completions"
+
+  @impl Lux.LLM.Provider
+  def provider_info do
+    %Info{
+      name: :openai,
+      display_name: "OpenAI",
+      module: __MODULE__,
+      default_model: "gpt-4o",
+      base_url: @endpoint,
+      models: [
+        %ModelInfo{
+          name: "gpt-4o",
+          capabilities: [:chat, :tool_use, :vision, :json_mode, :streaming],
+          context_window: 128_000,
+          max_output_tokens: 16_384,
+          cost_per_input_token: 0.0000025,
+          cost_per_output_token: 0.00001
+        },
+        %ModelInfo{
+          name: "gpt-4o-mini",
+          capabilities: [:chat, :tool_use, :vision, :json_mode, :streaming],
+          context_window: 128_000,
+          max_output_tokens: 16_384,
+          cost_per_input_token: 0.00000015,
+          cost_per_output_token: 0.0000006
+        },
+        %ModelInfo{
+          name: "gpt-4-turbo",
+          capabilities: [:chat, :tool_use, :vision, :json_mode, :streaming],
+          context_window: 128_000,
+          max_output_tokens: 4096,
+          cost_per_input_token: 0.00001,
+          cost_per_output_token: 0.00003
+        },
+        %ModelInfo{
+          name: "o1",
+          capabilities: [:chat, :reasoning, :vision, :tool_use, :streaming],
+          context_window: 200_000,
+          max_output_tokens: 100_000,
+          cost_per_input_token: 0.000015,
+          cost_per_output_token: 0.00006
+        },
+        %ModelInfo{
+          name: "o1-mini",
+          capabilities: [:chat, :reasoning, :streaming],
+          context_window: 128_000,
+          max_output_tokens: 65_536,
+          cost_per_input_token: 0.000003,
+          cost_per_output_token: 0.000012
+        }
+      ]
+    }
+  end
+
+  @impl Lux.LLM.Provider
+  def configured?(config) do
+    api_key = Map.get(config, :api_key) || Application.get_env(:lux, :api_keys)[:openai]
+    not is_nil(api_key)
+  end
 
   defmodule Config do
     @moduledoc """

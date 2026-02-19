@@ -4,9 +4,11 @@ defmodule Lux.LLM.TogetherAI do
     """
 
     @behaviour Lux.LLM
+    @behaviour Lux.LLM.Provider
 
     alias Lux.Beam
     alias Lux.Lens
+    alias Lux.LLM.Provider.{Info, ModelInfo}
     alias Lux.LLM.ResponseSignal
     alias Lux.Prism
 
@@ -15,6 +17,49 @@ defmodule Lux.LLM.TogetherAI do
     require Logger
 
     @endpoint "https://api.together.xyz/v1/chat/completions"
+
+    @impl Lux.LLM.Provider
+    def provider_info do
+      %Info{
+        name: :together_ai,
+        display_name: "Together AI",
+        module: __MODULE__,
+        default_model: "mistralai/Mistral-7B-Instruct-v0.2",
+        base_url: @endpoint,
+        models: [
+          %ModelInfo{
+            name: "mistralai/Mistral-7B-Instruct-v0.2",
+            capabilities: [:chat, :tool_use, :streaming],
+            context_window: 32_768,
+            max_output_tokens: 4096,
+            cost_per_input_token: 0.0000002,
+            cost_per_output_token: 0.0000002
+          },
+          %ModelInfo{
+            name: "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            capabilities: [:chat, :tool_use, :streaming],
+            context_window: 32_768,
+            max_output_tokens: 4096,
+            cost_per_input_token: 0.0000006,
+            cost_per_output_token: 0.0000006
+          },
+          %ModelInfo{
+            name: "meta-llama/Llama-3-70b-chat-hf",
+            capabilities: [:chat, :tool_use, :streaming],
+            context_window: 8192,
+            max_output_tokens: 4096,
+            cost_per_input_token: 0.0000009,
+            cost_per_output_token: 0.0000009
+          }
+        ]
+      }
+    end
+
+    @impl Lux.LLM.Provider
+    def configured?(config) do
+      api_key = Map.get(config, :api_key) || Application.get_env(:lux, :api_keys)[:together]
+      not is_nil(api_key)
+    end
 
     defmodule Config do
       @moduledoc """

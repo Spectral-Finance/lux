@@ -4,9 +4,11 @@ defmodule Lux.LLM.Mira do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
+  alias Lux.LLM.Provider.{Info, ModelInfo}
   alias Lux.LLM.ResponseSignal
   alias Lux.Prism
 
@@ -15,6 +17,41 @@ defmodule Lux.LLM.Mira do
   require Logger
 
   @endpoint "https://api.mira.network/v1/chat/completions"
+
+  @impl Lux.LLM.Provider
+  def provider_info do
+    %Info{
+      name: :mira,
+      display_name: "Mira Network",
+      module: __MODULE__,
+      default_model: "llama-3.1-8b-instruct",
+      base_url: @endpoint,
+      models: [
+        %ModelInfo{
+          name: "llama-3.1-8b-instruct",
+          capabilities: [:chat, :streaming],
+          context_window: 8192,
+          max_output_tokens: 4096,
+          cost_per_input_token: 0.0000001,
+          cost_per_output_token: 0.0000001
+        },
+        %ModelInfo{
+          name: "llama-3.1-70b-instruct",
+          capabilities: [:chat, :tool_use, :streaming],
+          context_window: 8192,
+          max_output_tokens: 4096,
+          cost_per_input_token: 0.0000005,
+          cost_per_output_token: 0.0000005
+        }
+      ]
+    }
+  end
+
+  @impl Lux.LLM.Provider
+  def configured?(config) do
+    api_key = Map.get(config, :api_key)
+    not is_nil(api_key)
+  end
 
   defmodule Config do
     @moduledoc """
