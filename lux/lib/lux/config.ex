@@ -128,6 +128,24 @@ defmodule Lux.Config do
     |> Keyword.get(:wallet_address, "")
   end
 
+  @doc """
+  Gets the Binance API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec binance_api_key() :: api_key()
+  def binance_api_key do
+    get_required_key(:api_keys, :binance_api_key)
+  end
+
+  @doc """
+  Gets the Binance secret key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec binance_secret_key() :: api_key()
+  def binance_secret_key do
+    get_required_key(:api_keys, :binance_secret_key)
+  end
+
   @doc false
   defp get_required_key(group, key) do
     :lux
