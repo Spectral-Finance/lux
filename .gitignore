@@ -24,3 +24,18 @@ node_modules/
 # Environment files
 *.envrc
 !*.envrc.example
+
+*.pyc
+.solari_*
+
+# Auto-added by Solari to prevent build artifact commits
+.solari_deps_installed
+*.egg-info/
+dist/
+build/
+.tox/
+.pytest_cache/
+.mypy_cache/
+target/
+.gradle/
+*.class
