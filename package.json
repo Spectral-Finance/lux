@@ -1,0 +1,19 @@
+{
+  "name": "lux-twitter-integration",
+  "version": "1.0.0",
+  "description": "Twitter API v2 integration for Lux - Bounty #58",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  },
+  "keywords": ["twitter", "api", "oauth2", "lux"],
+  "license": "MIT"
+}
