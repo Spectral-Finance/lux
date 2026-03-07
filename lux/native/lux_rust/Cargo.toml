@@ -1,0 +1,14 @@
+[package]
+name = "lux_rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux_rust"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.34.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_rustler = "0.0.10"
