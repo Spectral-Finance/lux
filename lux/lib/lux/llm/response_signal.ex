@@ -11,7 +11,7 @@ defmodule Lux.LLM.ResponseSignal do
     schema: %{
       type: :object,
       properties: %{
-        content: %{anyOf: [%{type: :object}, %{type: :null}]},
+        content: %{anyOf: [%{type: :object}, %{type: :string}, %{type: :null}]},
         # content: %{type: :object},
         model: %{type: :string},
         finish_reason: %{type: :string},
