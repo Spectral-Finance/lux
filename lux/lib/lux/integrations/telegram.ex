@@ -1,7 +1,22 @@
 defmodule Lux.Integrations.Telegram do
   @moduledoc """
-  Common settings and functions for Telegram Bot API integration.
+  Telegram Bot API configuration and shared utilities.
   """
+
+  @base_url "https://api.telegram.org"
+
+  def base_url, do: @base_url
+
+  def bot_url(token) when is_binary(token), do: "#{@base_url}/bot#{token}"
+
+  def file_url(token, file_path), do: "#{@base_url}/file/bot#{token}/#{file_path}"
+
+  @doc "Validate a bot token format."
+  def valid_token?(token) when is_binary(token) do
+    Regex.match?(~r/^\d+:[A-Za-z0-9_-]{35,}$/, token)
+  end
+
+  def valid_token?(_), do: false
 
   @doc """
   Common request settings for Telegram Bot API calls.
@@ -37,13 +52,11 @@ defmodule Lux.Integrations.Telegram do
   def add_auth_header(%Plug.Conn{} = conn) do
     token = Lux.Config.telegram_bot_token()
     path = conn.request_path
-    
-    # Extract and replace bot token placeholder if needed
-    updated_path = if String.contains?(path, "/bot/"), do: 
-      String.replace(path, "/bot/", "/bot#{token}/"), 
-    else: 
-      path
-      
+
+    updated_path = if String.contains?(path, "/bot/"),
+      do: String.replace(path, "/bot/", "/bot#{token}/"),
+      else: path
+
     %{conn | request_path: updated_path}
   end
-end 
+end

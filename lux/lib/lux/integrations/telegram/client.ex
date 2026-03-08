@@ -1,89 +1,94 @@
 defmodule Lux.Integrations.Telegram.Client do
   @moduledoc """
-  Basic HTTP client for Telegram Bot API requests.
+  HTTP client for Telegram Bot API.
+
+  Handles authentication, request formatting, error handling,
+  and response parsing for all Bot API methods.
   """
 
-  require Logger
+  alias Lux.Integrations.Telegram
 
-  @endpoint "https://api.telegram.org/bot"
-
-  @type request_opts :: %{
-    optional(:token) => String.t(),
-    optional(:json) => map(),
-    optional(:headers) => [{String.t(), String.t()}],
-    optional(:plug) => {module(), term()}
-  }
+  @retry_codes [429, 500, 502, 503, 504]
+  @max_retries 3
+  @retry_delay_ms 1000
 
   @doc """
-  Makes a request to the Telegram Bot API.
-
-  ## Parameters
-
-    * `method` - HTTP method (:get, :post, :put, :delete)
-    * `path` - API endpoint path (e.g. "/copyMessage")
-    * `opts` - Request options (see Options section)
+  Make a request to the Telegram Bot API.
 
   ## Options
-
-    * `:token` - Telegram Bot API token (required)
-    * `:json` - Request body for POST/PUT requests
-    * `:headers` - Additional headers to include
-    * `:plug` - A plug to use for testing instead of making real HTTP requests
-
-  ## Examples
-
-      # Send a message
-      iex> Telegram.Client.request(:post, "/sendMessage", %{
-      ...>   token: "your_bot_token",
-      ...>   json: %{chat_id: 123_456_789, text: "Hello!"}
-      ...> })
-      {:ok, %{"ok" => true, "result" => %{"message_id" => 456}}}
-
-      # Copy a message
-      iex> Telegram.Client.request(:post, "/copyMessage", %{
-      ...>   token: "your_bot_token",
-      ...>   json: %{chat_id: 123_456_789, from_chat_id: 987_654_321, message_id: 42}
-      ...> })
-      {:ok, %{"ok" => true, "result" => %{"message_id" => 123}}}
+  - `:token` — Bot token (required)
+  - `:plug` — Test plug for Req.Test
   """
-  @spec request(atom(), String.t(), request_opts()) :: {:ok, map()} | {:error, term()}
-  def request(method, path, opts \\ %{}) do
-    token = opts[:token] || Lux.Config.telegram_bot_token()
-    url = @endpoint <> token <> path
+  def request(method, params \\ %{}, opts \\ []) do
+    token = opts[:token] || raise "Telegram bot token required"
+    url = "#{Telegram.bot_url(token)}/#{method}"
 
-    [
-      method: method,
+    req_opts = [
       url: url,
-      headers: [
-        {"Content-Type", "application/json"}
-      ],
-      json: opts[:json]
+      method: :post,
+      json: params,
+      retry: false
     ]
-    |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
-    |> maybe_add_plug(opts[:plug])
-    |> Req.new()
-    |> Req.request()
-    |> case do
-      {:ok, %{status: status} = response} when status in 200..299 ->
-        case response.body do
-          %{"ok" => true} = body -> {:ok, body}
-          body -> {:error, body}
-        end
 
-      {:ok, %{status: 401}} ->
-        {:error, :invalid_token}
+    req_opts = if opts[:plug], do: Keyword.put(req_opts, :plug, opts[:plug]), else: req_opts
 
-      {:ok, %{status: status, body: %{"description" => message}}} ->
-        {:error, {status, message}}
-
-      {:ok, %{status: status, body: body}} ->
-        {:error, {status, body}}
-
-      {:error, error} ->
-        {:error, error}
-    end
+    do_request(req_opts, 0)
   end
 
-  defp maybe_add_plug(options, nil), do: options
-  defp maybe_add_plug(options, plug), do: Keyword.put(options, :plug, plug)
+  @doc """
+  Upload a file via multipart form.
+  """
+  def upload(method, file_field, file_path, params \\ %{}, opts \\ []) do
+    token = opts[:token] || raise "Telegram bot token required"
+    url = "#{Telegram.bot_url(token)}/#{method}"
+
+    form_fields =
+      params
+      |> Enum.map(fn {k, v} -> {to_string(k), to_string(v)} end)
+
+    multipart =
+      {:multipart,
+       [{to_string(file_field), {:file, file_path}} | form_fields]}
+
+    req_opts = [
+      url: url,
+      method: :post,
+      body: multipart,
+      retry: false
+    ]
+
+    req_opts = if opts[:plug], do: Keyword.put(req_opts, :plug, opts[:plug]), else: req_opts
+
+    do_request(req_opts, 0)
+  end
+
+  defp do_request(req_opts, attempt) do
+    case Req.request(req_opts) do
+      {:ok, %{status: status, body: %{"ok" => true, "result" => result}}} when status in 200..299 ->
+        {:ok, result}
+
+      {:ok, %{status: 429, body: body}} when attempt < @max_retries ->
+        retry_after = get_in(body, ["parameters", "retry_after"]) || 1
+        Process.sleep(retry_after * 1000)
+        do_request(req_opts, attempt + 1)
+
+      {:ok, %{status: status}} when status in @retry_codes and attempt < @max_retries ->
+        Process.sleep(@retry_delay_ms * (attempt + 1))
+        do_request(req_opts, attempt + 1)
+
+      {:ok, %{status: _status, body: %{"ok" => false, "description" => desc, "error_code" => code}}} ->
+        {:error, %{code: code, description: desc}}
+
+      {:ok, %{status: status, body: body}} ->
+        {:error, %{code: status, description: inspect(body)}}
+
+      {:error, reason} ->
+        if attempt < @max_retries do
+          Process.sleep(@retry_delay_ms * (attempt + 1))
+          do_request(req_opts, attempt + 1)
+        else
+          {:error, %{code: 0, description: inspect(reason)}}
+        end
+    end
+  end
 end
