@@ -66,6 +66,7 @@ defmodule Lux.MixProject do
   defp deps do
     [
       {:bandit, "~> 1.0"},
+      {:rustler, "~> 0.35.0"},
       {:req, "~> 0.5.0"},
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
