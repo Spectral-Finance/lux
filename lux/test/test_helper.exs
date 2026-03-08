@@ -10,6 +10,7 @@ defmodule UnitAPICase do
   alias Lux.LLM.Anthropic
   alias Lux.LLM.OpenAI
   alias Lux.LLM.TogetherAI
+  alias Lux.LLM.Perplexity
 
   using do
     quote do
@@ -25,6 +26,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
+    Application.put_env(:lux, Perplexity, plug: {Req.Test, Perplexity})
     :ok
   end
 end
