@@ -96,8 +96,11 @@ defmodule Lux.Prisms.Telegram.Analytics.ErrorMonitoring do
 
   defp maybe_filter_error_type(errors, nil), do: errors
 
+  defp maybe_filter_error_type(errors, error_type) when is_binary(error_type) do
+    Enum.filter(errors, fn err -> Atom.to_string(err.type) == error_type end)
+  end
+
   defp maybe_filter_error_type(errors, error_type) do
-    type_atom = if is_binary(error_type), do: String.to_existing_atom(error_type), else: error_type
-    Enum.filter(errors, fn err -> err.type == type_atom end)
+    Enum.filter(errors, fn err -> err.type == error_type end)
   end
 end

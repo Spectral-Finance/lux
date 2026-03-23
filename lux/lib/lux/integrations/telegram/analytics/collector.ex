@@ -159,11 +159,11 @@ defmodule Lux.Integrations.Telegram.Analytics.Collector do
     retention_period = Keyword.get(opts, :retention_period, @default_retention_period)
 
     tables = %{
-      messages: :ets.new(:telegram_analytics_messages, [:bag, :public]),
-      commands: :ets.new(:telegram_analytics_commands, [:bag, :public]),
-      errors: :ets.new(:telegram_analytics_errors, [:bag, :public]),
-      response_times: :ets.new(:telegram_analytics_response_times, [:bag, :public]),
-      custom_metrics: :ets.new(:telegram_analytics_custom_metrics, [:bag, :public])
+      messages: :ets.new(:telegram_analytics_messages, [:bag, :protected]),
+      commands: :ets.new(:telegram_analytics_commands, [:bag, :protected]),
+      errors: :ets.new(:telegram_analytics_errors, [:bag, :protected]),
+      response_times: :ets.new(:telegram_analytics_response_times, [:bag, :protected]),
+      custom_metrics: :ets.new(:telegram_analytics_custom_metrics, [:bag, :protected])
     }
 
     schedule_prune()
@@ -280,6 +280,6 @@ defmodule Lux.Integrations.Telegram.Analytics.Collector do
   end
 
   defp generate_metric_id do
-    :crypto.strong_rand_bytes(8) |> Base.hex_encode32(case: :lower, padding: false)
+    :crypto.strong_rand_bytes(8) |> Base.encode16(case: :lower)
   end
 end

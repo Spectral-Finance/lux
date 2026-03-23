@@ -247,7 +247,7 @@ defmodule Lux.Integrations.Telegram.Analytics.Aggregator do
 
   defp bucket_key(event, :weekly) do
     ts = event.timestamp
-    week = Date.new!(ts.year, ts.month, ts.day) |> Date.day_of_era() |> div(7)
+    week = Date.new!(ts.year, ts.month, ts.day) |> Date.day_of_era() |> elem(0) |> div(7)
     {ts.year, week}
   end
 
