@@ -18,6 +18,7 @@ if config_env() in [:dev, :test] do
     openai: env!("OPENAI_API_KEY", :string!, "missing open ai"),
     mira: env!("MIRA_API_KEY", :string!, "missing mira"),
     together: env!("TOGETHER_API_KEY", :string!, "missing together"),
+    openrouter: env!("OPENROUTER_API_KEY", :string!, "missing openrouter"),
     anthropic: env!("ANTHROPIC_API_KEY", :string!, "missing anthropic"),
     openweather: env!("OPENWEATHER_API_KEY", :string!, "missing open weather"),
     transpose: env!("TRANSPOSE_API_KEY", :string!, "missing transpose"),
