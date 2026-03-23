@@ -110,8 +110,12 @@ defmodule Lux.LLM.OpenRouter do
         temperature: config.temperature,
         frequency_penalty: config.frequency_penalty,
         presence_penalty: config.presence_penalty,
-        max_tokens: config.max_tokens
+        max_tokens: config.max_tokens,
+        top_p: config.top_p,
+        seed: config.seed
       }
+      |> Enum.reject(fn {_k, v} -> is_nil(v) end)
+      |> Map.new()
       |> maybe_add_tools(tools_config, config.tool_choice)
       |> maybe_add_response_format(config)
       |> maybe_add_transforms(config)
@@ -140,9 +144,6 @@ defmodule Lux.LLM.OpenRouter do
 
       {:ok, %{status: 401}} ->
         {:error, :invalid_api_key}
-
-      {:ok, %{status: 429, body: %{"error" => %{"message" => message}}}} ->
-        {:error, {429, message}}
 
       {:ok, %{status: status, body: %{"error" => %{"message" => message}}}} ->
         {:error, {status, message}}
@@ -301,7 +302,7 @@ defmodule Lux.LLM.OpenRouter do
         created: body["created"],
         usage: usage,
         system_fingerprint: body["system_fingerprint"],
-        cost: get_in(usage, ["cost"])
+        cost: if(is_map(usage), do: usage["cost"])
       }
 
       %{
@@ -356,9 +357,13 @@ defmodule Lux.LLM.OpenRouter do
   Executes a single tool call by name and arguments.
   """
   def execute_tool_call(%{"function" => %{"name" => tool_name, "arguments" => args}}) do
-    args = Jason.decode!(args)
+    case Jason.decode(args) do
+      {:ok, decoded_args} ->
+        execute_tool(tool_name, decoded_args, nil)
 
-    execute_tool(tool_name, args, nil)
+      {:error, _} ->
+        {:error, "Failed to decode tool arguments for #{tool_name}: #{inspect(args)}"}
+    end
   end
 
   @doc """
