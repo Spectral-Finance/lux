@@ -176,9 +176,6 @@ defmodule Lux.Prisms.Telegram.Media.SendVideo do
             caption: caption
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send video: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send video: #{description} (HTTP #{status})"}
 

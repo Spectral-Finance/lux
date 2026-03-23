@@ -111,7 +111,8 @@ defmodule Lux.Integrations.Telegram.Retry do
 
   defp calculate_delay(attempt, base_delay, max_delay) do
     delay = base_delay * Integer.pow(2, attempt)
-    min(delay, max_delay)
+    jitter = :rand.uniform() * 0.5 + 0.5
+    min(round(delay * jitter), max_delay)
   end
 
   # Allows overriding in tests

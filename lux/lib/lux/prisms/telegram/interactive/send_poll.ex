@@ -234,9 +234,6 @@ defmodule Lux.Prisms.Telegram.Interactive.SendPoll do
 
             {:ok, response}
 
-          {:error, {status, %{"description" => description}}} ->
-            {:error, "Failed to send poll: #{description} (HTTP #{status})"}
-
           {:error, {status, description}} when is_binary(description) ->
             {:error, "Failed to send poll: #{description} (HTTP #{status})"}
 

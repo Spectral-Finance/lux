@@ -64,9 +64,6 @@ defmodule Lux.Prisms.Telegram.Management.GetMyCommands do
         Logger.info("Successfully retrieved bot commands")
         {:ok, %{commands: commands}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to get commands: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to get commands: #{description} (HTTP #{status})"}
 

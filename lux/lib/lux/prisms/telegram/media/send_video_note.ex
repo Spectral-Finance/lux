@@ -137,9 +137,6 @@ defmodule Lux.Prisms.Telegram.Media.SendVideoNote do
             video_note: video_note
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send video note: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send video note: #{description} (HTTP #{status})"}
 

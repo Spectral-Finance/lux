@@ -29,6 +29,7 @@ defmodule Lux.Integrations.Telegram.RateLimiter do
   @per_chat_limit 1
   @group_chat_limit 3
   @window_ms 1_000
+  @cleanup_interval 5_000
 
   @table_name :telegram_rate_limiter
   @global_key :global
@@ -93,6 +94,7 @@ defmodule Lux.Integrations.Telegram.RateLimiter do
   @impl true
   def init(_opts) do
     table = :ets.new(@table_name, [:set, :public, :named_table, read_concurrency: true])
+    Process.send_after(self(), :cleanup, @cleanup_interval)
     {:ok, %{table: table}}
   end
 
@@ -107,6 +109,7 @@ defmodule Lux.Integrations.Telegram.RateLimiter do
   def handle_info(:cleanup, state) do
     now = System.monotonic_time(:millisecond)
     cleanup_old_entries(now)
+    Process.send_after(self(), :cleanup, @cleanup_interval)
     {:noreply, state}
   end
 
@@ -155,20 +158,15 @@ defmodule Lux.Integrations.Telegram.RateLimiter do
   defp cleanup_old_entries(now) do
     window_start = now - @window_ms
 
-    :ets.foldl(
-      fn {key, timestamps}, _acc ->
-        recent = Enum.filter(timestamps, fn ts -> ts > window_start end)
+    :ets.tab2list(@table_name)
+    |> Enum.each(fn {key, timestamps} ->
+      recent = Enum.filter(timestamps, fn ts -> ts > window_start end)
 
-        if Enum.empty?(recent) do
-          :ets.delete(@table_name, key)
-        else
-          :ets.insert(@table_name, {key, recent})
-        end
-
-        :ok
-      end,
-      :ok,
-      @table_name
-    )
+      if Enum.empty?(recent) do
+        :ets.delete(@table_name, key)
+      else
+        :ets.insert(@table_name, {key, recent})
+      end
+    end)
   end
 end

@@ -162,9 +162,6 @@ defmodule Lux.Prisms.Telegram.Media.SendMediaGroup do
             chat_id: chat_id
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send media group: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send media group: #{description} (HTTP #{status})"}
 

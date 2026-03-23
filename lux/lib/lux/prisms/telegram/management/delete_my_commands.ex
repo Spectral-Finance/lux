@@ -64,9 +64,6 @@ defmodule Lux.Prisms.Telegram.Management.DeleteMyCommands do
         Logger.info("Successfully deleted bot commands")
         {:ok, %{success: true}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to delete commands: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to delete commands: #{description} (HTTP #{status})"}
 

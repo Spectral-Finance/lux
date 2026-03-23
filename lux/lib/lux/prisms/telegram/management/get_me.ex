@@ -91,9 +91,6 @@ defmodule Lux.Prisms.Telegram.Management.GetMe do
           supports_inline_queries: result["supports_inline_queries"]
         }}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to get bot info: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to get bot info: #{description} (HTTP #{status})"}
 

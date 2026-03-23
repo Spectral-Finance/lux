@@ -86,9 +86,6 @@ defmodule Lux.Prisms.Telegram.Management.SetMyCommands do
           Logger.info("Successfully set bot commands")
           {:ok, %{success: true}}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to set commands: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to set commands: #{description} (HTTP #{status})"}
 

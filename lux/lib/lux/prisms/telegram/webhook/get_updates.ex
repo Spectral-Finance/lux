@@ -73,9 +73,6 @@ defmodule Lux.Prisms.Telegram.Webhook.GetUpdates do
         Logger.info("Successfully retrieved #{length(updates)} updates")
         {:ok, %{updates: updates}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to get updates: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to get updates: #{description} (HTTP #{status})"}
 

@@ -55,9 +55,6 @@ defmodule Lux.Prisms.Telegram.Management.Close do
         Logger.info("Successfully closed bot instance")
         {:ok, %{success: true}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to close bot: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to close bot: #{description} (HTTP #{status})"}
 

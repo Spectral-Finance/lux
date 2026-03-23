@@ -156,9 +156,6 @@ defmodule Lux.Prisms.Telegram.Media.SendDocument do
             caption: caption
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send document: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send document: #{description} (HTTP #{status})"}
 

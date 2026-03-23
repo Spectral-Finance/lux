@@ -55,9 +55,6 @@ defmodule Lux.Prisms.Telegram.Management.LogOut do
         Logger.info("Successfully logged out")
         {:ok, %{success: true}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to log out: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to log out: #{description} (HTTP #{status})"}
 

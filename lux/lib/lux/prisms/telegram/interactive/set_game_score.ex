@@ -150,9 +150,6 @@ defmodule Lux.Prisms.Telegram.Interactive.SetGameScore do
               Logger.info("Successfully set game score #{score} for user #{user_id}")
               {:ok, response}
 
-            {:error, {status, %{"description" => description}}} ->
-              {:error, "Failed to set game score: #{description} (HTTP #{status})"}
-
             {:error, {status, description}} when is_binary(description) ->
               {:error, "Failed to set game score: #{description} (HTTP #{status})"}
 

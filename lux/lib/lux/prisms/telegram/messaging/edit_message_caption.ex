@@ -156,9 +156,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
             caption: caption
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to edit message caption: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to edit message caption: #{description} (HTTP #{status})"}
 
@@ -186,9 +183,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
         {:ok, %{"result" => true}} ->
           Logger.info("Successfully edited caption of inline message #{inline_message_id}")
           {:ok, %{edited: true}}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to edit inline message caption: #{description} (HTTP #{status})"}
 
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to edit inline message caption: #{description} (HTTP #{status})"}

@@ -168,9 +168,6 @@ defmodule Lux.Prisms.Telegram.Interactive.GetGameHighScores do
               Logger.info("Successfully retrieved game high scores for user #{user_id}")
               {:ok, response}
 
-            {:error, {status, %{"description" => description}}} ->
-              {:error, "Failed to get game high scores: #{description} (HTTP #{status})"}
-
             {:error, {status, description}} when is_binary(description) ->
               {:error, "Failed to get game high scores: #{description} (HTTP #{status})"}
 

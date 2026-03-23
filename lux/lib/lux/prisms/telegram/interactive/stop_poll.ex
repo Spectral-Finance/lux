@@ -130,9 +130,6 @@ defmodule Lux.Prisms.Telegram.Interactive.StopPoll do
             is_closed: poll["is_closed"]
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to stop poll: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to stop poll: #{description} (HTTP #{status})"}
 

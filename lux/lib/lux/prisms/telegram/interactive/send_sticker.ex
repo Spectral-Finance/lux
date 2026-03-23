@@ -132,9 +132,6 @@ defmodule Lux.Prisms.Telegram.Interactive.SendSticker do
             sticker: sticker
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send sticker: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send sticker: #{description} (HTTP #{status})"}
 

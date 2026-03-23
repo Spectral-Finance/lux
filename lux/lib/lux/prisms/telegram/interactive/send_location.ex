@@ -173,9 +173,6 @@ defmodule Lux.Prisms.Telegram.Interactive.SendLocation do
             live_period: live_period
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send location: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send location: #{description} (HTTP #{status})"}
 

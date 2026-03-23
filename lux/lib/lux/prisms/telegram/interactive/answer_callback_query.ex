@@ -112,9 +112,6 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerCallbackQuery do
             callback_query_id: callback_query_id
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to answer callback query: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to answer callback query: #{description} (HTTP #{status})"}
 

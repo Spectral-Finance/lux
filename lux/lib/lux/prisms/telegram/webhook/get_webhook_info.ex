@@ -97,9 +97,6 @@ defmodule Lux.Prisms.Telegram.Webhook.GetWebhookInfo do
           allowed_updates: result["allowed_updates"]
         }}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to get webhook info: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to get webhook info: #{description} (HTTP #{status})"}
 

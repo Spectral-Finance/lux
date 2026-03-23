@@ -161,9 +161,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
             text: text
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to edit message text: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to edit message text: #{description} (HTTP #{status})"}
 
@@ -191,9 +188,6 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageText do
         {:ok, %{"result" => true}} ->
           Logger.info("Successfully edited text of inline message #{inline_message_id}")
           {:ok, %{edited: true}}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to edit inline message text: #{description} (HTTP #{status})"}
 
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to edit inline message text: #{description} (HTTP #{status})"}

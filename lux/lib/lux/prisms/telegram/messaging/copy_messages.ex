@@ -139,10 +139,6 @@ defmodule Lux.Prisms.Telegram.Messages.CopyMessages do
             chat_id: chat_id
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          error = "Failed to copy messages: #{description} (HTTP #{status})"
-          {:error, error}
-
         {:error, {status, description}} when is_binary(description) ->
           error = "Failed to copy messages: #{description} (HTTP #{status})"
           {:error, error}

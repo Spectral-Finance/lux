@@ -168,9 +168,6 @@ defmodule Lux.Prisms.Telegram.Media.SendAudio do
             caption: caption
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send audio: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send audio: #{description} (HTTP #{status})"}
 

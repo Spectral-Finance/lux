@@ -61,9 +61,6 @@ defmodule Lux.Prisms.Telegram.Webhook.DeleteWebhook do
         Logger.info("Successfully deleted webhook")
         {:ok, %{success: true}}
 
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to delete webhook: #{description} (HTTP #{status})"}
-
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to delete webhook: #{description} (HTTP #{status})"}
 

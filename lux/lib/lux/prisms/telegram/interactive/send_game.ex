@@ -131,9 +131,6 @@ defmodule Lux.Prisms.Telegram.Interactive.SendGame do
             game_short_name: game_short_name
           }}
 
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send game: #{description} (HTTP #{status})"}
-
         {:error, {status, description}} when is_binary(description) ->
           {:error, "Failed to send game: #{description} (HTTP #{status})"}
 
