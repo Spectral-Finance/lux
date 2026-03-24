@@ -187,6 +187,63 @@ Lux.LLM.Provider.enable(:cheaper_provider)
 | OpenAI | gpt-4, gpt-4-turbo, gpt-3.5-turbo | $0.0005 - $0.06/1k | streaming, tools, vision, json_mode |
 | Anthropic | claude-3-opus, claude-3-sonnet, claude-3-haiku | $0.00025 - $0.075/1k | streaming, tools, vision |
 | Together AI | Mixtral-8x7B, Llama-3-70b | $0.0006 - $0.0009/1k | streaming, tools |
+| Ollama | llama2, mistral, codellama, custom | **FREE** | streaming, local, no_cost |
+
+## Local Model Support (Ollama)
+
+Ollama provides local LLM support with zero API costs. Perfect for:
+- Development and testing
+- Privacy-sensitive applications
+- Cost optimization
+- Offline environments
+
+### Setup
+
+1. Install Ollama: https://ollama.ai
+2. Pull a model: `ollama pull llama2`
+3. Register the provider:
+
+```elixir
+# Register Ollama
+Lux.LLM.Ollama.register()
+
+# Or with custom options
+Lux.LLM.Ollama.register(
+  host: "http://localhost:11434",
+  models: ["llama2", "mistral", "codellama"]
+)
+```
+
+### Usage
+
+```elixir
+# Basic call
+{:ok, response} = Lux.LLM.Ollama.call("Hello!", [], %{})
+
+# With specific model
+{:ok, response} = Lux.LLM.Ollama.call("Write code", [], %{model: "codellama"})
+
+# List available models
+{:ok, models} = Lux.LLM.Ollama.list_models()
+
+# Pull a new model
+{:ok, :pulling} = Lux.LLM.Ollama.pull_model("mistral")
+
+# Health check
+:ok = Lux.LLM.Ollama.health_check()
+```
+
+### Automatic Fallback to Local
+
+When cloud providers fail or budgets are exceeded, you can fall back to local models:
+
+```elixir
+# Use local model as fallback
+{:ok, response} = Lux.LLM.Provider.call("Hello!", [], %{
+  fallback: :all,
+  prefer: [:openai, :anthropic]  # Will fall back to ollama if these fail
+})
+```
 
 ## Error Handling
 

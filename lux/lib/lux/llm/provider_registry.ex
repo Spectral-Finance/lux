@@ -290,6 +290,20 @@ defmodule Lux.LLM.ProviderRegistry do
       registered_at: DateTime.utc_now()
     }})
 
+    # Register Ollama (local models - zero cost!)
+    :ets.insert(@table_name, {:ollama, %{
+      module: Lux.LLM.Ollama,
+      models: ["llama2", "mistral", "codellama", "llama3"],
+      cost_per_1k_tokens: %{
+        default: %{input: 0.0, output: 0.0}
+      },
+      max_tokens: 4096,
+      features: [:streaming, :local, :no_cost],
+      priority: 4,
+      enabled: true,
+      registered_at: DateTime.utc_now()
+    }})
+
     %{}
   end
 
