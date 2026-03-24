@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Python components for the Lux framework"
 authors = ["Robert Parcus <robertparcus@spectrallabs.xyz>"]
 readme = "README.md"
-packages = [{include = "lux"}]
+packages = [{include = "lux"}, {include = "coinbase_utils"}, {include = "hyperliquid_utils"}]
 
 [tool.poetry.dependencies]
 python = "^3.12.3"
@@ -15,6 +15,8 @@ nltk = "^3.9.1"
 setuptools = "^75.8.2"
 hyperliquid-python-sdk = "^0.10.1"
 ckzg = "^2.0.1"
+requests = "^2.32.0"
+websocket-client = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.4"
