@@ -128,6 +128,57 @@ defmodule Lux.Config do
     |> Keyword.get(:wallet_address, "")
   end
 
+  # Coinbase Exchange Configuration
+
+  @doc """
+  Gets the Coinbase API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec coinbase_api_key() :: api_key()
+  def coinbase_api_key do
+    get_required_key(:api_keys, :coinbase_api_key)
+  end
+
+  @doc """
+  Gets the Coinbase API secret from configuration.
+  Raises if the secret is not configured.
+  """
+  @spec coinbase_api_secret() :: String.t()
+  def coinbase_api_secret do
+    get_required_key(:api_keys, :coinbase_api_secret)
+  end
+
+  @doc """
+  Gets the Coinbase API passphrase from configuration.
+  Raises if the passphrase is not configured.
+  """
+  @spec coinbase_api_passphrase() :: String.t()
+  def coinbase_api_passphrase do
+    get_required_key(:api_keys, :coinbase_api_passphrase)
+  end
+
+  @doc """
+  Gets the configured Coinbase API URL.
+  Returns the default URL if not configured.
+  """
+  @spec coinbase_api_url() :: String.t()
+  def coinbase_api_url do
+    :lux
+    |> Application.fetch_env!(:accounts)
+    |> Keyword.get(:coinbase_api_url, "https://api.exchange.coinbase.com")
+  end
+
+  @doc """
+  Gets the configured Coinbase WebSocket URL.
+  Returns the default URL if not configured.
+  """
+  @spec coinbase_ws_url() :: String.t()
+  def coinbase_ws_url do
+    :lux
+    |> Application.fetch_env!(:accounts)
+    |> Keyword.get(:coinbase_ws_url, "wss://ws-feed.exchange.coinbase.com")
+  end
+
   @doc false
   defp get_required_key(group, key) do
     :lux
