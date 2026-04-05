@@ -232,10 +232,13 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-lux-app-
 
-      - name: Cache Dialyzer PLTs
-        uses: actions/cache@v4
+      - name: Restore PLT cache
+        uses: actions/cache/restore@v4
+        id: plt_cache_app
         with:
-          path: lux_app/priv/plts
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
           key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
           restore-keys: |
             ${{ runner.os }}-dialyzer-lux-app-
@@ -246,6 +249,19 @@ jobs:
       - name: Create PLT directory
         run: mkdir -p priv/plts
 
+      - name: Build PLT
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        uses: actions/cache/save@v4
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+
       - name: Install Node.js dependencies
         run: cd assets && npm ci
 
@@ -254,6 +270,9 @@ jobs:
 
       - name: Run Credo
         run: mix credo
+
+      - name: Run Dialyzer
+        run: mix dialyzer --format github
 
       - name: Setup database
         run: mix ecto.setup
