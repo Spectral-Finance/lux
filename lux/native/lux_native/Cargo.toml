@@ -1,0 +1,21 @@
+[package]
+name = "lux_native"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux_native"
+crate-type = ["cdylib"]
+
+[profile.release]
+lto = true
+opt-level = "z"
+codegen-units = 1
+strip = true
+
+[dependencies]
+rustler = { version = "0.34.0", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+inventory = "0.3"
+lazy_static = "1.4"
+lux_native_macros = { path = "macros" }

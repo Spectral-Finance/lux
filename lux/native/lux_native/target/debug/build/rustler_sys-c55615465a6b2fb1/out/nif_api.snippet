@@ -1,0 +1,1068 @@
+pub const ERL_NIF_ENTRY_OPTIONS: c_uint = ERL_NIF_DIRTY_NIF_OPTION;
+pub const NIF_MAJOR_VERSION: c_int = 2;
+pub const NIF_MINOR_VERSION: c_int = 15;
+#[allow(dead_code)]
+#[derive(Copy, Clone)]
+pub struct TWinDynNifCallbacks {
+    enif_priv_data: extern "C" fn (arg1: *mut ErlNifEnv) -> *mut c_void,
+    enif_alloc: extern "C" fn (size: size_t) -> *mut c_void,
+    enif_free: extern "C" fn (ptr: *mut c_void),
+    enif_is_atom: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_is_binary: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_is_ref: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_inspect_binary: extern "C" fn (arg1: *mut ErlNifEnv, bin_term: ERL_NIF_TERM, bin: *mut ErlNifBinary) -> c_int,
+    enif_alloc_binary: extern "C" fn (size: size_t, bin: *mut ErlNifBinary) -> c_int,
+    enif_realloc_binary: extern "C" fn (bin: *mut ErlNifBinary, size: size_t) -> c_int,
+    enif_release_binary: extern "C" fn (bin: *mut ErlNifBinary),
+    enif_get_int: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_int) -> c_int,
+    enif_get_ulong: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_ulong) -> c_int,
+    enif_get_double: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, dp: *mut c_double) -> c_int,
+    enif_get_list_cell: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM, head: *mut ERL_NIF_TERM, tail: *mut ERL_NIF_TERM) -> c_int,
+    enif_get_tuple: extern "C" fn (env: *mut ErlNifEnv, tpl: ERL_NIF_TERM, arity: *mut c_int, array: *mut *const ERL_NIF_TERM) -> c_int,
+    enif_is_identical: extern "C" fn (lhs: ERL_NIF_TERM, rhs: ERL_NIF_TERM) -> c_int,
+    enif_compare: extern "C" fn (lhs: ERL_NIF_TERM, rhs: ERL_NIF_TERM) -> c_int,
+    enif_make_binary: extern "C" fn (env: *mut ErlNifEnv, bin: *mut ErlNifBinary) -> ERL_NIF_TERM,
+    enif_make_badarg: extern "C" fn (env: *mut ErlNifEnv) -> ERL_NIF_TERM,
+    enif_make_int: extern "C" fn (env: *mut ErlNifEnv, i: c_int) -> ERL_NIF_TERM,
+    enif_make_ulong: extern "C" fn (env: *mut ErlNifEnv, i: c_ulong) -> ERL_NIF_TERM,
+    enif_make_double: extern "C" fn (env: *mut ErlNifEnv, d: c_double) -> ERL_NIF_TERM,
+    enif_make_atom: extern "C" fn (env: *mut ErlNifEnv, name: *const c_uchar) -> ERL_NIF_TERM,
+    enif_make_existing_atom: extern "C" fn (env: *mut ErlNifEnv, name: *const c_uchar, atom: *mut ERL_NIF_TERM, arg1: ErlNifCharEncoding) -> c_int,
+    enif_make_tuple: extern "C" fn (env: *mut ErlNifEnv, cnt: c_uint, ...) -> ERL_NIF_TERM,
+    enif_make_list: extern "C" fn (env: *mut ErlNifEnv, cnt: c_uint, ...) -> ERL_NIF_TERM,
+    enif_make_list_cell: extern "C" fn (env: *mut ErlNifEnv, car: ERL_NIF_TERM, cdr: ERL_NIF_TERM) -> ERL_NIF_TERM,
+    enif_make_string: extern "C" fn (env: *mut ErlNifEnv, string: *const c_uchar, arg1: ErlNifCharEncoding) -> ERL_NIF_TERM,
+    enif_make_ref: extern "C" fn (env: *mut ErlNifEnv) -> ERL_NIF_TERM,
+    dummy_enif_mutex_create: extern "C" fn (),
+    dummy_enif_mutex_destroy: extern "C" fn (),
+    dummy_enif_mutex_trylock: extern "C" fn (),
+    dummy_enif_mutex_lock: extern "C" fn (),
+    dummy_enif_mutex_unlock: extern "C" fn (),
+    dummy_enif_cond_create: extern "C" fn (),
+    dummy_enif_cond_destroy: extern "C" fn (),
+    dummy_enif_cond_signal: extern "C" fn (),
+    dummy_enif_cond_broadcast: extern "C" fn (),
+    dummy_enif_cond_wait: extern "C" fn (),
+    dummy_enif_rwlock_create: extern "C" fn (),
+    dummy_enif_rwlock_destroy: extern "C" fn (),
+    dummy_enif_rwlock_tryrlock: extern "C" fn (),
+    dummy_enif_rwlock_rlock: extern "C" fn (),
+    dummy_enif_rwlock_runlock: extern "C" fn (),
+    dummy_enif_rwlock_tryrwlock: extern "C" fn (),
+    dummy_enif_rwlock_rwlock: extern "C" fn (),
+    dummy_enif_rwlock_rwunlock: extern "C" fn (),
+    dummy_enif_tsd_key_create: extern "C" fn (),
+    dummy_enif_tsd_key_destroy: extern "C" fn (),
+    dummy_enif_tsd_set: extern "C" fn (),
+    dummy_enif_tsd_get: extern "C" fn (),
+    dummy_enif_thread_opts_create: extern "C" fn (),
+    dummy_enif_thread_opts_destroy: extern "C" fn (),
+    dummy_enif_thread_create: extern "C" fn (),
+    dummy_enif_thread_self: extern "C" fn (),
+    dummy_enif_equal_tids: extern "C" fn (),
+    dummy_enif_thread_exit: extern "C" fn (),
+    dummy_enif_thread_join: extern "C" fn (),
+    enif_realloc: extern "C" fn (ptr: *mut c_void, size: size_t) -> *mut c_void,
+    enif_system_info: extern "C" fn (sip: *mut ErlNifSysInfo, si_size: size_t),
+    enif_fprintf: extern "C" fn (filep: *mut c_void, format: *const c_uchar, ...) -> c_int,
+    enif_inspect_iolist_as_binary: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, bin: *mut ErlNifBinary) -> c_int,
+    enif_make_sub_binary: extern "C" fn (arg1: *mut ErlNifEnv, bin_term: ERL_NIF_TERM, pos: size_t, size: size_t) -> ERL_NIF_TERM,
+    enif_get_string: extern "C" fn (arg1: *mut ErlNifEnv, list: ERL_NIF_TERM, buf: *mut c_uchar, len: c_uint, arg2: ErlNifCharEncoding) -> c_int,
+    enif_get_atom: extern "C" fn (arg1: *mut ErlNifEnv, atom: ERL_NIF_TERM, buf: *mut c_uchar, len: c_uint, arg2: ErlNifCharEncoding) -> c_int,
+    enif_is_fun: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_is_pid: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_is_port: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_get_uint: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_uint) -> c_int,
+    enif_get_long: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_long) -> c_int,
+    enif_make_uint: extern "C" fn (arg1: *mut ErlNifEnv, i: c_uint) -> ERL_NIF_TERM,
+    enif_make_long: extern "C" fn (arg1: *mut ErlNifEnv, i: c_long) -> ERL_NIF_TERM,
+    enif_make_tuple_from_array: extern "C" fn (arg1: *mut ErlNifEnv, arr: *const ERL_NIF_TERM, cnt: c_uint) -> ERL_NIF_TERM,
+    enif_make_list_from_array: extern "C" fn (arg1: *mut ErlNifEnv, arr: *const ERL_NIF_TERM, cnt: c_uint) -> ERL_NIF_TERM,
+    enif_is_empty_list: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_open_resource_type: extern "C" fn (arg1: *mut ErlNifEnv, module_str: *const c_char, name_str: *const c_char, dtor: Option<unsafe extern "C" fn (arg1: *mut ErlNifEnv, arg2: *mut c_void)>, flags: ErlNifResourceFlags, tried: *mut ErlNifResourceFlags) -> *const ErlNifResourceType,
+    enif_alloc_resource: extern "C" fn (_type: *const ErlNifResourceType, size: size_t) -> *mut c_void,
+    enif_release_resource: extern "C" fn (obj: *const c_void),
+    enif_make_resource: extern "C" fn (arg1: *mut ErlNifEnv, obj: *const c_void) -> ERL_NIF_TERM,
+    enif_get_resource: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, _type: *const ErlNifResourceType, objp: *mut *const c_void) -> c_int,
+    enif_sizeof_resource: extern "C" fn (obj: *const c_void) -> size_t,
+    enif_make_new_binary: extern "C" fn (arg1: *mut ErlNifEnv, size: size_t, termp: *mut ERL_NIF_TERM) -> *mut c_uchar,
+    enif_is_list: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_is_tuple: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_get_atom_length: extern "C" fn (arg1: *mut ErlNifEnv, atom: ERL_NIF_TERM, len: *mut c_uint, arg2: ErlNifCharEncoding) -> c_int,
+    enif_get_list_length: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM, len: *mut c_uint) -> c_int,
+    enif_make_atom_len: extern "C" fn (env: *mut ErlNifEnv, name: *const c_char, len: size_t) -> ERL_NIF_TERM,
+    enif_make_existing_atom_len: extern "C" fn (env: *mut ErlNifEnv, name: *const c_char, len: size_t, atom: *mut ERL_NIF_TERM, arg1: ErlNifCharEncoding) -> c_int,
+    enif_make_string_len: extern "C" fn (env: *mut ErlNifEnv, string: *const c_char, len: size_t, arg1: ErlNifCharEncoding) -> ERL_NIF_TERM,
+    enif_alloc_env: extern "C" fn () -> *mut ErlNifEnv,
+    enif_free_env: extern "C" fn (env: *mut ErlNifEnv),
+    enif_clear_env: extern "C" fn (env: *mut ErlNifEnv),
+    enif_send: extern "C" fn (env: *mut ErlNifEnv, to_pid: *const ErlNifPid, msg_env: *mut ErlNifEnv, msg: ERL_NIF_TERM) -> c_int,
+    enif_make_copy: extern "C" fn (dst_env: *mut ErlNifEnv, src_term: ERL_NIF_TERM) -> ERL_NIF_TERM,
+    enif_self: extern "C" fn (caller_env: *mut ErlNifEnv, pid: *mut ErlNifPid) -> *mut ErlNifPid,
+    enif_get_local_pid: extern "C" fn (env: *mut ErlNifEnv, arg1: ERL_NIF_TERM, pid: *mut ErlNifPid) -> c_int,
+    enif_keep_resource: extern "C" fn (obj: *const c_void),
+    enif_make_resource_binary: extern "C" fn (arg1: *mut ErlNifEnv, obj: *const c_void, data: *const c_void, size: size_t) -> ERL_NIF_TERM,
+    enif_get_int64: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_longlong) -> c_int,
+    enif_get_uint64: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_ulonglong) -> c_int,
+    enif_make_int64: extern "C" fn (env: *mut ErlNifEnv, i: c_longlong) -> ERL_NIF_TERM,
+    enif_make_uint64: extern "C" fn (env: *mut ErlNifEnv, i: c_ulonglong) -> ERL_NIF_TERM,
+    enif_is_exception: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_make_reverse_list: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, list: *mut ERL_NIF_TERM) -> c_int,
+    enif_is_number: extern "C" fn (arg1: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_dlopen: extern "C" fn (lib: *const c_char, err_handler: Option<unsafe extern "C" fn (arg1: *mut c_void, arg2: *const c_char)>, err_arg: *mut c_void) -> *mut c_void,
+    enif_dlsym: extern "C" fn (handle: *mut c_void, symbol: *const c_char, err_handler: Option<unsafe extern "C" fn (arg1: *mut c_void, arg2: *const c_char)>, err_arg: *mut c_void) -> *mut c_void,
+    enif_consume_timeslice: extern "C" fn (arg1: *mut ErlNifEnv, percent: c_int) -> c_int,
+    enif_is_map: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM) -> c_int,
+    enif_get_map_size: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM, size: *mut size_t) -> c_int,
+    enif_make_new_map: extern "C" fn (env: *mut ErlNifEnv) -> ERL_NIF_TERM,
+    enif_make_map_put: extern "C" fn (env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, value: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM) -> c_int,
+    enif_get_map_value: extern "C" fn (env: *mut ErlNifEnv, map: ERL_NIF_TERM, key: ERL_NIF_TERM, value: *mut ERL_NIF_TERM) -> c_int,
+    enif_make_map_update: extern "C" fn (env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, value: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM) -> c_int,
+    enif_make_map_remove: extern "C" fn (env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM) -> c_int,
+    enif_map_iterator_create: extern "C" fn (env: *mut ErlNifEnv, map: ERL_NIF_TERM, iter: *mut ErlNifMapIterator, entry: ErlNifMapIteratorEntry) -> c_int,
+    enif_map_iterator_destroy: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator),
+    enif_map_iterator_is_head: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator) -> c_int,
+    enif_map_iterator_is_tail: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator) -> c_int,
+    enif_map_iterator_next: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator) -> c_int,
+    enif_map_iterator_prev: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator) -> c_int,
+    enif_map_iterator_get_pair: extern "C" fn (env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator, key: *mut ERL_NIF_TERM, value: *mut ERL_NIF_TERM) -> c_int,
+    enif_schedule_nif: extern "C" fn (env: *mut ErlNifEnv, fun_name: *const c_char, flags:c_int, fp: unsafe extern "C" fn(env: *mut ErlNifEnv, argc:c_int, argv:*const ERL_NIF_TERM) -> ERL_NIF_TERM, argc:c_int, argv:*const ERL_NIF_TERM) -> ERL_NIF_TERM,
+    enif_has_pending_exception: extern "C" fn (env: *mut ErlNifEnv, reason: *mut ERL_NIF_TERM) -> c_int,
+    enif_raise_exception: extern "C" fn (env: *mut ErlNifEnv, reason: ERL_NIF_TERM) -> ERL_NIF_TERM,
+    enif_getenv: extern "C" fn (key: *const c_char, value: *mut c_char, value_size: *mut size_t) -> c_int,
+    enif_monotonic_time: extern "C" fn (unit: ErlNifTimeUnit) -> ErlNifTime,
+    enif_time_offset: extern "C" fn (unit: ErlNifTimeUnit) -> ErlNifTime,
+    enif_convert_time_unit: extern "C" fn (time: ErlNifTime, from_unit: ErlNifTimeUnit, to_unit: ErlNifTimeUnit) -> ErlNifTime,
+    enif_now_time: extern "C" fn (env: *mut ErlNifEnv) -> ERL_NIF_TERM,
+    enif_cpu_time: extern "C" fn (env: *mut ErlNifEnv) -> ERL_NIF_TERM,
+    enif_make_unique_integer: extern "C" fn (env: *mut ErlNifEnv, properties: ErlNifUniqueInteger) -> ERL_NIF_TERM,
+    enif_is_current_process_alive: extern "C" fn (env: *mut ErlNifEnv) -> c_int,
+    enif_is_process_alive: extern "C" fn (env: *mut ErlNifEnv, pid: *const ErlNifPid) -> c_int,
+    enif_is_port_alive: extern "C" fn (env: *mut ErlNifEnv, port_id: *const ErlNifPort) -> c_int,
+    enif_get_local_port: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM, port_id: *mut ErlNifPort) -> c_int,
+    enif_term_to_binary: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM, bin: *mut ErlNifBinary) -> c_int,
+    enif_binary_to_term: extern "C" fn (env: *mut ErlNifEnv, data: *const c_uchar, sz: usize, term: *mut ERL_NIF_TERM, opts: ErlNifBinaryToTerm) -> usize,
+    enif_port_command: extern "C" fn (env: *mut ErlNifEnv, to_port: *const ErlNifPort, msg_env: *mut ErlNifEnv, msg: ERL_NIF_TERM) -> c_int,
+    enif_thread_type: extern "C" fn () -> c_int,
+    enif_snprintf: extern "C" fn (out: *mut c_char, size: usize, format: *const c_char, ...) -> c_int,
+    enif_select: extern "C" fn (env: *mut ErlNifEnv, e: ErlNifEvent, flags: ErlNifSelectFlags, obj: *const c_void, pid: *const ErlNifPid, eref: ERL_NIF_TERM) -> c_int,
+    enif_open_resource_type_x: extern "C" fn (env: *mut ErlNifEnv, name_str: *const c_char, init: *const ErlNifResourceTypeInit, flags: ErlNifResourceFlags, tried: *mut ErlNifResourceFlags) -> *const ErlNifResourceType,
+    enif_monitor_process: extern "C" fn (env: *mut ErlNifEnv, obj: *const c_void, pid: *const ErlNifPid, monitor: *mut ErlNifMonitor) -> c_int,
+    enif_demonitor_process: extern "C" fn (env: *mut ErlNifEnv, obj: *const c_void,  monitor: *const ErlNifMonitor) -> c_int,
+    enif_compare_monitors: extern "C" fn (monitor1: *const ErlNifMonitor, monitor2: *const ErlNifMonitor) -> c_int,
+    enif_hash: extern "C" fn (hashtype: ErlNifHash, term: ERL_NIF_TERM, salt: u64) -> u64,
+    enif_whereis_pid: extern "C" fn (env: *mut ErlNifEnv, name: ERL_NIF_TERM, pid: *mut ErlNifPid) -> c_int,
+    enif_whereis_port: extern "C" fn (env: *mut ErlNifEnv, name: ERL_NIF_TERM, port: *mut ErlNifPort) -> c_int,
+    dummy_enif_ioq_create: extern "C" fn (),
+    dummy_enif_ioq_destroy: extern "C" fn (),
+    dummy_enif_ioq_enq_binary: extern "C" fn (),
+    dummy_enif_ioq_enqv: extern "C" fn (),
+    dummy_enif_ioq_size: extern "C" fn (),
+    dummy_enif_ioq_deq: extern "C" fn (),
+    dummy_enif_ioq_peek: extern "C" fn (),
+    dummy_enif_inspect_iovec: extern "C" fn (),
+    dummy_enif_free_iovec: extern "C" fn (),
+    dummy_enif_ioq_peek_head: extern "C" fn (),
+    dummy_enif_mutex_name: extern "C" fn (),
+    dummy_enif_cond_name: extern "C" fn (),
+    dummy_enif_rwlock_name: extern "C" fn (),
+    dummy_enif_thread_name: extern "C" fn (),
+    dummy_enif_vfprintf: extern "C" fn (),
+    dummy_enif_vsnprintf: extern "C" fn (),
+    enif_make_map_from_arrays: extern "C" fn (env: *mut ErlNifEnv, keys: *const ERL_NIF_TERM, values: *const ERL_NIF_TERM, cnt: usize, map_out: *mut ERL_NIF_TERM) -> c_int,
+    enif_select_x: extern "C" fn (),
+    enif_make_monitor_term: extern "C" fn (env: *mut ErlNifEnv, mon: *const ErlNifMonitor) -> ERL_NIF_TERM,
+    enif_is_pid_undefined: extern "C" fn (pid: *const ErlNifPid) -> c_int,
+    enif_set_pid_undefined: extern "C" fn (pid: *mut ErlNifPid),
+    enif_term_type: extern "C" fn (env: *mut ErlNifEnv, term: ERL_NIF_TERM) -> ErlNifTermType,
+}
+pub static mut WIN_DYN_NIF_CALLBACKS:Option<TWinDynNifCallbacks> = None;
+
+/// See [enif_priv_data](http://www.erlang.org/doc/man/erl_nif.html#enif_priv_data) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_priv_data(arg1: *mut ErlNifEnv)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_priv_data)(arg1)
+}
+
+/// See [enif_alloc](http://www.erlang.org/doc/man/erl_nif.html#enif_alloc) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_alloc(size: size_t)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_alloc)(size)
+}
+
+/// See [enif_free](http://www.erlang.org/doc/man/erl_nif.html#enif_free) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_free(ptr: *mut c_void)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_free)(ptr)
+}
+
+/// See [enif_is_atom](http://www.erlang.org/doc/man/erl_nif.html#enif_is_atom) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_atom(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_atom)(arg1, term)
+}
+
+/// See [enif_is_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_is_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_binary(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_binary)(arg1, term)
+}
+
+/// See [enif_is_ref](http://www.erlang.org/doc/man/erl_nif.html#enif_is_ref) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_ref(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_ref)(arg1, term)
+}
+
+/// See [enif_inspect_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_inspect_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_inspect_binary(arg1: *mut ErlNifEnv, bin_term: ERL_NIF_TERM, bin: *mut ErlNifBinary)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_inspect_binary)(arg1, bin_term, bin)
+}
+
+/// See [enif_alloc_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_alloc_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_alloc_binary(size: size_t, bin: *mut ErlNifBinary)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_alloc_binary)(size, bin)
+}
+
+/// See [enif_realloc_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_realloc_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_realloc_binary(bin: *mut ErlNifBinary, size: size_t)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_realloc_binary)(bin, size)
+}
+
+/// See [enif_release_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_release_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_release_binary(bin: *mut ErlNifBinary)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_release_binary)(bin)
+}
+
+/// See [enif_get_int](http://www.erlang.org/doc/man/erl_nif.html#enif_get_int) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_int(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_int)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_int)(arg1, term, ip)
+}
+
+/// See [enif_get_ulong](http://www.erlang.org/doc/man/erl_nif.html#enif_get_ulong) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_ulong(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_ulong)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_ulong)(arg1, term, ip)
+}
+
+/// See [enif_get_double](http://www.erlang.org/doc/man/erl_nif.html#enif_get_double) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_double(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, dp: *mut c_double)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_double)(arg1, term, dp)
+}
+
+/// See [enif_get_list_cell](http://www.erlang.org/doc/man/erl_nif.html#enif_get_list_cell) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_list_cell(env: *mut ErlNifEnv, term: ERL_NIF_TERM, head: *mut ERL_NIF_TERM, tail: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_list_cell)(env, term, head, tail)
+}
+
+/// See [enif_get_tuple](http://www.erlang.org/doc/man/erl_nif.html#enif_get_tuple) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_tuple(env: *mut ErlNifEnv, tpl: ERL_NIF_TERM, arity: *mut c_int, array: *mut *const ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_tuple)(env, tpl, arity, array)
+}
+
+/// See [enif_is_identical](http://www.erlang.org/doc/man/erl_nif.html#enif_is_identical) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_identical(lhs: ERL_NIF_TERM, rhs: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_identical)(lhs, rhs)
+}
+
+/// See [enif_compare](http://www.erlang.org/doc/man/erl_nif.html#enif_compare) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_compare(lhs: ERL_NIF_TERM, rhs: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_compare)(lhs, rhs)
+}
+
+/// See [enif_make_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_make_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_binary(env: *mut ErlNifEnv, bin: *mut ErlNifBinary)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_binary)(env, bin)
+}
+
+/// See [enif_make_badarg](http://www.erlang.org/doc/man/erl_nif.html#enif_make_badarg) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_badarg(env: *mut ErlNifEnv)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_badarg)(env)
+}
+
+/// See [enif_make_int](http://www.erlang.org/doc/man/erl_nif.html#enif_make_int) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_int(env: *mut ErlNifEnv, i: c_int)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_int)(env, i)
+}
+
+/// See [enif_make_ulong](http://www.erlang.org/doc/man/erl_nif.html#enif_make_ulong) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_ulong(env: *mut ErlNifEnv, i: c_ulong)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_ulong)(env, i)
+}
+
+/// See [enif_make_double](http://www.erlang.org/doc/man/erl_nif.html#enif_make_double) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_double(env: *mut ErlNifEnv, d: c_double)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_double)(env, d)
+}
+
+/// See [enif_make_atom](http://www.erlang.org/doc/man/erl_nif.html#enif_make_atom) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_atom(env: *mut ErlNifEnv, name: *const c_uchar)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_atom)(env, name)
+}
+
+/// See [enif_make_existing_atom](http://www.erlang.org/doc/man/erl_nif.html#enif_make_existing_atom) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_existing_atom(env: *mut ErlNifEnv, name: *const c_uchar, atom: *mut ERL_NIF_TERM, arg1: ErlNifCharEncoding)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_existing_atom)(env, name, atom, arg1)
+}
+
+#[macro_export]
+macro_rules! enif_make_tuple {
+    ( $( $arg:expr ),* ) => { $crate::get_enif_make_tuple()($($arg),*) };
+    ( $( $arg:expr ),+, ) => { enif_make_tuple!($($arg),*) };
+}
+
+pub unsafe fn get_enif_make_tuple() -> extern "C" fn (env: *mut ErlNifEnv, cnt: c_uint, ...) -> ERL_NIF_TERM {
+    WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_tuple
+}
+
+#[macro_export]
+macro_rules! enif_make_list {
+    ( $( $arg:expr ),* ) => { $crate::get_enif_make_list()($($arg),*) };
+    ( $( $arg:expr ),+, ) => { enif_make_list!($($arg),*) };
+}
+
+pub unsafe fn get_enif_make_list() -> extern "C" fn (env: *mut ErlNifEnv, cnt: c_uint, ...) -> ERL_NIF_TERM {
+    WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_list
+}
+
+/// See [enif_make_list_cell](http://www.erlang.org/doc/man/erl_nif.html#enif_make_list_cell) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_list_cell(env: *mut ErlNifEnv, car: ERL_NIF_TERM, cdr: ERL_NIF_TERM)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_list_cell)(env, car, cdr)
+}
+
+/// See [enif_make_string](http://www.erlang.org/doc/man/erl_nif.html#enif_make_string) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_string(env: *mut ErlNifEnv, string: *const c_uchar, arg1: ErlNifCharEncoding)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_string)(env, string, arg1)
+}
+
+/// See [enif_make_ref](http://www.erlang.org/doc/man/erl_nif.html#enif_make_ref) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_ref(env: *mut ErlNifEnv)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_ref)(env)
+}
+
+/// See [enif_realloc](http://www.erlang.org/doc/man/erl_nif.html#enif_realloc) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_realloc(ptr: *mut c_void, size: size_t)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_realloc)(ptr, size)
+}
+
+/// See [enif_system_info](http://www.erlang.org/doc/man/erl_nif.html#enif_system_info) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_system_info(sip: *mut ErlNifSysInfo, si_size: size_t)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_system_info)(sip, si_size)
+}
+
+#[macro_export]
+macro_rules! enif_fprintf {
+    ( $( $arg:expr ),* ) => { $crate::get_enif_fprintf()($($arg),*) };
+    ( $( $arg:expr ),+, ) => { enif_fprintf!($($arg),*) };
+}
+
+pub unsafe fn get_enif_fprintf() -> extern "C" fn (filep: *mut c_void, format: *const c_uchar, ...) -> c_int {
+    WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_fprintf
+}
+
+/// See [enif_inspect_iolist_as_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_inspect_iolist_as_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_inspect_iolist_as_binary(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, bin: *mut ErlNifBinary)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_inspect_iolist_as_binary)(arg1, term, bin)
+}
+
+/// See [enif_make_sub_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_make_sub_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_sub_binary(arg1: *mut ErlNifEnv, bin_term: ERL_NIF_TERM, pos: size_t, size: size_t)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_sub_binary)(arg1, bin_term, pos, size)
+}
+
+/// See [enif_get_string](http://www.erlang.org/doc/man/erl_nif.html#enif_get_string) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_string(arg1: *mut ErlNifEnv, list: ERL_NIF_TERM, buf: *mut c_uchar, len: c_uint, arg2: ErlNifCharEncoding)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_string)(arg1, list, buf, len, arg2)
+}
+
+/// See [enif_get_atom](http://www.erlang.org/doc/man/erl_nif.html#enif_get_atom) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_atom(arg1: *mut ErlNifEnv, atom: ERL_NIF_TERM, buf: *mut c_uchar, len: c_uint, arg2: ErlNifCharEncoding)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_atom)(arg1, atom, buf, len, arg2)
+}
+
+/// See [enif_is_fun](http://www.erlang.org/doc/man/erl_nif.html#enif_is_fun) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_fun(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_fun)(arg1, term)
+}
+
+/// See [enif_is_pid](http://www.erlang.org/doc/man/erl_nif.html#enif_is_pid) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_pid(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_pid)(arg1, term)
+}
+
+/// See [enif_is_port](http://www.erlang.org/doc/man/erl_nif.html#enif_is_port) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_port(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_port)(arg1, term)
+}
+
+/// See [enif_get_uint](http://www.erlang.org/doc/man/erl_nif.html#enif_get_uint) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_uint(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_uint)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_uint)(arg1, term, ip)
+}
+
+/// See [enif_get_long](http://www.erlang.org/doc/man/erl_nif.html#enif_get_long) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_long(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_long)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_long)(arg1, term, ip)
+}
+
+/// See [enif_make_uint](http://www.erlang.org/doc/man/erl_nif.html#enif_make_uint) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_uint(arg1: *mut ErlNifEnv, i: c_uint)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_uint)(arg1, i)
+}
+
+/// See [enif_make_long](http://www.erlang.org/doc/man/erl_nif.html#enif_make_long) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_long(arg1: *mut ErlNifEnv, i: c_long)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_long)(arg1, i)
+}
+
+/// See [enif_make_tuple_from_array](http://www.erlang.org/doc/man/erl_nif.html#enif_make_tuple_from_array) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_tuple_from_array(arg1: *mut ErlNifEnv, arr: *const ERL_NIF_TERM, cnt: c_uint)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_tuple_from_array)(arg1, arr, cnt)
+}
+
+/// See [enif_make_list_from_array](http://www.erlang.org/doc/man/erl_nif.html#enif_make_list_from_array) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_list_from_array(arg1: *mut ErlNifEnv, arr: *const ERL_NIF_TERM, cnt: c_uint)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_list_from_array)(arg1, arr, cnt)
+}
+
+/// See [enif_is_empty_list](http://www.erlang.org/doc/man/erl_nif.html#enif_is_empty_list) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_empty_list(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_empty_list)(arg1, term)
+}
+
+/// See [enif_open_resource_type](http://www.erlang.org/doc/man/erl_nif.html#enif_open_resource_type) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_open_resource_type(arg1: *mut ErlNifEnv, module_str: *const c_char, name_str: *const c_char, dtor: Option<unsafe extern "C" fn (arg1: *mut ErlNifEnv, arg2: *mut c_void)>, flags: ErlNifResourceFlags, tried: *mut ErlNifResourceFlags)
+ -> *const ErlNifResourceType{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_open_resource_type)(arg1, module_str, name_str, dtor, flags, tried)
+}
+
+/// See [enif_alloc_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_alloc_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_alloc_resource(_type: *const ErlNifResourceType, size: size_t)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_alloc_resource)(_type, size)
+}
+
+/// See [enif_release_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_release_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_release_resource(obj: *const c_void)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_release_resource)(obj)
+}
+
+/// See [enif_make_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_make_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_resource(arg1: *mut ErlNifEnv, obj: *const c_void)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_resource)(arg1, obj)
+}
+
+/// See [enif_get_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_get_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_resource(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, _type: *const ErlNifResourceType, objp: *mut *const c_void)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_resource)(arg1, term, _type, objp)
+}
+
+/// See [enif_sizeof_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_sizeof_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_sizeof_resource(obj: *const c_void)
+ -> size_t{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_sizeof_resource)(obj)
+}
+
+/// See [enif_make_new_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_make_new_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_new_binary(arg1: *mut ErlNifEnv, size: size_t, termp: *mut ERL_NIF_TERM)
+ -> *mut c_uchar{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_new_binary)(arg1, size, termp)
+}
+
+/// See [enif_is_list](http://www.erlang.org/doc/man/erl_nif.html#enif_is_list) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_list(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_list)(arg1, term)
+}
+
+/// See [enif_is_tuple](http://www.erlang.org/doc/man/erl_nif.html#enif_is_tuple) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_tuple(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_tuple)(arg1, term)
+}
+
+/// See [enif_get_atom_length](http://www.erlang.org/doc/man/erl_nif.html#enif_get_atom_length) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_atom_length(arg1: *mut ErlNifEnv, atom: ERL_NIF_TERM, len: *mut c_uint, arg2: ErlNifCharEncoding)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_atom_length)(arg1, atom, len, arg2)
+}
+
+/// See [enif_get_list_length](http://www.erlang.org/doc/man/erl_nif.html#enif_get_list_length) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_list_length(env: *mut ErlNifEnv, term: ERL_NIF_TERM, len: *mut c_uint)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_list_length)(env, term, len)
+}
+
+/// See [enif_make_atom_len](http://www.erlang.org/doc/man/erl_nif.html#enif_make_atom_len) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_atom_len(env: *mut ErlNifEnv, name: *const c_char, len: size_t)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_atom_len)(env, name, len)
+}
+
+/// See [enif_make_existing_atom_len](http://www.erlang.org/doc/man/erl_nif.html#enif_make_existing_atom_len) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_existing_atom_len(env: *mut ErlNifEnv, name: *const c_char, len: size_t, atom: *mut ERL_NIF_TERM, arg1: ErlNifCharEncoding)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_existing_atom_len)(env, name, len, atom, arg1)
+}
+
+/// See [enif_make_string_len](http://www.erlang.org/doc/man/erl_nif.html#enif_make_string_len) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_string_len(env: *mut ErlNifEnv, string: *const c_char, len: size_t, arg1: ErlNifCharEncoding)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_string_len)(env, string, len, arg1)
+}
+
+/// See [enif_alloc_env](http://www.erlang.org/doc/man/erl_nif.html#enif_alloc_env) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_alloc_env()
+ -> *mut ErlNifEnv{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_alloc_env)()
+}
+
+/// See [enif_free_env](http://www.erlang.org/doc/man/erl_nif.html#enif_free_env) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_free_env(env: *mut ErlNifEnv)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_free_env)(env)
+}
+
+/// See [enif_clear_env](http://www.erlang.org/doc/man/erl_nif.html#enif_clear_env) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_clear_env(env: *mut ErlNifEnv)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_clear_env)(env)
+}
+
+/// See [enif_send](http://www.erlang.org/doc/man/erl_nif.html#enif_send) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_send(env: *mut ErlNifEnv, to_pid: *const ErlNifPid, msg_env: *mut ErlNifEnv, msg: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_send)(env, to_pid, msg_env, msg)
+}
+
+/// See [enif_make_copy](http://www.erlang.org/doc/man/erl_nif.html#enif_make_copy) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_copy(dst_env: *mut ErlNifEnv, src_term: ERL_NIF_TERM)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_copy)(dst_env, src_term)
+}
+
+/// See [enif_self](http://www.erlang.org/doc/man/erl_nif.html#enif_self) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_self(caller_env: *mut ErlNifEnv, pid: *mut ErlNifPid)
+ -> *mut ErlNifPid{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_self)(caller_env, pid)
+}
+
+/// See [enif_get_local_pid](http://www.erlang.org/doc/man/erl_nif.html#enif_get_local_pid) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_local_pid(env: *mut ErlNifEnv, arg1: ERL_NIF_TERM, pid: *mut ErlNifPid)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_local_pid)(env, arg1, pid)
+}
+
+/// See [enif_keep_resource](http://www.erlang.org/doc/man/erl_nif.html#enif_keep_resource) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_keep_resource(obj: *const c_void)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_keep_resource)(obj)
+}
+
+/// See [enif_make_resource_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_make_resource_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_resource_binary(arg1: *mut ErlNifEnv, obj: *const c_void, data: *const c_void, size: size_t)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_resource_binary)(arg1, obj, data, size)
+}
+
+/// See [enif_get_int64](http://www.erlang.org/doc/man/erl_nif.html#enif_get_int64) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_int64(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_longlong)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_int64)(arg1, term, ip)
+}
+
+/// See [enif_get_uint64](http://www.erlang.org/doc/man/erl_nif.html#enif_get_uint64) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_uint64(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, ip: *mut c_ulonglong)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_uint64)(arg1, term, ip)
+}
+
+/// See [enif_make_int64](http://www.erlang.org/doc/man/erl_nif.html#enif_make_int64) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_int64(env: *mut ErlNifEnv, i: c_longlong)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_int64)(env, i)
+}
+
+/// See [enif_make_uint64](http://www.erlang.org/doc/man/erl_nif.html#enif_make_uint64) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_uint64(env: *mut ErlNifEnv, i: c_ulonglong)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_uint64)(env, i)
+}
+
+/// See [enif_is_exception](http://www.erlang.org/doc/man/erl_nif.html#enif_is_exception) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_exception(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_exception)(arg1, term)
+}
+
+/// See [enif_make_reverse_list](http://www.erlang.org/doc/man/erl_nif.html#enif_make_reverse_list) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_reverse_list(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM, list: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_reverse_list)(arg1, term, list)
+}
+
+/// See [enif_is_number](http://www.erlang.org/doc/man/erl_nif.html#enif_is_number) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_number(arg1: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_number)(arg1, term)
+}
+
+/// See [enif_dlopen](http://www.erlang.org/doc/man/erl_nif.html#enif_dlopen) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_dlopen(lib: *const c_char, err_handler: Option<unsafe extern "C" fn (arg1: *mut c_void, arg2: *const c_char)>, err_arg: *mut c_void)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_dlopen)(lib, err_handler, err_arg)
+}
+
+/// See [enif_dlsym](http://www.erlang.org/doc/man/erl_nif.html#enif_dlsym) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_dlsym(handle: *mut c_void, symbol: *const c_char, err_handler: Option<unsafe extern "C" fn (arg1: *mut c_void, arg2: *const c_char)>, err_arg: *mut c_void)
+ -> *mut c_void{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_dlsym)(handle, symbol, err_handler, err_arg)
+}
+
+/// See [enif_consume_timeslice](http://www.erlang.org/doc/man/erl_nif.html#enif_consume_timeslice) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_consume_timeslice(arg1: *mut ErlNifEnv, percent: c_int)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_consume_timeslice)(arg1, percent)
+}
+
+/// See [enif_is_map](http://www.erlang.org/doc/man/erl_nif.html#enif_is_map) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_map(env: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_map)(env, term)
+}
+
+/// See [enif_get_map_size](http://www.erlang.org/doc/man/erl_nif.html#enif_get_map_size) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_map_size(env: *mut ErlNifEnv, term: ERL_NIF_TERM, size: *mut size_t)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_map_size)(env, term, size)
+}
+
+/// See [enif_make_new_map](http://www.erlang.org/doc/man/erl_nif.html#enif_make_new_map) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_new_map(env: *mut ErlNifEnv)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_new_map)(env)
+}
+
+/// See [enif_make_map_put](http://www.erlang.org/doc/man/erl_nif.html#enif_make_map_put) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_map_put(env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, value: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_map_put)(env, map_in, key, value, map_out)
+}
+
+/// See [enif_get_map_value](http://www.erlang.org/doc/man/erl_nif.html#enif_get_map_value) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_map_value(env: *mut ErlNifEnv, map: ERL_NIF_TERM, key: ERL_NIF_TERM, value: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_map_value)(env, map, key, value)
+}
+
+/// See [enif_make_map_update](http://www.erlang.org/doc/man/erl_nif.html#enif_make_map_update) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_map_update(env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, value: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_map_update)(env, map_in, key, value, map_out)
+}
+
+/// See [enif_make_map_remove](http://www.erlang.org/doc/man/erl_nif.html#enif_make_map_remove) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_map_remove(env: *mut ErlNifEnv, map_in: ERL_NIF_TERM, key: ERL_NIF_TERM, map_out: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_map_remove)(env, map_in, key, map_out)
+}
+
+/// See [enif_map_iterator_create](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_create) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_create(env: *mut ErlNifEnv, map: ERL_NIF_TERM, iter: *mut ErlNifMapIterator, entry: ErlNifMapIteratorEntry)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_create)(env, map, iter, entry)
+}
+
+/// See [enif_map_iterator_destroy](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_destroy) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_destroy(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_destroy)(env, iter)
+}
+
+/// See [enif_map_iterator_is_head](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_is_head) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_is_head(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_is_head)(env, iter)
+}
+
+/// See [enif_map_iterator_is_tail](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_is_tail) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_is_tail(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_is_tail)(env, iter)
+}
+
+/// See [enif_map_iterator_next](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_next) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_next(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_next)(env, iter)
+}
+
+/// See [enif_map_iterator_prev](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_prev) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_prev(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_prev)(env, iter)
+}
+
+/// See [enif_map_iterator_get_pair](http://www.erlang.org/doc/man/erl_nif.html#enif_map_iterator_get_pair) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_map_iterator_get_pair(env: *mut ErlNifEnv, iter: *mut ErlNifMapIterator, key: *mut ERL_NIF_TERM, value: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_map_iterator_get_pair)(env, iter, key, value)
+}
+
+/// See [enif_schedule_nif](http://www.erlang.org/doc/man/erl_nif.html#enif_schedule_nif) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_schedule_nif(env: *mut ErlNifEnv, fun_name: *const c_char, flags:c_int, fp: unsafe extern "C" fn(env: *mut ErlNifEnv, argc:c_int, argv:*const ERL_NIF_TERM) -> ERL_NIF_TERM, argc:c_int, argv:*const ERL_NIF_TERM)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_schedule_nif)(env, fun_name, flags, fp, argc, argv)
+}
+
+/// See [enif_has_pending_exception](http://www.erlang.org/doc/man/erl_nif.html#enif_has_pending_exception) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_has_pending_exception(env: *mut ErlNifEnv, reason: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_has_pending_exception)(env, reason)
+}
+
+/// See [enif_raise_exception](http://www.erlang.org/doc/man/erl_nif.html#enif_raise_exception) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_raise_exception(env: *mut ErlNifEnv, reason: ERL_NIF_TERM)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_raise_exception)(env, reason)
+}
+
+/// See [enif_getenv](http://www.erlang.org/doc/man/erl_nif.html#enif_getenv) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_getenv(key: *const c_char, value: *mut c_char, value_size: *mut size_t)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_getenv)(key, value, value_size)
+}
+
+/// See [enif_monotonic_time](http://www.erlang.org/doc/man/erl_nif.html#enif_monotonic_time) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_monotonic_time(unit: ErlNifTimeUnit)
+ -> ErlNifTime{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_monotonic_time)(unit)
+}
+
+/// See [enif_time_offset](http://www.erlang.org/doc/man/erl_nif.html#enif_time_offset) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_time_offset(unit: ErlNifTimeUnit)
+ -> ErlNifTime{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_time_offset)(unit)
+}
+
+/// See [enif_convert_time_unit](http://www.erlang.org/doc/man/erl_nif.html#enif_convert_time_unit) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_convert_time_unit(time: ErlNifTime, from_unit: ErlNifTimeUnit, to_unit: ErlNifTimeUnit)
+ -> ErlNifTime{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_convert_time_unit)(time, from_unit, to_unit)
+}
+
+/// See [enif_now_time](http://www.erlang.org/doc/man/erl_nif.html#enif_now_time) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_now_time(env: *mut ErlNifEnv)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_now_time)(env)
+}
+
+/// See [enif_cpu_time](http://www.erlang.org/doc/man/erl_nif.html#enif_cpu_time) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_cpu_time(env: *mut ErlNifEnv)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_cpu_time)(env)
+}
+
+/// See [enif_make_unique_integer](http://www.erlang.org/doc/man/erl_nif.html#enif_make_unique_integer) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_unique_integer(env: *mut ErlNifEnv, properties: ErlNifUniqueInteger)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_unique_integer)(env, properties)
+}
+
+/// See [enif_is_current_process_alive](http://www.erlang.org/doc/man/erl_nif.html#enif_is_current_process_alive) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_current_process_alive(env: *mut ErlNifEnv)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_current_process_alive)(env)
+}
+
+/// See [enif_is_process_alive](http://www.erlang.org/doc/man/erl_nif.html#enif_is_process_alive) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_process_alive(env: *mut ErlNifEnv, pid: *const ErlNifPid)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_process_alive)(env, pid)
+}
+
+/// See [enif_is_port_alive](http://www.erlang.org/doc/man/erl_nif.html#enif_is_port_alive) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_port_alive(env: *mut ErlNifEnv, port_id: *const ErlNifPort)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_port_alive)(env, port_id)
+}
+
+/// See [enif_get_local_port](http://www.erlang.org/doc/man/erl_nif.html#enif_get_local_port) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_get_local_port(env: *mut ErlNifEnv, term: ERL_NIF_TERM, port_id: *mut ErlNifPort)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_get_local_port)(env, term, port_id)
+}
+
+/// See [enif_term_to_binary](http://www.erlang.org/doc/man/erl_nif.html#enif_term_to_binary) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_term_to_binary(env: *mut ErlNifEnv, term: ERL_NIF_TERM, bin: *mut ErlNifBinary)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_term_to_binary)(env, term, bin)
+}
+
+/// See [enif_binary_to_term](http://www.erlang.org/doc/man/erl_nif.html#enif_binary_to_term) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_binary_to_term(env: *mut ErlNifEnv, data: *const c_uchar, sz: usize, term: *mut ERL_NIF_TERM, opts: ErlNifBinaryToTerm)
+ -> usize{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_binary_to_term)(env, data, sz, term, opts)
+}
+
+/// See [enif_port_command](http://www.erlang.org/doc/man/erl_nif.html#enif_port_command) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_port_command(env: *mut ErlNifEnv, to_port: *const ErlNifPort, msg_env: *mut ErlNifEnv, msg: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_port_command)(env, to_port, msg_env, msg)
+}
+
+/// See [enif_thread_type](http://www.erlang.org/doc/man/erl_nif.html#enif_thread_type) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_thread_type()
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_thread_type)()
+}
+
+#[macro_export]
+macro_rules! enif_snprintf {
+    ( $( $arg:expr ),* ) => { $crate::get_enif_snprintf()($($arg),*) };
+    ( $( $arg:expr ),+, ) => { enif_snprintf!($($arg),*) };
+}
+
+pub unsafe fn get_enif_snprintf() -> extern "C" fn (out: *mut c_char, size: usize, format: *const c_char, ...) -> c_int {
+    WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_snprintf
+}
+
+/// See [enif_select](http://www.erlang.org/doc/man/erl_nif.html#enif_select) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_select(env: *mut ErlNifEnv, e: ErlNifEvent, flags: ErlNifSelectFlags, obj: *const c_void, pid: *const ErlNifPid, eref: ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_select)(env, e, flags, obj, pid, eref)
+}
+
+/// See [enif_open_resource_type_x](http://www.erlang.org/doc/man/erl_nif.html#enif_open_resource_type_x) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_open_resource_type_x(env: *mut ErlNifEnv, name_str: *const c_char, init: *const ErlNifResourceTypeInit, flags: ErlNifResourceFlags, tried: *mut ErlNifResourceFlags)
+ -> *const ErlNifResourceType{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_open_resource_type_x)(env, name_str, init, flags, tried)
+}
+
+/// See [enif_monitor_process](http://www.erlang.org/doc/man/erl_nif.html#enif_monitor_process) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_monitor_process(env: *mut ErlNifEnv, obj: *const c_void, pid: *const ErlNifPid, monitor: *mut ErlNifMonitor)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_monitor_process)(env, obj, pid, monitor)
+}
+
+/// See [enif_demonitor_process](http://www.erlang.org/doc/man/erl_nif.html#enif_demonitor_process) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_demonitor_process(env: *mut ErlNifEnv, obj: *const c_void,  monitor: *const ErlNifMonitor)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_demonitor_process)(env, obj,  monitor)
+}
+
+/// See [enif_compare_monitors](http://www.erlang.org/doc/man/erl_nif.html#enif_compare_monitors) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_compare_monitors(monitor1: *const ErlNifMonitor, monitor2: *const ErlNifMonitor)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_compare_monitors)(monitor1, monitor2)
+}
+
+/// See [enif_hash](http://www.erlang.org/doc/man/erl_nif.html#enif_hash) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_hash(hashtype: ErlNifHash, term: ERL_NIF_TERM, salt: u64)
+ -> u64{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_hash)(hashtype, term, salt)
+}
+
+/// See [enif_whereis_pid](http://www.erlang.org/doc/man/erl_nif.html#enif_whereis_pid) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_whereis_pid(env: *mut ErlNifEnv, name: ERL_NIF_TERM, pid: *mut ErlNifPid)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_whereis_pid)(env, name, pid)
+}
+
+/// See [enif_whereis_port](http://www.erlang.org/doc/man/erl_nif.html#enif_whereis_port) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_whereis_port(env: *mut ErlNifEnv, name: ERL_NIF_TERM, port: *mut ErlNifPort)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_whereis_port)(env, name, port)
+}
+
+/// See [enif_make_map_from_arrays](http://www.erlang.org/doc/man/erl_nif.html#enif_make_map_from_arrays) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_map_from_arrays(env: *mut ErlNifEnv, keys: *const ERL_NIF_TERM, values: *const ERL_NIF_TERM, cnt: usize, map_out: *mut ERL_NIF_TERM)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_map_from_arrays)(env, keys, values, cnt, map_out)
+}
+
+/// See [enif_make_monitor_term](http://www.erlang.org/doc/man/erl_nif.html#enif_make_monitor_term) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_make_monitor_term(env: *mut ErlNifEnv, mon: *const ErlNifMonitor)
+ -> ERL_NIF_TERM{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_make_monitor_term)(env, mon)
+}
+
+/// See [enif_is_pid_undefined](http://www.erlang.org/doc/man/erl_nif.html#enif_is_pid_undefined) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_is_pid_undefined(pid: *const ErlNifPid)
+ -> c_int{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_is_pid_undefined)(pid)
+}
+
+/// See [enif_set_pid_undefined](http://www.erlang.org/doc/man/erl_nif.html#enif_set_pid_undefined) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_set_pid_undefined(pid: *mut ErlNifPid)
+{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_set_pid_undefined)(pid)
+}
+
+/// See [enif_term_type](http://www.erlang.org/doc/man/erl_nif.html#enif_term_type) in the Erlang docs.
+#[inline]
+pub unsafe extern "C" fn enif_term_type(env: *mut ErlNifEnv, term: ERL_NIF_TERM)
+ -> ErlNifTermType{
+    (WIN_DYN_NIF_CALLBACKS.unchecked_unwrap().enif_term_type)(env, term)
+}
+
+use std::os::raw::{c_ulonglong, c_longlong};
