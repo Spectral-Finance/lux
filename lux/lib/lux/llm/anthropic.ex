@@ -5,6 +5,7 @@ defmodule Lux.LLM.Anthropic do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -206,5 +207,38 @@ defmodule Lux.LLM.Anthropic do
 
   defp handle_error_response(response) do
     {:error, "Error calling Anthropic API: #{inspect(response.body)}"}
+  end
+
+  # Lux.LLM.Provider callbacks
+
+  @doc """
+  Returns the list of available Anthropic models.
+  """
+  def models do
+    Application.get_env(:lux, :anthropic_models, [])[:available] ||
+      ["claude-3-opus", "claude-3-sonnet", "claude-3-haiku", "claude-3.5-sonnet"]
+  end
+
+  @doc """
+  Estimates the cost in USD for a given model and token counts.
+  """
+  def estimate_cost(model, input_tokens, output_tokens) do
+    costs = %{
+      "claude-3-opus"     => %{input: 0.000015, output: 0.000075},
+      "claude-3-sonnet"   => %{input: 0.000003, output: 0.000015},
+      "claude-3-haiku"    => %{input: 0.00000025, output: 0.00000125},
+      "claude-3.5-sonnet" => %{input: 0.000003, output: 0.000015}
+    }
+
+    c = Map.get(costs, model, %{input: 0.000003, output: 0.000015})
+    Float.round(input_tokens * c.input + output_tokens * c.output, 6)
+  end
+
+  @doc """
+  Checks if Anthropic is available (API key is configured).
+  """
+  def available? do
+    key = Application.get_env(:lux, :api_keys, [])[:anthropic]
+    key != nil and key != ""
   end
 end
