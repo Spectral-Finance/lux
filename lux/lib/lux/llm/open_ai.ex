@@ -4,6 +4,7 @@ defmodule Lux.LLM.OpenAI do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -339,5 +340,39 @@ defmodule Lux.LLM.OpenAI do
   defp handle_error(error) do
     Logger.error("OpenAI API error: #{inspect(error)}")
     {:error, "OpenAI API error: #{inspect(error)}"}
+  end
+
+  # Lux.LLM.Provider callbacks
+
+  @doc """
+  Returns the list of available OpenAI models.
+  """
+  def models do
+    Application.get_env(:lux, :open_ai_models, [])[:available] ||
+      ["gpt-4", "gpt-4-turbo", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"]
+  end
+
+  @doc """
+  Estimates the cost in USD for a given model and token counts.
+  """
+  def estimate_cost(model, input_tokens, output_tokens) do
+    costs = %{
+      "gpt-4"         => %{input: 0.00003, output: 0.00006},
+      "gpt-4-turbo"   => %{input: 0.00001, output: 0.00003},
+      "gpt-4o"        => %{input: 0.000005, output: 0.000015},
+      "gpt-4o-mini"   => %{input: 0.00000015, output: 0.0000006},
+      "gpt-3.5-turbo" => %{input: 0.0000005, output: 0.0000015}
+    }
+
+    c = Map.get(costs, model, %{input: 0.00001, output: 0.00003})
+    Float.round(input_tokens * c.input + output_tokens * c.output, 6)
+  end
+
+  @doc """
+  Checks if OpenAI is available (API key is configured).
+  """
+  def available? do
+    key = Application.get_env(:lux, :api_keys, [])[:openai]
+    key != nil and key != ""
   end
 end
