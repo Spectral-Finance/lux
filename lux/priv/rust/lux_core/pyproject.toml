@@ -1,0 +1,29 @@
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "lux-core"
+version = "0.1.0"
+description = "Rust core integration for the Lux framework"
+requires-python = ">=3.12"
+license = {text = "MIT"}
+authors = [
+    {name = "Spectral Finance", email = "team@spectrallabs.xyz"}
+]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+module-name = "lux_core"
+python-source = "python"
+python-packages = ["lux_core"]
