@@ -72,6 +72,15 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the YouTube OAuth2 access token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec youtube_access_token() :: api_key()
+  def youtube_access_token do
+    get_required_key(:api_keys, :youtube)
+  end
+
+  @doc """
   Gets the Etherscan API key from configuration.
   Raises if the key is not configured.
   """
