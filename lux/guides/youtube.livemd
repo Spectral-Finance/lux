@@ -1,0 +1,170 @@
+# YouTube Data API v3 Integration for Lux
+
+This guide shows how to use the Lux YouTube integration added for issue #68.
+It uses YouTube Data API v3 OAuth2 bearer tokens and follows Lux conventions:
+
+- Lenses read YouTube resources.
+- Prisms create/update/transition YouTube resources.
+- Tests use `Req.Test`; no real Google credentials are required for unit tests.
+
+## Configuration
+
+YouTube write operations require OAuth2 scopes such as:
+
+- `https://www.googleapis.com/auth/youtube.readonly` for read-only lenses
+- `https://www.googleapis.com/auth/youtube` for uploads and metadata writes
+- `https://www.googleapis.com/auth/youtube.force-ssl` for live chat messages
+
+Set the access token in runtime config:
+
+```bash
+export YOUTUBE_ACCESS_TOKEN="ya29.example-oauth-access-token"
+```
+
+`config/runtime.exs` maps this to:
+
+```elixir
+config :lux, :api_keys,
+  youtube: env!("YOUTUBE_ACCESS_TOKEN", :string!, required: false)
+```
+
+You can also set it directly in tests or local scripts:
+
+```elixir
+Application.put_env(:lux, :api_keys, youtube: "test-youtube-token")
+```
+
+## Read examples
+
+Fetch video metadata:
+
+```elixir
+alias Lux.Lenses.YouTube.Videos.GetVideo
+
+GetVideo.focus(%{id: "VIDEO_ID"})
+```
+
+List popular videos with pagination:
+
+```elixir
+alias Lux.Lenses.YouTube.Videos.ListVideos
+
+ListVideos.focus(%{
+  chart: "mostPopular",
+  max_results: 10,
+  page_token: "NEXT_PAGE_TOKEN"
+})
+```
+
+Get live broadcast status:
+
+```elixir
+alias Lux.Lenses.YouTube.LiveBroadcasts.GetBroadcast
+
+GetBroadcast.focus(%{id: "BROADCAST_ID"})
+```
+
+List upcoming broadcasts:
+
+```elixir
+alias Lux.Lenses.YouTube.LiveBroadcasts.ListBroadcasts
+
+ListBroadcasts.focus(%{broadcast_status: "upcoming"})
+```
+
+Get stream health and CDN quality:
+
+```elixir
+alias Lux.Lenses.YouTube.LiveStreams.GetStreamHealth
+
+GetStreamHealth.focus(%{id: "STREAM_ID"})
+```
+
+List live chat messages:
+
+```elixir
+alias Lux.Lenses.YouTube.LiveChat.ListMessages
+
+ListMessages.focus(%{live_chat_id: "CHAT_ID", max_results: 50})
+```
+
+## Write examples
+
+Create a scheduled live broadcast:
+
+```elixir
+alias Lux.Prisms.YouTube.LiveBroadcasts.InsertBroadcast
+
+InsertBroadcast.handler(%{
+  title: "Lux Demo Stream",
+  scheduled_start_time: "2026-05-06T18:00:00Z",
+  privacy_status: "private",
+  enable_auto_start: false,
+  enable_auto_stop: false
+}, %{name: "Lux Agent"})
+```
+
+Create a live stream with quality controls:
+
+```elixir
+alias Lux.Prisms.YouTube.LiveStreams.InsertStream
+
+InsertStream.handler(%{
+  title: "Primary RTMP 1080p",
+  ingestion_type: "rtmp",
+  resolution: "1080p",
+  frame_rate: "60fps"
+}, %{name: "Lux Agent"})
+```
+
+Bind stream to broadcast:
+
+```elixir
+alias Lux.Prisms.YouTube.LiveBroadcasts.BindStream
+
+BindStream.handler(%{id: "BROADCAST_ID", stream_id: "STREAM_ID"}, %{name: "Lux Agent"})
+```
+
+Transition broadcast lifecycle:
+
+```elixir
+alias Lux.Prisms.YouTube.LiveBroadcasts.TransitionBroadcast
+
+TransitionBroadcast.handler(%{id: "BROADCAST_ID", broadcast_status: "testing"}, %{name: "Lux Agent"})
+TransitionBroadcast.handler(%{id: "BROADCAST_ID", broadcast_status: "live"}, %{name: "Lux Agent"})
+TransitionBroadcast.handler(%{id: "BROADCAST_ID", broadcast_status: "complete"}, %{name: "Lux Agent"})
+```
+
+Start a resumable upload session:
+
+```elixir
+alias Lux.Prisms.YouTube.Videos.InsertVideo
+
+InsertVideo.handler(%{
+  title: "Lux Upload Demo",
+  description: "Uploaded through Lux",
+  privacy_status: "private",
+  mime_type: "video/mp4",
+  content_length: 1_048_576
+}, %{name: "Lux Agent"})
+```
+
+Send a live chat message:
+
+```elixir
+alias Lux.Prisms.YouTube.LiveChat.InsertMessage
+
+InsertMessage.handler(%{live_chat_id: "CHAT_ID", text: "Hello from Lux"}, %{name: "Lux Agent"})
+```
+
+## Testing
+
+Run the YouTube unit tests:
+
+```bash
+mix test.unit test/unit/lux/integrations/youtube/client_test.exs test/unit/lux/lenses/youtube test/unit/lux/prisms/youtube
+```
+
+The tests assert request method, path, query parameters, OAuth bearer header, JSON payloads,
+error mapping, upload session handling, lifecycle transition validation, live chat payloads,
+and stream quality validation.
