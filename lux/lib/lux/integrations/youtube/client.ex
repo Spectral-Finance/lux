@@ -31,6 +31,18 @@ defmodule Lux.Integrations.YouTube.Client do
     |> handle_response()
   end
 
+  @doc "Uploads bytes to a resumable YouTube upload-session URL."
+  @spec upload_content(String.t(), binary(), request_opts()) :: {:ok, map()} | {:error, term()}
+  def upload_content(upload_url, body, opts \\ %{}) do
+    [method: :put, url: upload_url, body: body]
+    |> Keyword.put(:headers, opts[:headers] || [])
+    |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
+    |> maybe_add_plug(opts[:plug])
+    |> Req.new()
+    |> Req.request()
+    |> handle_response()
+  end
+
   defp endpoint(:upload), do: @upload_endpoint
   defp endpoint(_), do: @data_endpoint
 
