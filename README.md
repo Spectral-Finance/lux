@@ -39,6 +39,7 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Multi-Agent Collaboration](lux/guides/multi_agent_collaboration.livemd) - Build collaborative systems
 - [Trading System](lux/guides/trading_system.livemd) - Complete crypto trading example
 - [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
+- [YouTube Integration](lux/guides/youtube.livemd) - YouTube Data API v3 video and live streaming workflows
 - [Role Management](lux/guides/role_management.md) - Managing agent roles
 - [Companies](lux/guides/companies.md) - Organizing agents into companies
 
@@ -103,6 +104,7 @@ Check out these examples to see Lux in action:
 - [Trading System](lux/guides/trading_system.livemd): A complete crypto trading system
 - [Content Creation](lux/guides/running_a_company.livemd): Multi-agent content creation pipeline
 - [Research Assistant](lux/guides/multi_agent_collaboration.livemd): Collaborative research system
+- [YouTube Integration](lux/guides/youtube.livemd): YouTube Data API v3 videos, channels, search, and live streaming
 
 ## Contributing
 
