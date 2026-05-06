@@ -4,7 +4,8 @@ defmodule Lux.LLM.Anthropic do
   Integration with Anthropic's Claude models for high-performance inference.
   """
 
-  @behaviour Lux.LLM
+  
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -50,6 +51,90 @@ defmodule Lux.LLM.Anthropic do
               token_cache_enabled: true,
               load_balancing_enabled: true
   end
+
+  # ──────────────────────────────────────
+  # Lux.LLM.Provider callbacks
+  # ──────────────────────────────────────
+
+  @impl Lux.LLM.Provider
+  def models do
+    [
+      "claude-3-opus-20240229",
+      "claude-3-sonnet-20240229",
+      "claude-3-haiku-20240307",
+      "claude-3.5-sonnet-20241022",
+      "claude-3.5-haiku-20241022",
+      "claude-opus-4-20250514",
+      "claude-sonnet-4-20250514"
+    ]
+  end
+
+  @impl Lux.LLM.Provider
+  def models(criteria) do
+    supported = models()
+
+    Enum.reduce(criteria, supported, fn
+      {:capability, :vision}, acc ->
+        Enum.filter(acc, &(String.contains?(&1, "opus") || String.contains?(&1, "sonnet")))
+
+      {:capability, :tools}, acc ->
+        acc
+
+      {:max_cost, max_cost}, acc ->
+        Enum.filter(acc, fn model ->
+          case cost(model) do
+            {:ok, %{input_per_1k_tokens: input, output_per_1k_tokens: output}} ->
+              input + output <= max_cost
+
+            _ ->
+              false
+          end
+        end)
+
+      _, acc ->
+        acc
+    end)
+  end
+
+  @impl Lux.LLM.Provider
+  def cost("claude-3-opus-20240229"), do: {:ok, %{model: "claude-3-opus-20240229", input_per_1k_tokens: 0.015, output_per_1k_tokens: 0.075, currency: "USD"}}
+  def cost("claude-3-sonnet-20240229"), do: {:ok, %{model: "claude-3-sonnet-20240229", input_per_1k_tokens: 0.003, output_per_1k_tokens: 0.015, currency: "USD"}}
+  def cost("claude-3-haiku-20240307"), do: {:ok, %{model: "claude-3-haiku-20240307", input_per_1k_tokens: 0.00025, output_per_1k_tokens: 0.00125, currency: "USD"}}
+  def cost("claude-3.5-sonnet-20241022"), do: {:ok, %{model: "claude-3.5-sonnet-20241022", input_per_1k_tokens: 0.003, output_per_1k_tokens: 0.015, currency: "USD"}}
+  def cost("claude-3.5-haiku-20241022"), do: {:ok, %{model: "claude-3.5-haiku-20241022", input_per_1k_tokens: 0.0008, output_per_1k_tokens: 0.004, currency: "USD"}}
+  def cost("claude-opus-4-20250514"), do: {:ok, %{model: "claude-opus-4-20250514", input_per_1k_tokens: 0.012, output_per_1k_tokens: 0.060, currency: "USD"}}
+  def cost("claude-sonnet-4-20250514"), do: {:ok, %{model: "claude-sonnet-4-20250514", input_per_1k_tokens: 0.003, output_per_1k_tokens: 0.015, currency: "USD"}}
+  def cost(_), do: {:error, :unknown_model}
+
+  @impl Lux.LLM.Provider
+  def capabilities do
+    [:chat, :tools, :streaming, :vision, :caching]
+  end
+
+  @impl Lux.LLM.Provider
+  def default_config do
+    %Config{}
+  end
+
+  @impl Lux.LLM.Provider
+  def metadata do
+    %{
+      name: "Anthropic",
+      module: __MODULE__,
+      description: "Anthropic Claude models for high-performance inference",
+      models: models(),
+      capabilities: capabilities(),
+      cost_per_1k_input_tokens: 0.003,
+      cost_per_1k_output_tokens: 0.015,
+      priority: 2,
+      enabled: true,
+      tags: ["anthropic", "claude"]
+    }
+  end
+
+  # ──────────────────────────────────────
+  # Lux.LLM callbacks
+  # ──────────────────────────────────────
 
   @impl true
   def call(prompt, tools, config) do

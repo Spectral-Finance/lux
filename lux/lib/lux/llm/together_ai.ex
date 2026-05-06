@@ -3,7 +3,8 @@ defmodule Lux.LLM.TogetherAI do
     Together AI LLM implementation that supports passing Beams, Prisms, and Lenses as tools.
     """
 
-    @behaviour Lux.LLM
+    
+    @behaviour Lux.LLM.Provider
 
     alias Lux.Beam
     alias Lux.Lens
@@ -46,6 +47,89 @@ defmodule Lux.LLM.TogetherAI do
                 user: nil,
                 messages: []
     end
+
+    # ──────────────────────────────────────
+    # Lux.LLM.Provider callbacks
+    # ──────────────────────────────────────
+
+    @impl Lux.LLM.Provider
+    def models do
+      [
+        "mistral-7b-instruct",
+        "mixtral-8x7b-instruct",
+        "llama-3.1-8b-instruct",
+        "llama-3.1-70b-instruct",
+        "llama-3.1-405b-instruct",
+        "deepseek-r1",
+        "deepseek-v3",
+        "Qwen2.5-72B-Instruct-Turbo"
+      ]
+    end
+
+    @impl Lux.LLM.Provider
+    def models(criteria) do
+      supported = models()
+
+      Enum.reduce(criteria, supported, fn
+        {:capability, :tools}, acc ->
+          acc
+
+        {:max_cost, max_cost}, acc ->
+          Enum.filter(acc, fn model ->
+            case cost(model) do
+              {:ok, %{input_per_1k_tokens: input, output_per_1k_tokens: output}} ->
+                input + output <= max_cost
+
+              _ ->
+                false
+            end
+          end)
+
+        _, acc ->
+          acc
+      end)
+    end
+
+    @impl Lux.LLM.Provider
+    def cost("mistral-7b-instruct"), do: {:ok, %{model: "mistral-7b-instruct", input_per_1k_tokens: 0.0002, output_per_1k_tokens: 0.0002, currency: "USD"}}
+    def cost("mixtral-8x7b-instruct"), do: {:ok, %{model: "mixtral-8x7b-instruct", input_per_1k_tokens: 0.0006, output_per_1k_tokens: 0.0006, currency: "USD"}}
+    def cost("llama-3.1-8b-instruct"), do: {:ok, %{model: "llama-3.1-8b-instruct", input_per_1k_tokens: 0.00018, output_per_1k_tokens: 0.00018, currency: "USD"}}
+    def cost("llama-3.1-70b-instruct"), do: {:ok, %{model: "llama-3.1-70b-instruct", input_per_1k_tokens: 0.00088, output_per_1k_tokens: 0.00088, currency: "USD"}}
+    def cost("llama-3.1-405b-instruct"), do: {:ok, %{model: "llama-3.1-405b-instruct", input_per_1k_tokens: 0.002, output_per_1k_tokens: 0.0025, currency: "USD"}}
+    def cost("deepseek-r1"), do: {:ok, %{model: "deepseek-r1", input_per_1k_tokens: 0.0005, output_per_1k_tokens: 0.002, currency: "USD"}}
+    def cost("deepseek-v3"), do: {:ok, %{model: "deepseek-v3", input_per_1k_tokens: 0.0005, output_per_1k_tokens: 0.002, currency: "USD"}}
+    def cost("Qwen2.5-72B-Instruct-Turbo"), do: {:ok, %{model: "Qwen2.5-72B-Instruct-Turbo", input_per_1k_tokens: 0.0005, output_per_1k_tokens: 0.0005, currency: "USD"}}
+    def cost(_), do: {:error, :unknown_model}
+
+    @impl Lux.LLM.Provider
+    def capabilities do
+      [:chat, :tools, :streaming]
+    end
+
+    @impl Lux.LLM.Provider
+    def default_config do
+      %Config{}
+    end
+
+    @impl Lux.LLM.Provider
+    def metadata do
+      %{
+        name: "Together AI",
+        module: __MODULE__,
+        description: "Together AI open-source model inference",
+        models: models(),
+        capabilities: capabilities(),
+        cost_per_1k_input_tokens: 0.0002,
+        cost_per_1k_output_tokens: 0.0002,
+        priority: 3,
+        enabled: true,
+        tags: ["together", "open-source", "llama", "mistral", "deepseek"]
+      }
+    end
+
+    # ──────────────────────────────────────
+    # Lux.LLM callbacks
+    # ──────────────────────────────────────
 
     @impl true
     def call(prompt, tools, config) do
