@@ -3,7 +3,8 @@ defmodule Lux.LLM.OpenAI do
   OpenAI LLM implementation that supports passing Beams, Prisms, and Lenses as tools.
   """
 
-  @behaviour Lux.LLM
+  
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -56,6 +57,104 @@ defmodule Lux.LLM.OpenAI do
               user: nil,
               messages: []
   end
+
+  # ──────────────────────────────────────
+  # Lux.LLM.Provider callbacks
+  # ──────────────────────────────────────
+
+  @impl Lux.LLM.Provider
+  def models do
+    [
+      "gpt-4o",
+      "gpt-4o-mini",
+      "gpt-4-turbo",
+      "gpt-4",
+      "gpt-4.1",
+      "gpt-4.1-nano",
+      "gpt-4.1-mini",
+      "o3",
+      "o3-mini",
+      "o1",
+      "o1-mini"
+    ]
+  end
+
+  @impl Lux.LLM.Provider
+  def models(criteria) do
+    supported = models()
+
+    Enum.reduce(criteria, supported, fn
+      {:capability, :vision}, acc ->
+        # Models that support vision
+        Enum.filter(acc, &(&1 in ~w(gpt-4o gpt-4o-mini gpt-4-turbo gpt-4.1)))
+
+      {:capability, :json_mode}, acc ->
+        # All GPT-4 models support JSON mode
+        Enum.filter(acc, &(String.starts_with?(&1, "gpt-4") || String.starts_with?(&1, "o")))
+
+      {:capability, :tools}, acc ->
+        # All models support tool calling
+        acc
+
+      {:max_cost, max_cost}, acc ->
+        Enum.filter(acc, fn model ->
+          case cost(model) do
+            {:ok, %{input_per_1k_tokens: input, output_per_1k_tokens: output}} ->
+              input + output <= max_cost
+
+            _ ->
+              false
+          end
+        end)
+
+      _, acc ->
+        acc
+    end)
+  end
+
+  @impl Lux.LLM.Provider
+  def cost("gpt-4o"), do: {:ok, %{model: "gpt-4o", input_per_1k_tokens: 0.0025, output_per_1k_tokens: 0.01, currency: "USD"}}
+  def cost("gpt-4o-mini"), do: {:ok, %{model: "gpt-4o-mini", input_per_1k_tokens: 0.00015, output_per_1k_tokens: 0.0006, currency: "USD"}}
+  def cost("gpt-4-turbo"), do: {:ok, %{model: "gpt-4-turbo", input_per_1k_tokens: 0.01, output_per_1k_tokens: 0.03, currency: "USD"}}
+  def cost("gpt-4"), do: {:ok, %{model: "gpt-4", input_per_1k_tokens: 0.03, output_per_1k_tokens: 0.06, currency: "USD"}}
+  def cost("gpt-4.1"), do: {:ok, %{model: "gpt-4.1", input_per_1k_tokens: 0.002, output_per_1k_tokens: 0.008, currency: "USD"}}
+  def cost("gpt-4.1-mini"), do: {:ok, %{model: "gpt-4.1-mini", input_per_1k_tokens: 0.0004, output_per_1k_tokens: 0.0016, currency: "USD"}}
+  def cost("gpt-4.1-nano"), do: {:ok, %{model: "gpt-4.1-nano", input_per_1k_tokens: 0.0001, output_per_1k_tokens: 0.0004, currency: "USD"}}
+  def cost("o3"), do: {:ok, %{model: "o3", input_per_1k_tokens: 0.01, output_per_1k_tokens: 0.04, currency: "USD"}}
+  def cost("o3-mini"), do: {:ok, %{model: "o3-mini", input_per_1k_tokens: 0.0011, output_per_1k_tokens: 0.0044, currency: "USD"}}
+  def cost("o1"), do: {:ok, %{model: "o1", input_per_1k_tokens: 0.015, output_per_1k_tokens: 0.06, currency: "USD"}}
+  def cost("o1-mini"), do: {:ok, %{model: "o1-mini", input_per_1k_tokens: 0.0011, output_per_1k_tokens: 0.0044, currency: "USD"}}
+  def cost(_), do: {:error, :unknown_model}
+
+  @impl Lux.LLM.Provider
+  def capabilities do
+    [:chat, :tools, :streaming, :vision, :json_mode]
+  end
+
+  @impl Lux.LLM.Provider
+  def default_config do
+    %Config{}
+  end
+
+  @impl Lux.LLM.Provider
+  def metadata do
+    %{
+      name: "OpenAI",
+      module: __MODULE__,
+      description: "OpenAI GPT-4 and o-series models",
+      models: models(),
+      capabilities: capabilities(),
+      cost_per_1k_input_tokens: 0.0025,
+      cost_per_1k_output_tokens: 0.01,
+      priority: 1,
+      enabled: true,
+      tags: ["openai", "gpt", "o-series"]
+    }
+  end
+
+  # ──────────────────────────────────────
+  # Lux.LLM callbacks
+  # ──────────────────────────────────────
 
   @impl true
   def call(prompt, tools, config) do
@@ -208,7 +307,6 @@ defmodule Lux.LLM.OpenAI do
     %{
       type: "function",
       function: %{
-        # OpenAI function names must be [a-zA-Z0-9_-]
         name: String.replace(name, ".", "_"),
         description: description || "",
         parameters: input_schema

@@ -10,7 +10,10 @@ defmodule Lux.Application do
       {Task.Supervisor, name: Lux.ScheduledTasksSupervisor},
       Lux.NodeJS,
       {Lux.Agent.Supervisor, []},
-      Lux.AgentHub
+      Lux.AgentHub,
+      # LLM Provider Registry and Monitoring
+      Supervisor.child_spec({Task, fn -> Lux.LLM.Registry.start_link() end}, id: :llm_registry),
+      Supervisor.child_spec({Task, fn -> Lux.LLM.Monitoring.start_link() end}, id: :llm_monitoring)
     ] ++ optional_children()
 
     opts = [strategy: :one_for_one, name: Lux.Supervisor]

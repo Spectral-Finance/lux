@@ -3,7 +3,8 @@ defmodule Lux.LLM.Mira do
   Mira Network LLM implementation that supports passing Beams, Prisms, and Lenses as tools.
   """
 
-  @behaviour Lux.LLM
+  
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -38,6 +39,83 @@ defmodule Lux.LLM.Mira do
               stream: false,
               messages: []
   end
+
+  # ──────────────────────────────────────
+  # Lux.LLM.Provider callbacks
+  # ──────────────────────────────────────
+
+  @impl Lux.LLM.Provider
+  def models do
+    [
+      "llama-3.1-8b-instruct",
+      "llama-3.1-70b-instruct",
+      "llama-3.1-405b-instruct",
+      "mixtral-8x7b-instruct",
+      "mixtral-8x22b-instruct"
+    ]
+  end
+
+  @impl Lux.LLM.Provider
+  def models(criteria) do
+    supported = models()
+
+    Enum.reduce(criteria, supported, fn
+      {:capability, :tools}, acc ->
+        acc
+
+      {:max_cost, max_cost}, acc ->
+        Enum.filter(acc, fn model ->
+          case cost(model) do
+            {:ok, %{input_per_1k_tokens: input, output_per_1k_tokens: output}} ->
+              input + output <= max_cost
+
+            _ ->
+              false
+          end
+        end)
+
+      _, acc ->
+        acc
+    end)
+  end
+
+  @impl Lux.LLM.Provider
+  def cost("llama-3.1-8b-instruct"), do: {:ok, %{model: "llama-3.1-8b-instruct", input_per_1k_tokens: 0.0002, output_per_1k_tokens: 0.0002, currency: "USD"}}
+  def cost("llama-3.1-70b-instruct"), do: {:ok, %{model: "llama-3.1-70b-instruct", input_per_1k_tokens: 0.0007, output_per_1k_tokens: 0.0009, currency: "USD"}}
+  def cost("llama-3.1-405b-instruct"), do: {:ok, %{model: "llama-3.1-405b-instruct", input_per_1k_tokens: 0.002, output_per_1k_tokens: 0.0025, currency: "USD"}}
+  def cost("mixtral-8x7b-instruct"), do: {:ok, %{model: "mixtral-8x7b-instruct", input_per_1k_tokens: 0.0005, output_per_1k_tokens: 0.0005, currency: "USD"}}
+  def cost("mixtral-8x22b-instruct"), do: {:ok, %{model: "mixtral-8x22b-instruct", input_per_1k_tokens: 0.001, output_per_1k_tokens: 0.001, currency: "USD"}}
+  def cost(_), do: {:error, :unknown_model}
+
+  @impl Lux.LLM.Provider
+  def capabilities do
+    [:chat, :tools, :streaming]
+  end
+
+  @impl Lux.LLM.Provider
+  def default_config do
+    %Config{}
+  end
+
+  @impl Lux.LLM.Provider
+  def metadata do
+    %{
+      name: "Mira Network",
+      module: __MODULE__,
+      description: "Mira Network open-source models",
+      models: models(),
+      capabilities: capabilities(),
+      cost_per_1k_input_tokens: 0.0002,
+      cost_per_1k_output_tokens: 0.0002,
+      priority: 4,
+      enabled: true,
+      tags: ["mira", "open-source", "llama", "mixtral"]
+    }
+  end
+
+  # ──────────────────────────────────────
+  # Lux.LLM callbacks
+  # ──────────────────────────────────────
 
   @impl true
   def call(prompt, tools, config) do
@@ -207,4 +285,4 @@ defmodule Lux.LLM.Mira do
     Logger.error("Error calling Mira Network API: #{inspect(error)}")
     {:error, "Failed to call Mira Network API"}
   end
-end 
+end
