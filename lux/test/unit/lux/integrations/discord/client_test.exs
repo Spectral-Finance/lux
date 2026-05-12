@@ -80,6 +80,24 @@ defmodule Lux.Integrations.Discord.ClientTest do
       assert response["content"] == "Hello, Discord!"
     end
 
+    test "passes additional headers to Discord" do
+      Req.Test.stub(__MODULE__, fn conn ->
+        assert conn.method == "PUT"
+        assert conn.request_path == "/api/v10/channels/123/permissions/456"
+        assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
+        assert Plug.Conn.get_req_header(conn, "x-audit-log-reason") == ["agent%20approval"]
+
+        Plug.Conn.send_resp(conn, 204, "")
+      end)
+
+      assert {:ok, _response} =
+               Client.request(:put, "/channels/123/permissions/456", %{
+                 json: %{type: 0, allow: "1024", deny: "0"},
+                 headers: [{"X-Audit-Log-Reason", "agent%20approval"}],
+                 plug: {Req.Test, __MODULE__}
+               })
+    end
+
     test "uses configured API key when token is not provided" do
       Req.Test.stub(__MODULE__, fn conn ->
         assert conn.method == "GET"

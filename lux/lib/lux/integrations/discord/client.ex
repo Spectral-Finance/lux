@@ -59,7 +59,7 @@ defmodule Lux.Integrations.Discord.Client do
       headers: [
         {"Authorization", build_auth_header(token, token_type)},
         {"Content-Type", "application/json"}
-      ],
+      ] ++ (opts[:headers] || []),
       json: opts[:json]
     ]
     |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
