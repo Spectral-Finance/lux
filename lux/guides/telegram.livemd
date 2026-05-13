@@ -103,6 +103,51 @@ alias Lux.Prisms.Telegram.Messages.DeleteMessage
 )
 ```
 
+### Message Processing
+
+Prisms for normalizing inbound updates, routing commands, and preparing formatted
+responses before calling send/edit prisms:
+
+```elixir
+alias Lux.Prisms.Telegram.Processing.NormalizeUpdate
+alias Lux.Prisms.Telegram.Processing.ParseCommand
+alias Lux.Prisms.Telegram.Processing.FormatMessage
+
+{:ok, update} = NormalizeUpdate.handler(
+  %{
+    update: %{
+      "message" => %{
+        "message_id" => 42,
+        "message_thread_id" => 7,
+        "text" => "/start onboarding",
+        "chat" => %{"id" => -100, "type" => "supergroup"},
+        "from" => %{"id" => 123, "username" => "alice"}
+      }
+    }
+  },
+  %{name: "Demo Bot"}
+)
+
+update.routing_key
+#=> "command:start"
+
+{:ok, command} = ParseCommand.handler(%{text: ~s(/deploy --force env=prod @alice)}, nil)
+command.params
+#=> %{"force" => true, "env" => "prod"}
+
+{:ok, formatted} = FormatMessage.handler(
+  %{
+    text: "Hello Lux",
+    target_format: "HTML",
+    entities: [%{offset: 6, length: 3, type: "bold"}]
+  },
+  nil
+)
+
+formatted
+#=> %{text: "Hello <b>Lux</b>", parse_mode: "HTML", target_format: "HTML"}
+```
+
 ### Media
 
 Prisms for sending and managing media content:
