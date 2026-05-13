@@ -1,0 +1,165 @@
+# YouTube Data API and Live Streaming Guide
+
+Lux provides a focused YouTube integration for authenticated Data API v3 calls,
+OAuth 2.0 PKCE setup, and live-streaming workflows.
+
+## OAuth Setup
+
+Create a Google OAuth client with the YouTube Data API enabled, then build an
+authorization URL:
+
+```elixir
+alias Lux.Integrations.YouTube.OAuth
+
+verifier = "store-this-code-verifier-per-user-session"
+challenge = OAuth.pkce_challenge(verifier)
+
+OAuth.authorization_url(%{
+  client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  redirect_uri: "https://your-domain.com/oauth/youtube/callback",
+  state: "csrf-token",
+  code_challenge: challenge
+})
+```
+
+After Google redirects back with a `code`, exchange it with the token endpoint:
+
+```elixir
+body =
+  OAuth.token_request_body(code, %{
+    client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+    client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+    redirect_uri: "https://your-domain.com/oauth/youtube/callback",
+    code_verifier: verifier
+  })
+
+Req.post!(OAuth.token_url(), form: body)
+```
+
+Refresh token bodies can be created with:
+
+```elixir
+OAuth.refresh_request_body(refresh_token, %{
+  client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
+})
+```
+
+## Data API Requests
+
+Use `Lux.Integrations.YouTube.Client` for authenticated YouTube Data API calls:
+
+```elixir
+alias Lux.Integrations.YouTube.Client
+
+Client.request(:get, "/channels", %{
+  access_token: user_access_token,
+  params: %{part: "snippet,contentDetails", mine: true}
+})
+```
+
+Read-only public requests can use an API key:
+
+```elixir
+Client.request(:get, "/videos", %{
+  api_key: System.fetch_env!("YOUTUBE_API_KEY"),
+  params: %{part: "snippet,statistics", id: "VIDEO_ID"}
+})
+```
+
+The client retries transient YouTube failures and user-level rate-limit
+responses. It honors `Retry-After` before falling back to exponential backoff:
+
+```elixir
+Client.request(:get, "/videos", %{
+  access_token: user_access_token,
+  params: %{part: "snippet", id: "VIDEO_ID"},
+  max_retries: 3,
+  retry_base_delay_ms: 500
+})
+```
+
+Tests can inject a sleep function:
+
+```elixir
+Client.request(:get, "/videos", %{
+  access_token: "test-token",
+  max_retries: 1,
+  sleep: fn delay_ms -> send(self(), {:youtube_retry, delay_ms}) end
+})
+```
+
+## Live Streaming
+
+Create a broadcast:
+
+```elixir
+alias Lux.Integrations.YouTube.LiveStreaming
+
+{:ok, broadcast} =
+  LiveStreaming.create_broadcast(
+    %{
+      title: "Launch stream",
+      description: "Live product launch",
+      scheduled_start_time: "2026-05-13T12:00:00Z",
+      privacy_status: "private",
+      enable_auto_start: false,
+      enable_auto_stop: true
+    },
+    %{access_token: user_access_token}
+  )
+```
+
+Create an RTMP stream:
+
+```elixir
+{:ok, stream} =
+  LiveStreaming.create_stream(
+    %{
+      title: "Primary RTMP stream",
+      ingestion_type: "rtmp",
+      resolution: "1080p",
+      frame_rate: "30fps"
+    },
+    %{access_token: user_access_token}
+  )
+```
+
+Bind the broadcast to the stream:
+
+```elixir
+LiveStreaming.bind_broadcast(broadcast["id"], stream["id"], %{
+  access_token: user_access_token
+})
+```
+
+Transition the broadcast through YouTube's live lifecycle:
+
+```elixir
+LiveStreaming.transition_broadcast(broadcast["id"], "testing", %{
+  access_token: user_access_token
+})
+
+LiveStreaming.transition_broadcast(broadcast["id"], "live", %{
+  access_token: user_access_token
+})
+```
+
+## Live Chat
+
+Read and send live-chat messages:
+
+```elixir
+LiveStreaming.list_chat_messages(live_chat_id, %{access_token: user_access_token})
+
+LiveStreaming.send_chat_message(live_chat_id, "Hello from Lux", %{
+  access_token: user_access_token
+})
+```
+
+## Operational Notes
+
+- Store refresh tokens encrypted and scoped to the channel owner.
+- Use `https://www.googleapis.com/auth/youtube.force-ssl` for write operations.
+- Keep YouTube quota failures visible to agents; not every 403 is retryable.
+- Prefer scheduled broadcasts and explicit `testing -> live -> complete` transitions for controlled streams.
