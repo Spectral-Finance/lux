@@ -1,0 +1,71 @@
+# SushiSwap Integration Guide
+
+Lux provides SushiSwap helpers for quote routing, cross-chain bridge planning, bridge safety checks, liquidity planning, and position tracking.
+
+## Quote and Swap API
+
+```elixir
+alias Lux.Integrations.SushiSwap.Client
+
+Client.quote(:ethereum, %{
+  tokenIn: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  tokenOut: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  amount: "1000000000000000000"
+})
+```
+
+The client uses Sushi's REST API base URL, `https://api.sushi.com`, and includes a `referrer` parameter for quote and swap requests.
+
+## Cross-Chain Bridge Planning
+
+```elixir
+alias Lux.Integrations.SushiSwap.Bridge
+
+{:ok, bridge} =
+  Bridge.bridge_quote(%{
+    from_chain: :ethereum,
+    to_chain: :base,
+    token_in: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    token_out: "0x4200000000000000000000000000000000000006",
+    amount: "1000",
+    recipient: "0x0000000000000000000000000000000000000001"
+  })
+```
+
+Use `live: true` to call the Sushi quote endpoint. Without it, Lux creates a deterministic local quote useful for planning, tests, and simulations.
+
+## Bridge Safety
+
+```elixir
+Bridge.verify_bridge_security(%{
+  provider: :sushixswap,
+  price_impact: 0.01,
+  gas_usd: 8.5,
+  liquidity_usd: 1_000_000,
+  eta_seconds: 600
+})
+```
+
+Safety checks cover allowed bridge providers, price impact, gas cost, liquidity depth, and estimated bridge time.
+
+## Route Optimization
+
+```elixir
+Bridge.optimize_routes([
+  %{provider: :lifi, estimated_amount_out: 1000, gas_usd: 9, price_impact: 0.004, eta_seconds: 420, liquidity_usd: 1_000_000},
+  %{provider: :stargate, estimated_amount_out: 990, gas_usd: 4, price_impact: 0.002, eta_seconds: 900, liquidity_usd: 750_000}
+])
+```
+
+Routes are ranked by estimated output after gas, risk, price-impact, ETA, and policy penalties.
+
+## Position Tracking
+
+```elixir
+Bridge.position_tracking(
+  [%{pool: "SUSHI/USDC", token_a: "sushi", amount_a: 100, token_b: "usdc", amount_b: 250}],
+  %{"sushi" => 1.5, "usdc" => 1.0}
+)
+```
+
+Use the output to monitor pool exposure, reward opportunities, and rebalance drift.
