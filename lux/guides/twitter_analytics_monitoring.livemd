@@ -1,0 +1,95 @@
+# Twitter Analytics and Monitoring
+
+Lux provides transport-neutral Twitter/X analytics helpers for engagement
+metrics, follower growth, hashtag performance, sentiment rollups, alerts, and
+report generation.
+
+## Engagement Metrics
+
+```elixir
+alias Lux.Integrations.Twitter.Analytics
+
+tweet = %{
+  id: "1",
+  text: "Shipping #Elixir",
+  like_count: 10,
+  reply_count: 2,
+  retweet_count: 3,
+  quote_count: 1,
+  bookmark_count: 4,
+  impression_count: 100
+}
+
+Analytics.engagement_metrics(tweet)
+```
+
+## Aggregation
+
+```elixir
+Analytics.aggregate_engagement([tweet])
+```
+
+The aggregate includes total engagement counts, average engagement rate, and
+top tweets by total engagements.
+
+## Follower Growth
+
+```elixir
+Analytics.follower_growth([
+  %{captured_at: "2026-05-12T00:00:00Z", follower_count: 1_000},
+  %{captured_at: "2026-05-13T00:00:00Z", follower_count: 1_250}
+])
+```
+
+## Hashtag Performance
+
+```elixir
+Analytics.hashtag_performance([
+  %{text: "Shipping #Elixir", like_count: 10, impression_count: 100}
+])
+```
+
+## Sentiment Rollups
+
+```elixir
+Analytics.sentiment_rollup([
+  %{sentiment: :positive},
+  %{sentiment_score: -0.4}
+])
+```
+
+## Alerts
+
+```elixir
+Analytics.evaluate_alerts(
+  %{total_engagements: 500, negative_ratio: 0.2},
+  [
+    %{metric: :total_engagements, operator: :>=, threshold: 250, severity: :info},
+    %{metric: :negative_ratio, operator: :>, threshold: 0.5, severity: :warning}
+  ]
+)
+```
+
+## Reports
+
+```elixir
+Analytics.report(
+  %{
+    account: "@lux",
+    tweets: [tweet],
+    mentions: [%{sentiment: :positive}],
+    follower_snapshots: [
+      %{captured_at: "2026-05-12T00:00:00Z", follower_count: 1_000},
+      %{captured_at: "2026-05-13T00:00:00Z", follower_count: 1_250}
+    ]
+  },
+  %{
+    alert_rules: [
+      %{metric: :total_engagements, operator: :>=, threshold: 100}
+    ]
+  }
+)
+```
+
+Feed the report into a lens, scheduled beam, or notification prism to build
+real-time monitoring and automated reporting workflows.
