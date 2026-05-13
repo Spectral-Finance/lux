@@ -1,0 +1,79 @@
+# Multi-Chain Data Aggregation
+
+Lux provides a focused foundation for querying and normalizing EVM-compatible
+chain data across several networks.
+
+## Chain Registry
+
+```elixir
+alias Lux.Web3.MultiChain.ChainRegistry
+
+ChainRegistry.fetch(:ethereum)
+ChainRegistry.fetch("polygon")
+ChainRegistry.fetch(8453)
+```
+
+Built-in chains include Ethereum, Polygon, BNB Smart Chain, Arbitrum, Optimism,
+and Base.
+
+Configure RPC URLs per chain:
+
+```elixir
+rpc_urls = %{
+  ethereum: System.fetch_env!("ETHEREUM_RPC_URL"),
+  polygon: System.fetch_env!("POLYGON_RPC_URL"),
+  bsc: System.fetch_env!("BSC_RPC_URL")
+}
+```
+
+## JSON-RPC Calls
+
+```elixir
+alias Lux.Web3.MultiChain.RPCClient
+
+RPCClient.call(:ethereum, "eth_blockNumber", [], %{rpc_urls: rpc_urls})
+
+RPCClient.batch(:polygon, [
+  {"eth_blockNumber", []},
+  {"eth_chainId", []}
+], %{rpc_urls: rpc_urls})
+```
+
+The client normalizes JSON-RPC errors and retries transient HTTP responses with
+`Retry-After` support.
+
+## Latest Block Aggregation
+
+```elixir
+alias Lux.Web3.MultiChain.Aggregator
+
+{:ok, blocks} =
+  Aggregator.latest_blocks([:ethereum, :polygon, :bsc], %{
+    rpc_urls: rpc_urls,
+    max_retries: 2
+  })
+```
+
+Each row contains `:chain`, `:chain_id`, and `:block_number`.
+
+## Event Filter Normalization
+
+Normalize a multi-chain log filter before handing it to a monitor or indexer:
+
+```elixir
+{:ok, filter} =
+  Aggregator.event_filter(%{
+    chains: [:ethereum, "polygon", 56],
+    addresses: ["0x0000000000000000000000000000000000000000"],
+    topics: ["0xddf252ad"],
+    from_block: "0x1",
+    to_block: "latest"
+  })
+```
+
+## Operational Notes
+
+- Keep RPC URLs in runtime configuration, not source code.
+- Retry only transient transport failures; surface JSON-RPC errors to agents.
+- Normalize chain ids and addresses before storing or querying logs.
+- Use latest-block aggregation as the heartbeat for real-time monitors.
