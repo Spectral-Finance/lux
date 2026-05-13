@@ -1,0 +1,58 @@
+# YouTube Content Intelligence
+
+Lux can combine YouTube Data API records, YouTube Analytics API reports, trend
+samples, and historical channel samples into content optimization reports.
+
+The integration covers:
+
+- analytics data collection and processing
+- audience engagement analysis
+- explainable performance prediction
+- posting-time prediction
+- title, thumbnail, tag, and description generation
+- trend matching
+- recommendations for thumbnail, script, engagement, and tags
+
+## API Collection
+
+```elixir
+alias Lux.Integrations.YouTube.Client
+
+Client.videos(["video-id"], api_key: System.fetch_env!("YOUTUBE_API_KEY"))
+
+Client.analytics_report(
+  access_token: "oauth-token",
+  start_date: "2026-01-01",
+  end_date: "2026-01-31",
+  metrics: ["views", "likes", "comments", "shares", "averageViewDuration"]
+)
+```
+
+## Content Report
+
+```elixir
+alias Lux.Integrations.YouTube.ContentIntelligence
+
+video = %{
+  id: "video-1",
+  title: "Elixir AI agents for YouTube growth",
+  views: 10_000,
+  likes: 300,
+  comments: 80,
+  shares: 40,
+  impressions: 50_000,
+  clicks: 3_000,
+  duration_seconds: 600,
+  average_view_duration_seconds: 270,
+  tags: ["Elixir", "AI agents"]
+}
+
+ContentIntelligence.content_report(video, %{
+  trends: [%{term: "AI agents", score: 40}],
+  historical_samples: [%{views: 4_000}, %{views: 7_000}],
+  posting_samples: [%{weekday: "Tuesday", hour: 9, engagements: 100}]
+})
+```
+
+The report returns engagement metrics, prediction bands, title/thumbnail/tag
+metadata suggestions, prioritized recommendations, and ranked posting windows.
