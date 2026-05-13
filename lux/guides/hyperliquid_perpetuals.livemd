@@ -1,0 +1,77 @@
+# Hyperliquid Perpetuals
+
+Lux provides transport-neutral Hyperliquid helpers for request planning,
+position tracking, risk monitoring, liquidation buffers, margin summaries, and
+safe execution decisions.
+
+These helpers do not submit live orders or handle private keys.
+
+## Info Requests
+
+```elixir
+alias Lux.Integrations.Hyperliquid.Perpetuals
+
+Perpetuals.info_request(:meta)
+Perpetuals.info_request(:clearinghouse_state, %{user: "0xabc"})
+Perpetuals.info_request(:open_orders, %{user: "0xabc"})
+Perpetuals.info_request(:all_mids)
+```
+
+## Order Plans
+
+```elixir
+Perpetuals.order_plan(%{
+  coin: "ETH",
+  side: :buy,
+  size: 1.5,
+  limit_px: 3_100,
+  reduce_only: true,
+  idempotency_key: "order-1"
+})
+```
+
+## Position Snapshots
+
+```elixir
+position = %{
+  coin: "ETH",
+  size: 2.0,
+  entry_px: 3_000.0,
+  mark_px: 3_200.0,
+  liquidation_px: 2_700.0,
+  margin_used: 1_200.0,
+  leverage: 5.0
+}
+
+Perpetuals.position_snapshot(position)
+```
+
+## Liquidation and Risk
+
+```elixir
+Perpetuals.liquidation_buffer(position)
+
+Perpetuals.risk_decision(position, %{
+  max_leverage: 6,
+  min_liquidation_buffer: 0.1
+})
+```
+
+## Margin Summary
+
+```elixir
+Perpetuals.margin_summary([position])
+```
+
+## Execution Decision
+
+```elixir
+Perpetuals.execution_decision(
+  %{coin: "ETH", side: :buy, size: 1.0, limit_px: 3_100},
+  position,
+  %{max_leverage: 6}
+)
+```
+
+Wire the returned order plans into signer/API adapters only after policy checks
+pass.
