@@ -1,0 +1,49 @@
+# DeFi Analytics
+
+Lux can combine DeFiLlama protocol/yield data with Dune query results into
+protocol analytics, dashboards, and alerts.
+
+The integration covers:
+
+- TVL tracking
+- protocol metric collection
+- yield analytics
+- volume and historical series processing
+- Dune custom query execution and result retrieval
+- dashboard data generation
+- alert events for TVL drops and high-yield pools
+
+## API Collection
+
+```elixir
+alias Lux.Integrations.DeFiAnalytics.Client
+
+Client.protocols()
+Client.protocol("aave")
+Client.yield_pools()
+Client.dex_volume_overview()
+Client.dex_volume_summary("uniswap")
+Client.dune_latest_result(123456, api_key: System.fetch_env!("DUNE_API_KEY"))
+Client.dune_execute_sql("select * from dex.trades limit 10", api_key: System.fetch_env!("DUNE_API_KEY"))
+```
+
+## Analytics
+
+```elixir
+alias Lux.Integrations.DeFiAnalytics.Analytics
+
+protocols = [
+  %{"name" => "Aave", "slug" => "aave", "tvl" => 1_000_000_000, "change_7d" => -12}
+]
+
+yields = %{
+  "data" => [
+    %{"pool" => "pool-1", "project" => "aave", "chain" => "Ethereum", "tvlUsd" => 5_000_000, "apy" => 24.5}
+  ]
+}
+
+Analytics.dashboard(protocols, yields, min_yield_apy: 20, tvl_drop_pct: 10)
+```
+
+Dashboard output includes totals, top protocols, top yield pools, and alert
+events ready for agents or UI surfaces.
