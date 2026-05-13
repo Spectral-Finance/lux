@@ -136,6 +136,7 @@ defmodule Lux.MixProject do
         "guides/prisms.livemd",
         "guides/signals.livemd",
         "guides/lenses.livemd",
+        "guides/nft_marketplace.md",
         "guides/language_support.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
@@ -156,6 +157,9 @@ defmodule Lux.MixProject do
           "guides/language_support.md",
           "guides/language_support/python.livemd",
           "guides/language_support/nodejs.livemd"
+        ],
+        Integrations: [
+          "guides/nft_marketplace.md"
         ],
         Setup: [
           "guides/troubleshooting.md",
