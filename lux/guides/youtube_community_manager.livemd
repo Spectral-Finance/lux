@@ -1,0 +1,84 @@
+# YouTube Community Management
+
+Lux provides transport-neutral helpers for YouTube comment analysis, response
+suggestions, moderation, community post scheduling, subscriber interaction
+patterns, promotion planning, and engagement campaigns.
+
+## Comment Analysis
+
+```elixir
+alias Lux.Integrations.YouTube.CommunityManager
+
+CommunityManager.analyze_comment(%{
+  id: "comment-1",
+  author_channel_id: "author-1",
+  text: "Great and helpful video!"
+})
+```
+
+## Response Suggestions
+
+```elixir
+CommunityManager.response_suggestion(
+  %{id: "comment-1", text: "How do I deploy this?"},
+  %{answer: "start with the release checklist"}
+)
+```
+
+## Moderation Queue
+
+```elixir
+CommunityManager.moderation_queue([
+  %{id: "clean", text: "Thanks"},
+  %{id: "review", text: "This is broken"}
+])
+```
+
+## Community Posts
+
+```elixir
+CommunityManager.schedule_post(%{
+  text: "Vote on the next tutorial",
+  scheduled_at: "2026-05-14T12:00:00Z",
+  poll_options: ["OAuth", "Analytics"],
+  campaign_id: "campaign-1"
+})
+```
+
+## Interaction Patterns
+
+```elixir
+CommunityManager.interaction_patterns([
+  %{author_channel_id: "a", type: :comment},
+  %{author_channel_id: "a", type: :reply},
+  %{author_channel_id: "b", type: :comment}
+])
+```
+
+## Promotion Plan
+
+```elixir
+CommunityManager.promotion_plan(%{
+  title: "New video",
+  url: "https://youtu.be/1"
+})
+```
+
+## Campaign
+
+```elixir
+CommunityManager.campaign(%{
+  campaign_id: "campaign-1",
+  title: "New video",
+  url: "https://youtu.be/1",
+  comments: [
+    %{id: "comment-1", author_channel_id: "a", text: "Great video!"}
+  ],
+  community_posts: [
+    %{text: "What next?", scheduled_at: "2026-05-14T12:00:00Z"}
+  ]
+})
+```
+
+Feed campaign output into scheduled jobs, moderation dashboards, or notification
+workflows.
