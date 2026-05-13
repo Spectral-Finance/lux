@@ -1,0 +1,129 @@
+# Twitter/X API Core
+
+Lux includes a Twitter/X API v2 client for OAuth 2.0 PKCE, post management,
+user interactions, media upload, rate-limit handling, and error normalization.
+
+## Setup
+
+Configure a bearer token when you want the client to use application
+configuration instead of passing `:access_token` per call:
+
+```elixir
+config :lux, :api_keys,
+  twitter_bearer: System.fetch_env!("TWITTER_BEARER_TOKEN")
+```
+
+## OAuth 2.0 PKCE
+
+```elixir
+alias Lux.Integrations.Twitter.Client
+
+pkce = Client.pkce_pair()
+
+Client.authorization_url(%{
+  client_id: "client-id",
+  redirect_uri: "https://example.com/callback",
+  state: "csrf-token",
+  code_verifier: pkce.verifier
+})
+```
+
+Exchange an authorization code or refresh token:
+
+```elixir
+Client.token_request(:authorization_code, %{
+  client_id: "client-id",
+  client_secret: "client-secret",
+  redirect_uri: "https://example.com/callback",
+  code: "returned-code",
+  code_verifier: pkce.verifier
+})
+
+Client.token_request(:refresh_token, %{
+  client_id: "client-id",
+  client_secret: "client-secret",
+  refresh_token: "refresh-token"
+})
+```
+
+## Posts
+
+```elixir
+Client.create_tweet(%{text: "Hello from Lux"}, access_token: "user-token")
+
+Client.create_tweet(
+  %{
+    text: "Reply with media",
+    reply_to_tweet_id: "123",
+    media_ids: ["1146654567674912769"]
+  },
+  access_token: "user-token"
+)
+
+Client.quote_tweet("Adding context", "123", access_token: "user-token")
+
+Client.edit_tweet("123", %{text: "Edited text"}, access_token: "user-token")
+
+Client.create_thread(["first", "second", "third"], access_token: "user-token")
+
+Client.delete_tweet("123", access_token: "user-token")
+```
+
+## Users And Follows
+
+```elixir
+Client.get_me(%{user_fields: ["username", "public_metrics"]}, access_token: "user-token")
+Client.get_user("2244994945", %{user_fields: ["username"]}, access_token: "user-token")
+Client.get_user_by_username("xdevelopers", %{}, access_token: "user-token")
+
+Client.follow_user("source-user-id", "target-user-id", access_token: "user-token")
+Client.unfollow_user("source-user-id", "target-user-id", access_token: "user-token")
+```
+
+## Chunked Media Upload
+
+```elixir
+Client.media_upload(
+  :init,
+  %{total_bytes: 1_048_576, media_type: "video/mp4", media_category: "tweet_video"},
+  access_token: "user-token"
+)
+
+Client.media_upload(
+  :append,
+  %{media_id: "1880028106020515840", segment_index: 0, media: {:file, "/tmp/chunk.mp4"}},
+  access_token: "user-token"
+)
+
+Client.media_upload(:finalize, %{media_id: "1880028106020515840"}, access_token: "user-token")
+Client.media_upload(:status, %{media_id: "1880028106020515840"}, access_token: "user-token")
+```
+
+## Rate Limits And Errors
+
+```elixir
+{:ok, %{body: body, rate_limit: limit}} =
+  Client.request(:get, "/2/users/me", access_token: "user-token", with_rate_limit: true)
+
+{:error, {:rate_limited, limit}} =
+  Client.request(:get, "/2/users/me", access_token: "expired-token")
+```
+
+`Lux.Integrations.Twitter.classify_error/3` normalizes common API responses
+such as invalid tokens, forbidden requests, missing resources, validation
+errors, conflicts, and rate limits.
+
+## Local Benchmark
+
+Use the benchmark helper for local planning/encoding cost without network calls:
+
+```elixir
+Lux.Integrations.Twitter.Client.benchmark(fn ->
+  Lux.Integrations.Twitter.Client.authorization_url(%{
+    client_id: "client-id",
+    redirect_uri: "https://example.com/callback",
+    state: "state",
+    code_verifier: "verifier"
+  })
+end)
+```
