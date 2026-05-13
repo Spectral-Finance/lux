@@ -1,0 +1,93 @@
+# YouTube Core And Live Streaming Guide
+
+Lux includes YouTube helpers for OAuth request generation, Data API v3 requests, video metadata upload setup, live broadcast and stream management, stream health monitoring, live chat interaction, quality checks, and transition planning.
+
+## OAuth
+
+```elixir
+alias Lux.Integrations.YouTube
+
+YouTube.authorization_url(
+  client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  redirect_uri: "https://example.com/oauth/callback",
+  state: "csrf-token",
+  scopes: [:manage, :force_ssl, :upload]
+)
+
+YouTube.token_request("authorization-code",
+  client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  client_secret: System.fetch_env!("GOOGLE_CLIENT_SECRET"),
+  redirect_uri: "https://example.com/oauth/callback"
+)
+
+YouTube.refresh_token_request("refresh-token",
+  client_id: System.fetch_env!("GOOGLE_CLIENT_ID"),
+  client_secret: System.fetch_env!("GOOGLE_CLIENT_SECRET")
+)
+```
+
+YouTube private channel, upload, live, and chat operations require OAuth user authorization. Service accounts are not supported by the YouTube Data API for channel-owned resources.
+
+## Data API Client
+
+```elixir
+alias Lux.Integrations.YouTube.Client
+
+opts = [access_token: "oauth-access-token"]
+
+{:ok, channels} = Client.channels_mine(opts)
+{:ok, videos} = Client.videos_list(Keyword.put(opts, :params, %{id: "video-id"}))
+
+{:ok, upload_session} =
+  Client.videos_insert(
+    %{snippet: %{title: "Launch recap"}, status: %{privacyStatus: "private"}},
+    opts
+  )
+```
+
+`videos_insert/2` starts a resumable upload by posting video metadata to the upload endpoint. The binary upload step should be handled by a downstream uploader that owns the media file and resumable session URL.
+When YouTube returns a resumable session `Location` header, the client exposes it as `upload_session["upload_url"]`.
+
+## Live Control
+
+```elixir
+alias Lux.Integrations.YouTube.LiveStreaming
+
+broadcast_body =
+  LiveStreaming.broadcast_body(%{
+    title: "Product launch",
+    scheduled_start_time: "2026-05-13T13:00:00Z",
+    privacy_status: "unlisted"
+  })
+
+stream_body =
+  LiveStreaming.stream_body(%{
+    title: "Primary encoder",
+    resolution: "1080p",
+    frame_rate: "60fps"
+  })
+
+{:ok, broadcast} = Client.live_broadcasts_insert(broadcast_body, opts)
+{:ok, stream} = Client.live_streams_insert(stream_body, opts)
+{:ok, _bound} = Client.live_broadcasts_bind(broadcast["id"], stream["id"], opts)
+```
+
+## Health, Chat, And Transitions
+
+```elixir
+health = LiveStreaming.stream_health(broadcast, stream)
+{:ok, plan} = LiveStreaming.transition_plan(broadcast, stream, "testing")
+{:ok, _} = Client.live_broadcasts_transition(broadcast["id"], plan.target_status, opts)
+
+{:ok, messages} = Client.live_chat_messages_list(broadcast["snippet"]["liveChatId"], opts)
+chat = LiveStreaming.chat_messages(messages)
+
+{:ok, _sent} =
+  Client.live_chat_messages_insert(
+    broadcast["snippet"]["liveChatId"],
+    "Starting soon",
+    opts
+  )
+```
+
+Transition planning blocks testing/live transitions when the stream is inactive or unhealthy. Quality control checks stream resolution and frame-rate policy across one or more streams.
