@@ -174,5 +174,74 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         assert body == %{"unexpected" => "format"}
       end
     end
+
+    test "retries Telegram rate limits using retry_after" do
+      test_pid = self()
+      {:ok, counter} = Agent.start_link(fn -> 0 end)
+
+      Req.Test.stub(TelegramClientMock, fn conn ->
+        attempt = Agent.get_and_update(counter, fn value -> {value, value + 1} end)
+
+        assert conn.method == "POST"
+        assert conn.request_path == "/bottest_bot_token/sendMessage"
+
+        if attempt == 0 do
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(429, Jason.encode!(%{
+            "ok" => false,
+            "error_code" => 429,
+            "description" => "Too Many Requests: retry after 2",
+            "parameters" => %{"retry_after" => 2}
+          }))
+        else
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(200, Jason.encode!(%{
+            "ok" => true,
+            "result" => %{"message_id" => 456}
+          }))
+        end
+      end)
+
+      assert {:ok, %{"result" => %{"message_id" => 456}}} =
+               Client.request(:post, "/sendMessage", %{
+                 token: @bot_token,
+                 json: %{chat_id: 123, text: "Hello"},
+                 max_retries: 1,
+                 sleep: fn delay_ms -> send(test_pid, {:slept, delay_ms}) end
+               })
+
+      assert_received {:slept, 2000}
+      assert Agent.get(counter, & &1) == 2
+    end
+
+    test "returns final API error after retry budget is exhausted" do
+      test_pid = self()
+      {:ok, counter} = Agent.start_link(fn -> 0 end)
+
+      Req.Test.stub(TelegramClientMock, fn conn ->
+        Agent.update(counter, &(&1 + 1))
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(500, Jason.encode!(%{
+          "ok" => false,
+          "error_code" => 500,
+          "description" => "Internal Server Error"
+        }))
+      end)
+
+      assert {:error, {500, "Internal Server Error"}} =
+               Client.request(:get, "/getMe", %{
+                 token: @bot_token,
+                 max_retries: 1,
+                 retry_base_delay_ms: 25,
+                 sleep: fn delay_ms -> send(test_pid, {:slept, delay_ms}) end
+               })
+
+      assert_received {:slept, 25}
+      assert Agent.get(counter, & &1) == 2
+    end
   end
 end

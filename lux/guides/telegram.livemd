@@ -272,10 +272,32 @@ end
 
 ## Rate Limiting
 
-Telegram has API rate limits that vary based on the method. Consider:
-1. Adding delays between calls
-2. Implementing exponential backoff for retries
-3. Batching operations when possible
+Telegram has API rate limits that vary based on the method. `Lux.Integrations.Telegram.Client`
+automatically retries rate-limited and transient requests when a retry budget is configured.
+Telegram's `parameters.retry_after` value is honored before falling back to exponential backoff:
+
+```elixir
+alias Lux.Integrations.Telegram.Client
+
+Client.request(:post, "/sendMessage", %{
+  json: %{chat_id: 123_456_789, text: "Queued safely"},
+  max_retries: 3,
+  retry_base_delay_ms: 500
+})
+```
+
+For test suites, inject a sleep function so retry paths can be exercised without waiting:
+
+```elixir
+Client.request(:post, "/sendMessage", %{
+  json: %{chat_id: 123_456_789, text: "Test"},
+  max_retries: 1,
+  sleep: fn delay_ms -> send(self(), {:telegram_retry, delay_ms}) end
+})
+```
+
+For high-volume bots, combine the built-in retry behavior with your application queue so
+messages are serialized per chat while Telegram's global limits are respected.
 
 ## Webhook vs. Polling
 
@@ -335,10 +357,35 @@ For production, webhooks are more efficient:
 Client.request(:post, "/setWebhook", %{
   json: %{
     url: "https://your-domain.com/telegram/webhook",
+    secret_token: System.fetch_env!("TELEGRAM_WEBHOOK_SECRET"),
     max_connections: 40,
     allowed_updates: ["message", "callback_query"]
   }
 })
+```
+
+Validate the webhook secret token before routing the update:
+
+```elixir
+defmodule MyApp.Telegram.WebhookController do
+  alias Lux.Integrations.Telegram.Webhook
+
+  def handle(headers, body) do
+    secret = System.fetch_env!("TELEGRAM_WEBHOOK_SECRET")
+
+    with true <- Webhook.valid_secret_token?(headers, secret),
+         {:ok, update} <- Webhook.parse_update(body) do
+      route_update(Webhook.classify_update(update), update)
+    else
+      false -> {:error, :invalid_secret_token}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp route_update(:message, update), do: {:ok, update}
+  defp route_update(:callback_query, update), do: {:ok, update}
+  defp route_update(_type, update), do: {:ok, update}
+end
 ```
 
 ## Implementing Interactive Features
