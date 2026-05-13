@@ -1,0 +1,68 @@
+# Web3 Authentication
+
+Lux can authenticate wallets with Sign-In with Ethereum (EIP-4361), verify
+personal-sign signatures, issue expiring sessions, evaluate role permissions,
+check token-gated access, and validate multi-signature thresholds.
+
+The framework covers:
+
+- EIP-4361 message generation, parsing, validation, and authentication
+- Ethereum personal-sign signature recovery
+- multi-signature threshold checks
+- role and permission management
+- session expiry, refresh, revocation, and audit events
+- ERC-20/ERC-721-style token gates over normalized holdings
+
+## Sign-In with Ethereum
+
+```elixir
+alias Lux.Web3.Auth
+alias Lux.Web3.Auth.SIWE
+
+message =
+  SIWE.build_message(%{
+    domain: "app.lux.dev",
+    address: "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+    statement: "Sign in to Lux",
+    uri: "https://app.lux.dev",
+    chain_id: 1,
+    nonce: "abc12345",
+    issued_at: DateTime.utc_now() |> DateTime.to_iso8601()
+  })
+
+{:ok, %{siwe: siwe, session: session}} =
+  Auth.sign_in(message, "0x...", domain: "app.lux.dev", chain_id: 1, roles: [:member])
+```
+
+## Authorization
+
+```elixir
+alias Lux.Web3.Auth
+alias Lux.Web3.Auth.RBAC
+
+policy =
+  RBAC.new()
+  |> RBAC.put_role(:member, [%{action: :read, resource: :workspace}])
+
+:ok = Auth.authorize_session(session, policy, :read, :workspace)
+```
+
+## Token Gates
+
+```elixir
+alias Lux.Web3.Auth.TokenGate
+
+holdings = %{{1, "0x0000000000000000000000000000000000000abc"} => 10}
+
+TokenGate.allowed?(holdings, [
+  %{chain_id: 1, contract: "0x0000000000000000000000000000000000000abc", min_balance: 1}
+])
+```
+
+## Multi-Signature Thresholds
+
+```elixir
+alias Lux.Web3.Auth.MultiSig
+
+MultiSig.verify_threshold(message, signatures, owners, 2)
+```
