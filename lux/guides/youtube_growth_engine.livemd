@@ -1,0 +1,79 @@
+# YouTube Analytics and Growth Engine
+
+Lux provides transport-neutral helpers for YouTube channel analytics, growth
+projection, competitor benchmarking, retention summaries, ROI tracking, channel
+audits, and automated reporting.
+
+## Metric Snapshots
+
+```elixir
+alias Lux.Integrations.YouTube.GrowthEngine
+
+snapshot = %{
+  captured_at: "2026-05-13",
+  views: 1_000,
+  watch_time_hours: 80,
+  subscribers: 120,
+  revenue: 25.0,
+  impressions: 5_000,
+  clicks: 250,
+  likes: 20,
+  comments: 10
+}
+
+GrowthEngine.snapshot(snapshot)
+```
+
+## Growth Projection
+
+```elixir
+GrowthEngine.growth_projection([
+  %{captured_at: "2026-05-12", views: 1_000, subscribers: 100, revenue: 20.0},
+  %{captured_at: "2026-05-13", views: 1_300, subscribers: 130, revenue: 26.0}
+])
+```
+
+## Competitor Benchmarking
+
+```elixir
+GrowthEngine.competitor_benchmark(snapshot, [
+  %{views: 800, clicks: 80, impressions: 2_000},
+  %{views: 1_200, clicks: 120, impressions: 3_000}
+])
+```
+
+## Retention and ROI
+
+```elixir
+GrowthEngine.retention_summary([
+  %{second: 0, retained_ratio: 1.0},
+  %{second: 60, retained_ratio: 0.48}
+])
+
+GrowthEngine.roi_summary(%{
+  revenue: 500,
+  production_cost: 200,
+  promotion_cost: 50
+})
+```
+
+## Channel Audit
+
+```elixir
+GrowthEngine.audit(snapshot)
+```
+
+## Automated Report
+
+```elixir
+GrowthEngine.report(%{
+  channel_id: "channel-1",
+  snapshots: [snapshot],
+  competitors: [%{views: 900, clicks: 90, impressions: 2_000}],
+  retention_points: [%{second: 0, retained_ratio: 1.0}],
+  roi: %{revenue: 100, production_cost: 40, promotion_cost: 10}
+})
+```
+
+Use the report output as input to scheduled beams, dashboards, or notification
+workflows.
