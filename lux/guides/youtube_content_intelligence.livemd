@@ -1,0 +1,84 @@
+# YouTube Content Intelligence
+
+Lux provides transport-neutral YouTube content intelligence helpers for scoring
+video performance, selecting posting windows, matching trends, generating
+metadata suggestions, and producing optimization reports.
+
+## Performance Scoring
+
+```elixir
+alias Lux.Integrations.YouTube.ContentIntelligence
+
+video = %{
+  id: "video-1",
+  title: "Elixir agents for YouTube growth",
+  views: 1_000,
+  likes: 40,
+  comments: 10,
+  shares: 5,
+  impressions: 5_000,
+  clicks: 250,
+  duration_seconds: 300,
+  average_view_duration_seconds: 120,
+  tags: ["elixir", "agents"]
+}
+
+ContentIntelligence.performance_score(video)
+```
+
+## Recommendations
+
+```elixir
+ContentIntelligence.recommendations(video)
+```
+
+Recommendations cover low click-through rate, retention, engagement, and sparse
+tag coverage.
+
+## Posting Windows
+
+```elixir
+ContentIntelligence.posting_windows([
+  %{weekday: "Tuesday", hour: 9, engagements: 100},
+  %{weekday: "Tuesday", hour: 9, engagements: 200},
+  %{weekday: "Friday", hour: 18, engagements: 120}
+])
+```
+
+## Metadata Optimization
+
+```elixir
+ContentIntelligence.optimize_metadata(
+  %{
+    topic: "Elixir agents for YouTube growth",
+    summary: "Build channel analytics with agents.",
+    tags: ["Elixir", "YouTube"]
+  },
+  %{
+    trends: [
+      %{term: "AI agents", score: 20}
+    ]
+  }
+)
+```
+
+## Trend Matching
+
+```elixir
+ContentIntelligence.match_trends("YouTube AI agents", [
+  %{term: "AI agents", score: 10},
+  %{term: "YouTube thumbnail", score: 5}
+])
+```
+
+## Content Report
+
+```elixir
+ContentIntelligence.content_report(video, %{
+  trends: [%{term: "AI agents", score: 20}],
+  posting_samples: [%{weekday: "Tuesday", hour: 9, engagements: 100}]
+})
+```
+
+The report can be fed into a workflow that updates metadata, schedules tests,
+or sends recommendations to an agent for review.
