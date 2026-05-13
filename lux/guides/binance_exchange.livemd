@@ -1,0 +1,94 @@
+# Binance Exchange Core
+
+Lux provides transport-neutral Binance helpers for spot and futures REST
+request planning, signed payload preparation, WebSocket stream planning,
+portfolio summaries, and request-weight monitoring.
+
+These helpers do not store API keys, compute HMAC signatures, submit live
+orders, or open WebSocket connections.
+
+## Public Market Data
+
+```elixir
+alias Lux.Integrations.Binance.Exchange
+
+Exchange.market_request(:spot, :ticker_price, %{symbol: "ETHUSDT"})
+
+Exchange.market_request(:futures, :klines, %{
+  symbol: "BTCUSDT",
+  interval: "1m",
+  limit: 100
+})
+```
+
+## Order Plans
+
+```elixir
+Exchange.order_plan(%{
+  symbol: "ethusdt",
+  side: :buy,
+  type: :limit,
+  quantity: "1.25",
+  price: "3100.5",
+  position_side: :long,
+  client_order_id: "lux-1"
+})
+```
+
+## Signed Request Preparation
+
+```elixir
+Exchange.signed_request(:futures, :create_order, %{
+  timestamp: 1_700_000_000_000,
+  symbol: "BTCUSDT",
+  side: "SELL",
+  type: "MARKET",
+  quantity: 0.5,
+  reduce_only: true,
+  position_side: "SHORT"
+})
+```
+
+Use `query_to_sign` with a signer in the application layer, then submit through
+an authenticated client adapter.
+
+## WebSocket Streams
+
+```elixir
+Exchange.websocket_plan(:spot, [
+  %{symbol: "ETHUSDT", channel: "ticker"},
+  %{symbol: "BTCUSDT", channel: "kline", interval: "1m"}
+])
+```
+
+## Rate-Limit Weight
+
+```elixir
+requests = [
+  elem(Exchange.market_request(:spot, :exchange_info), 1),
+  elem(Exchange.market_request(:spot, :ticker_24h, %{symbol: "ETHUSDT"}), 1)
+]
+
+Exchange.weight_summary(requests, %{limit_per_minute: 1_200})
+```
+
+## Portfolio Snapshot
+
+```elixir
+Exchange.portfolio_snapshot(%{
+  balances: [
+    %{asset: "USDT", free: "100.5", locked: "1.5"},
+    %{asset: "ETH", free: 2, locked: 0}
+  ],
+  positions: [
+    %{
+      symbol: "BTCUSDT",
+      position_amt: "-0.25",
+      entry_price: "65000",
+      mark_price: "64000",
+      unrealized_pnl: "250",
+      leverage: "5"
+    }
+  ]
+})
+```
