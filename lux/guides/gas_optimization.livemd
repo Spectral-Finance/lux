@@ -1,0 +1,93 @@
+# Gas Optimization and Transaction Management
+
+Lux provides deterministic helpers for planning EVM transaction fees, building
+replacement transactions, analyzing batch cost, and documenting MEV-protection
+preferences before a transaction is signed or broadcast.
+
+## EIP-1559 Fee Planning
+
+Use recent fee observations from `eth_feeHistory` or another fee oracle:
+
+```elixir
+alias Lux.Web3.GasOptimizer
+
+{:ok, fee_plan} =
+  GasOptimizer.recommend_eip1559_fee(
+    %{
+      base_fee_per_gas: "0x6fc23ac00",
+      priority_fee_samples: [
+        1_000_000_000,
+        2_000_000_000,
+        3_000_000_000
+      ]
+    },
+    %{urgency: :fast}
+  )
+```
+
+The result contains `:base_fee_per_gas`, `:max_priority_fee_per_gas`,
+`:max_fee_per_gas`, `:urgency`, and `:strategy`.
+
+## Speed Up and Cancel
+
+Speed-up transactions keep the original nonce and bump fees:
+
+```elixir
+{:ok, replacement} =
+  GasOptimizer.speed_up_transaction(original_tx, %{bump_bps: 1_250})
+```
+
+Cancel transactions send zero value back to the sender with the same nonce:
+
+```elixir
+{:ok, cancel_tx} =
+  GasOptimizer.cancel_transaction(original_tx, "0xSenderAddress", %{
+    bump_bps: 1_250
+  })
+```
+
+## Batch Cost Analysis
+
+Plan a stable order and estimate worst-case cost:
+
+```elixir
+transactions = [
+  %{id: "swap", nonce: 10, gas_limit: 180_000, to: "0xSwap"},
+  %{id: "approve", nonce: 9, gas_limit: 55_000, to: "0xToken"}
+]
+
+ordered = GasOptimizer.plan_batch(transactions)
+
+{:ok, report} =
+  GasOptimizer.analyze_batch(ordered, %{
+    max_fee_per_gas: fee_plan.max_fee_per_gas
+  })
+```
+
+The report includes total gas, worst-case cost in wei, and per-transaction cost
+rows.
+
+## MEV Protection Hints
+
+Use the MEV plan to keep agent execution policy explicit:
+
+```elixir
+GasOptimizer.mev_protection_plan(%{
+  private_relay: true,
+  simulate_before_send: true,
+  max_slippage_bps: 50
+})
+```
+
+Recommended policy:
+
+- Prefer private relay submission for swap-like transactions.
+- Simulate immediately before signing and broadcasting.
+- Use explicit deadlines and slippage ceilings on DEX calls.
+- Use same-nonce replacement transactions for speed-up and cancel flows.
+
+## Boundaries
+
+`Lux.Web3.GasOptimizer` does not sign, store keys, or broadcast transactions.
+Keep those operations in a dedicated wallet/broadcaster layer so fee planning can
+be tested without private-key access.
