@@ -1,0 +1,84 @@
+# Telegram Message Processing
+
+Lux provides message-processing helpers for Telegram bots that need to route
+updates, parse commands, preserve thread context, escape output, and handle
+callback/deep-link payloads.
+
+## Update Routing
+
+```elixir
+alias Lux.Integrations.Telegram.MessageProcessor
+
+case MessageProcessor.classify_update(update) do
+  :text_message -> handle_text(update["message"])
+  :callback_query -> handle_callback(update["callback_query"])
+  :inline_query -> handle_inline(update["inline_query"])
+  :unknown -> :ignore
+end
+```
+
+## Command Parsing
+
+```elixir
+{:ok, command} =
+  MessageProcessor.parse_command("/deploy prod now", %{
+    bot_username: "LuxBot"
+  })
+
+command.command
+command.args
+```
+
+Group commands that mention another bot are ignored:
+
+```elixir
+MessageProcessor.parse_command("/deploy@OtherBot prod", %{bot_username: "LuxBot"})
+#=> :ignore
+```
+
+## Deep Links
+
+Telegram deep links arrive as `/start <payload>`:
+
+```elixir
+MessageProcessor.deep_link_payload("/start invite_123")
+#=> {:ok, "invite_123"}
+```
+
+## Callback Queries
+
+Use a simple `action:payload` convention for inline keyboard callbacks:
+
+```elixir
+MessageProcessor.decode_callback_data("approve:ticket-123")
+#=> %{action: "approve", payload: "ticket-123"}
+```
+
+## Threads and Replies
+
+```elixir
+context = MessageProcessor.thread_context(message)
+
+context.chat_id
+context.message_thread_id
+context.reply_to_message_id
+```
+
+The context map can be passed into response prisms so replies stay attached to
+the correct chat, topic, and parent message.
+
+## Formatting
+
+Escape generated text before sending it with Telegram parse modes:
+
+```elixir
+MessageProcessor.escape_markdown_v2("hello_world!")
+MessageProcessor.escape_html("<b>Tom & Co</b>")
+```
+
+## Notes
+
+- Parse commands before handing messages to agent workflows.
+- Preserve `message_thread_id` for forum topics.
+- Treat callback data as routing metadata, not trusted authorization.
+- Escape model-generated text before using MarkdownV2 or HTML parse modes.
