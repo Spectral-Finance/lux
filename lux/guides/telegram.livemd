@@ -387,6 +387,60 @@ def handle_callback_query(%{"id" => query_id, "data" => "option1", "from" => use
 end
 ```
 
+### Webhook Verification and Updates
+
+Use a webhook secret token when you configure production webhooks, then verify the header before routing updates:
+
+```elixir
+alias Lux.Integrations.Telegram.Webhook
+
+{:ok, _response} =
+  Webhook.set("https://example.com/telegram/webhook", %{
+    secret_token: System.fetch_env!("TELEGRAM_WEBHOOK_SECRET"),
+    allowed_updates: ["message", "callback_query"]
+  })
+
+def handle_webhook(conn, update) do
+  secret = System.fetch_env!("TELEGRAM_WEBHOOK_SECRET")
+
+  if Webhook.verify_secret_token(conn, secret) do
+    case Webhook.update_type(update) do
+      :message -> handle_message(update)
+      :callback_query -> handle_callback(update)
+      _other -> :ignore
+    end
+  else
+    {:error, :invalid_webhook_secret}
+  end
+end
+```
+
+### Retries and Queued Sends
+
+Telegram can return `429` responses with `retry_after` when a bot exceeds rate limits. The client normalizes those responses and can retry transient `429` and `5xx` failures:
+
+```elixir
+alias Lux.Integrations.Telegram.Client
+
+Client.request(:post, "/sendMessage", %{
+  json: %{chat_id: 123, text: "Hello"},
+  max_retries: 2,
+  retry_delay_ms: 250
+})
+```
+
+For ordered send/edit/delete flows, use `request_many/2` with `queue_interval_ms`:
+
+```elixir
+Client.request_many(
+  [
+    %{method: :post, path: "/sendMessage", json: %{chat_id: 123, text: "Working"}},
+    %{method: :post, path: "/editMessageText", json: %{chat_id: 123, message_id: 10, text: "Done"}}
+  ],
+  queue_interval_ms: 100
+)
+```
+
 ### Multi-Language Support
 
 Telegram provides user language information:
