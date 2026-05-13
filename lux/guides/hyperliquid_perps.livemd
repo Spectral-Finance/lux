@@ -1,0 +1,60 @@
+# Hyperliquid Perpetual Trading Guide
+
+Lux includes Hyperliquid helpers for public market/account reads, order planning, position tracking, margin management, liquidation monitoring, and risk verification.
+
+## Public Info Client
+
+```elixir
+alias Lux.Integrations.Hyperliquid.Client
+
+{:ok, mids} = Client.all_mids()
+{:ok, book} = Client.l2_book("ETH")
+{:ok, state} = Client.clearinghouse_state("0x0000000000000000000000000000000000000001")
+{:ok, orders} = Client.open_orders("0x0000000000000000000000000000000000000001")
+```
+
+The client calls Hyperliquid's public `POST https://api.hyperliquid.xyz/info` endpoint.
+
+## Order Planning
+
+```elixir
+alias Lux.Integrations.Hyperliquid.Perps
+
+{:ok, order} =
+  Perps.order_request(%{
+    coin: "ETH",
+    is_buy: true,
+    sz: 0.1,
+    limit_px: 3000,
+    order_type: %{limit: %{tif: "Gtc"}}
+  })
+```
+
+The returned order map matches the existing `HyperliquidExecuteOrderPrism` shape. Live order signing and submission stays in the prism that already handles private-key configuration.
+
+## Risk Verification
+
+```elixir
+{:ok, decision} =
+  Perps.risk_check(state, mids, %{
+    coin: "ETH",
+    is_buy: true,
+    sz: 0.1,
+    limit_px: 3000
+  })
+```
+
+Risk checks cover projected leverage, order notional, projected margin usage, and current liquidation buffers.
+
+## Dashboard
+
+```elixir
+Perps.dashboard(%{
+  user_state: state,
+  mids: mids,
+  fills: [],
+  open_orders: orders
+})
+```
+
+Dashboard output summarizes margin, PnL, liquidation health, and open order count for agents that need a compact trading state.
