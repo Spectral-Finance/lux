@@ -1,0 +1,88 @@
+# YouTube Content Creation Pipeline
+
+Lux provides transport-neutral helpers for turning a YouTube content brief into
+a production-ready plan: script, edits, thumbnail, metadata, playlist placement,
+localization, repurposing, and A/B testing.
+
+## Content Brief
+
+```elixir
+alias Lux.Integrations.YouTube.ContentPipeline
+
+brief = %{
+  topic: "Build AI agents with Elixir",
+  audience: "developers",
+  goal: "ship reliable automations",
+  key_points: ["Define the workflow", "Add tests", "Deploy safely"],
+  summary: "A practical production workflow.",
+  keywords: ["Elixir", "AI Agents", "Automation"],
+  languages: ["es", "zh"],
+  pillar: "Agent Engineering",
+  title: "Build AI agents with Elixir"
+}
+```
+
+## Script Outline
+
+```elixir
+ContentPipeline.script_outline(brief)
+```
+
+## Editing Suggestions
+
+```elixir
+ContentPipeline.editing_suggestions(%{
+  intro_seconds: 30,
+  estimated_minutes: 8,
+  sections: [%{}, %{}, %{}],
+  needs_visual_examples: true
+})
+```
+
+## Thumbnail Brief
+
+```elixir
+ContentPipeline.thumbnail_brief(brief)
+```
+
+## Metadata Plan
+
+```elixir
+ContentPipeline.metadata_plan(brief)
+```
+
+The metadata plan includes title, description, normalized tags, cards, and end
+screen defaults.
+
+## Playlist and Localization
+
+```elixir
+ContentPipeline.playlist_plan(brief)
+ContentPipeline.localization_tasks(brief)
+```
+
+## Repurposing
+
+```elixir
+ContentPipeline.repurposing_ideas(brief)
+```
+
+## A/B Testing
+
+```elixir
+ContentPipeline.ab_test_plan(%{
+  title: "Build AI agents with Elixir",
+  title_b: "Reliable Elixir agents in production",
+  thumbnail_a: "thumb-a",
+  thumbnail_b: "thumb-b"
+})
+```
+
+## Full Pipeline
+
+```elixir
+ContentPipeline.pipeline(brief)
+```
+
+Use the full pipeline output as a handoff to agents, editors, schedulers, or
+metadata update tools.
