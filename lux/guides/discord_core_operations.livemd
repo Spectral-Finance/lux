@@ -1,0 +1,105 @@
+# Discord Core Operations
+
+Lux provides a shared Discord operation-planning layer for message management,
+channel management, moderation, and scheduled events.
+
+## Message Operations
+
+```elixir
+alias Lux.Integrations.Discord.CoreOperations
+
+{:ok, action} =
+  CoreOperations.message_action(:create, %{
+    channel_id: "123",
+    content: "hello",
+    idempotency_key: "send:123:request-1"
+  })
+
+action.method
+action.endpoint
+action.payload
+```
+
+Execute the plan through the Discord client:
+
+```elixir
+Lux.Integrations.Discord.Client.request(action.method, action.endpoint, %{
+  json: action.payload
+})
+```
+
+## Channel Operations
+
+```elixir
+CoreOperations.channel_action(:create, %{
+  guild_id: "guild-1",
+  name: "support",
+  type: 0,
+  rate_limit_per_user: 10
+})
+
+CoreOperations.channel_action(:permission_overwrite, %{
+  channel_id: "123",
+  overwrite_id: "role-1",
+  type: 0,
+  allow: "1024",
+  deny: "0"
+})
+```
+
+## Moderation
+
+```elixir
+CoreOperations.moderation_action(:timeout, %{
+  guild_id: "guild-1",
+  user_id: "user-1",
+  until: "2026-05-13T12:00:00Z",
+  reason: "flood"
+})
+
+CoreOperations.moderation_action(:ban, %{
+  guild_id: "guild-1",
+  user_id: "user-1",
+  delete_message_seconds: 3600
+})
+```
+
+Local warning actions intentionally have `method: :local` and `endpoint: nil`
+so callers can persist them without calling Discord.
+
+## Scheduled Events
+
+```elixir
+CoreOperations.event_action(:create, %{
+  guild_id: "guild-1",
+  name: "Office hours",
+  scheduled_start_time: "2026-05-13T12:00:00Z",
+  privacy_level: 2,
+  entity_type: 3
+})
+```
+
+## Retry Planning
+
+```elixir
+CoreOperations.retry_plan({:error, {429, %{"retry_after" => 1.5}}})
+#=> %{retry?: true, reason: :rate_limited, delay_ms: 1500}
+
+CoreOperations.retry_plan({:error, {503, "unavailable"}}, %{
+  default_delay_ms: 500
+})
+```
+
+## Operation Events
+
+```elixir
+CoreOperations.operation_event(action, :succeeded, %{
+  actor_id: "agent-1",
+  guild_id: "guild-1",
+  channel_id: "123",
+  metadata: %{attempt: 1}
+})
+```
+
+Persist these envelopes to track state changes, emit downstream events, and
+connect retry attempts to the original operation.
