@@ -1,0 +1,82 @@
+# Telegram Analytics and Monitoring
+
+Lux provides transport-neutral Telegram analytics helpers for normalizing Bot
+API updates, aggregating chat and audience activity, building rolling monitoring
+buckets, evaluating alert thresholds, and producing report payloads.
+
+These helpers do not call Telegram or persist state. They can be wired behind
+webhooks, jobs, dashboards, or alerting systems.
+
+## Normalize Updates
+
+```elixir
+alias Lux.Integrations.Telegram.Analytics
+
+update = %{
+  "update_id" => 1,
+  "message" => %{
+    "message_id" => 10,
+    "date" => 1_800,
+    "text" => "/start hello",
+    "from" => %{"id" => 101, "username" => "ada"},
+    "chat" => %{"id" => -100, "type" => "supergroup"}
+  }
+}
+
+Analytics.event(update)
+```
+
+## Summaries
+
+```elixir
+Analytics.summary([update])
+```
+
+The summary includes total updates, active chats, active users, message counts,
+command counts, media counts, average text length, and frequency maps by chat,
+user, message type, and command.
+
+## Rolling Buckets
+
+```elixir
+Analytics.buckets([update], 60)
+```
+
+Use buckets to feed dashboards, rate monitors, or anomaly detectors.
+
+## Alerts
+
+```elixir
+metrics = Analytics.summary([update])
+
+Analytics.alerts(metrics, %{
+  max_updates: 100,
+  max_callback_queries: 25,
+  min_active_users: 5,
+  max_commands: 50
+})
+```
+
+## Reports
+
+```elixir
+Analytics.report([update], %{
+  chat_id: -100,
+  generated_at: DateTime.utc_now() |> DateTime.to_iso8601(),
+  thresholds: %{max_updates: 100},
+  limit: 5
+})
+```
+
+Reports are plain maps that can be serialized to JSON, sent to a webhook, or
+stored by the application layer.
+
+## Retention
+
+```elixir
+Analytics.retention([
+  %{period: "2026-05-11", users: [1, 2, 3]},
+  %{period: "2026-05-12", users: [2, 3, 4]},
+  %{period: "2026-05-13", users: [3, 4, 5]}
+])
+```
