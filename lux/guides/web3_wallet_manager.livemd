@@ -1,0 +1,85 @@
+# Web3 Wallet Manager
+
+Lux provides safe wallet and transaction-management helpers that do not create,
+import, store, or expose private keys. Use these helpers to model wallets,
+normalize transaction requests, enforce signer policies, track transaction
+state, and hand off signing to HD, hardware, multi-sig, or external signers.
+
+## Wallet Records
+
+```elixir
+alias Lux.Web3.WalletManager
+
+{:ok, wallet} =
+  WalletManager.wallet_record(%{
+    type: :hardware,
+    address: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    label: "Treasury",
+    chains: [1, 10],
+    signer_ref: "ledger://1"
+  })
+```
+
+## Transaction Requests
+
+```elixir
+{:ok, request} =
+  WalletManager.transaction_request(%{
+    chain_id: 1,
+    from: wallet.address,
+    to: "0x000000000000000000000000000000000000dEaD",
+    value: "0xde0b6b3a7640000",
+    data: "0x",
+    nonce: 7
+  })
+```
+
+## Policy Checks
+
+```elixir
+WalletManager.authorize_transaction(request, %{
+  allowed_chains: [1, 10],
+  max_value: 1_000_000_000_000_000_000
+})
+```
+
+## Queue State
+
+```elixir
+item = WalletManager.queue_item(request, %{id: "tx-1"})
+WalletManager.transition(item, :ready_to_sign)
+WalletManager.transition(item, :signed, %{tx_hash: "0xabc"})
+```
+
+## Signing and Broadcast Plans
+
+```elixir
+WalletManager.signing_plan(request, wallet)
+
+WalletManager.broadcast_plan(1, "0xsigned", %{
+  idempotency_key: "broadcast-1"
+})
+```
+
+## Monitoring Records
+
+```elixir
+WalletManager.balance_snapshot(%{
+  wallet_id: wallet.id,
+  address: wallet.address,
+  chain_id: 1,
+  balance: "0x10"
+})
+
+WalletManager.history_entry(%{
+  tx_hash: "0xabc",
+  chain_id: 1,
+  from: wallet.address,
+  to: "0x000000000000000000000000000000000000dEaD",
+  status: :confirmed,
+  block_number: 123
+})
+```
+
+Keep private key operations inside dedicated signer adapters. This module only
+passes signing payloads and records state.
