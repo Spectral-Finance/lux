@@ -126,5 +126,45 @@ defmodule Lux.Integrations.Discord.ClientTest do
       assert {:error, {429, "Too many requests"}} =
                Client.request(:get, "/users/@me", plug: {Req.Test, __MODULE__})
     end
+
+    test "includes additional request headers" do
+      Req.Test.stub(__MODULE__, fn conn ->
+        assert Plug.Conn.get_req_header(conn, "x-audit-log-reason") == ["unit-test"]
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{"id" => "123"}))
+      end)
+
+      assert {:ok, %{"id" => "123"}} =
+               Client.request(:get, "/users/@me", %{
+                 headers: [{"X-Audit-Log-Reason", "unit-test"}],
+                 plug: {Req.Test, __MODULE__}
+               })
+    end
+  end
+
+  describe "request_with_retry/3" do
+    test "retries Discord rate limit responses" do
+      parent = self()
+
+      Req.Test.expect(__MODULE__, 2, fn conn ->
+        send(parent, :discord_request)
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(429, Jason.encode!(%{"message" => "Too many requests"}))
+      end)
+
+      assert {:error, {429, "Too many requests"}} =
+               Client.request_with_retry(:get, "/users/@me", %{
+                 max_retries: 1,
+                 retry_sleep: fn _ -> :ok end,
+                 plug: {Req.Test, __MODULE__}
+               })
+
+      assert_receive :discord_request
+      assert_receive :discord_request
+    end
   end
 end
