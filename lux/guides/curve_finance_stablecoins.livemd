@@ -1,0 +1,79 @@
+# Curve Finance Stablecoin Management Guide
+
+Lux includes Curve Finance helpers for public pool reads, stablecoin pool analysis, gauge staking plans, CRV reward ranking, rebalancing, slippage controls, position monitoring, and yield dashboards.
+
+## Public API Client
+
+```elixir
+alias Lux.Integrations.CurveFinance.Client
+
+{:ok, platforms} = Client.platforms()
+{:ok, pools} = Client.pools(:ethereum)
+{:ok, factory_pools} = Client.registry_pools(:base, :"factory-stable-ng")
+{:ok, gauges} = Client.gauges()
+```
+
+The client calls Curve's public `https://api.curve.finance/v1` API. Pool discovery uses endpoints such as `getPools/all/{blockchainId}` and registry-specific `getPools/{blockchainId}/{registryId}`.
+
+## Pool Analysis
+
+```elixir
+alias Lux.Integrations.CurveFinance.Stablecoins
+
+ranked =
+  Stablecoins.pool_analysis(pools,
+    policy: %{
+      min_tvl_usd: 1_000_000,
+      min_base_apy: 0.01,
+      max_slippage_pct: 0.003
+    }
+  )
+```
+
+Pool analysis filters stablecoin-heavy pools, normalizes TVL, volume, fee, APY, gauge, reward-token, virtual-price, and pool-balance data, then ranks pools by yield and liquidity quality.
+
+## Gauge And Rewards
+
+```elixir
+[pool | _] = ranked
+
+{:ok, stake_plan} = Stablecoins.gauge_staking_plan(pool, 25.5)
+reward_rankings = Stablecoins.rewards_optimization(pools)
+```
+
+Gauge plans identify the LP token, gauge address, estimated APY, and expected reward tokens. They intentionally return execution plans only; transaction signing and submission should stay in a wallet-specific prism or downstream executor.
+
+## Rebalancing And Slippage
+
+```elixir
+Stablecoins.rebalance_plan(
+  %{USDC: 0.60, DAI: 0.20, USDT: 0.20},
+  policy: %{target_allocations: %{USDC: 0.34, DAI: 0.33, USDT: 0.33}}
+)
+
+Stablecoins.slippage_check(%{
+  amount_in: 1_000,
+  expected_out: 999,
+  min_out: 998,
+  route: [:USDC, :DAI]
+})
+
+Stablecoins.slippage_optimization([
+  %{amount_in: 1_000, expected_out: 999, min_out: 998, route: [:USDC, :DAI]},
+  %{amount_in: 1_000, expected_out: 1_000, min_out: 990, route: [:USDC, :USDT]}
+])
+```
+
+Rebalancing compares current and target stablecoin allocations. Slippage checks block routes whose expected output falls outside policy, and route optimization ranks approved routes ahead of blocked routes.
+
+## Dashboard
+
+```elixir
+Stablecoins.dashboard(%{
+  pools: pools,
+  positions: [%{pool_address: "0x...", lp_amount: 100, value_usd: 102}],
+  allocations: %{USDC: 0.60, DAI: 0.20, USDT: 0.20}
+})
+```
+
+The dashboard returns top pools, reward opportunities, monitored positions, weighted APY, and rebalance actions for agents that need a compact Curve management state.
