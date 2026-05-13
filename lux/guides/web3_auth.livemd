@@ -1,0 +1,106 @@
+# Web3 Authentication and Authorization
+
+Lux provides focused helpers for EIP-4361 Sign-In with Ethereum, session
+issuance, role-based access checks, and token-gated access rules.
+
+## SIWE Message
+
+```elixir
+alias Lux.Web3.Auth.SIWE
+
+message =
+  SIWE.build_message(%{
+    domain: "app.example.com",
+    address: "0x0000000000000000000000000000000000000000",
+    statement: "Sign in to Lux",
+    uri: "https://app.example.com/login",
+    chain_id: 1,
+    nonce: "AbC12345",
+    issued_at: DateTime.utc_now() |> DateTime.to_iso8601(),
+    expiration_time: DateTime.utc_now() |> DateTime.add(300, :second) |> DateTime.to_iso8601()
+  })
+```
+
+Parse and validate the message:
+
+```elixir
+{:ok, parsed} = SIWE.parse_message(message)
+
+:ok =
+  SIWE.validate_message(parsed, %{
+    domain: "app.example.com",
+    chain_id: 1,
+    now: DateTime.utc_now()
+  })
+```
+
+Signature verification is intentionally injectable so applications can use the
+wallet/signing stack they trust:
+
+```elixir
+verifier = fn message, signature, opts ->
+  # Recover the address with your configured Ethereum signature library.
+  {:ok, opts[:expected_address]}
+end
+
+SIWE.verify_signature(message, signature, %{
+  verifier: verifier,
+  expected_address: parsed.address
+})
+```
+
+## Sessions
+
+```elixir
+alias Lux.Web3.Auth.Session
+
+session =
+  Session.issue(parsed.address, %{
+    roles: [:member],
+    permissions: [:read_signals],
+    ttl_seconds: 3_600
+  })
+
+Session.expired?(session)
+```
+
+## RBAC
+
+```elixir
+alias Lux.Web3.Auth.RBAC
+
+policy = %{
+  admin: [%{action: :*, resource: :*}],
+  member: [%{action: :read, resource: :signals}]
+}
+
+RBAC.authorized?(session, :read, :signals, policy)
+```
+
+## Token Gates
+
+```elixir
+alias Lux.Web3.Auth.TokenGate
+
+holdings = %{
+  {1, "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"} => 150_000_000
+}
+
+rules = [
+  %{
+    chain_id: 1,
+    contract: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    min_balance: 100_000_000
+  }
+]
+
+TokenGate.allowed?(holdings, rules)
+```
+
+## Security Notes
+
+- Generate nonces server-side, store them, and mark them used after successful login.
+- Always validate domain, chain id, expiration, and nonce before issuing a session.
+- Keep signature recovery in a dedicated adapter so the application can pin a reviewed Ethereum library.
+- Store sessions server-side or sign/encrypt them with application-level key rotation.
+- Evaluate token gates server-side from trusted indexer/RPC data, not client-submitted balances.
