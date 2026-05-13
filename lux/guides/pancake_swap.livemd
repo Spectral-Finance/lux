@@ -1,0 +1,46 @@
+# PancakeSwap Farming
+
+Lux can model PancakeSwap pool discovery, yield farming positions, harvests,
+auto-compounding, APY optimization, risk checks, and cross-chain migration plans.
+
+## Subgraph Client
+
+```elixir
+alias Lux.Integrations.PancakeSwap.Client
+
+Client.farm_pools(:bsc, url: "https://your-masterchef-v3-subgraph/graphql")
+Client.positions(:bsc, "0xwallet", url: "https://your-masterchef-v3-subgraph/graphql")
+```
+
+## Farming Plans
+
+```elixir
+alias Lux.Integrations.PancakeSwap.Farming
+
+pools =
+  Farming.optimize_pools(
+    [
+      %{id: "cake-bnb", chain: :bsc, token0: "CAKE", token1: "BNB", tvl_usd: 5_000_000, fee_apr: 8, reward_apr: 24}
+    ],
+    min_tvl_usd: 100_000
+  )
+
+position =
+  Farming.position(%{
+    owner: "0xwallet",
+    chain: :bsc,
+    pool: hd(pools),
+    token_id: "42",
+    liquidity_usd: 10_000,
+    pending_reward_usd: 75,
+    gas_cost_usd: 3,
+    price_in_range: true
+  })
+
+Farming.compound_plan(position, min_reward_usd: 10)
+Farming.risk_report(position)
+Farming.bridge_plan(position, :base)
+```
+
+Plans are deterministic operation lists. A caller can hand those operations to a
+wallet/signer layer for real execution.
