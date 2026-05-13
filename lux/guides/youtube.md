@@ -49,6 +49,15 @@ metadata = %{
 The returned `location` is the Google resumable upload session URL. The caller
 can stream the media bytes to that URL according to the YouTube upload protocol.
 
+Agents can also start an upload through the prism interface:
+
+```elixir
+Lux.Prisms.YouTube.Videos.InitiateResumableUpload.handler(
+  %{title: "Launch demo", privacy_status: "private"},
+  %{name: "Publisher"}
+)
+```
+
 ## Live Streaming
 
 ```elixir
@@ -70,11 +79,38 @@ Lux.Integrations.YouTube.Client.transition_live_broadcast(broadcast["id"], "live
 Lux.Integrations.YouTube.Client.list_stream_health(stream["id"])
 ```
 
+The same workflow is available as agent-callable prisms:
+
+```elixir
+Lux.Prisms.YouTube.Live.CreateBroadcast.handler(%{
+  title: "Product launch",
+  scheduled_start_time: "2026-05-13T12:00:00Z",
+  privacy_status: "unlisted"
+}, %{name: "Producer"})
+
+Lux.Prisms.YouTube.Live.CreateStream.handler(%{title: "Primary ingest"}, %{name: "Producer"})
+
+Lux.Prisms.YouTube.Live.BindBroadcast.handler(%{
+  broadcast_id: "broadcast-id",
+  stream_id: "stream-id"
+}, %{name: "Producer"})
+
+Lux.Prisms.YouTube.Live.TransitionBroadcast.handler(%{
+  broadcast_id: "broadcast-id",
+  status: "live"
+}, %{name: "Producer"})
+```
+
 ## Live Chat
 
 ```elixir
 Lux.Integrations.YouTube.Client.list_live_chat_messages("live-chat-id")
 Lux.Integrations.YouTube.Client.insert_live_chat_message("live-chat-id", "Hello from Lux")
+
+Lux.Prisms.YouTube.Live.SendChatMessage.handler(
+  %{live_chat_id: "live-chat-id", text: "Hello from Lux"},
+  %{name: "Moderator"}
+)
 ```
 
 ## Error Handling
