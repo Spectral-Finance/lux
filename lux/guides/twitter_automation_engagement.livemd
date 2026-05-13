@@ -1,0 +1,95 @@
+# Twitter Automation and Engagement
+
+Lux provides transport-neutral Twitter/X automation helpers for scheduling,
+rule-based engagement, queue management, content calendars, and action plans.
+
+## Schedule Posts
+
+```elixir
+alias Lux.Integrations.Twitter.Automation
+
+Automation.schedule_post("launch update", "2026-05-14T12:00:00Z", %{
+  account_id: "account-1",
+  tags: ["launch"]
+})
+```
+
+## Queue Actions
+
+```elixir
+item =
+  Automation.enqueue_action(:reply, %{
+    tweet_id: "tweet-1",
+    text: "Thanks for reaching out."
+  })
+
+Automation.transition(item, :completed, %{
+  result: %{tweet_id: "reply-tweet"}
+})
+```
+
+## Engagement Rules
+
+```elixir
+event = %{
+  text: "please help with billing",
+  like_count: 12,
+  tweet_id: "tweet-1"
+}
+
+Automation.evaluate_rules(event, [
+  %{
+    id: "support-reply",
+    conditions: %{
+      text: %{operator: :contains, value: "billing"},
+      like_count: %{operator: :>=, value: 10}
+    },
+    action: :reply,
+    payload: %{
+      reply_to_tweet_id: {:event, :tweet_id},
+      text: "We can help."
+    },
+    priority: :high
+  }
+])
+```
+
+## Action Plans
+
+```elixir
+Automation.action_plan(:create_tweet, %{
+  text: "Thanks!",
+  reply_to_tweet_id: "tweet-1",
+  idempotency_key: "reply:tweet-1"
+})
+
+Automation.action_plan(:repost, %{
+  user_id: "user-1",
+  tweet_id: "tweet-1"
+})
+
+Automation.action_plan(:follow, %{
+  user_id: "user-1",
+  target_user_id: "user-2"
+})
+
+Automation.action_plan(:direct_message, %{
+  participant_id: "user-2",
+  text: "hello"
+})
+```
+
+Each action plan returns `%{action, method, endpoint, payload}` so an API client
+can execute it while the scheduling and rule engine remain easy to test.
+
+## Content Calendar
+
+```elixir
+Automation.calendar_summary([
+  %{scheduled_at: "2026-05-14T12:00:00Z", state: :pending, tags: ["launch"]},
+  %{scheduled_at: "2026-05-14T13:00:00Z", state: :completed, tags: ["docs"]}
+])
+```
+
+Use the summary to build reports, review failed queue items, and rebalance
+scheduled content across campaign days.
