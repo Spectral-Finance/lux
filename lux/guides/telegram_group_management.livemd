@@ -1,0 +1,84 @@
+# Telegram Group Management
+
+Lux provides group-management helpers for Telegram bots that need repeatable
+moderation, permission, channel-posting, and admin-audit workflows.
+
+## Permission Templates
+
+```elixir
+alias Lux.Integrations.Telegram.GroupManager
+
+{:ok, permissions} =
+  GroupManager.member_permissions(:read_only, %{
+    can_invite_users: true
+  })
+
+permissions.can_send_messages
+permissions.can_invite_users
+```
+
+## Restrict Members
+
+```elixir
+{:ok, action} =
+  GroupManager.restrict_member(-100123, 42, :read_only, %{
+    until_date: 1_800_000_000,
+    use_independent_chat_permissions: true
+  })
+
+action.endpoint
+action.payload.permissions
+```
+
+The action can be executed through the Telegram client:
+
+```elixir
+Lux.Integrations.Telegram.Client.request(action.method, action.endpoint, %{
+  json: action.payload
+})
+```
+
+## Ban and Unban
+
+```elixir
+GroupManager.ban_member("@group", 42, %{revoke_messages: true})
+GroupManager.unban_member("@group", 42, %{only_if_banned: true})
+```
+
+## Promote Admins
+
+```elixir
+GroupManager.promote_member("@channel", 42, :publisher, %{
+  custom_title: "Publisher"
+})
+```
+
+## Default Chat Permissions
+
+```elixir
+GroupManager.set_chat_permissions("@group", :media_allowed)
+```
+
+## Channel Posts
+
+```elixir
+GroupManager.channel_post("@channel", "release notes", %{
+  parse_mode: "MarkdownV2",
+  disable_notification: true
+})
+```
+
+## Admin Audit Logs
+
+```elixir
+GroupManager.admin_log_entry(:restrict_member, %{
+  actor_id: 1,
+  target_user_id: 42,
+  chat_id: -100123,
+  reason: "spam burst",
+  metadata: %{duration: 3600}
+})
+```
+
+Persist these entries in the caller's store so moderation actions can be
+reviewed or replayed independently from Telegram API responses.
