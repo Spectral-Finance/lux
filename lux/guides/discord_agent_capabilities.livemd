@@ -1,0 +1,19 @@
+# Discord Agent Capabilities
+
+`Lux.Integrations.Discord.AgentCapabilities` builds plan-only Discord operations for agents.
+It covers server resources, conversations, roles, member interactions, and role-based behavior policy.
+
+```elixir
+alias Lux.Integrations.Discord.AgentCapabilities
+
+AgentCapabilities.plan(%{
+  guild_id: "123456789012345678",
+  channel_id: "234567890123456789",
+  member_id: "345678901234567890",
+  role_id: "456789012345678901",
+  agent_roles: ["moderator"]
+})
+```
+
+The returned plans do not execute live Discord requests. A transport layer should review permissions,
+inject a bot token, add audit reasons for moderation changes, and dispatch only the approved operations.
