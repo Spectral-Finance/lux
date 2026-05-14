@@ -1,0 +1,28 @@
+# NFT Marketplace Aggregation
+
+`Lux.Integrations.NFT.MarketplaceAggregator` normalizes marketplace data for NFT
+collections and builds aggregate reports across OpenSea, Blur, X2Y2, and custom
+marketplaces.
+
+```elixir
+alias Lux.Integrations.NFT.MarketplaceAggregator
+
+MarketplaceAggregator.aggregate(%{
+  collection_slug: "azuki",
+  contract_address: "0xed5af388653567af2f388e6224dc7c4b3241c544",
+  marketplaces: [
+    %{
+      marketplace: "opensea",
+      stats: %{floor_price: 4.5, volume_24h: 100.0, listed_count: 10},
+      listings: [%{token_id: "1", price: 4.5}],
+      sales: [%{token_id: "1", price: 4.7}],
+      tokens: [%{token_id: "1", traits: %{"Background" => "Red"}}]
+    }
+  ]
+})
+```
+
+The aggregator is transport-free. Use `request_plans/1` to plan collection,
+listing, and sale reads for each marketplace, execute those requests in the
+caller-controlled transport layer, then pass the returned payloads into
+`aggregate/1`.
