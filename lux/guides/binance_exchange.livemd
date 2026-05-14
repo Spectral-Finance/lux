@@ -1,0 +1,60 @@
+# Binance Exchange Integration
+
+`Lux.Integrations.Binance.Exchange` creates deterministic plans for Binance spot and USD-M futures workflows. It does not store API keys, sign payloads, open WebSocket connections, or submit live orders.
+
+## REST Market Data
+
+```elixir
+Lux.Integrations.Binance.Exchange.rest_request_plan(%{
+  market: :spot,
+  endpoint: :order_book,
+  symbol: "BTCUSDT",
+  params: %{limit: 100}
+})
+```
+
+## Spot And Futures Orders
+
+```elixir
+Lux.Integrations.Binance.Exchange.spot_order_plan(%{
+  symbol: "BNBUSDT",
+  side: :buy,
+  type: :limit,
+  quantity: "1.5",
+  price: "310",
+  timestamp: 1_700_000_000_000
+})
+
+Lux.Integrations.Binance.Exchange.futures_order_plan(%{
+  symbol: "ETHUSDT",
+  side: :sell,
+  type: :market,
+  quantity: "0.25",
+  reduce_only: true,
+  position_side: "SHORT",
+  timestamp: 1_700_000_000_100
+})
+```
+
+## WebSocket Streams
+
+```elixir
+Lux.Integrations.Binance.Exchange.websocket_plan(%{
+  market: :futures,
+  subscriptions: [
+    %{symbol: "btcusdt", stream: :mark_price},
+    %{symbol: "ethusdt", stream: :book_ticker}
+  ]
+})
+```
+
+## Rate Limits
+
+```elixir
+Lux.Integrations.Binance.Exchange.rate_limit_report([
+  %{market: :spot, endpoint: :order_book, count: 2},
+  %{market: :futures, endpoint: :new_order, count: 3}
+])
+```
+
+The returned plan includes request weights, remaining request budget, and throttle recommendations before a transport adapter sends anything to Binance.
