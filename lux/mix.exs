@@ -141,6 +141,7 @@ defmodule Lux.MixProject do
         "guides/language_support/nodejs.livemd",
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
+        "guides/telegram_message_processing.md",
         "guides/testing.md",
         "guides/cursor_development.md",
         "guides/contributing.md",
