@@ -137,6 +137,7 @@ defmodule Lux.MixProject do
         "guides/signals.livemd",
         "guides/lenses.livemd",
         "guides/language_support.md",
+        "guides/llm_provider_abstraction.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
         "guides/multi_agent_collaboration.livemd",
@@ -156,6 +157,9 @@ defmodule Lux.MixProject do
           "guides/language_support.md",
           "guides/language_support/python.livemd",
           "guides/language_support/nodejs.livemd"
+        ],
+        LLM: [
+          "guides/llm_provider_abstraction.md"
         ],
         Setup: [
           "guides/troubleshooting.md",
