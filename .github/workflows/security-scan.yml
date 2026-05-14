@@ -49,6 +49,14 @@ jobs:
         with:
           python-version: '3.12.3'
 
+      - name: Cache Poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: ${{ runner.os }}-poetry-2.0.0
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -56,6 +64,16 @@ jobs:
           virtualenvs-create: false
           virtualenvs-in-project: false
           installer-parallel: true
+
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-python-packages-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-python-packages-lux-
 
       - name: Install Python dependencies
         working-directory: lux/priv/python
@@ -92,4 +110,4 @@ jobs:
 
       - name: Run npm audit for Lux App
         working-directory: lux_app
-        run: cd assets && npm audit 
+        run: cd assets && npm audit
