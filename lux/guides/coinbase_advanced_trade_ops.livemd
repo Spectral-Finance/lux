@@ -1,0 +1,27 @@
+# Coinbase Advanced Trade Ops
+
+`Lux.Integrations.Coinbase.AdvancedTrade` builds plan-only Coinbase Advanced Trade
+REST, WebSocket, order, market-data, account, portfolio, and rate-limit objects.
+It does not store API secrets, sign JWTs, or submit live orders.
+
+```elixir
+alias Lux.Integrations.Coinbase.AdvancedTrade
+
+AdvancedTrade.plan(%{
+  product_id: "BTC-USD",
+  side: "BUY",
+  order_type: "limit",
+  base_size: "0.01",
+  limit_price: "65000",
+  channels: ["ticker", "level2", "heartbeats"],
+  accounts: [
+    %{currency: "BTC", available_balance: %{value: "0.1"}}
+  ],
+  prices: %{"BTC" => "65000"}
+})
+```
+
+Use `rest_plans/1` and `websocket_subscription/3` to prepare transport work,
+then sign and dispatch requests in a caller-controlled adapter. The returned
+plans include JWT claim metadata and rate-limit keys so live clients can add
+credentials and throttling without changing the core operation model.
