@@ -1,0 +1,22 @@
+# LLM Provider Routing
+
+`Lux.LLM.ProviderRouter` builds stateless provider selection, fallback, cost,
+performance, and cache plans for LLM calls.
+
+```elixir
+alias Lux.LLM.ProviderRouter
+
+ProviderRouter.route(%{
+  prompt: "Summarize this report",
+  capabilities: [:chat, :tools, :json],
+  strategy: :balanced,
+  estimated_input_tokens: 2_000,
+  estimated_output_tokens: 800,
+  max_cost_usd: 0.01
+})
+```
+
+The router does not call remote providers. It returns the selected provider,
+candidate models, fallback chain, estimated cost, cache key, and optimization
+alternatives so a caller can dispatch through existing LLM clients with a clear
+budget and failure plan.
