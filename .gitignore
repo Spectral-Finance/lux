@@ -21,6 +21,9 @@ __pycache__/
 # Node.js
 node_modules/
 
+# Rust
+lux/priv/rust/**/target/
+
 # Environment files
 *.envrc
 !*.envrc.example

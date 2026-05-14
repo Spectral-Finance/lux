@@ -1,0 +1,38 @@
+# Rust FFI Core
+
+`Lux.Rust.FFI` defines the Elixir side of the checked-in Rust FFI crate at
+`priv/rust/lux_ffi`.
+
+The Rust crate exports two C ABI symbols:
+
+```text
+lux_ffi_execute_json(*const u8, usize) -> LuxFfiBuffer
+lux_ffi_free_buffer(LuxFfiBuffer)
+```
+
+`lux_ffi_execute_json` accepts UTF-8 JSON bytes shaped as:
+
+```json
+{"operation": "type_of", "input": "lux"}
+```
+
+and returns an owned response buffer containing:
+
+```json
+{"ok": true, "value": {"type": "string"}}
+```
+
+Elixir callers can build and inspect the payload contract without loading a
+native library at compile time:
+
+```elixir
+alias Lux.Rust.FFI
+
+{:ok, request} = FFI.request(:sum_i64, [1, 2, 3])
+FFI.abi()
+FFI.safety_contract()
+FFI.cargo_commands()
+```
+
+The response buffer is owned by the caller and must be released exactly once with
+`lux_ffi_free_buffer`.
