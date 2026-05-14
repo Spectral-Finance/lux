@@ -1,0 +1,48 @@
+# Discord Advanced Features
+
+`Lux.Integrations.Discord.AdvancedFeatures` builds deterministic plans for voice channels, rich presence, webhooks, and server analytics.
+
+The module does not open a Discord gateway session or stream audio directly. It returns payloads and policies that a Discord transport can execute with its own credentials and runtime supervision.
+
+## Voice Channel Plan
+
+```elixir
+Lux.Integrations.Discord.AdvancedFeatures.voice_channel_plan(%{
+  action: :join,
+  guild_id: "111111111111111111",
+  channel_id: "222222222222222222",
+  queue: ["https://example.test/song.opus"]
+})
+```
+
+## Rich Presence
+
+```elixir
+Lux.Integrations.Discord.AdvancedFeatures.rich_presence_plan(%{
+  status: :online,
+  activities: [%{type: :watching, name: "market alerts"}]
+})
+```
+
+## Webhook Execution
+
+```elixir
+Lux.Integrations.Discord.AdvancedFeatures.webhook_plan(%{
+  action: :execute,
+  webhook_id: "333333333333333333",
+  token: "token",
+  content: "Trade filled",
+  username: "Lux Bot"
+})
+```
+
+## Server Analytics
+
+```elixir
+Lux.Integrations.Discord.AdvancedFeatures.analytics_report([
+  %{type: :message, subtype: :command, user_id: "u1", channel_id: "commands"},
+  %{type: :voice, user_id: "u1", channel_id: "voice", duration_seconds: 60}
+])
+```
+
+The report includes activity by channel and hour, usage statistics, member counts, role frequencies, and a normalized event log.
