@@ -24,14 +24,18 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 - Support for modern ES modules and async/await
 - Full access to Node.js APIs
 
-## Future Language Support
+### Rust Testing Support
+[Learn more about Rust testing](language_support/rust_testing.md)
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+Rust test integration is available for crates under `priv/rust` or another
+configured project path. You can:
+- Run Rust tests with `mix rust.test` or the `mix test.rust` alias
+- Build deterministic cargo test plans before execution
+- Parse cargo test output and LCOV coverage reports
+- Share fixture files and manifests between Elixir and Rust tests
+
+Native Rust component integration is still under development, but the testing
+surface is ready for Rust-backed Lux modules.
 
 ### Custom Language Integration
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
@@ -86,4 +90,4 @@ Want to add support for a new language? Check our [Contributing Guide](contribut
 4. Document the integration
 5. Submit a pull request
 
-For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux). 
+For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux).

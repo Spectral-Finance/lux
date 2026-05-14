@@ -18,6 +18,9 @@ mix test.integration
 
 # Run python tests
 mix python.test
+
+# Run Rust tests
+mix rust.test
 ```
 
 ## Test Organization
@@ -25,6 +28,7 @@ mix python.test
 - `test/unit/` - Contains all unit tests
 - `test/integration/` - Contains all integration tests
 - `test/support/` - Shared test helpers and utilities
+- `priv/rust/` - Example Rust crate and integration-test target for `mix rust.test`
 
 ## Configuration
 
@@ -127,4 +131,4 @@ The CI pipeline:
 - Check the test output for specific error messages
 - Review the relevant test helper modules
 - Consult the external service documentation
-- Reach out to the team for assistance 
+- Reach out to the team for assistance
