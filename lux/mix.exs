@@ -22,7 +22,9 @@ defmodule Lux.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test,
-        "coveralls.github": :test
+        "coveralls.github": :test,
+        "rust.test": :prod,
+        "test.rust": :prod
       ],
       # Package
       description:
@@ -54,6 +56,7 @@ defmodule Lux.MixProject do
     [
       "test.unit": "test --include unit",
       "test.integration": "test --include integration",
+      "test.rust": "rust.test",
       coveralls: "coveralls",
       "coveralls.detail": "coveralls.detail",
       "coveralls.post": "coveralls.post",
@@ -91,7 +94,9 @@ defmodule Lux.MixProject do
     [
       preferred_envs: [
         "test.integration": :test,
-        "test.unit": :test
+        "test.unit": :test,
+        "rust.test": :prod,
+        "test.rust": :prod
       ]
     ]
   end
@@ -117,6 +122,7 @@ defmodule Lux.MixProject do
         "priv/python/README.md",
         "priv/node/*.json",
         "priv/node/*.mjs",
+        "priv/rust/**/*",
         ".formatter.exs",
         "mix.exs",
         "../README.md",
@@ -139,6 +145,7 @@ defmodule Lux.MixProject do
         "guides/language_support.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
+        "guides/language_support/rust_testing.md",
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
         "guides/testing.md",
@@ -155,7 +162,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+          "guides/language_support/rust_testing.md"
         ],
         Setup: [
           "guides/troubleshooting.md",
