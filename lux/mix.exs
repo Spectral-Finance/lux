@@ -147,6 +147,7 @@ defmodule Lux.MixProject do
         "guides/troubleshooting.md",
         "guides/getting_started.md",
         "guides/core_concepts.md",
+        "guides/multi_chain_data_aggregation.md",
         "CHANGELOG.md",
         "LICENSE"
       ],
