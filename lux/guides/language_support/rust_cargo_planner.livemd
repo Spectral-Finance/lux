@@ -1,0 +1,43 @@
+# Rust Cargo Planner
+
+`Lux.Rust.CargoPlanner` builds deterministic package-management plans for Lux
+Rust projects. It does not run Cargo directly; it returns manifest, dependency,
+build, version, and cache data that callers can execute or persist.
+
+```elixir
+alias Lux.Rust.CargoPlanner
+
+plan =
+  CargoPlanner.plan(
+    name: "lux_native",
+    dependencies: %{
+      serde: "~> 1.0",
+      serde_json: "1",
+      rustler: "^0.36"
+    },
+    version_index: %{
+      "serde" => ["1.0.197"],
+      "serde_json" => ["1.0.115"],
+      "rustler" => ["0.36.2"]
+    },
+    features: %{default: ["serde/derive"]},
+    profile: :release,
+    build_features: ["nif", "serde"]
+  )
+
+plan.cargo_toml
+plan.resolved_dependencies
+plan.build
+plan.cache
+```
+
+The planner can also summarize a `Cargo.lock` file:
+
+```elixir
+"priv/rust/Cargo.lock"
+|> File.read!()
+|> CargoPlanner.parse_lock()
+```
+
+Use `CargoPlanner.dependency_conflicts/1` before writing manifests when generated
+dependencies come from multiple Lux components.
