@@ -133,6 +133,7 @@ defmodule Lux.MixProject do
         "../README.md",
         "guides/agents.livemd",
         "guides/beams.livemd",
+        "guides/binance_exchange.livemd",
         "guides/prisms.livemd",
         "guides/signals.livemd",
         "guides/lenses.livemd",
