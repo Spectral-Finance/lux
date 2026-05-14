@@ -43,6 +43,14 @@ jobs:
         with:
           python-version: '3.12.3'
 
+      - name: Cache Poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: ${{ runner.os }}-poetry-2.0.0
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -50,6 +58,16 @@ jobs:
           virtualenvs-create: false
           virtualenvs-in-project: false
           installer-parallel: true
+
+      - name: Cache Python packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pypoetry
+          key: ${{ runner.os }}-python-packages-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-python-packages-lux-
 
       - name: Update Python Dependencies
         working-directory: lux/priv/python
@@ -97,4 +115,4 @@ jobs:
             
             This is an automated PR created by the dependency update workflow.
           branch: dependency-updates
-          base: main 
+          base: main
