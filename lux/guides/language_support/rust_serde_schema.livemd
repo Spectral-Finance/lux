@@ -1,0 +1,43 @@
+# Rust Serde Schema
+
+`Lux.Rust.SerdeSchema` defines Rust-facing type contracts before values cross a
+native boundary. A schema can generate Serde-ready Rust definitions, validate
+Elixir values, encode JSON-safe payloads, and decode responses back into the
+same Elixir shape.
+
+```elixir
+alias Lux.Rust.SerdeSchema
+
+trade =
+  SerdeSchema.struct(:trade_intent, [
+    SerdeSchema.field(:user_id, SerdeSchema.primitive(:integer), rename: "userId"),
+    SerdeSchema.field(:symbol, SerdeSchema.primitive(:string)),
+    SerdeSchema.field(:metadata, SerdeSchema.primitive(:json), default: %{})
+  ])
+
+SerdeSchema.rust_definition(trade)
+SerdeSchema.encode(trade, %{user_id: 7, symbol: "ETH-USD"})
+```
+
+Enums use Serde adjacent tagging by default:
+
+```elixir
+event =
+  SerdeSchema.enum(:order_event, [
+    SerdeSchema.variant(:accepted, [
+      SerdeSchema.field(:order_id, SerdeSchema.primitive(:string), rename: "orderId")
+    ]),
+    SerdeSchema.variant(:rejected, SerdeSchema.primitive(:string)),
+    SerdeSchema.variant(:heartbeat)
+  ])
+
+SerdeSchema.encode(event, {:accepted, %{order_id: "ord_1"}})
+SerdeSchema.decode(event, %{"type" => "rejected", "data" => "bad checksum"})
+```
+
+The manifest output is suitable for Rust code generation, NIF planning, or
+command-boundary metadata:
+
+```elixir
+SerdeSchema.manifest(trade)
+```
