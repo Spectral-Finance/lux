@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Mira network integration
+- Telegram Bot API integration and Telegram guide
+- Together AI LLM integration
+- Discord channel and message lenses and prisms
+- Allora lenses
+
+### Changed
+- Improved Hex documentation and language support guides
+- Updated Node.js, Req, Dotenvy, Bandit, Styler, and StreamData dependencies
+- Improved CI coverage workflow and integration test runtime
+
+## [0.5.0] - 2025-02-24
+
+### Added
+- More robust JSON loading with test coverage
+
+### Changed
+- Bumped the Lux package version to 0.5.0
+
 ## [0.4.0] - 2025-02-20
 
 ### Added
@@ -59,4 +81,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic collaboration protocols
 - Agent discovery and capability advertisement
 - Status tracking for agents
-- Integration with OpenAI's GPT models 
+- Integration with OpenAI's GPT models
