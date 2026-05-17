@@ -1,0 +1,86 @@
+# Rust / Cargo Language Support
+
+Lux provides first-class support for running Rust code and managing Cargo packages within your agent workflows.
+
+## Prerequisites
+
+- Rust toolchain (install via [rustup](https://rustup.rs/))
+- Cargo (comes with Rust)
+
+Check if Rust is available:
+
+```elixir
+Lux.Rust.available?()
+# => true
+
+Lux.Rust.version()
+# => "cargo 1.85.0 (2025-01-13)"
+```
+
+## Evaluating Rust Code
+
+You can evaluate inline Rust code using `Lux.Rust.eval/2`:
+
+```elixir
+# Simple computation
+{:ok, result} = Lux.Rust.eval("40 + 2")
+# => {:ok, 42}
+
+# With variables
+{:ok, result} = Lux.Rust.eval(
+  "x * y + z",
+  variables: %{x: 10, y: 5, z: 3}
+)
+# => {:ok, 53}
+```
+
+## Managing Dependencies
+
+Add crate dependencies to your Rust code:
+
+```elixir
+# With external crates
+{:ok, result} = Lux.Rust.eval(
+  ~s'''
+  use serde_json::Value;
+  let data: Value = serde_json::from_str(input).unwrap();
+  data["value"].as_i64().unwrap() * 2
+  ''',
+  dependencies: ["serde_json = \"1.0\""],
+  variables: %{input: ~s|{"value": 21}|}
+)
+```
+
+## Creating Projects
+
+Create full Cargo projects:
+
+```elixir
+# Initialize a new project
+{:ok, path} = Lux.Rust.create_project("/tmp/my_project")
+
+# Add dependencies
+Lux.Rust.add_dependency("/tmp/my_project", "serde --features derive")
+Lux.Rust.add_dependency("/tmp/my_project", "reqwest --features json")
+
+# Build
+{:ok, result} = Lux.Rust.build("/tmp/my_project")
+
+# Read Cargo metadata
+{:ok, metadata} = Lux.Rust.read_cargo_metadata("/tmp/my_project")
+```
+
+## Package Caching
+
+Lux automatically caches compiled Rust binaries for faster subsequent evaluations:
+
+```elixir
+# Cache a result
+Lux.Rust.cache_result("my_computation", %{result: 42})
+
+# Retrieve from cache
+{:ok, value} = Lux.Rust.get_cached("my_computation")
+
+# Clear entire cache
+Lux.Rust.clear_cache()
+```
