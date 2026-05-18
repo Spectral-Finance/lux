@@ -126,15 +126,15 @@ jobs:
           path: |
             lux/priv/plts/*.plt
             lux/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-${{ hashFiles('lux/mix.exs', 'lux/mix.lock', '.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-dialyzer-lux-
+            ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-
 
       - name: Debug after cache
         run: |
           echo "Contents of priv/plts after cache restoration:"
           ls -la priv/plts || echo "Directory empty"
-          echo "Cache key used: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}"
+          echo "Cache key used: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-${{ hashFiles('lux/mix.exs', 'lux/mix.lock', '.tool-versions') }}"
 
       - name: Compile
         run: mix compile
@@ -150,7 +150,7 @@ jobs:
           path: |
             lux/priv/plts/*.plt
             lux/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-${{ hashFiles('lux/mix.exs', 'lux/mix.lock', '.tool-versions') }}
 
       - name: Run Dialyzer
         run: mix dialyzer --format github

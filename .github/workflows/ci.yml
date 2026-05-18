@@ -128,9 +128,9 @@ jobs:
           path: |
             lux/priv/plts/*.plt
             lux/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-${{ hashFiles('lux/mix.exs', 'lux/mix.lock', '.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-dialyzer-lux-
+            ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-
 
       - name: Compile
         run: mix compile
@@ -146,7 +146,7 @@ jobs:
           path: |
             lux/priv/plts/*.plt
             lux/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-${{ hashFiles('lux/mix.exs', 'lux/mix.lock', '.tool-versions') }}
 
       - name: Run Dialyzer
         run: mix dialyzer --format github
@@ -236,9 +236,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: lux_app/priv/plts
-          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-app-${{ hashFiles('lux_app/mix.exs', 'lux_app/mix.lock', '.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-dialyzer-lux-app-
+            ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-app-
 
       - name: Install Mix Dependencies
         run: mix deps.get

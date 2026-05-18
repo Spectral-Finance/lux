@@ -65,16 +65,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-lux-app-
 
-      - name: Cache Dialyzer PLTs
-        uses: actions/cache@v4
-        with:
-          path: |
-            lux_app/priv/plts/*.plt
-            lux_app/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-dialyzer-lux-app-
-
       - name: Install Mix Dependencies
         run: mix deps.get
 
@@ -88,9 +78,9 @@ jobs:
           path: |
             lux_app/priv/plts/*.plt
             lux_app/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-app-${{ hashFiles('lux_app/mix.exs', 'lux_app/mix.lock', '.tool-versions') }}
           restore-keys: |
-            ${{ runner.os }}-dialyzer-lux-app-
+            ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-app-
 
       - name: Compile
         run: mix compile
@@ -106,7 +96,7 @@ jobs:
           path: |
             lux_app/priv/plts/*.plt
             lux_app/priv/plts/*.hash
-          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          key: ${{ runner.os }}-otp-27.2-elixir-1.18.1-dialyzer-lux-app-${{ hashFiles('lux_app/mix.exs', 'lux_app/mix.lock', '.tool-versions') }}
 
       - name: Install Node.js dependencies
         run: cd assets && npm ci
