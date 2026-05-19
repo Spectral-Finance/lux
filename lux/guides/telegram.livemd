@@ -132,44 +132,73 @@ alias Lux.Prisms.Telegram.Media.SendPhoto
 )
 ```
 
-### Message Management
+### Management
 
-Prisms for copying, forwarding, and managing existing messages:
+Prisms for managing the bot and chats:
 
 ```elixir
-alias Lux.Prisms.Telegram.Messages.CopyMessage
-alias Lux.Prisms.Telegram.Messages.ForwardMessage
-alias Lux.Prisms.Telegram.Messages.EditMessageCaption
+alias Lux.Prisms.Telegram.Management.GetFile
+alias Lux.Prisms.Telegram.Management.SetWebhook
+alias Lux.Prisms.Telegram.Management.SetMyCommands
+alias Lux.Prisms.Telegram.Management.PinChatMessage
 
-# Copy a message between chats
-{:ok, copied} = CopyMessage.handler(
-  %{
-    chat_id: 123_456_789, # Destination chat
-    from_chat_id: 987654321, # Source chat
-    message_id: 42 # Message to copy
-  },
-  %{name: "Demo Bot"}
-)
+# Get info about a file for downloading
+{:ok, file} = GetFile.handler(%{file_id: "..."})
 
-# Forward a message between chats
-{:ok, forwarded} = ForwardMessage.handler(
-  %{
-    chat_id: 123_456_789, # Destination chat
-    from_chat_id: 987654321, # Source chat
-    message_id: 42 # Message to forward
-  },
-  %{name: "Demo Bot"}
-)
+# Set bot commands
+{:ok, _} = SetMyCommands.handler(%{
+  commands: [
+    %{command: "start", description: "Start the bot"},
+    %{command: "help", description: "Show help info"}
+  ]
+})
 
-# Edit a media caption
-{:ok, _} = EditMessageCaption.handler(
-  %{
-    chat_id: 123_456_789,
-    message_id: photo_result.message_id,
-    caption: "Updated caption"
-  },
-  %{name: "Demo Bot"}
-)
+# Pin a message in a chat
+{:ok, _} = PinChatMessage.handler(%{
+  chat_id: 123456789,
+  message_id: 42
+})
+```
+
+## Secure Bot Communication
+
+Lux uses its lens system to provide secure and composable access to the Telegram API. You can use lenses to fetch bot identity or updates:
+
+```elixir
+alias Lux.Lenses.Telegram.GetMe
+alias Lux.Lenses.Telegram.GetUpdates
+
+# Fetch bot identity
+{:ok, bot_info} = GetMe.focus()
+
+# Fetch recent updates via polling
+{:ok, updates} = GetUpdates.focus(%{limit: 10})
+```
+
+## Receiving Updates
+
+Lux provides built-in modules for handling incoming updates.
+
+### Polling
+
+The `Lux.Integrations.Telegram.Polling` GenServer can be started in your application's supervision tree to continuously poll for updates:
+
+```elixir
+# Start the poller with a handler function
+children = [
+  {Lux.Integrations.Telegram.Polling, handler: fn update -> IO.inspect(update) end}
+]
+```
+
+### Webhook
+
+The `Lux.Integrations.Telegram.Webhook` Plug can be used in your Phoenix or Plug-based router to handle webhook requests:
+
+```elixir
+# In your router
+post "/telegram/webhook", Lux.Integrations.Telegram.Webhook, 
+  handler: &MyBot.handle_update/1,
+  secret_token: "your_secret_token"
 ```
 
 ## Advanced Usage
