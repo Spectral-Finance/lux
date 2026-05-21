@@ -91,6 +91,24 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Binance API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec binance_api_key() :: api_key()
+  def binance_api_key do
+    get_required_key(:api_keys, :binance_api_key)
+  end
+
+  @doc """
+  Gets the Binance API secret from configuration.
+  Raises if the secret is not configured.
+  """
+  @spec binance_api_secret() :: api_key()
+  def binance_api_secret do
+    get_required_key(:api_keys, :binance_api_secret)
+  end
+
+  @doc """
   Gets the Hyperliquid account's private key from configuration.
   Raises if the key is not configured.
   """

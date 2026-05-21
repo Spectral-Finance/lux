@@ -1,0 +1,158 @@
+# Binance Exchange Integration
+
+```elixir
+Mix.install([
+  {:lux, "~> 0.1.0"}
+])
+```
+
+## Overview
+
+Lux provides a seamless integration with the Binance exchange, supporting both **Spot** and **USD-M Futures** trading. The integration is built using Elixir Prisms that communicate with the `python-binance` library through Python bridging.
+
+This allows your Lux agents to execute trades, check balances, and fetch market data directly from Binance.
+
+## Setup
+
+First, ensure you have your Binance API keys configured in your environment or `config/runtime.exs`:
+
+```elixir
+config :lux, :api_keys,
+  binance_api_key: System.get_env("BINANCE_API_KEY"),
+  binance_api_secret: System.get_env("BINANCE_API_SECRET")
+```
+
+Also, ensure that your `lux-python` package dependencies are installed since the integration uses `python-binance`.
+
+## 1. Fetching Market Data
+
+You can fetch Klines (candlesticks) and Order Book data without needing to authenticate.
+
+```elixir
+alias Lux.Prisms.Binance.BinanceMarketDataPrism
+
+# Fetch Klines
+{:ok, result} = BinanceMarketDataPrism.run(%{
+  "symbol" => "BTCUSDT",
+  "data_type" => "KLINES",
+  "interval" => "1h",
+  "market_type" => "SPOT",
+  "limit" => 5
+})
+
+IO.inspect(result.data["klines"], label: "BTCUSDT Klines")
+
+# Fetch Order Book
+{:ok, result} = BinanceMarketDataPrism.run(%{
+  "symbol" => "ETHUSDT",
+  "data_type" => "ORDER_BOOK",
+  "market_type" => "FUTURES",
+  "limit" => 5
+})
+
+IO.inspect(result.data["order_book"], label: "ETHUSDT Order Book")
+```
+
+## 2. Checking Portfolio
+
+To check your account balances and active positions (for futures), use the Portfolio Prism.
+
+```elixir
+alias Lux.Prisms.Binance.BinancePortfolioPrism
+
+# Check Spot Balances (Filters out zero balances)
+{:ok, spot_portfolio} = BinancePortfolioPrism.run(%{
+  "market_type" => "SPOT",
+  "testnet" => true
+})
+IO.inspect(spot_portfolio.balances, label: "Spot Balances")
+
+# Check Futures Balances and Active Positions
+{:ok, futures_portfolio} = BinancePortfolioPrism.run(%{
+  "market_type" => "FUTURES",
+  "testnet" => true
+})
+IO.inspect(futures_portfolio.positions, label: "Active Futures Positions")
+```
+
+## 3. Executing Orders
+
+The Execute Order Prism supports Market, Limit, and Stop orders.
+
+```elixir
+alias Lux.Prisms.Binance.BinanceExecuteOrderPrism
+
+# Execute a Spot Market Buy
+{:ok, spot_order} = BinanceExecuteOrderPrism.run(%{
+  "symbol" => "BTCUSDT",
+  "side" => "BUY",
+  "type" => "MARKET",
+  "quantity" => 0.001,
+  "market_type" => "SPOT",
+  "testnet" => true
+})
+
+IO.inspect(spot_order.order_result, label: "Spot Order Execution")
+
+# Execute a Futures Limit Sell
+{:ok, futures_limit} = BinanceExecuteOrderPrism.run(%{
+  "symbol" => "ETHUSDT",
+  "side" => "SELL",
+  "type" => "LIMIT",
+  "quantity" => 0.05,
+  "price" => 3500.0,
+  "timeInForce" => "GTC",
+  "market_type" => "FUTURES",
+  "testnet" => true
+})
+
+IO.inspect(futures_limit.order_result, label: "Futures Limit Order")
+```
+
+## 4. Managing Open Orders
+
+You can retrieve all open orders or cancel a specific one.
+
+```elixir
+alias Lux.Prisms.Binance.BinanceOpenOrdersPrism
+alias Lux.Prisms.Binance.BinanceCancelOrderPrism
+
+# Fetch open orders for ETHUSDT
+{:ok, open_orders} = BinanceOpenOrdersPrism.run(%{
+  "symbol" => "ETHUSDT",
+  "market_type" => "FUTURES",
+  "testnet" => true
+})
+
+# Let's cancel the first open order if there is one
+case open_orders.open_orders do
+  [order | _] -> 
+    {:ok, cancel_result} = BinanceCancelOrderPrism.run(%{
+      "symbol" => "ETHUSDT",
+      "orderId" => order["orderId"],
+      "market_type" => "FUTURES",
+      "testnet" => true
+    })
+    IO.inspect(cancel_result.result, label: "Canceled Order")
+  [] -> 
+    IO.puts("No open orders to cancel.")
+end
+```
+
+## Integrating with Agents
+
+You can assign these prisms to a `Lux.Agent` so it can autonomously trade based on market conditions!
+
+```elixir
+alias Lux.Agent
+
+trading_agent = Agent.new(
+  name: "Binance Trader",
+  goal: "Execute trades based on signal inputs.",
+  prisms: [
+    BinanceExecuteOrderPrism,
+    BinanceMarketDataPrism,
+    BinancePortfolioPrism
+  ]
+)
+```
