@@ -1,0 +1,275 @@
+# Hyperliquid Perpetual Trading Integration
+
+```elixir
+Mix.install([{:lux, path: ".."}])
+```
+
+## Introduction
+
+This guide covers the Hyperliquid perpetual trading integration in Lux, which provides a complete suite of prisms and beams for:
+
+- **Order Execution**: Place, cancel, and monitor orders
+- **Position Management**: Track positions, set leverage, manage margin
+- **Risk Control**: Assess risk, monitor liquidation proximity
+- **PnL Tracking**: Monitor unrealized PnL and portfolio metrics
+
+## Prisms Overview
+
+The Hyperliquid integration consists of the following prisms:
+
+### Order Management Prisms
+
+| Prism | Purpose |
+|-------|---------|
+| `HyperliquidExecuteOrderPrism` | Execute market/limit/trigger orders |
+| `HyperliquidCancelOrderPrism` | Cancel existing orders |
+| `HyperliquidOpenOrdersPrism` | Fetch open orders for an address |
+
+### Position & Risk Prisms
+
+| Prism | Purpose |
+|-------|---------|
+| `HyperliquidUserStatePrism` | Get account state and positions |
+| `HyperliquidTokenInfoPrism` | Get market data and prices |
+| `HyperliquidRiskAssessmentPrism` | Calculate risk metrics for a proposed trade |
+| `HyperliquidLiquidationMonitorPrism` | Monitor liquidation proximity with configurable thresholds |
+| `HyperliquidPnLTrackerPrism` | Track unrealized PnL across positions |
+
+### Control Prisms
+
+| Prism | Purpose |
+|-------|---------|
+| `HyperliquidSetLeveragePrism` | Set leverage (1-50x) with cross/isolated margin |
+| `HyperliquidMarginManagementPrism` | Add or remove margin from positions |
+
+## Configuration
+
+The integration requires the following configuration in your environment:
+
+```elixir
+config :lux, :accounts,
+  hyperliquid_private_key: System.get_env("HYPERLIQUID_PRIVATE_KEY"),
+  hyperliquid_address: System.get_env("HYPERLIQUID_ADDRESS", ""),
+  hyperliquid_api_url: System.get_env("HYPERLIQUID_API_URL", "https://api.hyperliquid.xyz")
+```
+
+## Basic Usage
+
+### Fetching Market Data
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidTokenInfoPrism.run(%{})
+
+# Access ETH price data
+eth_data = result.prices["ETH"]
+IO.puts("ETH Mark Price: #{eth_data["markPx"]}")
+IO.puts("ETH Funding Rate: #{eth_data["funding"]}")
+IO.puts("ETH Open Interest: #{eth_data["openInterest"]}")
+```
+
+### Checking Account State
+
+```elixir
+address = "0x0403369c02199a0cb827f4d6492927e9fa5668d5"
+
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidUserStatePrism.run(%{address: address})
+
+# View positions
+for position <- result.user_state["assetPositions"] do
+  pos = position["position"]
+  IO.puts("#{pos["coin"]}: Size=#{pos["size"]}, Entry=#{pos["entryPx"]}, Leverage=#{pos["leverage"]}")
+end
+
+# View margin summary
+margin = result.user_state["crossMarginSummary"]
+IO.puts("Account Value: #{margin["accountValue"]}")
+IO.puts("Total Margin Used: #{margin["totalMarginUsed"]}")
+IO.puts("Total Notional Position: #{margin["totalNtlPos"]}")
+```
+
+### Monitoring Liquidation Risk
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidLiquidationMonitorPrism.run(%{
+  address: address,
+  warning_threshold: 0.2,  # Warn at 20% distance to liquidation
+  critical_threshold: 0.1   # Critical at 10% distance to liquidation
+})
+
+# Check risk levels
+for pos <- result.positions do
+  IO.puts("#{pos["coin"]}: Risk=#{pos["risk_level"]}, Distance=#{pos["distance_to_liquidation"]}")
+end
+
+# Overall summary
+IO.puts("Total: #{result.summary["total_positions"]}")
+IO.puts("Safe: #{result.summary["safe_count"]}, Warning: #{result.summary["warning_count"]}, Critical: #{result.summary["critical_count"]}")
+```
+
+### Tracking PnL
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidPnLTrackerPrism.run(%{address: address})
+
+# Portfolio summary
+summary = result.portfolio_summary
+IO.puts("Total Unrealized PnL: #{summary["total_unrealized_pnl"]}")
+IO.puts("Account Value: #{summary["account_value"]}")
+IO.puts("Margin Used: #{summary["margin_used"]}")
+
+# Per-position details
+for pos <- result.position_details do
+  IO.puts("#{pos["coin"]}: PnL=#{pos["unrealized_pnl"]}, RoE=#{pos["return_on_equity"]}")
+end
+```
+
+### Setting Leverage
+
+```elixir
+# Set 3x cross margin leverage on ETH
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidSetLeveragePrism.run(%{
+  coin: "ETH",
+  leverage: 3,
+  is_cross: true
+})
+
+IO.puts("Leverage set: #{result.leverage_result["coin"]} at #{result.leverage_result["leverage"]}x (#{if result.leverage_result["is_cross"], do: "cross", else: "isolated"})")
+```
+
+### Managing Margin
+
+```elixir
+# Add $100 margin to ETH position
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidMarginManagementPrism.run(%{
+  coin: "ETH",
+  amount: 100.0,
+  action: "add"
+})
+
+# Remove $50 margin from ETH position
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidMarginManagementPrism.run(%{
+  coin: "ETH",
+  amount: 50.0,
+  action: "remove"
+})
+```
+
+### Executing Orders
+
+```elixir
+# Place a limit buy order
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism.run(%{
+  coin: "ETH",
+  is_buy: true,
+  sz: 0.01,
+  limit_px: 2800.0,
+  order_type: %{limit: %{tif: "Gtc"}},
+  reduce_only: false
+})
+
+IO.puts("Order result: #{inspect(result.order_result)}")
+
+# Place a stop-loss order
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism.run(%{
+  coin: "ETH",
+  is_buy: false,
+  sz: 0.01,
+  limit_px: 2700.0,
+  order_type: %{
+    trigger: %{
+      triggerPx: 2750.0,
+      isMarket: true,
+      tpsl: "sl"
+    }
+  },
+  reduce_only: true
+})
+```
+
+### Canceling Orders
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidCancelOrderPrism.run(%{
+  coin: "ETH",
+  order_id: 123456
+})
+```
+
+### Viewing Open Orders
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidOpenOrdersPrism.run(%{address: address})
+
+for order <- result.open_orders do
+  IO.puts("#{order["coin"]}: #{if order["side"] == "B", do: "Buy", else: "Sell"} #{order["sz"]} @ #{order["limit_px"]}")
+end
+```
+
+## Beam Workflows
+
+### Trade Risk Management
+
+The `TradeRiskManagementBeam` evaluates a proposed trade against risk criteria:
+
+```elixir
+{:ok, result} = Lux.Beams.Hyperliquid.TradeRiskManagementBeam.run(%{
+  address: address,
+  trade: %{
+    coin: "ETH",
+    is_buy: true,
+    sz: 0.01,
+    limit_px: 2800.0,
+    order_type: %{limit: %{tif: "Gtc"}},
+    reduce_only: false
+  }
+})
+
+case result.status do
+  "accepted" -> IO.puts("Trade accepted and executed")
+  "rejected" -> IO.puts("Trade rejected: #{inspect(result.order_result)}")
+end
+```
+
+### Position Management
+
+The `PositionManagementBeam` provides a comprehensive view of all positions with risk and PnL data:
+
+```elixir
+{:ok, result} = Lux.Beams.Hyperliquid.PositionManagementBeam.run(%{
+  address: address,
+  warning_threshold: 0.2,
+  critical_threshold: 0.1
+})
+
+IO.puts("Overall status: #{result.status}")
+IO.puts("Liquidation monitor: #{inspect(result.position_data.liquidation_monitor)}")
+IO.puts("PnL tracker: #{inspect(result.position_data.pnl_tracker)}")
+```
+
+The status can be:
+- `"healthy"` — All positions are safe
+- `"warning"` — At least one position is within the warning threshold of liquidation
+- `"critical"` — At least one position is very close to liquidation
+
+## Risk Management Best Practices
+
+1. **Always set leverage before opening positions** — Use `HyperliquidSetLeveragePrism` to set appropriate leverage
+2. **Monitor liquidation risk** — Use `HyperliquidLiquidationMonitorPrism` regularly with sensible thresholds
+3. **Track PnL** — Use `HyperliquidPnLTrackerPrism` to monitor portfolio performance
+4. **Use the risk assessment beam** — The `TradeRiskManagementBeam` automatically evaluates trade risk before execution
+5. **Set stop-losses** — Use trigger orders with `HyperliquidExecuteOrderPrism` for automatic loss mitigation
+
+## Vault Support
+
+All write operations (execute, cancel, set leverage, manage margin) support a `vault_address` parameter for trading from a vault:
+
+```elixir
+{:ok, result} = Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism.run(%{
+  coin: "ETH",
+  is_buy: true,
+  sz: 0.01,
+  limit_px: 2800.0,
+  order_type: %{limit: %{tif: "Gtc"}},
+  vault_address: "0x0403369c02199a0cb827f4d6492927e9fa5668d5"
+})
+```
