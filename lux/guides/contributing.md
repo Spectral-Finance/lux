@@ -150,12 +150,21 @@ end
    - Add type hints to Python code
    - Document Python functions
 
+5. **Rust Integration**
+   - Add Rust crates under `priv/rust/` and update the workspace manifest
+   - Write unit tests inline (`#[cfg(test)] mod tests`) and integration
+     tests under each crate's `tests/` directory
+   - Run `mix rust.test` (or `cargo test --workspace`) before committing
+   - Follow Rust style guide (`cargo fmt`, `cargo clippy`)
+   - Add documentation comments (`///`) to all public items
+   - Add type specs where applicable
+
 ## Pull Request Process
 
 1. Fork the repository
 2. Create a feature branch
 3. Add your changes following the guidelines above
-4. Run all relevant tests (`mix test.unit`, `mix python.test`)
+4. Run all relevant tests (`mix test.unit`, `mix python.test`, `mix rust.test`)
 5. Format code (`mix format`)
 6. Submit a pull request with:
    - Clear description of changes

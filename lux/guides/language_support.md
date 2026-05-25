@@ -24,16 +24,30 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 - Support for modern ES modules and async/await
 - Full access to Node.js APIs
 
-## Future Language Support
+### Rust Integration (Experimental)
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+Initial Rust support is now available under `priv/rust/`. The
+`lux_core` crate hosts the early Rust primitives — most notably the
+**Lux Rust Testing Framework** in `lux_core::testing` — so contributors
+can develop Rust-side components with the same test-first discipline
+used on the Elixir and Python sides.
 
-### Custom Language Integration
+You can:
+
+- Run the Rust test suite from the project root with `mix rust.test`
+  (forwards arguments to `cargo test --workspace`)
+- Add new crates under `priv/rust/` and list them in the workspace
+  manifest
+- Use the dependency-free helpers in `lux_core::testing` (`Recorder<T>`,
+  `assert_eq_with_context`, `assert_runs_within`, `sample_signal`) for
+  deterministic unit and integration tests
+- See `priv/rust/README.md` for the full layout, prerequisites and
+  contributor workflow
+
+The next phase will add `rustler`-based NIFs so Prisms, Beams and
+Signals can be implemented natively in Rust.
+
+### Future Language Support
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
 - Add new language runtimes
 - Define type conversion rules
@@ -48,12 +62,13 @@ Check out our [Contributing Guide](contributing.md) for details on adding langua
    - Use Python for ML/AI tasks and data processing
    - Use Node.js for web integration and text processing
    - Use Elixir for coordination and state management
-   - Consider Rust (coming soon) for performance-critical components
+   - Use Rust for performance-critical components and native extensions
 
 2. **Package Management**
    - Add custom Python modules under `priv/python/`
    - Use `poetry` for Python dependency management
    - Use `npm`/`yarn` for Node.js dependencies
+   - Use `cargo` for Rust dependencies (workspace under `priv/rust/`)
    - Follow the language's best practices for versioning
 
 3. **Performance Considerations**

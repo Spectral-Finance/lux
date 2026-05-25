@@ -1,0 +1,38 @@
+[workspace]
+# Lux Rust workspace.
+#
+# This workspace hosts the Rust components shipped with the Lux Elixir
+# framework. The first crate, `lux_core`, provides the testing primitives
+# and example types that the framework will build on as Rust becomes a
+# first-class supported language alongside Python and Node.js.
+#
+# Run all tests from the lux mix project root with:
+#
+#   mix rust.test
+#
+# Or directly inside this directory with:
+#
+#   cargo test --workspace
+resolver = "2"
+
+members = [
+    "lux_core",
+]
+
+[workspace.package]
+edition = "2021"
+rust-version = "1.74"
+license = "MIT"
+repository = "https://github.com/Spectral-Finance/lux"
+homepage = "https://lux.spectrallbas.xyz"
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+missing_docs = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "warn"
+# Allow these since this is a small early-stage crate.
+module_name_repetitions = "allow"
+must_use_candidate = "allow"

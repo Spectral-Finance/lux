@@ -1,0 +1,22 @@
+[package]
+name = "lux_core"
+version = "0.1.0"
+description = "Core Rust primitives and testing framework for the Lux multi-agent system"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+
+[lib]
+name = "lux_core"
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+# Intentionally empty: the testing framework uses only Rust's built-in
+# `cargo test` harness so that contributors don't need any extra
+# dependencies to run the suite. Additional crates such as `proptest`
+# or `criterion` can be added here as the framework grows.
