@@ -1,0 +1,17 @@
+# Cargo build artefacts
+target/
+**/target/
+
+# Per-user lock files for libraries are intentionally tracked.
+# If a binary crate is added later, uncomment the next line:
+# Cargo.lock
+
+# IDE / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Coverage
+*.profraw
+tarpaulin-report.html

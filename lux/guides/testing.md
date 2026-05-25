@@ -18,6 +18,9 @@ mix test.integration
 
 # Run python tests
 mix python.test
+
+# Run rust tests (requires Cargo)
+mix rust.test
 ```
 
 ## Test Organization
