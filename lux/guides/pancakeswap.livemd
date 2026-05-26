@@ -1,0 +1,107 @@
+# PancakeSwap Integration Guide
+
+## Overview
+
+Lux provides a comprehensive set of lenses and prisms for interacting with PancakeSwap v3 across multiple chains (BSC, Ethereum, Arbitrum, Base).
+
+This guide covers:
+- Listing and querying pool information
+- Tracking liquidity positions
+- Managing yield farming rewards
+- Multi-chain support
+
+## Configuration
+
+The PancakeSwap integration uses The Graph subgraphs for data retrieval. No API keys are required for basic usage, but you should ensure your environment supports making HTTP requests to The Graph.
+
+## Multi-Chain Support
+
+All PancakeSwap lenses and prisms support a `chain` parameter. Supported values:
+- `"bsc"` (default)
+- `"ethereum"`
+- `"arbitrum"`
+- `"base"`
+
+## Lenses
+
+### Listing Pools
+
+Fetch a list of liquidity pools:
+
+```elixir
+alias Lux.Lenses.PancakeSwap.ListPools
+
+{:ok, pools} = ListPools.focus(%{chain: "bsc", first: 10})
+```
+
+### Getting Pool Information and APR
+
+Fetch detailed info for a specific pool:
+
+```elixir
+alias Lux.Lenses.PancakeSwap.GetPoolInfo
+alias Lux.Lenses.PancakeSwap.GetPoolAPR
+
+# Get pool stats
+{:ok, pool} = GetPoolInfo.focus(%{
+  chain: "bsc",
+  pool_address: "0x36696169c63e42cd08ce11f5deebbcebae6afc18"
+})
+
+# Get approximate APR
+{:ok, apr_info} = GetPoolAPR.focus(%{
+  chain: "bsc",
+  pool_address: "0x36696169c63e42cd08ce11f5deebbcebae6afc18"
+})
+```
+
+### Tracking User Positions
+
+Fetch all v3 liquidity positions for a wallet:
+
+```elixir
+alias Lux.Lenses.PancakeSwap.GetUserPositions
+
+{:ok, positions} = GetUserPositions.focus(%{
+  chain: "bsc",
+  user_address: "0x..."
+})
+```
+
+## Yield Farming
+
+### Listing Farms
+
+Fetch active farms from the MasterChef v3 subgraph:
+
+```elixir
+alias Lux.Lenses.PancakeSwap.ListFarms
+
+{:ok, farms} = ListFarms.focus(%{chain: "bsc"})
+```
+
+### Harvesting Rewards
+
+Prepare a harvest transaction:
+
+```elixir
+alias Lux.Prisms.PancakeSwap.Farming.HarvestRewards
+
+{:ok, tx} = HarvestRewards.handler(%{
+  chain: "bsc",
+  token_id: 12345,
+  recipient: "0x..."
+}, agent)
+```
+
+### Auto-Compounding
+
+Collect rewards and reinvest them into the position:
+
+```elixir
+alias Lux.Prisms.PancakeSwap.Farming.CollectAndReinvest
+
+{:ok, workflow} = CollectAndReinvest.handler(%{
+  token_id: 12345
+}, agent)
+```
