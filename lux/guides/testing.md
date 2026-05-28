@@ -127,4 +127,19 @@ The CI pipeline:
 - Check the test output for specific error messages
 - Review the relevant test helper modules
 - Consult the external service documentation
+# Testing with Lux
+
+## Overview
+
+Lux provides comprehensive testing capabilities for multi-language applications, including Rust integration. This guide covers how to set up and run tests in Lux applications.
+
+## Rust Testing Framework
+
+Lux supports testing Rust code alongside Elixir code with full integration into the standard `mix test` workflow.
+
+### Setting up Rust Tests
+
+To set up Rust testing in your Lux application, add a `test` directory with Rust test files:
+
+
 - Reach out to the team for assistance 

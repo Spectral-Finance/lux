@@ -1,6 +1,8 @@
-ExUnit.start(exclude: [:skip, :integration, :unit])
+Code.require_file("support/rust_test_helper.exs", __DIR__)
 
-defmodule UnitAPICase do
+ExUnit.start()
+
+Mimic.copy(Lux.LLM)
   @moduledoc false
   use ExUnit.CaseTemplate
 
