@@ -1,5 +1,3 @@
-# Lux
-
 <!-- [![Build Status](https://github.com/spectrallabs/lux/workflows/CI/badge.svg)](https://github.com/spectrallabs/lux/actions) -->
 [![Lux CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml)
 [![Lux App CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml)
