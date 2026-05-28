@@ -164,4 +164,46 @@ defmodule Lux.MixProject do
       ]
     ]
   end
+defmodule Lux.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :lux,
+      version: "0.1.0",
+      elixir: "~> 1.14",
+      start_permanent: false,
+      deps: deps(),
+      description: "DeFi Analytics Integration Module",
+      package: [
+        files: ~w(lib/lux/analytics mix.exs README.md),
+        licenses: ["MIT"],
+        links: %{
+          "GitHub" => "https://github.com/Spectral-Finance/lux"
+        }
+      ]
+    ]
+  end
+
+  def application do
+    [
+      extra_applications: [:logger],
+      mod: {Lux.Analytics.Application, []}
+    ]
+  end
+
+  def deps do
+    [
+      {:httpoison, "~> 2.0"},
+      {:jason, "~> 1.4"},
+      {:tesla, "~> 1.4"}
+    ]
+  end
+
+  defp aliases do
+    [
+      test: ["test --no-start"]
+    ]
+  end
+end
 end

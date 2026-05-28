@@ -21,4 +21,34 @@ config :venomous, :snake_manager, %{
     # Use python3 command instead of full path
     python_executable: "python3"
   ]
+import Config
+
+config :lux,
+  defi_analytics: [
+    api_key: System.get_env("DEFI_LLAMA_API_KEY"),
+    base_url: "https://api.llama.fi",
+    dune_api_key: System.get_env("DUNE_API_KEY"),
+    dune_base_url: "https://dune.com",
+    tvl_endpoint: "/tvl",
+    metrics_endpoint: "/metrics",
+    yield_endpoint: "/yields",
+    volume_endpoint: "/volumes",
+    query_endpoint: "/queries",
+    dashboard_endpoint: "/dashboards"
+  ]
+
+config :lux, :analytics do
+  config :lux, :analytics do
+    api_key: System.get_env("DEFI_LLAMA_API_KEY"),
+    base_url: "https://dune.com",
+    endpoints: [
+      tvl: "/tvl",
+      metrics: "/metrics",
+      yield: "/yields",
+      volume: "/volumes",
+      queries: "/queries",
+      dashboard: "/dashboards"
+    ]
+  end
+end
 }
