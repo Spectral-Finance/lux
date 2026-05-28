@@ -1,0 +1,17 @@
+[package]
+name = "lux_nif"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux_nif"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.32"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
