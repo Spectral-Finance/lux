@@ -172,6 +172,201 @@ alias Lux.Prisms.Telegram.Messages.EditMessageCaption
 )
 ```
 
+### Group And Channel Management
+
+`Lux.Prisms.Telegram.Group.ManageGroup` provides a single action surface for
+group moderation and channel administration. By default it returns a dry-run
+request plan so agents can inspect moderation and permission changes before
+sending them to Telegram. Pass `execute: true` to execute the planned requests
+through the configured Telegram client.
+
+```elixir
+alias Lux.Prisms.Telegram.Group.ManageGroup
+
+# Restrict a member to read-only access
+{:ok, plan} =
+  ManageGroup.handler(
+    %{
+      action: :restrict_member,
+      chat_id: -100_123_456,
+      user_id: 987_654,
+      permission_template: :read_only,
+      until_date: 1_766_000_000
+    },
+    %{name: "Moderator Bot"}
+  )
+
+# Promote a moderator with a predefined admin rights template
+{:ok, _} =
+  ManageGroup.handler(
+    %{
+      action: :promote_member,
+      chat_id: -100_123_456,
+      user_id: 987_654,
+      admin_template: :moderator,
+      execute: true
+    },
+    %{name: "Moderator Bot"}
+  )
+
+# Apply default chat permissions
+{:ok, _} =
+  ManageGroup.handler(
+    %{
+      action: :set_permissions,
+      chat_id: -100_123_456,
+      permission_template: :no_links
+    },
+    %{name: "Moderator Bot"}
+  )
+```
+
+The same prism covers group settings and channel post workflows:
+
+```elixir
+# Create an invite link that requires approval
+ManageGroup.handler(
+  %{
+    action: :create_invite_link,
+    chat_id: -100_123_456,
+    name: "Community review",
+    creates_join_request: true,
+    member_limit: 25
+  },
+  %{name: "Moderator Bot"}
+)
+
+# Create a forum topic in a supergroup
+ManageGroup.handler(
+  %{
+    action: :create_forum_topic,
+    chat_id: -100_123_456,
+    name: "Research Q&A",
+    icon_color: 7_322_096
+  },
+  %{name: "Moderator Bot"}
+)
+
+# Publish a channel post
+ManageGroup.handler(
+  %{
+    action: :send_channel_post,
+    chat_id: "@lux_updates",
+    text: "Research update is live.",
+    parse_mode: "MarkdownV2"
+  },
+  %{name: "Publisher Bot"}
+)
+```
+
+For moderation, pass a policy with blocked terms, regex patterns, link rules,
+rate thresholds, or message-shape limits. The prism returns violations, the
+chosen moderation action, Bot API requests, and a normalized audit entry.
+Bulk deletes, sender-chat bans, member tags, forum topic controls, and
+standalone audit-log messages are also available through the same `action`
+field.
+
+When a moderation policy uses spam thresholds, pass either a precomputed
+`recent_message_count` or a `recent_messages` list scoped to the current
+chat/user. Each recent message may include `text`, `chat_id`, `user_id`, and
+optional `age_seconds`; `window_seconds`, `duplicate_threshold`, and
+`max_recent_links` let agents detect per-window floods, repeated text, and
+link-heavy bursts. For live execution, `bot_admin_rights` can be supplied to
+surface a preflight summary of required Telegram administrator permissions.
+Any action with `log_chat_id` also appends an admin audit delivery request.
+
+```elixir
+{:ok, moderation} =
+  ManageGroup.handler(
+    %{
+      action: :moderate_message,
+      chat_id: -100_123_456,
+      user_id: 987_654,
+      message_id: 42,
+      text: "Join https://spam.example now",
+      moderation_action: :restrict_member,
+      log_chat_id: -100_999,
+      bot_admin_rights: %{can_delete_messages: true, can_restrict_members: true},
+      recent_messages: [
+        %{
+          chat_id: -100_123_456,
+          user_id: 987_654,
+          text: "Join https://spam.example",
+          age_seconds: 12
+        }
+      ],
+      policy: %{
+        blocked_terms: ["free money"],
+        blocked_patterns: ["spam\\.example"],
+        block_links: true,
+        max_recent_messages: 5,
+        duplicate_threshold: 2,
+        max_recent_links: 3,
+        window_seconds: 60
+      }
+    },
+    %{name: "Moderator Bot"}
+  )
+
+moderation.violations
+moderation.preflight
+moderation.audit_entry
+```
+
+#### Member Management: Add, Remove, And Restrict
+
+The Telegram Bot API cannot force-add an arbitrary user to a chat, so the
+"add member" acceptance criterion maps to invite-link and join-request
+approval workflows. The three member-management outcomes resolve to these
+actions:
+
+* **Add** – `:create_invite_link` (optionally with `creates_join_request: true`)
+  to issue an invite, then `:approve_join_request` (or `:decline_join_request`)
+  to admit users who request to join.
+* **Remove** – `:ban_member` to remove a user (and `:unban_member` to reverse it).
+* **Restrict** – `:restrict_member` with a `permission_template` such as
+  `:read_only` or explicit `permissions`.
+
+#### Execution Authentication
+
+Execution authenticates through `Lux.Integrations.Telegram.Client`. By default
+the client uses the bot token configured for your application; pass an explicit
+`token` only when you need to override it per call:
+
+```elixir
+ManageGroup.handler(
+  %{
+    action: :ban_member,
+    chat_id: -100_123_456,
+    user_id: 987_654,
+    token: System.fetch_env!("TELEGRAM_BOT_TOKEN"),
+    bot_admin_rights: %{can_restrict_members: true},
+    execute: true
+  },
+  %{name: "Moderator Bot"}
+)
+```
+
+#### Destructive Action Safety Gate
+
+Destructive actions (ban, restrict, promote/demote, and delete paths) keep
+their dry-run safety in live mode. Before executing one, supply
+`bot_admin_rights` confirming the required permissions are present. If those
+rights are absent or unverified, execution is **blocked** and the plan carries
+a `warnings` entry explaining why. To execute anyway when the bot's rights are
+guaranteed out of band (for example via the configured client), pass
+`allow_unverified_admin_rights: true`. The `preflight` map reports
+`destructive`, `verified`, `required_rights`, and `missing_rights` so agents can
+reason about safety before acting.
+
+> #### Sticker set capability {: .warning}
+>
+> `:set_sticker_set` and `:delete_sticker_set` also depend on the chat-level
+> `can_set_sticker_set` capability, which is only observable through `getChat`
+> and is **not** part of `bot_admin_rights`. The plan surfaces a `warnings`
+> entry for these actions; verify the capability with `getChat` before live
+> execution.
+
 ## Advanced Usage
 
 ### Formatting Options
