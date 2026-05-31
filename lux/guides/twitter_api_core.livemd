@@ -1,0 +1,180 @@
+# X/Twitter API Core Integration
+
+This guide shows how Lux agents can use X/Twitter API v2 without putting live
+credentials in tests or examples.
+
+## Runtime Configuration
+
+The client defaults to the current X API host, `https://api.x.com`. If an app
+or account still needs the legacy Twitter host for v2 endpoints, set
+`TWITTER_API_URL=https://api.twitter.com` or configure the integration directly:
+
+```elixir
+config :lux, Lux.Integrations.Twitter,
+  api_url: "https://api.x.com",
+  authorize_url: "https://x.com/i/oauth2/authorize"
+```
+
+Minimal credential shapes by mode:
+
+- App-only reads: `TWITTER_BEARER_TOKEN`
+- OAuth 2.0 PKCE: `TWITTER_CLIENT_ID`, `TWITTER_REDIRECT_URI`, generated
+  verifier/challenge, short-lived `access_token`, and optionally
+  `TWITTER_CLIENT_SECRET` plus `refresh_token`
+- Write/media/follow operations: a user OAuth `access_token`; app-only bearer
+  tokens are intentionally rejected for mutation paths
+
+## OAuth 2.0 PKCE
+
+```elixir
+pkce = Lux.Integrations.Twitter.Client.pkce_pair()
+
+authorization_url =
+  Lux.Integrations.Twitter.Client.authorization_url(%{
+    client_id: System.fetch_env!("TWITTER_CLIENT_ID"),
+    redirect_uri: "https://example.com/callback",
+    state: "csrf-token",
+    code_verifier: pkce.verifier
+  })
+```
+
+Agents can also build the same URL through a prism:
+
+```elixir
+Lux.Prisms.Twitter.Auth.BuildAuthorizationUrl.handler(
+  %{
+    client_id: System.fetch_env!("TWITTER_CLIENT_ID"),
+    redirect_uri: "https://example.com/callback",
+    state: "csrf-token"
+  },
+  %{}
+)
+```
+
+After the callback, exchange the authorization code:
+
+```elixir
+{:ok, tokens} =
+  Lux.Integrations.Twitter.Client.token_request(:authorization_code, %{
+    client_id: System.fetch_env!("TWITTER_CLIENT_ID"),
+    client_secret: System.get_env("TWITTER_CLIENT_SECRET"),
+    redirect_uri: "https://example.com/callback",
+    code: callback_code,
+    code_verifier: pkce.verifier
+  })
+```
+
+## Posts
+
+```elixir
+{:ok, post} =
+  Lux.Prisms.Twitter.Tweets.CreateTweet.handler(
+    %{
+      text: "Shipping through Lux",
+      access_token: tokens["access_token"]
+    },
+    %{name: "SocialAgent"}
+  )
+```
+
+Replies, quote posts, media attachments, edits, deletion, and threads are all
+supported:
+
+```elixir
+Lux.Prisms.Twitter.Tweets.CreateThread.handler(
+  %{texts: ["First post", "Second post"], access_token: tokens["access_token"]},
+  %{}
+)
+
+Lux.Prisms.Twitter.Tweets.QuoteTweet.handler(
+  %{text: "Useful context", quoted_tweet_id: "123", access_token: tokens["access_token"]},
+  %{}
+)
+```
+
+## Reading and Search
+
+```elixir
+Lux.Lenses.Twitter.GetTweet.focus(%{
+  tweet_id: "123",
+  tweet_fields: ["created_at", "public_metrics"],
+  access_token: tokens["access_token"]
+})
+
+Lux.Lenses.Twitter.GetMe.focus(%{
+  user_fields: ["username", "verified"],
+  access_token: tokens["access_token"]
+})
+
+Lux.Lenses.Twitter.GetFollowers.focus(%{
+  user_id: "123",
+  max_results: 25,
+  access_token: tokens["access_token"]
+})
+
+Lux.Lenses.Twitter.GetFollowing.focus(%{
+  user_id: "123",
+  access_token: tokens["access_token"]
+})
+
+Lux.Lenses.Twitter.SearchRecent.focus(%{
+  query: "lux lang:en",
+  max_results: 10,
+  access_token: tokens["access_token"]
+})
+```
+
+## Rate Limits
+
+Pass `with_rate_limit: true` to receive the parsed X rate-limit response
+headers next to the body. A `429` response returns `{:error, {:rate_limited,
+details}}` with the same parsed limit, reset, and retry-after metadata so agents
+can pause or reschedule instead of losing the failure context.
+
+```elixir
+Lux.Integrations.Twitter.Client.search_recent(
+  "lux",
+  %{max_results: 10},
+  %{access_token: tokens["access_token"], with_rate_limit: true}
+)
+```
+
+## Media Upload
+
+Chunked media upload is exposed one step at a time so agents can persist the
+server response between calls:
+
+```elixir
+{:ok, init} =
+  Lux.Prisms.Twitter.Media.UploadMedia.handler(
+    %{
+      action: :init,
+      total_bytes: 1_024_000,
+      media_type: "video/mp4",
+      media_category: "tweet_video",
+      access_token: tokens["access_token"]
+    },
+    %{}
+  )
+
+media_id = get_in(init, ["data", "id"]) || init["media_id_string"] || init["media_id"]
+
+Lux.Prisms.Twitter.Media.UploadMedia.handler(
+  %{action: :append, media_id: media_id, segment_index: 0, media: chunk, access_token: tokens["access_token"]},
+  %{}
+)
+
+Lux.Prisms.Twitter.Media.UploadMedia.handler(
+  %{action: :finalize, media_id: media_id, access_token: tokens["access_token"]},
+  %{}
+)
+```
+
+For status polling, pass only the returned `media_id`. Response shapes can
+include either nested `data.id` values or legacy-style `media_id_string`
+depending on the endpoint/account behavior, so production agents should store
+the full response payload as well as the extracted media ID.
+
+## Tests
+
+The unit tests use `Req.Test` and never require live Twitter credentials.

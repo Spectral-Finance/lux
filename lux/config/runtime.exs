@@ -22,12 +22,14 @@ if config_env() in [:dev, :test] do
     openweather: env!("OPENWEATHER_API_KEY", :string!, "missing open weather"),
     transpose: env!("TRANSPOSE_API_KEY", :string!, "missing transpose"),
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
+    twitter_bearer: env!("TWITTER_BEARER_TOKEN", :string!, required: false),
     etherscan: env!("ETHERSCAN_API_KEY", :string!, "missing etherscan"),
     etherscan_pro: env!("ETHERSCAN_API_KEY_PRO", :string!, required: false) == "true",
     telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, "missing open ai"),
     integration_anthropic: env!("INTEGRATION_ANTHROPIC_API_KEY", :string!, "missing anthropic"),
-    integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
+    integration_openweather:
+      env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
     integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
@@ -36,6 +38,10 @@ if config_env() in [:dev, :test] do
   config :lux, Lux.Integrations.Allora,
     base_url: env!("ALLORA_BASE_URL", :string!, "https://api.upshot.xyz/v2"),
     chain_slug: env!("ALLORA_CHAIN_SLUG", :string!, "testnet")
+
+  config :lux, Lux.Integrations.Twitter,
+    api_url: env!("TWITTER_API_URL", :string!, "https://api.x.com"),
+    authorize_url: env!("TWITTER_AUTHORIZE_URL", :string!, "https://x.com/i/oauth2/authorize")
 
   config :lux, :accounts,
     wallet_address: env!("WALLET_ADDRESS", :string!),
@@ -60,12 +66,14 @@ end
 if config_env() == :test do
   # Add Hammer configuration
   config :hammer,
-    backend: {Hammer.Backend.ETS,
-      [
-        expiry_ms: 60_000 * 60 * 4,       # 4 hours
-        cleanup_interval_ms: 60_000 * 10,  # 10 minutes
-        pool_size: 1,
-        pool_max_overflow: 2
-      ]
-    }
+    backend:
+      {Hammer.Backend.ETS,
+       [
+         # 4 hours
+         expiry_ms: 60_000 * 60 * 4,
+         # 10 minutes
+         cleanup_interval_ms: 60_000 * 10,
+         pool_size: 1,
+         pool_max_overflow: 2
+       ]}
 end
