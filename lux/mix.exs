@@ -147,6 +147,7 @@ defmodule Lux.MixProject do
         "guides/troubleshooting.md",
         "guides/getting_started.md",
         "guides/core_concepts.md",
+        "guides/youtube.md",
         "CHANGELOG.md",
         "LICENSE"
       ],
@@ -160,6 +161,9 @@ defmodule Lux.MixProject do
         Setup: [
           "guides/troubleshooting.md",
           "guides/contributing.md"
+        ],
+        Integrations: [
+          "guides/youtube.md"
         ]
       ]
     ]
