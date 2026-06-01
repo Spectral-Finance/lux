@@ -53,6 +53,10 @@ hd(report.rarity.tokens).rarity_rank
 Input maps can use atom or string keys. Numeric fields may be numbers or numeric
 strings.
 
+The aggregation layer is intentionally side-effect free. It accepts payloads
+that marketplace lenses have already fetched and normalizes them without live
+API calls, wallet actions, listing or bid creation, or API credentials.
+
 Collection fields:
 
 - `marketplace`
@@ -73,6 +77,10 @@ Listing fields:
 - `url`
 - `status`
 
+Only active listings with positive numeric prices are included in price
+summaries. Cancelled, inactive, zero, negative, and non-numeric listings are
+ignored for floor, average, median, and cheapest-listing selection.
+
 Sale fields:
 
 - `marketplace`
@@ -83,6 +91,9 @@ Sale fields:
 - `buyer`
 - `seller`
 - `timestamp` or `sold_at`
+
+Sales without timestamps remain valid for sales monitoring and are grouped into
+an `unknown` trend bucket.
 
 Token rarity fields:
 

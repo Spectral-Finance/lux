@@ -33,6 +33,18 @@ defmodule Lux.Integrations.Nft.MarketplaceTest do
       assert stats.total_supply == 10_000
       assert stats.by_marketplace["opensea"].slug == "azuki"
     end
+
+    test "handles an empty collection list" do
+      assert Marketplace.collection_stats([]) == %{
+               marketplaces: [],
+               collection_count: 0,
+               floor_price: 0.0,
+               total_volume: 0.0,
+               total_owners: 0,
+               total_supply: 0,
+               by_marketplace: %{}
+             }
+    end
   end
 
   describe "price_tracking/1" do
@@ -52,6 +64,41 @@ defmodule Lux.Integrations.Nft.MarketplaceTest do
       assert tracking.cheapest_listing.marketplace == "blur"
       assert tracking.by_marketplace["opensea"].floor_price == 4.2
     end
+
+    test "ignores inactive and invalid listing prices deterministically" do
+      tracking =
+        Marketplace.price_tracking([
+          %{"marketplace" => "OpenSea", "collection" => "azuki", "token_id" => 1, "price" => "0"},
+          %{marketplace: "OPENSEA", collection: "azuki", token_id: 1, price: "-1"},
+          %{marketplace: "Blur", collection: "azuki", token_id: 2, amount: "not-a-number"},
+          %{marketplace: "Blur", collection: "azuki", token_id: 3, price: 3.8, status: "cancelled"},
+          %{marketplace: "OpenSea", collection: "azuki", token_id: 4, price: "4.1", status: "ACTIVE"},
+          %{marketplace: "opensea", collection: "azuki", token_id: 4, amount: 4.2}
+        ])
+
+      assert tracking.listing_count == 2
+      assert tracking.floor_price == 4.1
+      assert tracking.average_price == 4.15
+      assert tracking.cheapest_listing.token_id == "4"
+      assert Enum.map(tracking.listings, & &1.price) == [4.1, 4.2]
+      assert Map.keys(tracking.by_marketplace) == ["opensea"]
+    end
+
+    test "returns empty summaries when there are no active listings" do
+      tracking =
+        Marketplace.price_tracking([
+          %{marketplace: "OpenSea", collection: "azuki", token_id: 1, price: 0},
+          %{marketplace: "Blur", collection: "azuki", token_id: 2, price: 4.0, status: "inactive"}
+        ])
+
+      assert tracking.listing_count == 0
+      assert tracking.floor_price == 0.0
+      assert tracking.average_price == 0.0
+      assert tracking.median_price == 0.0
+      assert tracking.cheapest_listing == nil
+      assert tracking.listings == []
+      assert tracking.by_marketplace == %{}
+    end
   end
 
   describe "sales_monitor/2" do
@@ -68,6 +115,23 @@ defmodule Lux.Integrations.Nft.MarketplaceTest do
       assert monitor.average_sale_price == 4.75
       assert monitor.highest_sale.token_id == "3"
       assert Enum.map(monitor.sales, & &1.token_id) == ["3", "2"]
+    end
+
+    test "keeps missing timestamps deterministic and supports marketplace casing filters" do
+      monitor =
+        Marketplace.sales_monitor(
+          [
+            %{"marketplace" => "OPENSEA", "collection" => "azuki", "id" => 1, "amount" => "4.2"},
+            %{marketplace: "opensea", collection: "azuki", token_id: 2, price: 4.4, sold_at: "2026-05-14T10:00:00Z"},
+            %{marketplace: "Blur", collection: "azuki", token_id: 3, price: 4.6, timestamp: "2026-05-15T10:00:00Z"}
+          ],
+          %{marketplace: "OpenSea"}
+        )
+
+      assert monitor.sale_count == 2
+      assert monitor.total_volume == 8.6
+      assert Enum.map(monitor.sales, & &1.token_id) == ["2", "1"]
+      assert List.last(monitor.sales).timestamp == nil
     end
   end
 
@@ -100,6 +164,17 @@ defmodule Lux.Integrations.Nft.MarketplaceTest do
       assert trends.volume_delta == 1.4
       assert trends.sales_delta == 0.0
     end
+
+    test "groups sales without timestamps into an unknown bucket" do
+      trends =
+        Marketplace.market_trends([
+          %{marketplace: "OpenSea", collection: "azuki", token_id: 1, price: 4.1},
+          %{marketplace: "Blur", collection: "azuki", token_id: 2, price: "4.4", timestamp: "2026-05-12T09:00:00Z"}
+        ])
+
+      assert Enum.map(trends.periods, & &1.period) == ["2026-05-12", "unknown"]
+      assert Enum.map(trends.periods, & &1.sale_count) == [1, 1]
+    end
   end
 
   describe "cross_marketplace_report/1" do
@@ -128,6 +203,17 @@ defmodule Lux.Integrations.Nft.MarketplaceTest do
       assert hd(report.rarity.tokens).rarity_rank == 1
       assert report.marketplace_comparison["blur"].floor_price == 4.0
       assert report.marketplace_comparison["opensea"].sales_volume == 9.6
+    end
+
+    test "returns stable empty report sections for empty inputs" do
+      report = Marketplace.cross_marketplace_report(%{})
+
+      assert report.collection.collection_count == 0
+      assert report.prices.listing_count == 0
+      assert report.sales.sale_count == 0
+      assert report.trends.periods == []
+      assert report.rarity.tokens == []
+      assert report.marketplace_comparison == %{}
     end
   end
 
