@@ -4,6 +4,7 @@ defmodule UnitAPICase do
   @moduledoc false
   use ExUnit.CaseTemplate
 
+  alias Lux.Integrations.Binance.Client, as: BinanceClient
   alias Lux.Integrations.Discord.Client, as: DiscordClient
   alias Lux.Integrations.Telegram.Client, as: TelegramClient
   alias Lux.Lenses.Etherscan
@@ -22,6 +23,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, OpenAI, plug: {Req.Test, OpenAI})
     Application.put_env(:lux, Etherscan, plug: {Req.Test, Etherscan})
     Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
+    Application.put_env(:lux, BinanceClient, plug: {Req.Test, BinanceClientMock})
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
