@@ -91,34 +91,6 @@ defmodule Lux.Config do
   end
 
   @doc """
-  Gets the Hyperliquid account's private key from configuration.
-  Raises if the key is not configured.
-  """
-  @spec hyperliquid_account_key() :: eth_key()
-  def hyperliquid_account_key do
-    get_required_key(:accounts, :hyperliquid_private_key)
-  end
-
-  @doc """
-  Gets the Hyperliquid account's address from configuration.
-  Returns empty string if not configured.
-  """
-  @spec hyperliquid_account_address() :: eth_address()
-  def hyperliquid_account_address do
-    :lux
-    |> Application.fetch_env!(:accounts)
-    |> Keyword.get(:hyperliquid_address, "")
-  end
-
-  @doc """
-  Gets the configured Hyperliquid API URL.
-  """
-  @spec hyperliquid_api_url() :: String.t()
-  def hyperliquid_api_url do
-    Application.fetch_env!(:lux, :accounts)[:hyperliquid_api_url]
-  end
-
-  @doc """
   Gets the Binance API key from configuration.
   Raises if the key is not configured.
   """

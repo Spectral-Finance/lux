@@ -5,14 +5,13 @@ defmodule Lux.Prisms.TradeProposalPrism do
     description: "A prism for evaluating trade proposals"
 
   alias Lux.Agents.RiskManager
-  alias Lux.Beams.Hyperliquid.TradeRiskManagementBeam
 
   require Logger
 
   def handler(input, context) do
     Logger.info("Evaluating trade proposal: #{inspect(input)}")
 
-    # First get agent's opinion on the trade
+    # Get agent's opinion on the trade
     {:ok, evaluation} =
       RiskManager.chat(context, """
       Evaluate this trade proposal:
@@ -28,20 +27,8 @@ defmodule Lux.Prisms.TradeProposalPrism do
 
     case Jason.decode!(evaluation) do
       %{"execute_trade" => true} ->
-        Logger.info("LLM approved trade, running risk management beam")
-        # Run the trade through the risk management beam
-        case TradeRiskManagementBeam.run(%{
-               address: Lux.Config.hyperliquid_account_address(),
-               trade: Map.delete(input.payload, "rationale")
-             }) do
-          {:ok, result, _metadata} ->
-            Logger.info("Risk management beam result: #{inspect(result)}")
-            {:ok, result}
-
-          {:error, reason, _metadata} ->
-            Logger.warning("Risk management beam rejected trade: #{inspect(reason)}")
-            {:ok, %{status: "rejected", reason: reason}}
-        end
+        Logger.info("LLM approved trade")
+        {:ok, %{status: "approved", evaluation: evaluation}}
 
       %{"execute_trade" => false, "reasoning" => reason} ->
         Logger.info("LLM rejected trade: #{inspect(reason)}")

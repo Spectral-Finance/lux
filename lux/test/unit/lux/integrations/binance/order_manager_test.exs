@@ -10,10 +10,7 @@ defmodule Lux.Integrations.Binance.OrderManagerTest do
   setup do
     Application.put_env(:lux, :accounts,
       binance_api_key: "test_api_key_abc123",
-      binance_secret_key: "test_secret_key_def456",
-      hyperliquid_private_key: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-      hyperliquid_address: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      hyperliquid_api_url: "https://api.hyperliquid.xyz"
+      binance_secret_key: "test_secret_key_def456"
     )
 
     {:ok, pid} =

@@ -38,10 +38,7 @@ if config_env() in [:dev, :test] do
     chain_slug: env!("ALLORA_CHAIN_SLUG", :string!, "testnet")
 
   config :lux, :accounts,
-    wallet_address: env!("WALLET_ADDRESS", :string!),
-    hyperliquid_private_key: env!("HYPERLIQUID_PRIVATE_KEY", :string!),
-    hyperliquid_address: env!("HYPERLIQUID_ADDRESS", :string!, required: false),
-    hyperliquid_api_url: env!("HYPERLIQUID_API_URL", :string!)
+    wallet_address: env!("WALLET_ADDRESS", :string!)
 
   config :ethers,
     default_signer: Ethers.Signer.Local,

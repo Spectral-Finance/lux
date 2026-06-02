@@ -205,9 +205,25 @@ defmodule Lux.Integrations.Binance.WebSocket do
     base <> "/stream?streams=" <> Enum.join(streams, "/")
   end
 
-  defp build_ws_url(base, streams, listen_key) when is_binary(listen_key) do
-    all_streams = streams ++ [listen_key]
-    base <> "/stream?streams=" <> Enum.join(all_streams, "/")
+  defp build_ws_url(base, [], listen_key) when is_binary(listen_key) do
+    # User data stream: direct listen-key path (not combinable with market streams)
+    base <> "/ws/" <> listen_key
+  end
+
+  defp build_ws_url(_base, _streams, listen_key) when is_binary(listen_key) do
+    raise ArgumentError, """
+    Cannot combine market streams with a user-data listen key.
+
+    Binance user data streams (listen keys) require a separate WebSocket
+    connection opened at `/ws/<listenKey>` and cannot be multiplexed with
+    market data streams via the combined-stream endpoint.
+
+    Start a separate WebSocket for the listen key:
+        {:ok, _pid} = WebSocket.start_link(
+          listen_key: "#{listen_key}",
+          handler: MyApp.UserDataHandler
+        )
+    """
   end
 
   defp dispatch(parsed, nil) do

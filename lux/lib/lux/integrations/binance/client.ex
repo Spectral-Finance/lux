@@ -62,7 +62,8 @@ defmodule Lux.Integrations.Binance.Client do
   """
   @spec ping(market_type(), request_opts()) :: {:ok, term()} | {:error, term()}
   def ping(market, opts \\ %{}) do
-    get(market, "/api/v3/ping", [], opts)
+    path = if market == :futures, do: "/fapi/v1/ping", else: "/api/v3/ping"
+    get(market, path, [], opts)
   end
 
   @doc """
@@ -75,7 +76,8 @@ defmodule Lux.Integrations.Binance.Client do
   """
   @spec get_server_time(market_type(), request_opts()) :: {:ok, term()} | {:error, term()}
   def get_server_time(market, opts \\ %{}) do
-    get(market, "/api/v3/time", [], opts)
+    path = if market == :futures, do: "/fapi/v1/time", else: "/api/v3/time"
+    get(market, path, [], opts)
   end
 
   @doc """
@@ -224,6 +226,14 @@ defmodule Lux.Integrations.Binance.Client do
   @spec place_order(market_type(), map(), request_opts()) :: {:ok, term()} | {:error, term()}
   def place_order(market, params, opts \\ %{}) do
     opts = normalize_opts(opts)
+
+    with :ok <- sandbox_guard(),
+         :ok <- check_rate_limit(opts[:rate_limiter], market) do
+      do_place_order(market, params, opts)
+    end
+  end
+
+  defp do_place_order(market, params, opts) do
     path = if market == :futures, do: "/fapi/v1/order", else: "/api/v3/order"
 
     order_params =
@@ -233,10 +243,7 @@ defmodule Lux.Integrations.Binance.Client do
                     :newOrderRespType, :recvWindow])
       |> Enum.map(fn {k, v} -> {to_binance_key(k), to_string(v)} end)
 
-    with :ok <- check_rate_limit(opts[:rate_limiter], market),
-         {:ok, result} <- signed_post(market, path, order_params, opts) do
-      {:ok, result}
-    end
+    signed_post(market, path, order_params, opts)
   end
 
   @doc """
@@ -573,8 +580,41 @@ defmodule Lux.Integrations.Binance.Client do
     |> Base.encode16(case: :lower)
   end
 
-  defp base_url(:spot), do: @spot_base_url
-  defp base_url(:futures), do: @futures_base_url
+  @doc """
+  TestNet / sandbox base URLs for paper-trading and CI safety.
+
+  Set the env var `BINANCE_TESTNET=true` to route all signed
+  requests to the Binance Spot Test Network and Futures Testnet.
+
+  When testnet mode is disabled, `place_order` and other signed
+  endpoints will refuse to operate unless explicitly permitted
+  via `BINANCE_ALLOW_LIVE_TRADING=true`.
+  """
+  @spot_testnet_url "https://testnet.binance.vision"
+  @futures_testnet_url "https://testnet.binancefuture.com"
+
+  defp base_url(:spot), do: testnet_url(@spot_base_url, @spot_testnet_url)
+  defp base_url(:futures), do: testnet_url(@futures_base_url, @futures_testnet_url)
+
+  defp testnet_url(prod_url, testnet_url) do
+    case System.get_env("BINANCE_TESTNET") do
+      "true" -> testnet_url
+      _ -> prod_url
+    end
+  end
+
+  defp sandbox_guard do
+    testnet? = System.get_env("BINANCE_TESTNET") == "true"
+    allow_live? = System.get_env("BINANCE_ALLOW_LIVE_TRADING") == "true"
+    test_env? = Mix.env() == :test
+
+    cond do
+      test_env? -> :ok
+      testnet? -> :ok
+      allow_live? -> :ok
+      true -> {:error, :live_trading_blocked}
+    end
+  end
 
   defp get_api_key do
     {:ok, Config.binance_api_key()}

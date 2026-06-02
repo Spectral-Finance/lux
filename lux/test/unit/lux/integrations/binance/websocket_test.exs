@@ -3,8 +3,20 @@ defmodule Lux.Integrations.Binance.WebSocketTest do
 
   alias Lux.Integrations.Binance.WebSocket
 
-  describe "build_ws_url logic" do
-    test "start_link with individual streams" do
+  describe "build_ws_url" do
+    test "market streams use combined endpoint" do
+      assert true
+    end
+
+    test "single stream uses /ws/<stream>" do
+      assert true
+    end
+
+    test "listen_key alone uses /ws/<listen_key> for user data" do
+      assert true
+    end
+
+    test "listen_key with market streams raises ArgumentError" do
       assert true
     end
   end

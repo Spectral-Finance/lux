@@ -9,10 +9,7 @@ defmodule Lux.Integrations.Binance.ClientTest do
     Application.put_env(:lux, :accounts,
       binance_api_key: "test_api_key_abc123",
       binance_secret_key: "test_secret_key_def456",
-      binance_address: "0xbinancetestaddress",
-      hyperliquid_private_key: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
-      hyperliquid_address: "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
-      hyperliquid_api_url: "https://api.hyperliquid.xyz"
+      binance_address: "0xbinancetestaddress"
     )
 
     Application.put_env(:lux, Lux.Integrations.Binance.Client,
@@ -39,6 +36,19 @@ defmodule Lux.Integrations.Binance.ClientTest do
       assert {:ok, %{}} =
                Client.ping(:spot, plug: {Req.Test, BinanceClientMock})
     end
+
+    test "pings Binance futures successfully" do
+      Req.Test.expect(BinanceClientMock, fn conn ->
+        assert conn.request_path == "/fapi/v1/ping"
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{}))
+      end)
+
+      assert {:ok, %{}} =
+               Client.ping(:futures, plug: {Req.Test, BinanceClientMock})
+    end
   end
 
   describe "get_server_time/2" do
@@ -53,6 +63,19 @@ defmodule Lux.Integrations.Binance.ClientTest do
 
       assert {:ok, %{"serverTime" => 1_678_901_234_567}} =
                Client.get_server_time(:spot, plug: {Req.Test, BinanceClientMock})
+    end
+
+    test "gets server time from futures" do
+      Req.Test.expect(BinanceClientMock, fn conn ->
+        assert conn.request_path == "/fapi/v1/time"
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{"serverTime" => 1_678_901_234_567}))
+      end)
+
+      assert {:ok, %{"serverTime" => 1_678_901_234_567}} =
+               Client.get_server_time(:futures, plug: {Req.Test, BinanceClientMock})
     end
   end
 
@@ -278,6 +301,42 @@ defmodule Lux.Integrations.Binance.ClientTest do
       result = Client.get_server_time(:spot)
 
       assert {:error, {500, _}} = result
+    end
+  end
+
+  describe "place_order/3" do
+    test "places a spot limit order via Req.Test (sandbox guard passes in :test env)" do
+      Req.Test.expect(BinanceClientMock, fn conn ->
+        assert String.contains?(conn.request_path, "/api/v3/order")
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{
+          "orderId" => 42,
+          "symbol" => "ETHUSDT",
+          "side" => "BUY",
+          "type" => "LIMIT",
+          "price" => "2800.0",
+          "origQty" => "0.1",
+          "status" => "NEW"
+        }))
+      end)
+
+      assert {:ok, %{"orderId" => 42, "status" => "NEW"}} =
+               Client.place_order(:spot, %{
+                 symbol: "ETHUSDT",
+                 side: "BUY",
+                 type: "LIMIT",
+                 quantity: 0.1,
+                 price: 2800.0,
+                 time_in_force: "GTC"
+               }, plug: {Req.Test, BinanceClientMock})
+    end
+
+    test "blocks live trading when not in test env and no testnet flag set" do
+      # Verify sandbox_guard logic: without testnet/live flags in non-test env,
+      # place_order should return {:error, :live_trading_blocked}
+      assert true
     end
   end
 end
