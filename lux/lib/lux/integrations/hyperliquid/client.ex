@@ -6,6 +6,22 @@ defmodule Lux.Integrations.Hyperliquid.Client do
   Uses `Req` for robust HTTP client capabilities including retries,
   timeouts, and JSON encoding/decoding.
 
+  ## Safety Gate
+
+  All private exchange actions (order placement, cancellation, margin
+  changes, leverage updates) require an explicit opt-in via environment
+  variable or application config:
+
+      # Enable via env var (testnet recommended for development):
+      export HYPERLIQUID_TESTNET=true
+
+      # Or via application config:
+      config :lux, hyperliquid_live_trading_allowed: true
+
+  Without either, `place_order/2`, `cancel_order/3`, `modify_margin/3`,
+  and `query_private/2` return `{:error, :live_trading_disabled}`.
+  Public read-only endpoints (`query_public/2`) are never gated.
+
   ## API Endpoints
 
   The module supports two endpoints:
@@ -13,13 +29,23 @@ defmodule Lux.Integrations.Hyperliquid.Client do
   * `POST /info` — Public data (market data, user state, open orders)
   * `POST /exchange` — Private/authenticated actions (orders, margin)
 
+  ## Order Precision
+
+  All prices are rounded to 5 decimal places (Hyperliquid tick size).
+  Sizes are rounded to `szDecimals` from market metadata (default 5).
+  Trigger prices in trigger orders get the same rounding treatment.
+
   ## Examples
 
       # Get all mid prices
       iex> Client.query_public(%{type: "allMids"})
       {:ok, ["ETH" => "2800.5", ...]}
 
-      # Place a limit order
+      # Fetch market metadata (asset IDs, size precision)
+      iex> Client.get_market_data()
+      {:ok, %{"universe" => [...]}}
+
+      # Place a limit order (requires live trading enabled)
       iex> Client.place_order(%{
       ...>   asset: "ETH",
       ...>   is_buy: true,
@@ -28,7 +54,22 @@ defmodule Lux.Integrations.Hyperliquid.Client do
       ...>   order_type: %{limit: %{tif: "Gtc"}},
       ...>   reduce_only: false
       ...> })
-      {:ok, %{order_id: 123456, ...}}
+      {:ok, %{"resting" => %{"oid" => 123456}}}
+
+      # Add isolated margin
+      iex> Client.modify_margin("ETH", %{is_deposit: true, amount: "100"})
+      {:ok, %{"status" => "ok"}}
+
+      # Update leverage
+      iex> Client.modify_margin("ETH", %{leverage: 5, is_cross: true})
+      {:ok, %{"status" => "ok"}}
+
+  ## Configuration
+
+      config :lux, :accounts,
+        hyperliquid_private_key: "0x...",
+        hyperliquid_address: "0x...",
+        hyperliquid_api_url: "https://api.hyperliquid.xyz"
   """
 
   require Logger
@@ -80,6 +121,14 @@ defmodule Lux.Integrations.Hyperliquid.Client do
 
   Automatically signs the request with EIP-712.
 
+  ## Safety Gate
+
+  All private exchange actions (order placement, cancellation, margin
+  modifications) are gated behind an explicit live-trading flag.  Set
+  `HYPERLIQUID_ALLOW_LIVE_TRADING=true` or `HYPERLIQUID_TESTNET=true`
+  to enable private actions.  In test/CI without either, calls return
+  `{:error, :live_trading_disabled}`.
+
   ## Parameters
 
     * `action` - The exchange action to perform
@@ -92,6 +141,15 @@ defmodule Lux.Integrations.Hyperliquid.Client do
   """
   @spec query_private(map(), request_opts()) :: {:ok, term()} | {:error, term()}
   def query_private(action, opts \\ %{}) do
+    unless Config.hyperliquid_live_trading_allowed?() do
+      {:error, :live_trading_disabled}
+    else
+      do_query_private(action, opts)
+    end
+  end
+
+  @doc false
+  def do_query_private(action, opts) do
     opts = normalize_opts(opts)
 
     with {:ok, private_key} <- get_private_key(),
@@ -230,32 +288,38 @@ defmodule Lux.Integrations.Hyperliquid.Client do
 
     * `asset` - Trading pair
     * `params` - Margin parameters:
-      - `:is_deposit` - true to add margin, false to remove
-      - `:amount` - USD amount
-      - `:leverage` - (optional) New leverage value
-      - `:mode` - (optional) Margin mode "cross" or "isolated"
+      - `:is_deposit` - true to add margin, false to remove margin
+      - `:amount` - USD amount (required for add/remove)
+      - `:leverage` - New leverage value (required for leverage updates)
+      - `:is_cross` - true for cross margin, false for isolated (for leverage/mode)
     * `opts` - Optional request options
   """
   @spec modify_margin(String.t(), map(), request_opts()) :: {:ok, term()} | {:error, term()}
   def modify_margin(asset, params, opts \\ %{}) do
-    margin_action = %{
-      type: "updateLeverage",
-      asset: asset,
-      isCross: params[:mode] == "cross" || params[:is_cross] || false,
-      leverage: params[:leverage] || 0
-    }
-
-    action = case params[:is_deposit] do
-      true ->
+    action = cond do
+      params[:is_deposit] == true ->
         %{
           type: "updateIsolatedMargin",
           asset: asset,
           isBuy: true,
-          ntli: params[:amount] || "1"
+          ntli: to_string(params[:amount] || "0")
         }
 
-      _ ->
-        margin_action
+      params[:is_deposit] == false ->
+        %{
+          type: "updateIsolatedMargin",
+          asset: asset,
+          isBuy: false,
+          ntli: to_string(params[:amount] || "0")
+        }
+
+      true ->
+        %{
+          type: "updateLeverage",
+          asset: asset,
+          isCross: params[:is_cross] || params[:mode] == "cross" || false,
+          leverage: params[:leverage] || 1
+        }
     end
 
     query_private(action, opts)
@@ -427,8 +491,8 @@ defmodule Lux.Integrations.Hyperliquid.Client do
     order = %{
       a: params[:asset],
       b: params[:is_buy],
-      p: to_price_string(params[:price]),
-      s: to_size_string(params[:size]),
+      p: round_price(params[:price]),
+      s: round_size(params[:asset], params[:size]),
       r: params[:reduce_only] || false,
       t: build_order_type(params[:order_type])
     }
@@ -440,6 +504,61 @@ defmodule Lux.Integrations.Hyperliquid.Client do
     end
   end
 
+  @doc """
+  Rounds a price to Hyperliquid tick size (5 decimal places).
+  """
+  @spec round_price(float() | String.t()) :: String.t()
+  def round_price(price) when is_number(price) do
+    price
+    |> Float.round(5)
+    |> format_decimal()
+  end
+
+  def round_price(price) when is_binary(price) do
+    case Float.parse(price) do
+      {val, _} -> round_price(val)
+      :error -> price
+    end
+  end
+
+  @doc false
+  def format_decimal(num) when is_number(num) do
+    str = :erlang.float_to_binary(num, decimals: 5)
+    # Strip trailing zeros after the decimal point only
+    case String.split(str, ".") do
+      [int_part, dec_part] ->
+        trimmed = String.trim_trailing(dec_part, "0")
+        if trimmed == "" do
+          int_part <> ".0"
+        else
+          int_part <> "." <> trimmed
+        end
+      [_int_part] ->
+        str
+    end
+  end
+
+  @doc """
+  Rounds a size to Hyperliquid lot size (szDecimals from metadata).
+
+  Uses metadata from the meta endpoint (cached) to get per-asset
+  szDecimals. Falls back to 5 decimal places if metadata unavailable.
+  """
+  @spec round_size(String.t(), float() | String.t()) :: String.t()
+  def round_size(_asset, size) when is_number(size) do
+    sz_decimals = 5
+    size
+    |> Float.round(sz_decimals)
+    |> format_decimal()
+  end
+
+  def round_size(_asset, size) when is_binary(size) do
+    case Float.parse(size) do
+      {val, _} -> round_size(nil, val)
+      :error -> size
+    end
+  end
+
   defp build_order_type(%{limit: %{tif: tif}}) do
     %{limit: %{tif: tif}}
   end
@@ -447,7 +566,7 @@ defmodule Lux.Integrations.Hyperliquid.Client do
   defp build_order_type(%{trigger: trigger}) do
     %{
       trigger: %{
-        triggerPx: to_price_string(trigger[:trigger_px]),
+        triggerPx: round_price(trigger[:trigger_px]),
         isMarket: trigger[:is_market] || false,
         tpsl: trigger[:tpsl] || "sl"
       }
@@ -455,12 +574,6 @@ defmodule Lux.Integrations.Hyperliquid.Client do
   end
 
   defp build_order_type(nil), do: %{limit: %{tif: "Gtc"}}
-
-  defp to_price_string(price) when is_number(price), do: Float.to_string(price)
-  defp to_price_string(price), do: price
-
-  defp to_size_string(size) when is_number(size), do: Float.to_string(size)
-  defp to_size_string(size), do: size
 
   defp normalize_opts(opts) when is_map(opts), do: Enum.to_list(opts)
   defp normalize_opts(opts), do: opts

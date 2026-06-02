@@ -28,7 +28,9 @@ defmodule Lux.Integrations.Hyperliquid.MarginManagerTest do
   describe "add_margin/3" do
     test "adds margin to a position", %{pid: pid} do
       with_mock Client, [:passthrough],
-        modify_margin: fn _asset, _params ->
+        modify_margin: fn _asset, params ->
+          assert params[:is_deposit] == true
+          assert params[:amount] == "100"
           {:ok, %{"status" => "ok", "hash" => "0xabc"}}
         end do
         result = MarginManager.add_margin(pid, "ETH", "100")
@@ -40,7 +42,9 @@ defmodule Lux.Integrations.Hyperliquid.MarginManagerTest do
   describe "remove_margin/3" do
     test "removes margin from a position", %{pid: pid} do
       with_mock Client, [:passthrough],
-        modify_margin: fn _asset, _params ->
+        modify_margin: fn _asset, params ->
+          assert params[:is_deposit] == false
+          assert params[:amount] == "50"
           {:ok, %{"status" => "ok", "hash" => "0xdef"}}
         end do
         result = MarginManager.remove_margin(pid, "ETH", "50")
@@ -50,26 +54,60 @@ defmodule Lux.Integrations.Hyperliquid.MarginManagerTest do
   end
 
   describe "set_leverage/3" do
-    test "sets leverage for a position", %{pid: pid} do
+    test "sets leverage for a position and tracks it", %{pid: pid} do
       with_mock Client, [:passthrough],
-        modify_margin: fn _asset, _params -> {:ok, %{"status" => "ok"}} end do
+        modify_margin: fn _asset, params ->
+          assert params[:leverage] == 5
+          assert params[:is_cross] == true
+          {:ok, %{"status" => "ok"}}
+        end do
         assert {:ok, %{"status" => "ok"}} = MarginManager.set_leverage(pid, "ETH", 5)
+      end
+    end
+
+    test "tracks leverage and uses it for subsequent mode changes", %{pid: pid} do
+      with_mock Client, [:passthrough],
+        modify_margin: fn _asset, params ->
+          {:ok, %{"status" => "ok"}}
+        end do
+        # Set leverage first
+        MarginManager.set_leverage(pid, "ETH", 10)
+        # Now change margin mode - should use tracked leverage=10
+        {:ok, _} = MarginManager.set_margin_mode(pid, "ETH", :isolated)
       end
     end
   end
 
   describe "set_margin_mode/3" do
-    test "switches to cross margin mode", %{pid: pid} do
+    test "switches to cross margin mode with tracked leverage", %{pid: pid} do
       with_mock Client, [:passthrough],
-        modify_margin: fn _asset, _params -> {:ok, %{"status" => "ok"}} end do
+        modify_margin: fn _asset, params ->
+          {:ok, %{"status" => "ok"}}
+        end do
+        # Set leverage first so it's tracked
+        MarginManager.set_leverage(pid, "ETH", 3)
         assert {:ok, _} = MarginManager.set_margin_mode(pid, "ETH", :cross)
       end
     end
 
-    test "switches to isolated margin mode", %{pid: pid} do
+    test "switches to isolated margin mode with tracked leverage", %{pid: pid} do
       with_mock Client, [:passthrough],
-        modify_margin: fn _asset, _params -> {:ok, %{"status" => "ok"}} end do
+        modify_margin: fn _asset, params ->
+          {:ok, %{"status" => "ok"}}
+        end do
+        MarginManager.set_leverage(pid, "ETH", 5)
         assert {:ok, _} = MarginManager.set_margin_mode(pid, "ETH", :isolated)
+      end
+    end
+
+    test "uses default leverage 1 when none tracked", %{pid: pid} do
+      with_mock Client, [:passthrough],
+        modify_margin: fn _asset, params ->
+          assert params[:leverage] == 1
+          assert params[:is_cross] == true
+          {:ok, %{"status" => "ok"}}
+        end do
+        assert {:ok, _} = MarginManager.set_margin_mode(pid, "ETH", :cross)
       end
     end
   end

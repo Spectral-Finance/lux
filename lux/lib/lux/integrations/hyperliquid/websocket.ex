@@ -211,7 +211,16 @@ defmodule Lux.Integrations.Hyperliquid.WebSocket do
   defp dispatch(parsed, nil), do: Logger.debug("[Hyperliquid WS] No handler configured, dropping: #{inspect(parsed)}")
 
   defp dispatch(parsed, handler) do
-    handler.handle_message(parsed)
+    try do
+      handler.handle_message(parsed)
+    rescue
+      e ->
+        Logger.error("[Hyperliquid WS] Handler crashed on message: #{Exception.message(e)}")
+        Logger.error(Exception.format_stacktrace(__STACKTRACE__))
+    catch
+      kind, reason ->
+        Logger.error("[Hyperliquid WS] Handler threw #{kind}: #{inspect(reason)}")
+    end
   end
 
   defp ws_url do

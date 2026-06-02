@@ -186,7 +186,16 @@ defmodule Lux.Integrations.Hyperliquid.RiskManager do
 
   @impl true
   def handle_cast({:risk_event, event}, state) do
-    handle_risk_ws_event(event, state)
+    try do
+      handle_risk_ws_event(event, state)
+    rescue
+      e ->
+        Logger.error("[RiskManager] WS event handler crashed: #{Exception.message(e)}")
+    catch
+      kind, reason ->
+        Logger.error("[RiskManager] WS event handler threw #{kind}: #{inspect(reason)}")
+    end
+
     {:noreply, state}
   end
 

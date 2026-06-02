@@ -132,6 +132,7 @@ defmodule Lux.Integrations.Hyperliquid.MarginManager do
       maintenance_margin_ratio: 0.0,
       withdrawable: 0.0,
       position_margins: %{},
+      asset_leverages: %{},
       last_sync: nil
     }
 
@@ -196,23 +197,26 @@ defmodule Lux.Integrations.Hyperliquid.MarginManager do
 
   @impl true
   def handle_call({:set_leverage, asset, leverage}, _from, state) do
+    is_cross = Map.get(state.position_margins, asset, %{}) |> Map.get(:mode, "cross") == "cross"
+
     params = %{
       leverage: leverage,
-      mode: "cross"
+      is_cross: is_cross
     }
 
     result =
       case Client.modify_margin(asset, params) do
         {:ok, response} ->
           Logger.info("[MarginManager] Set leverage for #{asset} to #{leverage}x")
-          {:ok, response}
+
+          updated_leverages = Map.put(state.asset_leverages, asset, leverage)
+
+          {:reply, {:ok, response}, %{state | asset_leverages: updated_leverages}}
 
         {:error, reason} ->
           Logger.error("[MarginManager] Failed to set leverage for #{asset}: #{inspect(reason)}")
-          {:error, reason}
+          {:reply, {:error, reason}, state}
       end
-
-    {:reply, result, state}
   end
 
   @impl true
@@ -222,15 +226,17 @@ defmodule Lux.Integrations.Hyperliquid.MarginManager do
       :isolated -> "isolated"
     end
 
+    current_leverage = Map.get(state.asset_leverages, asset, 1)
+
     params = %{
-      mode: mode_str,
+      leverage: current_leverage,
       is_cross: mode == :cross
     }
 
     result =
       case Client.modify_margin(asset, params) do
         {:ok, response} ->
-          Logger.info("[MarginManager] Set margin mode for #{asset} to #{mode_str}")
+          Logger.info("[MarginManager] Set margin mode for #{asset} to #{mode_str} (leverage: #{current_leverage}x)")
 
           updated_margins = Map.put(state.position_margins, asset, %{
             mode: mode_str,

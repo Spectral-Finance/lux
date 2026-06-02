@@ -25,6 +25,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
+    Application.put_env(:lux, :hyperliquid_live_trading_allowed, true)
     :ok
   end
 end

@@ -123,15 +123,20 @@ defmodule Lux.Integrations.Hyperliquid.OrderManager do
 
   @impl true
   def init(opts) do
-    table_name = Keyword.get(opts, :ets_table, :hyperliquid_orders)
-    ets = :ets.new(table_name, [:named_table, :public, :set, read_concurrency: true])
+    table_name = Keyword.get(opts, :ets_table)
+    ets_opts = if table_name do
+      [:named_table, :public, :set, read_concurrency: true]
+    else
+      [:public, :set, read_concurrency: true]
+    end
+    ets = :ets.new(table_name || :hyperliquid_orders, ets_opts)
 
     state = %{
       ets: ets,
       address: Config.hyperliquid_account_address()
     }
 
-    Logger.info("[OrderManager] Initialized with ETS table: #{inspect(table_name)}")
+    Logger.info("[OrderManager] Initialized with ETS table: #{inspect(ets)}")
 
     {:ok, state}
   end
@@ -213,7 +218,16 @@ defmodule Lux.Integrations.Hyperliquid.OrderManager do
 
   @impl true
   def handle_cast({:order_update, event}, state) do
-    handle_ws_event(event, state)
+    try do
+      handle_ws_event(event, state)
+    rescue
+      e ->
+        Logger.error("[OrderManager] WS event handler crashed: #{Exception.message(e)}")
+    catch
+      kind, reason ->
+        Logger.error("[OrderManager] WS event handler threw #{kind}: #{inspect(reason)}")
+    end
+
     {:noreply, state}
   end
 
@@ -264,26 +278,32 @@ defmodule Lux.Integrations.Hyperliquid.OrderManager do
   end
 
   defp handle_ws_event(%{"channel" => "user"} = event, state) do
-    fills = event["data"]["fills"] || []
+    data = event["data"]
 
-    Enum.each(fills, fn fill ->
-      order_id = fill["oid"]
+    if is_map(data) do
+      fills = data["fills"] || []
 
-      case :ets.lookup(state.ets, order_id) do
-        [{^order_id, order}] ->
-          updated = %{
-            order
-            | filled_size: fill["totalSz"] || order.filled_size,
-              avg_fill_price: fill["avgPx"] || order.avg_fill_price,
-              status: if(fill["totalSz"] == order.size, do: "filled", else: "partial_fill")
-          }
+      Enum.each(fills, fn fill ->
+        order_id = fill["oid"]
 
-          :ets.insert(state.ets, {order_id, updated})
+        case :ets.lookup(state.ets, order_id) do
+          [{^order_id, order}] ->
+            updated = %{
+              order
+              | filled_size: fill["totalSz"] || order.filled_size,
+                avg_fill_price: fill["avgPx"] || order.avg_fill_price,
+                status: if(fill["totalSz"] == order.size, do: "filled", else: "partial_fill")
+            }
 
-        [] ->
-          Logger.debug("[OrderManager] Received fill for unknown order: #{order_id}")
-      end
-    end)
+            :ets.insert(state.ets, {order_id, updated})
+
+          [] ->
+            Logger.debug("[OrderManager] Received fill for unknown order: #{order_id}")
+        end
+      end)
+    else
+      Logger.debug("[OrderManager] Received user WS event with malformed data: #{inspect(event)}")
+    end
   end
 
   defp handle_ws_event(_event, _state), do: :ok

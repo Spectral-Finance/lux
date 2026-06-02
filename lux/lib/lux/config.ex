@@ -119,6 +119,37 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Returns whether live trading is allowed on Hyperliquid.
+
+  Live trading (order placement, margin changes, leverage updates) is
+  gated behind explicit environment configuration. Without it, all
+  private exchange actions are blocked with `{:error, :live_trading_disabled}`.
+
+  Enable live trading by setting one of:
+    - `HYPERLIQUID_ALLOW_LIVE_TRADING=true` for mainnet
+    - `HYPERLIQUID_TESTNET=true` for testnet
+
+  Or in application config:
+    - `config :lux, hyperliquid_live_trading_allowed: true`
+
+  In test/CI mode, live trading is disabled by default.
+  """
+  @spec hyperliquid_live_trading_allowed?() :: boolean()
+  def hyperliquid_live_trading_allowed? do
+    Application.get_env(:lux, :hyperliquid_live_trading_allowed, false) or
+      System.get_env("HYPERLIQUID_ALLOW_LIVE_TRADING") == "true" or
+      System.get_env("HYPERLIQUID_TESTNET") == "true"
+  end
+
+  @doc """
+  Returns whether Hyperliquid is in testnet mode.
+  """
+  @spec hyperliquid_testnet?() :: boolean()
+  def hyperliquid_testnet? do
+    System.get_env("HYPERLIQUID_TESTNET") == "true"
+  end
+
+  @doc """
   Retrieves the wallet address
   """
   @spec wallet_address() :: String.t()

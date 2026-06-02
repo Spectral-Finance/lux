@@ -126,8 +126,13 @@ defmodule Lux.Integrations.Hyperliquid.PositionManager do
 
   @impl true
   def init(opts) do
-    table_name = Keyword.get(opts, :ets_table, :hyperliquid_positions)
-    ets = :ets.new(table_name, [:named_table, :public, :set, read_concurrency: true])
+    table_name = Keyword.get(opts, :ets_table)
+    ets_opts = if table_name do
+      [:named_table, :public, :set, read_concurrency: true]
+    else
+      [:public, :set, read_concurrency: true]
+    end
+    ets = :ets.new(table_name || :hyperliquid_positions, ets_opts)
 
     state = %{
       ets: ets,
@@ -138,7 +143,7 @@ defmodule Lux.Integrations.Hyperliquid.PositionManager do
       realized_pnls: %{}
     }
 
-    Logger.info("[PositionManager] Initialized with ETS table: #{inspect(table_name)}")
+    Logger.info("[PositionManager] Initialized with ETS table: #{inspect(ets)}")
 
     {:ok, state}
   end
@@ -242,7 +247,16 @@ defmodule Lux.Integrations.Hyperliquid.PositionManager do
 
   @impl true
   def handle_cast({:position_update, event}, state) do
-    handle_ws_position_event(event, state)
+    try do
+      handle_ws_position_event(event, state)
+    rescue
+      e ->
+        Logger.error("[PositionManager] WS event handler crashed: #{Exception.message(e)}")
+    catch
+      kind, reason ->
+        Logger.error("[PositionManager] WS event handler threw #{kind}: #{inspect(reason)}")
+    end
+
     {:noreply, state}
   end
 
