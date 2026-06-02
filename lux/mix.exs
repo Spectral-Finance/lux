@@ -83,7 +83,8 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:rustler, "~> 0.34", optional: true}
     ]
   end
 
@@ -109,6 +110,9 @@ defmodule Lux.MixProject do
       files: [
         "lib",
         "priv/web3/abis/*",
+        "priv/rust/src/*.rs",
+        "priv/rust/Cargo.toml",
+        "priv/rust/version.txt",
         "priv/python/lux/*.py",
         "priv/python/erlport/*.py",
         "priv/python/hyperliquid_utils/*.py",
