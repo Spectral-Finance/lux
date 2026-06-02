@@ -1,4 +1,4 @@
-use rustler::{Decoder, Encoder, Env, Error, NifResult, Term};
+use rustler::{Decoder, Encoder, Env, Error, NifResult, NifStruct, Term};
 
 #[derive(Debug, Clone, NifStruct)]
 #[module = "Lux.Native.Value"]

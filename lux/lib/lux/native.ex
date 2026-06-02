@@ -104,6 +104,60 @@ defmodule Lux.Native do
   end
 
   @doc """
+  Evaluates Rust code via the native NIF bridge.
+  """
+  @spec rust_eval(String.t(), String.t(), String.t()) :: term()
+  def rust_eval(_code, _variables, _handler), do: nif_not_loaded()
+
+  @doc """
+  Registers a Rust component definition.
+  """
+  @spec rust_register_component(String.t()) :: boolean()
+  def rust_register_component(_def_json), do: nif_not_loaded()
+
+  @doc """
+  Executes a registered Rust component.
+  """
+  @spec rust_execute_component(String.t(), String.t()) :: String.t()
+  def rust_execute_component(_component, _input_json), do: nif_not_loaded()
+
+  @doc """
+  Lists components of a given kind.
+  """
+  @spec rust_list_components(String.t()) :: [map()]
+  def rust_list_components(_kind), do: nif_not_loaded()
+
+  @doc """
+  Unregisters a Rust component.
+  """
+  @spec rust_unregister_component(String.t(), String.t()) :: boolean()
+  def rust_unregister_component(_kind, _name), do: nif_not_loaded()
+
+  @doc """
+  Returns component info counts by type.
+  """
+  @spec rust_component_info() :: map()
+  def rust_component_info, do: nif_not_loaded()
+
+  @doc """
+  Initializes a Rust component.
+  """
+  @spec rust_component_init(String.t(), String.t()) :: String.t()
+  def rust_component_init(_kind, _name), do: nif_not_loaded()
+
+  @doc """
+  Shuts down a Rust component.
+  """
+  @spec rust_component_shutdown(String.t(), String.t()) :: String.t()
+  def rust_component_shutdown(_kind, _name), do: nif_not_loaded()
+
+  @doc """
+  Returns the count of registered components of a kind.
+  """
+  @spec rust_component_count(String.t()) :: non_neg_integer()
+  def rust_component_count(_kind), do: nif_not_loaded()
+
+  @doc """
   Returns the native library version info.
   """
   @spec version() :: {:ok, String.t()} | {:error, String.t()}
