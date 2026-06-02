@@ -17,8 +17,11 @@ defmodule Lux.Integrations.Hyperliquid.IntegrationTest do
       hyperliquid_api_url: "https://api.hyperliquid.xyz"
     )
 
+    # Default to safe state: no live trading unless explicitly opted in
+    Application.put_env(:lux, :hyperliquid_live_trading_allowed, false)
+
     on_exit(fn ->
-      Application.put_env(:lux, :hyperliquid_live_trading_allowed, true)
+      Application.put_env(:lux, :hyperliquid_live_trading_allowed, false)
     end)
 
     :ok

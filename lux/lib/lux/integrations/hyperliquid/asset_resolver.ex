@@ -184,35 +184,50 @@ defmodule Lux.Integrations.Hyperliquid.AssetResolver do
   end
 
   defp parse_universe(data) do
-    universe = data["universe"] || []
+    raw = data["universe"]
+    universe = if is_list(raw), do: raw, else: []
 
     universe
     |> Enum.with_index()
     |> Enum.reduce(%{}, fn {{asset_data, idx}, acc} ->
-      name = (asset_data["name"] || "") |> String.upcase()
+      name = ensure_string(asset_data["name"])
       if name != "" do
-        Map.put(acc, name, build_asset_meta(asset_data, idx))
+        Map.put(acc, name, build_asset_meta(asset_data, idx, name))
       else
         acc
       end
     end)
   end
 
-  defp build_asset_meta(asset_data, index) do
-    sz_decimals = asset_data["szDecimals"] || 5
-    # tick_size = 10^(-sz_decimals) for most Hyperliquid markets
-    # but some have custom tick sizes
+  defp ensure_string(val) do
+    (val || "") |> to_string() |> String.upcase()
+  end
+
+  defp build_asset_meta(asset_data, index, name) do
+    sz_decimals = ensure_int(asset_data["szDecimals"], 5)
     tick_size = :math.pow(10, -sz_decimals)
-    # lot_size = 10^(-sz_decimals)
     lot_size = :math.pow(10, -sz_decimals)
 
     %{
       asset_id: index,
-      asset_name: asset_data["name"] |> String.upcase(),
+      asset_name: name,
       sz_decimals: sz_decimals,
       tick_size: tick_size,
       lot_size: lot_size
     }
+  end
+
+  defp ensure_int(val, default) do
+    cond do
+      is_integer(val) -> val
+      is_binary(val) ->
+        case Integer.parse(val) do
+          {n, _} -> n
+          :error -> default
+        end
+      is_float(val) -> round(val)
+      true -> default
+    end
   end
 
   @doc """

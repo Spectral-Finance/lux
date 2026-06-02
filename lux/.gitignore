@@ -52,6 +52,3 @@ node_modules/
 # Dialyzer
 priv/plts/
 
-# Rust build artifacts
-priv/rust/target/
-priv/rust/Cargo.lock
