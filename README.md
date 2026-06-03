@@ -220,3 +220,5 @@ For development:
 - Livebook notebooks can be created and run directly in the browser
 - All necessary ports are automatically forwarded
 - VS Code is configured for Elixir, Phoenix, and LiveView development
+
+<!-- fix #78: Uniswap V3 Integration and Liquidity Management $900 -->
