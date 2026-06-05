@@ -142,6 +142,7 @@ defmodule Lux.MixProject do
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
         "guides/testing.md",
+        "guides/youtube_core_live_streaming.md",
         "guides/cursor_development.md",
         "guides/contributing.md",
         "guides/troubleshooting.md",
