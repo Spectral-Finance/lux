@@ -1,0 +1,53 @@
+# Twitter Analytics and Monitoring
+
+This guide shows how to generate a credential-free Twitter/X analytics report
+from imported metric rows. The workflow is safe for CI and local agent review:
+it does not call Twitter/X APIs, post content, send direct messages, or mutate an
+account.
+
+```elixir
+alias Lux.Prisms.Twitter.GenerateAnalyticsReport
+
+payload = %{
+  account_id: "lux",
+  tweets: [
+    %{
+      id: "launch",
+      text: "Great launch thread for agents",
+      impressions: 5_000,
+      likes: 350,
+      replies: 45,
+      retweets: 80,
+      quotes: 10,
+      bookmarks: 40,
+      hashtags: ["agents", "ai"]
+    }
+  ],
+  mentions: [
+    %{id: "m1", text: "thanks, very useful", followers_count: 700},
+    %{id: "m2", text: "bad setup error", followers_count: 35_000}
+  ],
+  follower_snapshots: [
+    %{timestamp: "2026-06-01", count: 2_500},
+    %{timestamp: "2026-06-05", count: 2_680}
+  ],
+  alert_thresholds: %{negative_sentiment_above: 0.25}
+}
+
+{:ok, report} = GenerateAnalyticsReport.handler(payload, %{name: "AnalyticsAgent"})
+report.report_sections
+```
+
+The report includes:
+
+- aggregate impressions, engagements, engagement rate, and profile click rate
+- per-tweet normalized metrics and data quality notes
+- hashtag performance rollups
+- follower growth deltas
+- mention sentiment summaries with high-influence negative mention detection
+- custom metric ratios
+- deterministic alerts and dashboard-ready chart payloads
+
+Live Twitter/X collection can be added later as a transport adapter that feeds
+the same payload shape into this prism. Tests should continue to use fixture
+payloads so credentials and account mutations are never required for review.
