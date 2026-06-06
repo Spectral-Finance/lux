@@ -2,6 +2,7 @@
 
 <!-- [![Build Status](https://github.com/spectrallabs/lux/workflows/CI/badge.svg)](https://github.com/spectrallabs/lux/actions) -->
 [![Lux CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml)
+[![Lux App CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml)
 [![Lux App CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml)
 [![Hex.pm](https://img.shields.io/hexpm/v/lux.svg)](https://hex.pm/packages/lux)
 [![Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/lux)
@@ -18,6 +19,13 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - 🔌 **Extensible**: Easy integration with external services and APIs
 - 📊 **Observable**: Built-in monitoring, metrics, and debugging tools
 - 🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
+🧠 **Self-Improving Agents**: Agents with built-in reflection capabilities (coming soon)
+🚀 **Language Agnostic**: Build agents in your favorite programming language
+🔄 **Type-Safe Communication**: Structured data flow with schema validation
+🤖 **AI-First**: Deep LLM integration with advanced prompting and context management
+🔌 **Extensible**: Easy integration with external services and APIs
+📊 **Observable**: Built-in monitoring, metrics, and debugging tools
+🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
 
 ## Documentation
 
@@ -27,7 +35,36 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
 - [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
 - [Language Support](lux/guides/language_support.md) - Language integration details
+- [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
+### Core Concepts
+- [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
+- [Signals](lux/guides/signals.livemd) - Type-safe communication between agents
+- [Prisms](lux/guides/prisms.livemd) - Modular functional components
+- [Beams](lux/guides/beams.livemd) - Workflow orchestration
+- [Lenses](lux/guides/lenses.livemd) - External service integration
 
+### Examples & Guides
+- [Multi-Agent Collaboration](lux/guides/multi_agent_collaboration.livemd) - Build collaborative systems
+- [Trading System](lux/guides/trading_system.livemd) - Complete crypto trading example
+- [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
+
+### Development
+- [Contributing Guide](lux/guides/contributing.md) - Help improve Lux
+- [Testing Guide](lux/guides/testing.md) - Testing your Lux applications
+- [Troubleshooting](lux/guides/troubleshooting.md) - Troubleshooting common issues
+
+## Core Features
+
+- [ ] REST API integration
+- [ ] WebSocket feeds
+- [ ] Order management
+- [ ] Market data streaming
+- [ ] Portfolio tracking
+- [ ] Account management
+- [ ] Historical data access
+- [ ] Rate limiting handling
+
+## Budget: $750
 ### Core Concepts
 - [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
 - [Signals](lux/guides/signals.livemd) - Type-safe communication between agents
