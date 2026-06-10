@@ -1,6 +1,23 @@
-# Language Support in Lux
+# Language Support
 
-Lux is designed to be language-agnostic, allowing you to build agents in your preferred programming language. This guide provides an overview of language support in Lux and how to use different programming languages in your agents.
+Lux is designed to be language-agnostic. This guide covers the language integration details.
+
+## Rust Component Support
+
+Lux supports defining high-performance components in Rust through the `Lux.Rust` module. Rust components are compiled to native code and can be used seamlessly alongside Elixir components.
+
+### Defining Rust Components
+
+Rust components are defined using the `Lux.Rust` macro. They support:
+
+- Full trait system integration
+- Async/await support
+- Component lifecycle management
+- Performance optimizations through native compilation
+
+### Example
+
+
 
 ## Currently Supported Languages
 

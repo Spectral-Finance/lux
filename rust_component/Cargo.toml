@@ -1,0 +1,9 @@
+[package]
+name = "lux-rust-component"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Empty for now, but would be implemented in a real scenario
+# where actual Rust components are implemented
+# and the component system is fully realized

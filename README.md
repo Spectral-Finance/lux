@@ -35,12 +35,15 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Beams](lux/guides/beams.livemd) - Workflow orchestration
 - [Lenses](lux/guides/lenses.livemd) - External service integration
 
-### Examples & Guides
-- [Multi-Agent Collaboration](lux/guides/multi_agent_collaboration.livemd) - Build collaborative systems
-- [Trading System](lux/guides/trading_system.livemd) - Complete crypto trading example
-- [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
-- [Role Management](lux/guides/role_management.md) - Managing agent roles
-- [Companies](lux/guides/companies.md) - Organizing agents into companies
+### Getting Started
+- [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
+- [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
+- [Language Support](lux/guides/language_support.md) - Language integration details
+- [Rust Components](lux/guides/rust_components.md) - Rust component integration guide
+
+
+### Core Concepts
+- [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
 
 ### Development
 - [Contributing Guide](lux/guides/contributing.md) - Help improve Lux
