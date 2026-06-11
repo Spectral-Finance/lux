@@ -13,6 +13,12 @@ defmodule Lux.MixProject do
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
         plt_core_path: "priv/plts/"
       ],
+      rustler_crates: [
+        lux_core: [
+          path: "priv/rust/lux_core",
+          mode: (if Mix.env() == :prod, do: :release, else: :debug)
+        ]
+      ],
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
       # Test coverage
@@ -75,6 +81,7 @@ defmodule Lux.MixProject do
       {:ex_secp256k1, "~> 0.7.4"},
       {:yaml_elixir, "~> 2.9"},
       {:hammer, "~> 7.0", only: [:test]},
+      {:rustler, "~> 0.35.0"},
       # test and dev dependencies
       {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
@@ -137,6 +144,7 @@ defmodule Lux.MixProject do
         "guides/signals.livemd",
         "guides/lenses.livemd",
         "guides/language_support.md",
+        "guides/language_support/rust.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
         "guides/multi_agent_collaboration.livemd",
@@ -154,6 +162,7 @@ defmodule Lux.MixProject do
         Guides: Path.wildcard("guides/*.livemd"),
         "Language Support": [
           "guides/language_support.md",
+          "guides/language_support/rust.md",
           "guides/language_support/python.livemd",
           "guides/language_support/nodejs.livemd"
         ],
