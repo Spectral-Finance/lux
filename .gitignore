@@ -24,3 +24,4 @@ node_modules/
 # Environment files
 *.envrc
 !*.envrc.example
+bug.env

@@ -152,8 +152,16 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidRiskAssessmentPrism do
         {:error, error}
 
       metrics when is_map(metrics) ->
-        Logger.info("Risk assessment completed", metrics)
-        {:ok, metrics}
+        result = %{
+          position_size_ratio: metrics["position_size_ratio"],
+          leverage: metrics["leverage"],
+          portfolio_concentration: metrics["portfolio_concentration"],
+          liquidation_risk: metrics["liquidation_risk"],
+          unrealized_pnl: metrics["unrealized_pnl"]
+        }
+
+        Logger.info("Risk assessment completed: #{inspect(result)}")
+        {:ok, result}
     end
   end
 end

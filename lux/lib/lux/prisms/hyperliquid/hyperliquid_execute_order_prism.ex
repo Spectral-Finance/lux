@@ -196,7 +196,7 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism do
             )
 
         order_result = exchange.order(
-            name=params["coin"],
+            params["coin"],
             is_buy=params["is_buy"],
             sz=params["sz"],
             limit_px=params["limit_px"],

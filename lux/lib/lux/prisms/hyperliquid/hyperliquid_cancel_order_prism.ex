@@ -1,4 +1,4 @@
-defmodule Lux.Prisms.HyperliquidCancelOrderPrism do
+defmodule Lux.Prisms.Hyperliquid.HyperliquidCancelOrderPrism do
   @moduledoc """
   A prism that cancels a specific order on the Hyperliquid exchange.
 

@@ -128,6 +128,37 @@ defmodule Lux.Config do
     |> Keyword.get(:wallet_address, "")
   end
 
+  @doc """
+  Gets the PancakeSwap account's private key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec pancakeswap_private_key() :: eth_key()
+  def pancakeswap_private_key do
+    get_required_key(:accounts, :pancakeswap_private_key)
+  end
+
+  @doc """
+  Gets the SushiSwap account's private key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec sushiswap_private_key() :: eth_key()
+  def sushiswap_private_key do
+    get_required_key(:accounts, :sushiswap_private_key)
+  end
+
+  @doc """
+  Generic getter for optional config values across groups.
+  Checks :api_keys then :accounts. Returns nil if not found.
+  Supports keys: :sushiswap_private_key, :web3_private_key, :openrouter_api_key
+  """
+  @spec get(atom()) :: String.t() | nil
+  def get(key) do
+    accounts = Application.get_env(:lux, :accounts, [])
+    api_keys = Application.get_env(:lux, :api_keys, [])
+
+    Keyword.get(accounts, key) || Keyword.get(api_keys, key)
+  end
+
   @doc false
   defp get_required_key(group, key) do
     :lux
