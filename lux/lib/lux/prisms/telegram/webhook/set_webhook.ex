@@ -102,9 +102,6 @@ defmodule Lux.Prisms.Telegram.Webhook.SetWebhook do
           {:ok, _response} ->
             {:ok, %{success: true, url: url}}
 
-          {:error, {status, %{"description" => description}}} ->
-            {:error, "Failed to set webhook: #{description} (HTTP #{status})"}
-
           {:error, {status, description}} when is_binary(description) ->
             {:error, "Failed to set webhook: #{description} (HTTP #{status})"}
 
