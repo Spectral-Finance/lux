@@ -168,6 +168,29 @@ defmodule Lux.LensTest do
 
       assert authenticated_lens.headers == [{"Authorization", "Bearer secret-key"}]
     end
+
+    test "normalizes string keys to existing atoms in input params" do
+      defmodule NormalizedKeysLens do
+        @moduledoc false
+        use Lux.Lens,
+          url: "https://api.example.com",
+          method: :get,
+          params: %{api_key: "default_secret"}
+
+        @impl true
+        def before_focus(%{city: _city} = params) do
+          params
+        end
+      end
+
+      Req.Test.expect(Lux.Lens, fn conn ->
+        assert conn.params == %{"api_key" => "default_secret", "city" => "Berlin"}
+        Req.Test.json(conn, %{"temp" => 18})
+      end)
+
+      input = %{"city" => "Berlin"}
+      assert {:ok, %{"temp" => 18}} = NormalizedKeysLens.focus(input)
+    end
   end
 
   describe "focus" do

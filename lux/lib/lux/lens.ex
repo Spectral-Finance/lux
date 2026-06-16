@@ -100,8 +100,10 @@ defmodule Lux.Lens do
       Focuses the lens with the given input.
       """
       def focus(input \\ %{}, opts \\ []) do
+        normalized_input = Lux.Lens.normalize_input(input)
+
         __MODULE__.view()
-        |> Map.update!(:params, &Map.merge(&1, input))
+        |> Map.update!(:params, &Map.merge(&1, normalized_input))
         |> Lux.Lens.authenticate()
         |> Map.update!(:params, &before_focus(&1))
         |> Lux.Lens.focus(opts)
@@ -172,8 +174,9 @@ defmodule Lux.Lens do
   def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_binary(key),
     do: update_headers(lens, [{"Authorization", "Bearer #{key}"}])
 
-  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_function(key, 0),
-    do: update_headers(lens, [{"Authorization", "Bearer #{key.()}"}])
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens)
+      when is_function(key, 0),
+      do: update_headers(lens, [{"Authorization", "Bearer #{key.()}"}])
 
   def authenticate(
         %__MODULE__{auth: %{type: :basic, username: username, password: password}} = lens
@@ -196,4 +199,37 @@ defmodule Lux.Lens do
 
   defp body_or_params(:get, params), do: [params: params]
   defp body_or_params(_method, params), do: [json: params]
+
+  @doc """
+  Recursively normalizes map keys of the input to existing atoms when possible,
+  bypassing structs to preserve system invariants.
+  """
+  def normalize_input(input) when is_map(input) do
+    if Map.has_key?(input, :__struct__) do
+      input
+    else
+      Map.new(input, fn {key, val} ->
+        new_key =
+          cond do
+            is_binary(key) ->
+              try do
+                String.to_existing_atom(key)
+              rescue
+                ArgumentError -> key
+              end
+
+            true ->
+              key
+          end
+
+        {new_key, normalize_input(val)}
+      end)
+    end
+  end
+
+  def normalize_input(list) when is_list(list) do
+    Enum.map(list, &normalize_input/1)
+  end
+
+  def normalize_input(other), do: other
 end
