@@ -41,7 +41,8 @@ defmodule Lux.Web3.Auth.SessionPermissionsTest do
   test "evaluates token gates through caller-supplied balance fetcher" do
     session = Session.create(@siwe)
     rules = [%{chain_id: 1, contract: "0xtoken", min_balance: 2}]
-    balance_fetcher = fn 1, "0xtoken", @siwe.address -> {:ok, 3} end
+    address = @siwe.address
+    balance_fetcher = fn 1, "0xtoken", ^address -> {:ok, 3} end
 
     assert {:ok, :authorized} = TokenGate.authorize(session, rules, balance_fetcher)
   end

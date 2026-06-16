@@ -31,8 +31,8 @@ defmodule Lux.Web3.Auth.Siwe do
     lines = String.split(message, "\n", trim: false)
 
     with {:ok, domain} <- parse_domain(Enum.at(lines, 0)),
-         {:ok, address} <- parse_address(Enum.at(lines, 2)),
-         {:ok, fields, statement, resources} <- parse_body(Enum.drop(lines, 3)),
+         {:ok, address} <- parse_address(Enum.at(lines, 1)),
+         {:ok, fields, statement, resources} <- parse_body(Enum.drop(lines, 2)),
          {:ok, chain_id} <- parse_integer(fields["Chain ID"], "Chain ID"),
          {:ok, issued_at} <- parse_datetime(fields["Issued At"], "Issued At"),
          {:ok, expiration_time} <- parse_optional_datetime(fields["Expiration Time"], "Expiration Time"),
