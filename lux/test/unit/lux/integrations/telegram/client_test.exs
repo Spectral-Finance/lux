@@ -398,6 +398,58 @@ defmodule Lux.Integrations.Telegram.ClientTest do
           max_retries: 0
         })
     end
+
+    test "retries on 503 and succeeds eventually" do
+      Req.Test.expect(TelegramClientMock, 2, fn conn ->
+        count = Process.get(:retry_503_count, 0)
+        Process.put(:retry_503_count, count + 1)
+
+        if count == 0 do
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(503, Jason.encode!(%{"ok" => false, "description" => "Service Unavailable"}))
+        else
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(200, Jason.encode!(%{"ok" => true, "result" => %{}}))
+        end
+      end)
+
+      {:ok, response} = Client.request(:get, "/getMe", %{token: @bot_token, max_retries: 1})
+      assert response["ok"] == true
+    after
+      Process.delete(:retry_503_count)
+    end
+
+    test "retries on transport error and succeeds eventually" do
+      original_plug = Application.get_env(:lux, Lux.Integrations.Telegram.Client)
+
+      count_agent = Agent.start_link(fn -> 0 end) |> elem(1)
+
+      adapter = fn req ->
+        current = Agent.get_and_update(count_agent, fn val -> {val, val + 1} end)
+        if current == 0 do
+          {req, %Req.TransportError{reason: :timeout}}
+        else
+          resp = %Req.Response{
+            status: 200,
+            headers: %{"content-type" => ["application/json"]},
+            body: %{"ok" => true, "result" => %{}}
+          }
+          {req, resp}
+        end
+      end
+
+      Application.put_env(:lux, Lux.Integrations.Telegram.Client, adapter: adapter, max_retries: 1)
+
+      try do
+        {:ok, response} = Client.request(:get, "/getMe", %{token: @bot_token})
+        assert response["ok"] == true
+      after
+        Agent.stop(count_agent)
+        Application.put_env(:lux, Lux.Integrations.Telegram.Client, original_plug)
+      end
+    end
   end
 
   describe "request_many/2" do
@@ -516,6 +568,35 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     test "returns empty results for empty request list" do
       {:ok, []} = Client.request_many([], %{token: @bot_token})
     end
+
+    test "handles different request formats and options" do
+      Req.Test.expect(TelegramClientMock, 4, fn conn ->
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(
+          200,
+          Jason.encode!(%{
+            "ok" => true,
+            "result" => %{"id" => 1}
+          })
+        )
+      end)
+
+      # 1. simple 2-tuple: {method, path}
+      # 2. 3-tuple with list options: {method, path, [{:json, %{}}]}
+      # 3. map-style with root json key: %{method: :get, path: "/getMe", json: %{}}
+      # 4. map-style with options as list: %{method: :get, path: "/getMe", opts: [headers: []]}
+      requests = [
+        {:get, "/getMe"},
+        {:post, "/getMe", [headers: []]},
+        %{method: :get, path: "/getMe", json: %{chat_id: 1}},
+        %{method: :get, path: "/getMe", opts: [headers: []]}
+      ]
+
+      # Also test with delay
+      {:ok, results} = Client.request_many(requests, %{token: @bot_token, delay: 1})
+      assert length(results) == 4
+    end
   end
 
   describe "multipart_request/4" do
@@ -608,6 +689,47 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
       assert response["ok"] == true
     end
+
+    test "sends multipart request with File.Stream struct" do
+      tmp_path =
+        Path.join(System.tmp_dir!(), "test_upload_stream_#{:erlang.unique_integer([:positive])}.txt")
+
+      File.write!(tmp_path, "stream content")
+
+      try do
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          assert conn.method == "POST"
+          assert conn.request_path == "/bottest_bot_token/sendDocument"
+
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "ok" => true,
+              "result" => %{"message_id" => 999}
+            })
+          )
+        end)
+
+        file_stream = File.stream!(tmp_path)
+
+        {:ok, response} =
+          Client.multipart_request(
+            :post,
+            "/sendDocument",
+            %{
+              chat_id: "123456",
+              document: file_stream
+            },
+            %{token: @bot_token}
+          )
+
+        assert response["ok"] == true
+      after
+        File.rm(tmp_path)
+      end
+    end
   end
 
   describe "Lux.Integrations.Telegram" do
@@ -665,6 +787,27 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         lens = %Lux.Lens{url: "https://api.telegram.org/bot:token/getUpdates"}
         result = Telegram.add_auth(lens)
         assert result.url == "https://api.telegram.org/botmy_bot_token/getUpdates"
+      after
+        if original_keys,
+          do: Application.put_env(:lux, :api_keys, original_keys),
+          else: Application.delete_env(:lux, :api_keys)
+      end
+    end
+
+    test "add_auth/1 normalizes string keys in Lens params to existing atoms" do
+      original_keys = Application.get_env(:lux, :api_keys)
+      Application.put_env(:lux, :api_keys, telegram_bot: "my_bot_token")
+
+      try do
+        # Note: :limit and :offset are existing atoms in the codebase
+        lens = %Lux.Lens{
+          url: "https://api.telegram.org/bot:token/getUpdates",
+          params: %{"limit" => 5, "offset" => 10}
+        }
+
+        result = Telegram.add_auth(lens)
+        assert result.url == "https://api.telegram.org/botmy_bot_token/getUpdates"
+        assert result.params == %{limit: 5, offset: 10}
       after
         if original_keys,
           do: Application.put_env(:lux, :api_keys, original_keys),
@@ -750,6 +893,72 @@ defmodule Lux.Integrations.Telegram.ClientTest do
       settings = Telegram.request_settings()
       assert settings.auth.type == :custom
       assert is_function(settings.auth.auth_function, 1)
+    end
+
+    test "get_token/0 returns env token when config is empty string" do
+      original_keys = Application.get_env(:lux, :api_keys)
+      Application.put_env(:lux, :api_keys, telegram_bot: "")
+      original_env = System.get_env("TELEGRAM_BOT_TOKEN")
+      System.put_env("TELEGRAM_BOT_TOKEN", "fallback_token")
+
+      try do
+        assert {:ok, "fallback_token"} = Telegram.get_token()
+      after
+        if original_keys, do: Application.put_env(:lux, :api_keys, original_keys)
+        if original_env, do: System.put_env("TELEGRAM_BOT_TOKEN", original_env)
+      end
+    end
+
+    test "get_token/0 returns error when env is empty string" do
+      original_keys = Application.get_env(:lux, :api_keys)
+      Application.delete_env(:lux, :api_keys)
+      original_env = System.get_env("TELEGRAM_BOT_TOKEN")
+      System.put_env("TELEGRAM_BOT_TOKEN", "")
+
+      try do
+        assert {:error, :missing_token} = Telegram.get_token()
+      after
+        if original_keys, do: Application.put_env(:lux, :api_keys, original_keys)
+        if original_env, do: System.put_env("TELEGRAM_BOT_TOKEN", original_env)
+      end
+    end
+
+    test "get_token/0 returns env token when config is invalid structure" do
+      original_keys = Application.get_env(:lux, :api_keys)
+      Application.put_env(:lux, :api_keys, :invalid_atom)
+      original_env = System.get_env("TELEGRAM_BOT_TOKEN")
+      System.put_env("TELEGRAM_BOT_TOKEN", "fallback_token")
+
+      try do
+        assert {:ok, "fallback_token"} = Telegram.get_token()
+      after
+        if original_keys, do: Application.put_env(:lux, :api_keys, original_keys)
+        if original_env, do: System.put_env("TELEGRAM_BOT_TOKEN", original_env)
+      end
+    end
+
+    test "add_auth/1 replaces bot token in Req.Request path" do
+      original_keys = Application.get_env(:lux, :api_keys)
+      Application.put_env(:lux, :api_keys, telegram_bot: "req_token")
+
+      try do
+        req = Req.new(url: "https://api.telegram.org/bot:token/getMe")
+        result = Telegram.add_auth(req)
+        assert result.url.path == "/botreq_token/getMe"
+      after
+        if original_keys,
+          do: Application.put_env(:lux, :api_keys, original_keys),
+          else: Application.delete_env(:lux, :api_keys)
+      end
+    end
+
+    test "normalize_keys/1 handles lists and non-maps" do
+      # List of maps
+      input_list = [%{"limit" => 5}, %{"offset" => 10}]
+      assert Telegram.normalize_keys(input_list) == [%{limit: 5}, %{offset: 10}]
+
+      # Non-map value
+      assert Telegram.normalize_keys("not_a_map") == "not_a_map"
     end
   end
 end

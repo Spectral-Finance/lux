@@ -114,7 +114,8 @@ defmodule Lux.Integrations.Telegram do
 
   defp apply_auth(%Lux.Lens{} = lens, token) do
     updated_url = replace_token_in_string(lens.url || "", token)
-    %{lens | url: updated_url}
+    normalized_params = normalize_keys(lens.params || %{})
+    %{lens | url: updated_url, params: normalized_params}
   end
 
   defp apply_auth(%Plug.Conn{} = conn, token) do
@@ -139,4 +140,37 @@ defmodule Lux.Integrations.Telegram do
         string
     end
   end
+
+  @doc """
+  Recursively normalizes map keys of the input to existing atoms when possible,
+  bypassing structs to preserve system invariants.
+  """
+  def normalize_keys(input) when is_map(input) do
+    if Map.has_key?(input, :__struct__) do
+      input
+    else
+      Map.new(input, fn {key, val} ->
+        new_key =
+          cond do
+            is_binary(key) ->
+              try do
+                String.to_existing_atom(key)
+              rescue
+                ArgumentError -> key
+              end
+
+            true ->
+              key
+          end
+
+        {new_key, normalize_keys(val)}
+      end)
+    end
+  end
+
+  def normalize_keys(list) when is_list(list) do
+    Enum.map(list, &normalize_keys/1)
+  end
+
+  def normalize_keys(other), do: other
 end

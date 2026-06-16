@@ -82,6 +82,8 @@ defmodule Lux.Prisms.Telegram.Webhook.SetWebhook do
   Handles setting the Telegram webhook.
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     case Map.fetch(params, :url) do
       {:ok, url} when is_binary(url) ->
         agent_name = agent[:name] || "Unknown Agent"
@@ -99,9 +101,6 @@ defmodule Lux.Prisms.Telegram.Webhook.SetWebhook do
         case result do
           {:ok, _response} ->
             {:ok, %{success: true, url: url}}
-
-          {:error, {status, %{"description" => description}}} ->
-            {:error, "Failed to set webhook: #{description} (HTTP #{status})"}
 
           {:error, {status, description}} when is_binary(description) ->
             {:error, "Failed to set webhook: #{description} (HTTP #{status})"}

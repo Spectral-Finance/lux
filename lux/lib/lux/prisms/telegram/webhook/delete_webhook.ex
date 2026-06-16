@@ -38,6 +38,7 @@ defmodule Lux.Prisms.Telegram.Webhook.DeleteWebhook do
   Handles deleting the Telegram webhook.
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
     agent_name = agent[:name] || "Unknown Agent"
     Logger.info("Agent #{agent_name} deleting webhook")
 
@@ -46,9 +47,6 @@ defmodule Lux.Prisms.Telegram.Webhook.DeleteWebhook do
     case Client.request(:post, "/deleteWebhook", %{json: api_params}) do
       {:ok, _response} ->
         {:ok, %{success: true}}
-
-      {:error, {status, %{"description" => description}}} ->
-        {:error, "Failed to delete webhook: #{description} (HTTP #{status})"}
 
       {:error, {status, description}} when is_binary(description) ->
         {:error, "Failed to delete webhook: #{description} (HTTP #{status})"}
