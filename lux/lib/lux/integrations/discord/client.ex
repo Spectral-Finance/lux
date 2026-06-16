@@ -9,12 +9,12 @@ defmodule Lux.Integrations.Discord.Client do
 
   @type token_type :: :bot | :bearer
   @type request_opts :: %{
-    optional(:token) => String.t(),
-    optional(:token_type) => token_type(),
-    optional(:json) => map(),
-    optional(:headers) => [{String.t(), String.t()}],
-    optional(:plug) => {module(), term()}
-  }
+          optional(:token) => String.t(),
+          optional(:token_type) => token_type(),
+          optional(:json) => map(),
+          optional(:headers) => [{String.t(), String.t()}],
+          optional(:plug) => {module(), term()}
+        }
 
   @doc """
   Makes a request to the Discord API.
@@ -53,13 +53,16 @@ defmodule Lux.Integrations.Discord.Client do
     token = opts[:token] || Lux.Config.discord_api_key()
     token_type = opts[:token_type] || :bot
 
+    headers =
+      [
+        {"Authorization", build_auth_header(token, token_type)},
+        {"Content-Type", "application/json"}
+      ] ++ List.wrap(opts[:headers])
+
     [
       method: method,
       url: @endpoint <> path,
-      headers: [
-        {"Authorization", build_auth_header(token, token_type)},
-        {"Content-Type", "application/json"}
-      ],
+      headers: headers,
       json: opts[:json]
     ]
     |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
