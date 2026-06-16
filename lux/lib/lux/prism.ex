@@ -157,11 +157,13 @@ defmodule Lux.Prism do
   def run(schema, input, context \\ nil)
 
   def run(module, input, context) when is_atom(module) do
-    module.handler(input, context)
+    normalized_input = normalize_input(input)
+    module.handler(normalized_input, context)
   end
 
   def run(%__MODULE__{handler: handler}, input, context) when is_function(handler) do
-    handler.(input, context)
+    normalized_input = normalize_input(input)
+    handler.(normalized_input, context)
   end
 
   def run(%__MODULE__{handler: {:python, path}}, input, context) do
@@ -182,6 +184,39 @@ defmodule Lux.Prism do
     )
   end
 
+  @doc """
+  Recursively normalizes map keys of the input to existing atoms when possible,
+  bypassing structs to preserve system invariants.
+  """
+  def normalize_input(input) when is_map(input) do
+    if Map.has_key?(input, :__struct__) do
+      input
+    else
+      Map.new(input, fn {key, val} ->
+        new_key =
+          cond do
+            is_binary(key) ->
+              try do
+                String.to_existing_atom(key)
+              rescue
+                ArgumentError -> key
+              end
+
+            true ->
+              key
+          end
+
+        {new_key, normalize_input(val)}
+      end)
+    end
+  end
+
+  def normalize_input(list) when is_list(list) do
+    Enum.map(list, &normalize_input/1)
+  end
+
+  def normalize_input(other), do: other
+
   @optional_callbacks []
 
   @doc """
@@ -201,11 +236,15 @@ defmodule Lux.Prism do
 
   defp define_module_if_not_exists(%__MODULE__{module_name: name, handler: {:python, _}}, path) do
     module_name = name |> List.wrap() |> Module.concat()
+
     case Code.ensure_loaded(module_name) do
       {:module, defined_module} ->
         if not Lux.prism?(defined_module) do
-          Logger.warning("Module #{module_name} already exists but is not a prism. Skipping module creation.")
+          Logger.warning(
+            "Module #{module_name} already exists but is not a prism. Skipping module creation."
+          )
         end
+
         :ok
 
       {:error, :nofile} ->

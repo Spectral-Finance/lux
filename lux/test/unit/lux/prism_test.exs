@@ -116,6 +116,23 @@ defmodule Lux.PrismTest do
       prism = DefaultNamePrism.view()
       assert prism.name == "Lux.PrismTest.DefaultNamePrism"
     end
+
+    test "normalizes string keys to existing atoms" do
+      defmodule NormalizedKeysPrism do
+        @moduledoc false
+        use Lux.Prism,
+          name: "Normalized Keys",
+          description: "Tests string key normalization"
+
+        def handler(%{location: loc, details: %{age: age}}, _ctx) do
+          {:ok, %{loc: loc, age: age}}
+        end
+      end
+
+      # Note: :location, :details, :age are existing atoms in the runtime
+      input = %{"location" => "Paris", "details" => %{"age" => 30}}
+      assert {:ok, %{loc: "Paris", age: 30}} = NormalizedKeysPrism.run(input)
+    end
   end
 
   describe "Work with python prism" do
@@ -144,7 +161,9 @@ defmodule Lux.PrismTest do
     test "run/3" do
       prism_path = get_test_prism("simple_prism.py")
 
-      assert {:ok, %{"success" => true, "data" => %{"message" => message}}} = Prism.run(prism_path, %{name: "John"}, nil)
+      assert {:ok, %{"success" => true, "data" => %{"message" => message}}} =
+               Prism.run(prism_path, %{name: "John"}, nil)
+
       assert message == "Hello, John!"
     end
   end
