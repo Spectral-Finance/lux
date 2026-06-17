@@ -1,80 +1,50 @@
-defmodule Lux.Prisms.Telegram.Messages.SendMessage do
+defmodule Lux.Prisms.Telegram.Messaging.SendMessage do
   @moduledoc """
-  A prism for sending text messages via the Telegram Bot API.
-
-  This prism provides a simple interface to send text messages to Telegram chats.
-
-  ## Implementation Details
-
-  - Uses Telegram Bot API endpoint: POST /sendMessage
-  - Supports required parameters (chat_id, text) and optional parameters
-  - Returns the message_id of the sent message on success
-  - Preserves original Telegram API errors for better error handling by LLMs
+  A prism for sending messages to Telegram chats.
 
   ## Examples
 
-      # Send a simple message
       iex> SendMessage.handler(%{
-      ...>   chat_id: 123_456_789,
-      ...>   text: "Hello from Lux!"
+      ...>   chat_id: "123456",
+      ...>   text: "Hello, Telegram!"
       ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "Hello from Lux!"}}
+      {:ok, %{
+        sent: true,
+        message_id: 42,
+        text: "Hello, Telegram!",
+        chat_id: "123456"
+      }}
 
-      # Send a message with markdown formatting
-      iex> SendMessage.handler(%{
-      ...>   chat_id: 123_456_789,
-      ...>   text: "*Bold* and _italic_ text",
-      ...>   parse_mode: "Markdown"
-      ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "*Bold* and _italic_ text"}}
-
-      # Send a message silently (without notification)
-      iex> SendMessage.handler(%{
-      ...>   chat_id: 123_456_789,
-      ...>   text: "Silent message",
-      ...>   disable_notification: true
-      ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 123, chat_id: 123_456_789, text: "Silent message"}}
   """
 
   use Lux.Prism,
     name: "Send Telegram Message",
-    description: "Sends a text message to a chat via the Telegram Bot API",
+    description: "Sends a message to a Telegram chat",
     input_schema: %{
       type: :object,
       properties: %{
         chat_id: %{
-          type: [:string, :integer],
-          description: "Unique identifier for the target chat or username of the target channel"
+          type: :string,
+          description: "The ID of the chat to send the message to"
         },
         text: %{
           type: :string,
-          description: "Text of the message to be sent"
+          description: "The message text to send",
+          minLength: 1,
+          maxLength: 4096
         },
         parse_mode: %{
           type: :string,
-          description: "Mode for parsing entities in the message text",
-          enum: ["Markdown", "MarkdownV2", "HTML"]
-        },
-        disable_web_page_preview: %{
-          type: :boolean,
-          description: "Disables link previews for links in this message"
-        },
-        disable_notification: %{
-          type: :boolean,
-          description: "Sends the message silently. Users will receive a notification with no sound."
-        },
-        protect_content: %{
-          type: :boolean,
-          description: "Protects the contents of the sent message from forwarding and saving"
+          description: "The parse mode for the message (MarkdownV2, HTML)",
+          enum: ["MarkdownV2", "HTML"]
         },
         reply_to_message_id: %{
           type: :integer,
-          description: "If the message is a reply, ID of the original message"
+          description: "The ID of the message to reply to"
         },
-        allow_sending_without_reply: %{
-          type: :boolean,
-          description: "Pass True if the message should be sent even if the specified replied-to message is not found"
+        reply_markup: %{
+          type: :object,
+          description: "Additional interface options (inline keyboard, etc.)"
         }
       },
       required: ["chat_id", "text"]
@@ -88,75 +58,67 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
         },
         message_id: %{
           type: :integer,
-          description: "Identifier of the sent message"
-        },
-        chat_id: %{
-          type: [:string, :integer],
-          description: "Identifier of the target chat"
+          description: "The ID of the sent message"
         },
         text: %{
           type: :string,
-          description: "Text of the sent message"
+          description: "The text of the sent message"
+        },
+        chat_id: %{
+          type: :string,
+          description: "The ID of the chat where the message was sent"
         }
       },
-      required: ["sent", "message_id", "text"]
+      required: ["sent"]
     }
 
   alias Lux.Integrations.Telegram.Client
   require Logger
 
   @doc """
-  Handles the request to send a text message to a chat.
-
-  This implementation:
-  - Makes a direct request to Telegram Bot API using the Client module
-  - Returns success/failure responses without additional error transformation
-  - Logs the operation for monitoring purposes
+  Handles the request to send a message to a Telegram chat.
   """
   def handler(params, agent) do
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, text} <- validate_param(params, :text) do
 
       agent_name = agent[:name] || "Unknown Agent"
-      Logger.info("Agent #{agent_name} sending message to chat #{chat_id}")
+      Logger.info("Agent #{agent_name} sending message to chat #{chat_id}: #{text}")
 
-      # Build the request body
-      request_body = Map.take(params, [:chat_id, :text, :parse_mode, :disable_web_page_preview,
-                                :disable_notification, :protect_content,
-                                :reply_to_message_id, :allow_sending_without_reply])
+      json = %{chat_id: chat_id, text: text}
+      json = maybe_add_optional(json, params, :parse_mode)
+      json = maybe_add_optional(json, params, :reply_to_message_id)
+      json = maybe_add_optional(json, params, :reply_markup)
 
-      # Prepare request options
-      request_opts = %{json: request_body}
+      case Client.request(:post, "/sendMessage", %{json: json}) do
+        {:ok, %{"result" => %{"message_id" => message_id}}} ->
+          Logger.info("Successfully sent message #{message_id} to chat #{chat_id}")
+          {:ok, %{sent: true, message_id: message_id, text: text, chat_id: chat_id}}
 
-      case Client.request(:post, "/sendMessage", request_opts) do
-        {:ok, %{"result" => %{"message_id" => new_message_id}}} ->
-          Logger.info("Successfully sent message to chat #{chat_id}")
-          {:ok, %{
-            sent: true,
-            message_id: new_message_id,
-            chat_id: chat_id,
-            text: text
-          }}
-
-        {:error, {status, %{"description" => description}}} ->
-          error = "Failed to send message: #{description} (HTTP #{status})"
-          {:error, error}
-
-        {:error, {status, description}} when is_binary(description) ->
-          error = "Failed to send message: #{description} (HTTP #{status})"
+        {:error, {status, description}} ->
+          error = {status, description}
+          Logger.error("Failed to send message to chat #{chat_id}: #{inspect(error)}")
           {:error, error}
 
         {:error, error} ->
-          {:error, "Failed to send message: #{inspect(error)}"}
+          Logger.error("Failed to send message to chat #{chat_id}: #{inspect(error)}")
+          {:error, error}
       end
     end
   end
 
-  defp validate_param(params, key, _type \\ :any) do
+  defp validate_param(params, key) do
     case Map.fetch(params, key) do
       {:ok, value} when is_binary(value) and value != "" -> {:ok, value}
       {:ok, value} when is_integer(value) -> {:ok, value}
       _ -> {:error, "Missing or invalid #{key}"}
+    end
+  end
+
+  defp maybe_add_optional(json, params, key) do
+    case Map.fetch(params, key) do
+      {:ok, value} -> Map.put(json, key, value)
+      :error -> json
     end
   end
 end

@@ -1,6 +1,36 @@
 defmodule Lux.Integrations.Telegram do
   @moduledoc """
   Common settings and functions for Telegram Bot API integration.
+
+  ## Configuration
+
+  Add your Telegram bot token to your config:
+
+      config :lux, :api_keys,
+        telegram: "YOUR_BOT_TOKEN"
+
+  Or set the environment variable:
+
+      export TELEGRAM_BOT_TOKEN="YOUR_BOT_TOKEN"
+
+  ## Lenses (Read Operations)
+
+  - `Lux.Lenses.Telegram.Messaging.ReadMessage` - Read a message
+  - `Lux.Lenses.Telegram.Messaging.ListUpdates` - List updates (incoming messages)
+  - `Lux.Lenses.Telegram.Messaging.GetWebhookInfo` - Get webhook status
+  - `Lux.Lenses.Telegram.Media.GetFile` - Get file info
+
+  ## Prisms (Write Operations)
+
+  - `Lux.Prisms.Telegram.Messaging.SendMessage` - Send a message
+  - `Lux.Prisms.Telegram.Messaging.EditMessage` - Edit a message
+  - `Lux.Prisms.Telegram.Messaging.DeleteMessage` - Delete a message
+  - `Lux.Prisms.Telegram.Messaging.SetWebhook` - Set webhook
+  - `Lux.Prisms.Telegram.Messaging.DeleteWebhook` - Delete webhook
+  - `Lux.Prisms.Telegram.Media.SendPhoto` - Send a photo
+  - `Lux.Prisms.Telegram.Media.SendDocument` - Send a document
+  - `Lux.Prisms.Telegram.Interactive.SendInlineKeyboard` - Send inline keyboard
+  - `Lux.Prisms.Telegram.Interactive.AnswerCallbackQuery` - Answer callback query
   """
 
   @doc """
@@ -39,11 +69,12 @@ defmodule Lux.Integrations.Telegram do
     path = conn.request_path
     
     # Extract and replace bot token placeholder if needed
-    updated_path = if String.contains?(path, "/bot/"), do: 
-      String.replace(path, "/bot/", "/bot#{token}/"), 
-    else: 
+    updated_path = if String.contains?(path, "/bot/") do
+      String.replace(path, "/bot/", "/bot#{token}/")
+    else
       path
-      
+    end
+    
     %{conn | request_path: updated_path}
   end
-end 
+end

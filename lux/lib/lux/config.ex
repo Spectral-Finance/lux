@@ -72,6 +72,47 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Twitter Bearer token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec twitter_bearer_token() :: api_key()
+  def twitter_bearer_token do
+    get_required_key(:api_keys, :twitter_bearer_token)
+  end
+
+  @doc """
+  Gets the Twitter API key from configuration.
+  """
+  @spec twitter_api_key() :: api_key()
+  def twitter_api_key do
+    get_required_key(:api_keys, :twitter_api_key)
+  end
+
+  @doc """
+  Gets the Twitter API secret from configuration.
+  """
+  @spec twitter_api_secret() :: api_key()
+  def twitter_api_secret do
+    get_required_key(:api_keys, :twitter_api_secret)
+  end
+
+  @doc """
+  Gets the Twitter access token from configuration.
+  """
+  @spec twitter_access_token() :: api_key()
+  def twitter_access_token do
+    get_required_key(:api_keys, :twitter_access_token)
+  end
+
+  @doc """
+  Gets the Twitter access token secret from configuration.
+  """
+  @spec twitter_access_token_secret() :: api_key()
+  def twitter_access_token_secret do
+    get_required_key(:api_keys, :twitter_access_token_secret)
+  end
+
+  @doc """
   Gets the Etherscan API key from configuration.
   Raises if the key is not configured.
   """

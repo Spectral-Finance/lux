@@ -1,125 +1,35 @@
 defmodule Lux.Prisms.Telegram.Media.SendPhoto do
   @moduledoc """
-  A prism for sending photos via the Telegram Bot API.
-
-  This prism provides a simple interface to send photos to Telegram chats.
-  It uses the Telegram Bot API to send photos either by URL or file ID.
-
-  ## Implementation Details
-
-  - Uses Telegram Bot API endpoint: POST /sendPhoto
-  - Supports required parameters (chat_id, photo) and optional parameters like caption
-  - Returns the sent message data on success
-  - Preserves original Telegram API errors for better error handling by LLMs
-
-  ## Examples
-
-      # Send a photo by URL
-      iex> SendPhoto.handler(%{
-      ...>   chat_id: 123_456_789,
-      ...>   photo: "https://example.com/photo.jpg",
-      ...>   caption: "A beautiful photo"
-      ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789, photo: "https://example.com/photo.jpg"}}
-
-      # Send a photo with markdown formatting in caption
-      iex> SendPhoto.handler(%{
-      ...>   chat_id: 123_456_789,
-      ...>   photo: "https://example.com/photo.jpg",
-      ...>   caption: "*Bold* and _italic_ caption",
-      ...>   parse_mode: "Markdown"
-      ...> }, %{name: "Agent"})
-      {:ok, %{sent: true, message_id: 42, chat_id: 123_456_789, photo: "https://example.com/photo.jpg"}}
+  A prism for sending photos to Telegram chats.
   """
 
   use Lux.Prism,
     name: "Send Telegram Photo",
-    description: "Sends photos via the Telegram Bot API",
+    description: "Sends a photo to a Telegram chat",
     input_schema: %{
       type: :object,
       properties: %{
-        chat_id: %{
-          type: [:string, :integer],
-          description: "Unique identifier for the target chat or username of the target channel"
-        },
-        photo: %{
-          type: :string,
-          description: "Photo to send. Pass a file_id as String to send a photo that exists on the Telegram servers, or pass an HTTP URL as a String for Telegram to get a photo from the Internet"
-        },
-        caption: %{
-          type: :string,
-          description: "Photo caption, 0-1024 characters after entities parsing"
-        },
-        parse_mode: %{
-          type: :string,
-          description: "Mode for parsing entities in the photo caption",
-          enum: ["Markdown", "MarkdownV2", "HTML"]
-        },
-        caption_entities: %{
-          type: :array,
-          description: "A JSON-serialized list of special entities that appear in the caption"
-        },
-        disable_notification: %{
-          type: :boolean,
-          description: "Sends the message silently. Users will receive a notification with no sound"
-        },
-        protect_content: %{
-          type: :boolean,
-          description: "Protects the contents of the sent message from forwarding and saving"
-        },
-        reply_to_message_id: %{
-          type: :integer,
-          description: "If the message is a reply, ID of the original message"
-        },
-        allow_sending_without_reply: %{
-          type: :boolean,
-          description: "Pass True if the message should be sent even if the specified replied-to message is not found"
-        },
-        reply_markup: %{
-          type: :object,
-          description: "Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user"
-        }
+        chat_id: %{type: :string, description: "The ID of the chat"},
+        photo: %{type: :string, description: "File ID or URL of the photo"},
+        caption: %{type: :string, description: "Photo caption (0-1024 characters)", maxLength: 1024},
+        parse_mode: %{type: :string, description: "Parse mode for caption", enum: ["MarkdownV2", "HTML"]},
+        reply_to_message_id: %{type: :integer, description: "ID of the message to reply to"}
       },
       required: ["chat_id", "photo"]
     },
     output_schema: %{
       type: :object,
       properties: %{
-        sent: %{
-          type: :boolean,
-          description: "Whether the photo was successfully sent"
-        },
-        message_id: %{
-          type: :integer,
-          description: "Identifier of the sent message"
-        },
-        chat_id: %{
-          type: [:string, :integer],
-          description: "Identifier of the target chat"
-        },
-        photo: %{
-          type: :string,
-          description: "The photo that was sent"
-        },
-        caption: %{
-          type: :string,
-          description: "Caption for the photo, if provided"
-        }
+        sent: %{type: :boolean, description: "Whether the photo was sent"},
+        message_id: %{type: :integer, description: "The ID of the sent message"},
+        chat_id: %{type: :string, description: "The ID of the chat"}
       },
-      required: ["sent", "message_id"]
+      required: ["sent"]
     }
 
   alias Lux.Integrations.Telegram.Client
   require Logger
 
-  @doc """
-  Handles the request to send a photo to a Telegram chat.
-
-  This implementation:
-  - Makes a direct request to Telegram Bot API using the Client module
-  - Returns success/failure responses without additional error transformation
-  - Logs the operation for monitoring purposes
-  """
   def handler(params, agent) do
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, photo} <- validate_param(params, :photo) do
@@ -127,47 +37,39 @@ defmodule Lux.Prisms.Telegram.Media.SendPhoto do
       agent_name = agent[:name] || "Unknown Agent"
       Logger.info("Agent #{agent_name} sending photo to chat #{chat_id}")
 
-      # Build the request body
-      request_body = Map.take(params, [:chat_id, :photo, :caption, :parse_mode,
-                              :caption_entities, :disable_notification,
-                              :protect_content, :reply_to_message_id,
-                              :allow_sending_without_reply, :reply_markup])
+      json = %{chat_id: chat_id, photo: photo}
+      json = maybe_add_optional(json, params, :caption)
+      json = maybe_add_optional(json, params, :parse_mode)
+      json = maybe_add_optional(json, params, :reply_to_message_id)
 
-      # Prepare request options
-      request_opts = %{json: request_body}
+      case Client.request(:post, "/sendPhoto", %{json: json}) do
+        {:ok, %{"result" => %{"message_id" => message_id}}} ->
+          Logger.info("Successfully sent photo #{message_id} to chat #{chat_id}")
+          {:ok, %{sent: true, message_id: message_id, chat_id: chat_id}}
 
-      case Client.request(:post, "/sendPhoto", request_opts) do
-        {:ok, %{"result" => result}} when is_map(result) ->
-          Logger.info("Successfully sent photo to chat #{chat_id}")
-
-          # Extract caption for the response if it exists
-          caption = Map.get(params, :caption)
-
-          {:ok, %{
-            sent: true,
-            message_id: result["message_id"],
-            chat_id: chat_id,
-            photo: photo,
-            caption: caption
-          }}
-
-        {:error, {status, %{"description" => description}}} ->
-          {:error, "Failed to send photo: #{description} (HTTP #{status})"}
-
-        {:error, {status, description}} when is_binary(description) ->
-          {:error, "Failed to send photo: #{description} (HTTP #{status})"}
+        {:error, {status, description}} ->
+          Logger.error("Failed to send photo: {#{status}, #{description}}")
+          {:error, {status, description}}
 
         {:error, error} ->
-          {:error, "Failed to send photo: #{inspect(error)}"}
+          Logger.error("Failed to send photo: #{inspect(error)}")
+          {:error, error}
       end
     end
   end
 
-  defp validate_param(params, key, _type \\ :any) do
+  defp validate_param(params, key) do
     case Map.fetch(params, key) do
       {:ok, value} when is_binary(value) and value != "" -> {:ok, value}
       {:ok, value} when is_integer(value) -> {:ok, value}
       _ -> {:error, "Missing or invalid #{key}"}
+    end
+  end
+
+  defp maybe_add_optional(json, params, key) do
+    case Map.fetch(params, key) do
+      {:ok, value} -> Map.put(json, key, value)
+      :error -> json
     end
   end
 end
