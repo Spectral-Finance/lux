@@ -22,3 +22,8 @@ config :venomous, :snake_manager, %{
     python_executable: "python3"
   ]
 }
+
+
+config :lux, :telegram,
+  bot_token: System.get_env("TELEGRAM_BOT_TOKEN"),
+  webhook_url: System.get_env("TELEGRAM_WEBHOOK_URL")
