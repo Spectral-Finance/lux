@@ -117,6 +117,8 @@ defmodule Lux.Prisms.Telegram.Media.SendContact do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, phone_number} <- validate_param(params, :phone_number),
          {:ok, first_name} <- validate_param(params, :first_name) do

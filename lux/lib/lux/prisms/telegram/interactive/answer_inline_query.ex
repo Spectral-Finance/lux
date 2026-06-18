@@ -117,6 +117,8 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerInlineQuery do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, inline_query_id} <- validate_inline_query_id(params),
          {:ok, _results} <- validate_results(params) do
 

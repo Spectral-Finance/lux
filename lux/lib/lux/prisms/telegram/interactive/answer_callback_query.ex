@@ -93,6 +93,8 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerCallbackQuery do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, callback_query_id} <- validate_callback_query_id(params) do
 
       agent_name = agent[:name] || "Unknown Agent"

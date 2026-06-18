@@ -16,6 +16,34 @@ defmodule Lux.Prisms.Telegram.Media.SendPhotoTest do
   end
 
   describe "handler/2" do
+    test "normalizes string-keyed params from LLM/JSON input" do
+      Req.Test.expect(TelegramClientMock, fn conn ->
+        assert conn.method == "POST"
+        assert String.ends_with?(conn.request_path, "/sendPhoto")
+
+        {:ok, body, _conn} = Plug.Conn.read_body(conn)
+        decoded_body = Jason.decode!(body)
+        assert decoded_body["chat_id"] == @chat_id
+        assert decoded_body["photo"] == @photo_url
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{
+          "ok" => true,
+          "result" => %{
+            "message_id" => @message_id,
+            "chat" => %{"id" => @chat_id, "type" => "private"}
+          }
+        }))
+      end)
+
+      assert {:ok, %{sent: true, message_id: @message_id, chat_id: @chat_id, photo: @photo_url}} =
+               SendPhoto.handler(
+                 %{"chat_id" => @chat_id, "photo" => @photo_url},
+                 @agent_ctx
+               )
+    end
+
     test "successfully sends a photo by URL" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"

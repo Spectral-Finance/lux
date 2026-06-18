@@ -88,6 +88,8 @@ defmodule Lux.Prisms.Telegram.Interactive.StopLiveLocation do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with :ok <- validate_message_identifiers(params) do
       agent_name = agent[:name] || "Unknown Agent"
       message_identifier = get_message_identifier(params)

@@ -12,6 +12,29 @@ defmodule Lux.Prisms.Telegram.Interactive.AnswerCallbackQueryTest do
   end
 
   describe "handler/2" do
+    test "normalizes string-keyed params from LLM/JSON input" do
+      Req.Test.expect(TelegramClientMock, fn conn ->
+        assert conn.method == "POST"
+
+        {:ok, body, _conn} = Plug.Conn.read_body(conn)
+        decoded_body = Jason.decode!(body)
+        assert decoded_body["callback_query_id"] == @callback_query_id
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{
+          "ok" => true,
+          "result" => true
+        }))
+      end)
+
+      assert {:ok, %{answered: true, callback_query_id: @callback_query_id}} =
+               AnswerCallbackQuery.handler(
+                 %{"callback_query_id" => @callback_query_id},
+                 @agent_ctx
+               )
+    end
+
     test "successfully answers a callback query with required parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"

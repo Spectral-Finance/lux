@@ -114,6 +114,8 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, text} <- validate_param(params, :text) do
 

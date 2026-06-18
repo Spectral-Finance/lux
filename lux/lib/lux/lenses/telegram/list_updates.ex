@@ -46,6 +46,19 @@ defmodule Lux.Lenses.Telegram.ListUpdates do
       }
     }
 
+  # Guard the focus pipeline so a missing bot token fails locally with the same
+  # `{:error, :missing_token}` shape returned by `Lux.Integrations.Telegram.Client`,
+  # instead of issuing a live request against the unsubstituted ":token" URL
+  # (the `Telegram.auth/0` step is a no-op when no token is configured).
+  defoverridable focus: 2
+
+  def focus(input, opts) do
+    case Telegram.get_token() do
+      {:ok, _token} -> super(input, opts)
+      {:error, :missing_token} = error -> error
+    end
+  end
+
   @impl true
   def after_focus(%{"ok" => true, "result" => updates}) when is_list(updates) do
     {:ok, updates}
