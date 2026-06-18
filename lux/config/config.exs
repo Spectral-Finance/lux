@@ -6,6 +6,11 @@ config :lux, :open_ai_models,
   default: "gpt-4o-mini",
   smartest: "gpt-4o"
 
+config :lux, :open_router_models,
+  cheapest: "openai/gpt-4o-mini",
+  default: "openai/gpt-4o-mini",
+  smartest: "openai/gpt-4o"
+
 config :lux, :together_ai_models,
   default: "mistralai/Mistral-7B-Instruct-v0.2"
 
