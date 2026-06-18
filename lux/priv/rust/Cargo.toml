@@ -1,0 +1,11 @@
+[package]
+name = "lux-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Rust runtime support for Lux agent framework"
+
+[dependencies]
+
+[lib]
+name = "lux_rust"
+path = "src/lib.rs"
