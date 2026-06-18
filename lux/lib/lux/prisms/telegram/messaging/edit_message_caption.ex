@@ -113,6 +113,8 @@ defmodule Lux.Prisms.Telegram.Messages.EditMessageCaption do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     case validate_param(params, :caption) do
       {:ok, _caption} ->
         cond do

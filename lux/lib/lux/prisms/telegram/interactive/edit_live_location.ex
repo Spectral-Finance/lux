@@ -132,6 +132,8 @@ defmodule Lux.Prisms.Telegram.Interactive.EditLiveLocation do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, latitude} <- validate_param(params, :latitude, :number),
          {:ok, longitude} <- validate_param(params, :longitude, :number),
          :ok <- validate_message_identifiers(params),

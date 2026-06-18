@@ -189,6 +189,8 @@ defmodule Lux.Prisms.Telegram.Interactive.SendPoll do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, question} <- validate_param(params, :question),
          {:ok, _options} <- validate_options(params) do

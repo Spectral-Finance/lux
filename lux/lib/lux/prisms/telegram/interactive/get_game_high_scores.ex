@@ -145,6 +145,8 @@ defmodule Lux.Prisms.Telegram.Interactive.GetGameHighScores do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, user_id} <- validate_param(params, :user_id, :integer) do
       # Validate that we have either (chat_id and message_id) or inline_message_id
       case validate_message_identifiers(params) do

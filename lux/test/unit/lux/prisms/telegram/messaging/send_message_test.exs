@@ -14,6 +14,33 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessageTest do
   end
 
   describe "handler/2" do
+    test "normalizes string-keyed params from LLM/JSON input" do
+      Req.Test.expect(TelegramClientMock, fn conn ->
+        assert conn.method == "POST"
+
+        {:ok, body, _conn} = Plug.Conn.read_body(conn)
+        decoded_body = Jason.decode!(body)
+        assert decoded_body["chat_id"] == @chat_id
+        assert decoded_body["text"] == @text
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(200, Jason.encode!(%{
+          "ok" => true,
+          "result" => %{
+            "message_id" => @new_message_id
+          }
+        }))
+      end)
+
+      assert {:ok,
+              %{sent: true, message_id: @new_message_id, chat_id: @chat_id, text: @text}} =
+               SendMessage.handler(
+                 %{"chat_id" => @chat_id, "text" => @text},
+                 @agent_ctx
+               )
+    end
+
     test "successfully sends a message with required parameters" do
       Req.Test.expect(TelegramClientMock, fn conn ->
         assert conn.method == "POST"

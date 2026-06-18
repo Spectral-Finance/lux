@@ -106,6 +106,8 @@ defmodule Lux.Prisms.Telegram.Interactive.SendGame do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, chat_id} <- validate_param(params, :chat_id),
          {:ok, game_short_name} <- validate_param(params, :game_short_name) do
 

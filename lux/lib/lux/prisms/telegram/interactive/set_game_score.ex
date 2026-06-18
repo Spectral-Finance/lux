@@ -127,6 +127,8 @@ defmodule Lux.Prisms.Telegram.Interactive.SetGameScore do
   - Logs the operation for monitoring purposes
   """
   def handler(params, agent) do
+    params = Lux.Integrations.Telegram.normalize_keys(params)
+
     with {:ok, user_id} <- validate_param(params, :user_id, :integer),
          {:ok, score} <- validate_param(params, :score, :integer) do
 
