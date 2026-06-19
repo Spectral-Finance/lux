@@ -135,3 +135,18 @@ defmodule Lux.Beams.Hyperliquid.TradeRiskManagementBeam do
       metrics["liquidation_risk"] <= 0.1
   end
 end
+
+# Integration helpers for position tracking and leverage control
+def validate_with_position_tracking(input) do
+  case Lux.Beams.Hyperliquid.PositionTrackingBeam.run(%{address: input.address, coin: input.trade.coin}) do
+    {:ok, result} -> {:ok, Map.put(input, :position_data, result)}
+    error -> error
+  end
+end
+
+def validate_with_leverage_control(input) do
+  case Lux.Beams.Hyperliquid.LeverageControlBeam.run(%{address: input.address}) do
+    {:ok, result} -> {:ok, Map.put(input, :leverage_data, result)}
+    error -> error
+  end
+end
