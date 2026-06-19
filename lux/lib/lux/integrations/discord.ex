@@ -35,7 +35,15 @@ defmodule Lux.Integrations.Discord do
   @spec add_auth_header(Lux.Lens.t()) :: Lux.Lens.t()
   def add_auth_header(%Lux.Lens{} = lens) do
     token = Application.get_env(:lux, :api_keys)[:discord]
-    %{lens | headers: lens.headers ++ [{"Authorization", "Bot #{token}"}]}
+
+    url =
+      Enum.reduce(lens.params, lens.url, fn {key, val}, acc ->
+        acc
+        |> String.replace(":#{key}", to_string(val))
+        |> String.replace(":#{to_string(key)}", to_string(val))
+      end)
+
+    %{lens | url: url, headers: lens.headers ++ [{"Authorization", "Bot #{token}"}]}
   end
 
   @spec add_auth_header(Plug.Conn.t()) :: Plug.Conn.t()

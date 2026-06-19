@@ -23,7 +23,7 @@ defmodule Lux.Lenses.Discord.Messages.ListMessagesTest do
     test "successfully lists messages with default parameters" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
 
         # Verify only channel_id is present in the query string
@@ -69,7 +69,7 @@ defmodule Lux.Lenses.Discord.Messages.ListMessagesTest do
     test "successfully lists messages with pagination parameters" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages"
 
         # Verify pagination parameters
         query = URI.decode_query(conn.query_string)
@@ -107,7 +107,7 @@ defmodule Lux.Lenses.Discord.Messages.ListMessagesTest do
     test "handles Discord API error" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
 
         conn

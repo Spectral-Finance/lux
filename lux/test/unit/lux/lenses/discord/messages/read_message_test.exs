@@ -22,7 +22,7 @@ defmodule Lux.Lenses.Discord.Messages.ReadMessageTest do
     test "successfully reads a message" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages/:message_id"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages/#{@message_id}"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
 
         conn
@@ -53,7 +53,7 @@ defmodule Lux.Lenses.Discord.Messages.ReadMessageTest do
     test "handles Discord API error" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages/:message_id"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages/#{@message_id}"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
 
         conn
@@ -72,7 +72,7 @@ defmodule Lux.Lenses.Discord.Messages.ReadMessageTest do
     test "crashes on unexpected response format" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert conn.request_path == "/api/v10/channels/:channel_id/messages/:message_id"
+        assert conn.request_path == "/api/v10/channels/#{@channel_id}/messages/#{@message_id}"
         assert Plug.Conn.get_req_header(conn, "authorization") == ["Bot test-discord-token"]
 
         conn
