@@ -1,0 +1,12 @@
+[package]
+name = "lux-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Rust integration for Lux framework"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
