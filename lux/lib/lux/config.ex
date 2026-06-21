@@ -81,6 +81,24 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Coinbase API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec coinbase_api_key() :: api_key()
+  def coinbase_api_key do
+    get_required_key(:api_keys, :coinbase_api_key)
+  end
+
+  @doc """
+  Gets the Coinbase API secret from configuration.
+  Raises if the secret is not configured.
+  """
+  @spec coinbase_api_secret() :: api_key()
+  def coinbase_api_secret do
+    get_required_key(:api_keys, :coinbase_api_secret)
+  end
+
+  @doc """
   Checks if a Pro Etherscan API key is configured.
   """
   @spec etherscan_api_key_pro?() :: boolean()
