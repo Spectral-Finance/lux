@@ -1,5 +1,5 @@
 defmodule Lux.Integrations.Telegram.ClientTest do
-  use UnitAPICase, async: true
+  use UnitAPICase, async: false
 
   alias Lux.Integrations.Telegram.Client
 
@@ -21,15 +21,18 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(200, Jason.encode!(%{
-          "ok" => true,
-          "result" => %{
-            "id" => 123_456_789,
-            "is_bot" => true,
-            "first_name" => "TestBot",
-            "username" => "test_bot"
-          }
-        }))
+        |> Plug.Conn.send_resp(
+          200,
+          Jason.encode!(%{
+            "ok" => true,
+            "result" => %{
+              "id" => 123_456_789,
+              "is_bot" => true,
+              "first_name" => "TestBot",
+              "username" => "test_bot"
+            }
+          })
+        )
       end)
 
       {:ok, response} =
@@ -53,13 +56,16 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(200, Jason.encode!(%{
-          "ok" => true,
-          "result" => %{
-            "message_id" => 456,
-            "chat" => %{"id" => 123_456_789}
-          }
-        }))
+        |> Plug.Conn.send_resp(
+          200,
+          Jason.encode!(%{
+            "ok" => true,
+            "result" => %{
+              "message_id" => 456,
+              "chat" => %{"id" => 123_456_789}
+            }
+          })
+        )
       end)
 
       {:ok, response} =
@@ -78,22 +84,25 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     test "uses configured API key when token is not provided" do
       api_key = @mock_api_key
 
-      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+      with_mock Lux.Config, [:passthrough], telegram_bot_token: fn -> api_key end do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "GET"
           assert conn.request_path == "/bot#{api_key}/getMe"
 
           conn
           |> Plug.Conn.put_resp_content_type("application/json")
-          |> Plug.Conn.send_resp(200, Jason.encode!(%{
-            "ok" => true,
-            "result" => %{
-              "id" => 123_456_789,
-              "is_bot" => true,
-              "first_name" => "TestBot",
-              "username" => "test_bot"
-            }
-          }))
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "ok" => true,
+              "result" => %{
+                "id" => 123_456_789,
+                "is_bot" => true,
+                "first_name" => "TestBot",
+                "username" => "test_bot"
+              }
+            })
+          )
         end)
 
         {:ok, response} =
@@ -113,11 +122,14 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")
-        |> Plug.Conn.send_resp(401, Jason.encode!(%{
-          "ok" => false,
-          "error_code" => 401,
-          "description" => "Unauthorized"
-        }))
+        |> Plug.Conn.send_resp(
+          401,
+          Jason.encode!(%{
+            "ok" => false,
+            "error_code" => 401,
+            "description" => "Unauthorized"
+          })
+        )
       end)
 
       {:error, :invalid_token} =
@@ -129,18 +141,21 @@ defmodule Lux.Integrations.Telegram.ClientTest do
     test "handles API error with description" do
       api_key = @mock_api_key
 
-      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+      with_mock Lux.Config, [:passthrough], telegram_bot_token: fn -> api_key end do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "POST"
           assert conn.request_path == "/bot#{api_key}/sendMessage"
 
           conn
           |> Plug.Conn.put_resp_content_type("application/json")
-          |> Plug.Conn.send_resp(400, Jason.encode!(%{
-            "ok" => false,
-            "error_code" => 400,
-            "description" => "Bad Request: chat not found"
-          }))
+          |> Plug.Conn.send_resp(
+            400,
+            Jason.encode!(%{
+              "ok" => false,
+              "error_code" => 400,
+              "description" => "Bad Request: chat not found"
+            })
+          )
         end)
 
         {:error, {400, "Bad Request: chat not found"}} =
@@ -153,19 +168,87 @@ defmodule Lux.Integrations.Telegram.ClientTest do
       end
     end
 
+    test "normalizes rate limit response with retry_after" do
+      Req.Test.expect(TelegramClientMock, fn conn ->
+        assert conn.method == "POST"
+        assert conn.request_path == "/bottest_bot_token/sendMessage"
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(
+          429,
+          Jason.encode!(%{
+            "ok" => false,
+            "error_code" => 429,
+            "description" => "Too Many Requests: retry after 3",
+            "parameters" => %{"retry_after" => 3}
+          })
+        )
+      end)
+
+      assert {:error, {:rate_limited, 3, "Too Many Requests: retry after 3"}} =
+               Client.request(:post, "/sendMessage", %{
+                 token: @bot_token,
+                 json: %{chat_id: 123, text: "Hello"}
+               })
+    end
+
+    test "retries transient Telegram failures" do
+      {:ok, counter} = Agent.start_link(fn -> 0 end)
+
+      Req.Test.stub(TelegramClientMock, fn conn ->
+        attempt = Agent.get_and_update(counter, &{&1 + 1, &1 + 1})
+
+        if attempt == 1 do
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            500,
+            Jason.encode!(%{
+              "ok" => false,
+              "description" => "Internal Server Error"
+            })
+          )
+        else
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "ok" => true,
+              "result" => %{"message_id" => 1}
+            })
+          )
+        end
+      end)
+
+      assert {:ok, %{"result" => %{"message_id" => 1}}} =
+               Client.request(:post, "/sendMessage", %{
+                 token: @bot_token,
+                 json: %{chat_id: 123, text: "Hello"},
+                 max_retries: 1,
+                 retry_delay_ms: 0
+               })
+
+      assert Agent.get(counter, & &1) == 2
+    end
+
     test "handles unexpected response format" do
       api_key = @mock_api_key
 
-      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+      with_mock Lux.Config, [:passthrough], telegram_bot_token: fn -> api_key end do
         Req.Test.expect(TelegramClientMock, fn conn ->
           assert conn.method == "GET"
           assert conn.request_path == "/bot#{api_key}/getMe"
 
           conn
           |> Plug.Conn.put_resp_content_type("application/json")
-          |> Plug.Conn.send_resp(200, Jason.encode!(%{
-            "unexpected" => "format"
-          }))
+          |> Plug.Conn.send_resp(
+            200,
+            Jason.encode!(%{
+              "unexpected" => "format"
+            })
+          )
         end)
 
         {:error, body} =
@@ -173,6 +256,45 @@ defmodule Lux.Integrations.Telegram.ClientTest do
 
         assert body == %{"unexpected" => "format"}
       end
+    end
+  end
+
+  describe "request_many/2" do
+    test "runs queued requests in order" do
+      {:ok, seen} = Agent.start_link(fn -> [] end)
+
+      Req.Test.stub(TelegramClientMock, fn conn ->
+        Agent.update(seen, &[conn.request_path | &1])
+
+        conn
+        |> Plug.Conn.put_resp_content_type("application/json")
+        |> Plug.Conn.send_resp(
+          200,
+          Jason.encode!(%{
+            "ok" => true,
+            "result" => %{"path" => conn.request_path}
+          })
+        )
+      end)
+
+      assert {:ok,
+              [
+                %{"result" => %{"path" => "/bottest_bot_token/sendMessage"}},
+                %{"result" => %{"path" => "/bottest_bot_token/deleteMessage"}}
+              ]} =
+               Client.request_many(
+                 [
+                   %{method: :post, path: "/sendMessage", json: %{chat_id: 1, text: "Hello"}},
+                   %{method: :post, path: "/deleteMessage", json: %{chat_id: 1, message_id: 2}}
+                 ],
+                 token: @bot_token,
+                 queue_interval_ms: 0
+               )
+
+      assert Agent.get(seen, &Enum.reverse/1) == [
+               "/bottest_bot_token/sendMessage",
+               "/bottest_bot_token/deleteMessage"
+             ]
     end
   end
 end
