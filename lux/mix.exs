@@ -67,6 +67,7 @@ defmodule Lux.MixProject do
     [
       {:bandit, "~> 1.0"},
       {:req, "~> 0.5.0"},
+      {:websockex, "~> 0.4.3"},
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
       {:ex_json_schema, "~> 0.10.2"},
