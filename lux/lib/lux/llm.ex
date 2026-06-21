@@ -5,7 +5,7 @@ defmodule Lux.LLM do
 
   defmodule Response do
     @moduledoc """
-      A response from an LLM.
+    A response from an LLM.
     """
 
     @type t :: %__MODULE__{
