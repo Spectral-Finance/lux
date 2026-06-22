@@ -1,0 +1,85 @@
+<!-- livebook:{"title":"DeFi Analytics Integration"} -->
+
+# DeFi Analytics Integration
+
+## Introduction
+
+Lux provides built-in integrations for fetching comprehensive DeFi analytics data. The core integrations are with **DeFiLlama** (for TVL, volumes, protocol metrics, and yields) and **Dune Analytics** (for custom SQL-based on-chain data queries).
+
+This guide shows you how to use these lenses and prisms to fetch and aggregate DeFi metrics.
+
+## DeFiLlama Integration
+
+The DeFiLlama integration provides a set of lenses for fetching various data points without needing any API keys.
+
+### Fetching Protocol Data
+
+You can fetch basic protocol data like so:
+
+```elixir
+alias Lux.Lenses.DefiLlama.GetProtocols
+
+# Fetch a list of protocols and their TVL
+{:ok, protocols} = GetProtocols.focus()
+```
+
+### Fetching Historical TVL
+
+```elixir
+alias Lux.Lenses.DefiLlama.GetTvl
+
+# Fetch the global historical TVL
+{:ok, tvl_history} = GetTvl.focus()
+```
+
+### Volume Analytics
+
+```elixir
+alias Lux.Lenses.DefiLlama.GetVolumes
+
+# Fetch DEX volume data
+{:ok, %{"protocols" => dexes}} = GetVolumes.focus(%{dataType: "dailyVolume"})
+```
+
+### Yield Analytics
+
+```elixir
+alias Lux.Lenses.DefiLlama.GetYields
+
+# Fetch yield pool data (APY, TVL)
+{:ok, pools} = GetYields.focus()
+```
+
+## Dune Analytics Integration
+
+To use Dune Analytics, you must configure your API key in `config/runtime.exs` or via the `DUNE_API_KEY` environment variable.
+
+### Executing a Query and Getting Results
+
+```elixir
+alias Lux.Lenses.Dune.ExecuteQuery
+alias Lux.Lenses.Dune.GetQueryResults
+
+# 1. Execute the query
+{:ok, %{execution_id: execution_id}} = ExecuteQuery.focus(%{query_id: 123456})
+
+# 2. Wait for execution and fetch results
+{:ok, %{status: "completed", rows: rows}} = GetQueryResults.focus(%{execution_id: execution_id})
+```
+
+## The Analytics Dashboard Prism
+
+The `AnalyticsDashboardPrism` aggregates data from multiple lenses (DeFiLlama protocols and yields, and optionally Dune Analytics) to provide a complete overview for a single protocol.
+
+```elixir
+alias Lux.Prisms.Defi.AnalyticsDashboardPrism
+
+{:ok, dashboard_data} = AnalyticsDashboardPrism.handler(%{
+  "protocol_slug" => "uniswap"
+}, %{})
+
+# The result contains:
+# - protocol: Protocol metrics from DeFiLlama
+# - pools: Top yield pools for the protocol
+# - custom_analytics: Data from Dune (if dune_execution_id is provided)
+```
