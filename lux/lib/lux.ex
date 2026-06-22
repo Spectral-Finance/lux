@@ -42,4 +42,14 @@ defmodule Lux do
   end
 
   def lens?(_), do: false
+
+  @doc """
+  Check if a module is a Web3 Auth component.
+  """
+  def web3_auth?(module) when is_atom(module) do
+    Code.ensure_loaded?(module) and
+      String.starts_with?(to_string(module), "Lux.Web3.")
+  end
+
+  def web3_auth?(_), do: false
 end
