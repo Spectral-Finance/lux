@@ -307,3 +307,4 @@ test: ## Run test suite
 	@echo "Running test suite..."
 	@mix test.unit
 	@mix python.test 
+	@mix rust.test

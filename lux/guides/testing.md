@@ -18,6 +18,9 @@ mix test.integration
 
 # Run python tests
 mix python.test
+
+# Run rust tests
+mix rust.test
 ```
 
 ## Test Organization
@@ -74,6 +77,18 @@ defmodule MyAPITest do
   # Your test code
 end
 ```
+
+### Rust Tests
+Rust tests are written in standard Rust using `#[cfg(test)]`. To run them:
+```bash
+# Run all Rust tests
+mix rust.test
+
+# Run tests with coverage reporting (requires cargo-tarpaulin)
+mix rust.test --cov
+```
+
+For cross-language integration testing, utilize `Lux.RustTestUtils` to generate payloads and assert responses.
 
 ## Best Practices
 

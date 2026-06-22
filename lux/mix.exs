@@ -54,6 +54,7 @@ defmodule Lux.MixProject do
     [
       "test.unit": "test --include unit",
       "test.integration": "test --include integration",
+      "test.rust": "rust.test",
       coveralls: "coveralls",
       "coveralls.detail": "coveralls.detail",
       "coveralls.post": "coveralls.post",
