@@ -1,6 +1,9 @@
 defmodule Lux.LLM do
   @moduledoc """
   A module for interacting with LLMs. Defines the behaviours for LLMs and provides a default implementation.
+
+  By default, delegates to `Lux.LLM.Providers` which provides auto-selection,
+  smart fallback, cost monitoring, and caching across all registered providers.
   """
 
   defmodule Response do
@@ -27,7 +30,7 @@ defmodule Lux.LLM do
 
   @callback call(prompt(), tools(), options()) :: {:ok, Response.t()} | {:error, String.t()}
 
-  @default_module Application.compile_env(:lux, [Lux.LLM, :default_module], Lux.LLM.OpenAI)
+  @default_module Application.compile_env(:lux, [Lux.LLM, :default_module], Lux.LLM.Providers)
 
   defdelegate call(prompt, tools, options), to: @default_module
 end
