@@ -1,0 +1,155 @@
+# Gas Optimization and Transaction Management Guide
+
+```elixir
+Mix.install([
+  {:lux, "~> 0.4.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:ex_unit])
+```
+
+## Overview
+
+Lux provides built-in Prisms and Lenses to manage Ethereum transactions efficiently and optimize gas usage. These features allow you to build sophisticated agents capable of interacting with EVM chains cost-effectively.
+
+This guide covers:
+- Gas Price Prediction
+- Transaction Simulation
+- Transaction Batching
+- Priority Fee Optimization
+- Transaction Replacement
+- MEV Protection
+
+## Prisms for Gas Optimization
+
+Lux includes two primary Prisms for handling transactions and gas: `GasOptimizerPrism` and `TxManagerPrism`.
+
+### GasOptimizerPrism
+
+The `GasOptimizerPrism` handles predicting gas costs, optimizing priority fees, and performing cost analysis.
+
+```elixir
+alias Lux.Prisms.GasOptimizerPrism
+
+# Predict current gas prices
+{:ok, %{result: prediction}} = GasOptimizerPrism.handler(%{
+  action: "predict",
+  network: "mainnet"
+}, %{})
+
+IO.inspect(prediction.gas_price_gwei, label: "Current Gas Price (Gwei)")
+
+# Optimize priority fees for faster confirmation
+{:ok, %{result: priority_fee}} = GasOptimizerPrism.handler(%{
+  action: "priority_fee",
+  network: "mainnet"
+}, %{})
+
+IO.inspect(priority_fee.optimized_priority_fee_gwei, label: "Optimized Priority Fee (Gwei)")
+
+# Analyze transaction costs
+{:ok, %{result: cost_analysis}} = GasOptimizerPrism.handler(%{
+  action: "cost_analysis",
+  network: "mainnet",
+  gas_limit: 21000 # Standard ETH transfer
+}, %{})
+
+IO.inspect(cost_analysis.estimated_cost_eth, label: "Estimated Cost (ETH)")
+```
+
+### TxManagerPrism
+
+The `TxManagerPrism` allows you to manage the lifecycle of a transaction including simulation, batching, replacing (speed up or cancel), and MEV protection.
+
+```elixir
+alias Lux.Prisms.TxManagerPrism
+
+# Simulate a transaction before execution
+tx_payload = %{
+  "transaction" => %{
+    "to" => "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+    "value" => 1000000000000000000 # 1 ETH
+  }
+}
+
+{:ok, %{result: simulation}} = TxManagerPrism.handler(%{
+  action: "simulate",
+  network: "mainnet",
+  payload: tx_payload
+}, %{})
+
+IO.inspect(simulation.success, label: "Simulation Success")
+
+# Speed up an existing transaction
+replace_payload = %{
+  "tx_hash" => "0xYourTxHash",
+  "type" => "speed_up"
+}
+
+{:ok, %{result: replacement}} = TxManagerPrism.handler(%{
+  action: "replace",
+  network: "mainnet",
+  payload: replace_payload
+}, %{})
+
+IO.inspect(replacement.new_gas_price_wei, label: "New Gas Price for Replacement (Wei)")
+
+# Protect against MEV using Flashbots
+mev_payload = %{
+  "transaction" => tx_payload["transaction"]
+}
+
+{:ok, %{result: mev_protection}} = TxManagerPrism.handler(%{
+  action: "mev_protect",
+  network: "mainnet",
+  payload: mev_payload
+}, %{})
+
+IO.inspect(mev_protection.status, label: "MEV Protection Status")
+```
+
+## Lenses for Gas Tracking
+
+If you need real-time network conditions from Etherscan, you can leverage the `GasEstimate` and `GasOracle` lenses.
+
+```elixir
+alias Lux.Lenses.Etherscan.GasOracle
+
+# Fetch Safe, Proposed, and Fast gas prices
+{:ok, gas_oracle} = GasOracle.focus(%{chainid: 1})
+
+IO.puts("Safe Gas Price: #{gas_oracle.result.safe_gas_price}")
+IO.puts("Fast Gas Price: #{gas_oracle.result.fast_gas_price}")
+```
+
+## Integrating into an Agent
+
+You can combine these Prisms and Lenses within a Lux Agent to automatically manage and execute trades when gas prices are optimal.
+
+```elixir
+defmodule MyApp.Agents.GasOptimizedTrader do
+  use Lux.Agent,
+    name: "Gas Optimized Trader",
+    description: "Executes trades only when gas prices are low",
+    prisms: [
+      Lux.Prisms.GasOptimizerPrism,
+      Lux.Prisms.TxManagerPrism
+    ]
+end
+```
+
+## Configuration
+
+In order to use the underlying Python logic securely, ensure you have set your API keys:
+
+```bash
+# In dev.override.envrc
+ALCHEMY_API_KEY="your_alchemy_api_key"
+```
+
+## Best Practices
+
+1. **Always Simulate**: Before executing a transaction or batch on-chain, run it through the `TxManagerPrism`'s simulate action to prevent revert penalties.
+2. **Handle Replacements Gracefully**: Set proper timeout limits and use the `replace` action to speed up stalled transactions if the `GasOptimizerPrism` reports a sudden surge in network congestion.
+3. **Use MEV Protection for Swaps**: When dealing with DEX swaps or large trades, always use the `mev_protect` action to prevent sandwich attacks.

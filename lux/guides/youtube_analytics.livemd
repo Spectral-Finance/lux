@@ -1,0 +1,100 @@
+# YouTube Analytics and Growth Engine
+
+```elixir
+Mix.install(
+  [
+    {:lux, ">= 0.5.0"}
+  ],
+  start_applications: false,
+  config: [
+    lux: [
+      api_keys: [
+        youtube: System.fetch_env!("LB_YOUTUBE_API_KEY")
+      ]
+    ]
+  ]
+)
+
+Application.ensure_all_started([:lux])
+```
+
+## Environment Setup
+
+Before running this notebook, you'll need to set up the following secrets in your Livebook settings:
+
+```
+LB_YOUTUBE_API_KEY=""  # Your YouTube Data API Key
+```
+
+## Overview
+
+This example demonstrates the YouTube Analytics and Growth Engine built with Lux. The system consists of:
+
+* An `AnalyticsLens` to fetch channel statistics via the YouTube Data API.
+* A `GrowthPredictorPrism` to forecast subscriber growth based on current data.
+* A `RevenueOptimizerPrism` to estimate current and potential optimized revenue.
+* A `ReportGeneratorPrism` to create automated insights reports in Markdown.
+
+## Using the Engine
+
+### 1. Fetch Analytics
+
+Let's fetch current data from a YouTube channel using the `AnalyticsLens`.
+
+```elixir
+alias Lux.Lenses.YouTube.AnalyticsLens
+
+{:ok, stats} = AnalyticsLens.focus(%{
+  channel_id: "UC_x5XG1OV2P6uZZ5FSM9Ttw" # Example: Google channel
+})
+
+IO.inspect(stats, label: "Current Statistics")
+```
+
+### 2. Predict Growth
+
+Use the `GrowthPredictorPrism` to project future subscribers:
+
+```elixir
+alias Lux.Prisms.YouTube.GrowthPredictorPrism
+
+{:ok, predictions} = GrowthPredictorPrism.run(%{
+  current_subscribers: stats.subscribers,
+  historical_growth_rate: 0.05, # 5% monthly growth
+  months_to_predict: 12
+})
+
+IO.inspect(predictions, label: "Growth Projections")
+```
+
+### 3. Optimize Revenue
+
+Use the `RevenueOptimizerPrism` to see estimated ad revenue and strategies for improvement:
+
+```elixir
+alias Lux.Prisms.YouTube.RevenueOptimizerPrism
+
+{:ok, revenue_data} = RevenueOptimizerPrism.run(%{
+  views: stats.views,
+  cpm: 4.0 # $4 per 1000 views
+})
+
+IO.inspect(revenue_data, label: "Revenue Optimization")
+```
+
+### 4. Generate Report
+
+Combine all data into a beautiful automated report using `ReportGeneratorPrism`:
+
+```elixir
+alias Lux.Prisms.YouTube.ReportGeneratorPrism
+
+{:ok, report_result} = ReportGeneratorPrism.run(%{
+  channel_name: "Example Channel",
+  stats: stats,
+  predicted_subscribers: predictions.predicted_subscribers,
+  estimated_revenue_usd: revenue_data.estimated_revenue_usd
+})
+
+Kino.Markdown.new(report_result.report_markdown)
+```
