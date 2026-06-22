@@ -1,0 +1,49 @@
+659	OPEN	Invitation: Integrate Lux agents with Nautilus agent economy		2026-05-29T21:10:57Z
+356	OPEN	Security Alert: Leaked Aws Secret Key Detected		2026-02-14T14:59:27Z
+166	OPEN	✨ On implementing a new integration	documentation	2025-03-19T09:34:37Z
+140	OPEN	Outdated changelog		2025-03-04T15:08:04Z
+104	OPEN	📣⚠️ Lux Framework Bounty Program Guidelines ⚠️📣	documentation	2025-05-28T06:58:25Z
+103	OPEN	Rust Component Definition Support $500	enhancement, bounty, rust	2026-06-10T09:21:17Z
+102	OPEN	Rust Testing Framework Integration $350	enhancement, bounty, rust	2026-05-28T07:41:45Z
+101	OPEN	Rust Type System and Serialization $450	enhancement, bounty, rust	2026-05-28T07:41:41Z
+100	OPEN	Cargo Package Management Integration $300	enhancement, bounty, rust	2026-06-18T08:39:27Z
+99	OPEN	LLM Provider Abstraction Layer $600	enhancement, bounty, llm	2026-06-19T14:59:36Z
+97	OPEN	Perplexity AI Integration $300	enhancement, bounty, llm, in-progress	2026-05-28T09:52:56Z
+96	OPEN	Local Model Support via Ollama $400	enhancement, bounty, llm	2026-06-18T05:41:36Z
+95	OPEN	OpenRouter Integration $500	enhancement, bounty, llm, in-progress	2026-06-18T07:15:16Z
+94	OPEN	Rust Core Integration Setup $500	enhancement, bounty, rust	2026-05-28T08:15:34Z
+88	OPEN	DeFi Analytics Integration $750	bounty, web3, data, in-progress	2026-06-13T16:40:33Z
+87	OPEN	NFT Marketplace Data Aggregation $750	bounty, web3, data	2026-06-13T16:40:31Z
+86	OPEN	TradingView Technical Analysis Integration $600	bounty, data	2026-06-18T06:50:28Z
+84	OPEN	Binance Exchange Integration $750	bounty, exchanges	2026-06-16T18:59:57Z
+83	OPEN	Coinbase Exchange Integration $750	bounty, exchanges	2026-06-16T18:59:55Z
+82	OPEN	Hyperliquid Integration and Perpetual Trading $900	bounty, web3, exchanges	2026-06-19T19:09:50Z
+81	OPEN	Curve Finance Integration and Stablecoin Management $900	bounty, web3, exchanges	2026-06-13T16:40:29Z
+80	OPEN	SushiSwap Integration and Cross-Chain Bridge Support $750	bounty, web3, exchanges	2026-06-14T08:41:13Z
+79	OPEN	PancakeSwap Integration and Yield Farming $750	bounty, web3, exchanges	2026-06-17T13:35:13Z
+78	OPEN	Uniswap V3 Integration and Liquidity Management $900	bounty, web3, exchanges, in-progress	2026-06-14T08:54:05Z
+77	OPEN	Web3 Authentication and Authorization Framework $1,000	bounty, web3, infrastructure	2026-06-15T18:46:03Z
+76	OPEN	Gas Optimization and Transaction Management $1,250	bounty, web3, infrastructure	2026-06-14T07:32:05Z
+75	OPEN	Smart Contract Event Monitoring System $1,500	bounty, web3, infrastructure	2026-06-14T12:37:55Z
+74	OPEN	Multi-Chain Data Aggregation Engine $1,750	bounty, web3, infrastructure	2026-06-14T07:32:06Z
+73	OPEN	Web3 Wallet Management and Transaction Infrastructure $2,000	bounty, web3, infrastructure	2026-06-14T07:32:24Z
+72	OPEN	YouTube Analytics and Growth Engine $2,000	bounty	2026-06-14T07:33:01Z
+71	OPEN	YouTube Content Creation Pipeline $2,500	bounty	2026-06-14T07:33:00Z
+70	OPEN	YouTube Community Management and Engagement $2,000	bounty	2026-06-14T07:32:58Z
+69	OPEN	YouTube Content Intelligence System $2,500	bounty	2026-06-14T07:32:57Z
+68	OPEN	YouTube Core Integration and Live Streaming ($3,000)	bounty	2026-06-16T18:59:48Z
+67	OPEN	Telegram Analytics and Monitoring ($1,200)	bounty	2026-06-14T15:23:40Z
+65	OPEN	Telegram Group Management ($1,800)	bounty	2026-05-15T05:38:03Z
+63	OPEN	Telegram Message Processing ($2,000)	bounty	2026-05-31T21:32:10Z
+62	OPEN	Telegram Core API Integration ($2,500)	bounty	2026-06-17T16:49:17Z
+61	OPEN	Twitter Automation and Engagement ( $1,800)	bounty	2026-06-09T01:17:28Z
+60	OPEN	Twitter Analytics and Monitoring ($2,000)	bounty	2026-05-31T22:02:04Z
+59	OPEN	Twitter Analytics and Monitoring ($2,000)	bounty	2026-05-13T17:24:28Z
+58	OPEN	Twitter API Core Integration ($2,500)	bounty	2026-06-16T18:59:53Z
+57	OPEN	Discord Core Prisms, Lenses and Beams Implementation ($2000)	bounty	2026-06-14T16:22:54Z
+56	OPEN	Advanced Discord Features ($500)	bounty	2026-05-14T02:45:38Z
+55	OPEN	Agent Discord Capabilities ($500)	bounty	2026-06-18T06:41:17Z
+54	OPEN	Discord Signals System ($500)	bounty, in-progress	2026-06-03T19:06:15Z
+52	OPEN	Improve Nodejs support and testing	help wanted, bounty	2026-05-14T19:06:17Z
+31	OPEN	Cache python modules in CI	bounty	2026-05-14T20:01:31Z
+18	OPEN	Cache dialyzer in CI	bounty	2026-06-06T19:51:36Z

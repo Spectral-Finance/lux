@@ -1,0 +1,119 @@
+# Web3 Smart Contract Event Monitor
+
+```elixir
+Mix.install([
+  {:lux, path: "../"}
+])
+```
+
+## Overview
+
+The Web3 Smart Contract Event Monitoring System is a robust integration designed to monitor, capture, and persist EVM smart contract events in real-time. It supports both active WebSocket connections for live subscriptions (`eth_subscribe`) and HTTP RPC calls for historical backfilling (`eth_getLogs`).
+
+Captured events are stored in a centralized, supervised event storage where they can be queried, filtered, and replayed by agents.
+
+---
+
+## Core Components
+
+The Event Monitoring system consists of:
+1. **`Lux.Integrations.Web3.EventMonitor`**: The main interface to launch and manage monitors, perform historical syncing, and run event queries.
+2. **`EventMonitor.Storage`**: A supervised in-memory event registry that holds event log entries and supports custom filters.
+3. **`EventMonitor.WebSocket`**: A reconnectable WebSocket client that connects to your RPC provider (e.g. Infura, Alchemy) to listen to live logs.
+
+---
+
+## Direct Usage Example
+
+Here is how you can use the event monitor directly in Elixir:
+
+### 1. Start Real-time Monitoring
+
+To listen to all events from a specific Uniswap pool (or any contract) on Mainnet:
+
+```elixir
+opts = [
+  url: "wss://mainnet.infura.io/ws/v3/YOUR_INFURA_KEY",
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640", # USDC/WETH 0.05% Pool
+  webhook_url: "https://your-webhook-endpoint.com/alerts" # Optional webhook
+]
+
+{:ok, ws_pid} = Lux.Integrations.Web3.EventMonitor.start_monitor(opts)
+```
+
+### 2. Sync Historical Events
+
+To pull historical events (e.g. from block `0xe00000` to `latest`):
+
+```elixir
+sync_opts = [
+  url: "https://mainnet.infura.io/v3/YOUR_INFURA_KEY",
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  from_block: "0xe00000",
+  to_block: "latest"
+]
+
+{:ok, count} = Lux.Integrations.Web3.EventMonitor.sync_historical(sync_opts)
+IO.inspect("Synced #{count} historical events successfully.")
+```
+
+### 3. Query Captured Events
+
+To query the captured events:
+
+```elixir
+# Retrieve all events
+events = Lux.Integrations.Web3.EventMonitor.query_events()
+
+# Retrieve events filtered by address
+filtered_events = Lux.Integrations.Web3.EventMonitor.query_events(
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+)
+```
+
+---
+
+## Integrating with Lux Agents using Prisms
+
+Lux provides three built-in Prisms to allow autonomous agents to orchestrate event monitoring tasks:
+
+### 1. `Lux.Prisms.Web3.MonitorEvents`
+Used by agents to spin up a live subscription.
+
+```elixir
+params = %{
+  url: "wss://mainnet.infura.io/ws/v3/YOUR_KEY",
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  webhook_url: "https://my-webhook.com"
+}
+
+{:ok, result} = Lux.Prism.run(Lux.Prisms.Web3.MonitorEvents, params)
+# Returns: {:ok, %{status: "monitoring_started", pid: "#PID<...>"}}
+```
+
+### 2. `Lux.Prisms.Web3.SyncHistoricalEvents`
+Used by agents to request a backfill.
+
+```elixir
+params = %{
+  url: "https://mainnet.infura.io/v3/YOUR_KEY",
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+  from_block: "0xe00000",
+  to_block: "latest"
+}
+
+{:ok, result} = Lux.Prism.run(Lux.Prisms.Web3.SyncHistoricalEvents, params)
+# Returns: {:ok, %{status: "synced", event_count: 42}}
+```
+
+### 3. `Lux.Prisms.Web3.GetEvents`
+Used by agents to read the current memory logs.
+
+```elixir
+params = %{
+  address: "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640"
+}
+
+{:ok, events} = Lux.Prism.run(Lux.Prisms.Web3.GetEvents, params)
+# Returns: {:ok, [event1, event2, ...]}
+```

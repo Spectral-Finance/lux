@@ -1,0 +1,1767 @@
+    warning: unused require Logger
+    │
+  9 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/agent/loaders.ex:9:3
+
+     warning: unused require Logger
+     │
+ 101 │   require Logger
+     │   ~
+     │
+     └─ lib/lux/agents/market_researcher.ex:101:3
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 105 │   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     │                                                        ~~~~~~~~
+     │
+     └─ lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     │
+ 112 │   def after_focus(%{"error" => error} = response) do
+     │                                         ~~~~~~~~
+     │
+     └─ lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: incompatible types given to execute_step/2:
+
+         execute_step(step, context)
+
+     given types:
+
+         (
+           -dynamic(
+             not %{..., id: term(), module: term(), opts: term(), params: term()} and not nil and
+               not ({:branch, term(), term()} and not {:parallel or :sequence, term()}) and
+               not {:parallel or :sequence, term()}
+           )-,
+           dynamic(%{..., step_index: term()})
+         )
+
+     but expected one of:
+
+         %{..., id: term(), module: term(), opts: term(), params: term()}, %{..., step_index: term()}
+
+     where "context" was given the types:
+
+         # type: dynamic()
+         # from: lib/lux/beam/runner.ex:119:28
+         context
+
+         # type: dynamic(%{..., step_index: term()})
+         # from: lib/lux/beam/runner.ex:120:5
+         execute_step(step, context)
+
+     where "step" was given the types:
+
+         # type: dynamic(
+           not %{..., id: term(), module: term(), opts: term(), params: term()} and not nil and
+             not ({:branch, term(), term()} and not {:parallel or :sequence, term()}) and
+             not {:parallel or :sequence, term()}
+         )
+         # from: lib/lux/beam/runner.ex:119:22
+         step
+
+         # type: not nil
+         # from: lib/lux/beam/runner.ex:119
+         step == nil
+
+     type warning found at:
+     │
+ 120 │     execute_step(step, context)
+     │     ~
+     │
+     └─ lib/lux/beam/runner.ex:120:5: Lux.Beam.Runner.execute_steps/2
+
+    warning: unused require Lux.Beam
+    │
+ 13 │   require Beam
+    │   ~
+    │
+    └─ lib/lux/llm/open_ai.ex:13:3
+
+    warning: unused require Lux.Lens
+    │
+ 14 │   require Lens
+    │   ~
+    │
+    └─ lib/lux/llm/open_ai.ex:14:3
+
+    warning: unused require Logger
+    │
+ 84 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/beams/hyperliquid/trade_risk_management_beam.ex:84:3
+
+    warning: unused require Logger
+    │
+  6 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/integrations/telegram/client.ex:6:3
+
+    warning: unused require Lux.Beam
+    │
+ 13 │     require Beam
+    │     ~
+    │
+    └─ lib/lux/llm/together_ai.ex:13:5
+
+    warning: unused require Lux.Lens
+    │
+ 14 │     require Lens
+    │     ~
+    │
+    └─ lib/lux/llm/together_ai.ex:14:5
+
+     warning: unused require Logger
+     │
+ 142 │   require Logger
+     │   ~
+     │
+     └─ lib/lux/integrations/allora.ex:142:3
+
+    warning: the following clause is redundant:
+
+        def handle_signal(%{schema_id: Lux.Schemas.TaskSignal} = signal, _context)
+
+    it has type:
+
+        dynamic(%{..., schema_id: Lux.Schemas.TaskSignal}), dynamic()
+
+    previous clauses have already matched on the following types:
+
+        %{..., schema_id: term()}, term()
+
+    │
+  8 │   - (other templates to be added)
+    │       ~
+    │
+    └─ lib/lux/agent.ex:8:7: Test.Support.Agents.ContentDirector.handle_signal/2
+
+    warning: unused require Lux.Beam
+    │
+ 14 │   require Beam
+    │   ~
+    │
+    └─ lib/lux/llm/ollama.ex:14:3
+
+    warning: unused require Lux.Lens
+    │
+ 15 │   require Lens
+    │   ~
+    │
+    └─ lib/lux/llm/ollama.ex:15:3
+
+    warning: unused require Logger
+    │
+ 15 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/llm/anthropic.ex:15:3
+
+    warning: unused require Lux.Beam
+    │
+ 13 │   require Beam
+    │   ~
+    │
+    └─ lib/lux/llm/anthropic.ex:13:3
+
+    warning: unused require Lux.Lens
+    │
+ 14 │   require Lens
+    │   ~
+    │
+    └─ lib/lux/llm/anthropic.ex:14:3
+
+    warning: unused require Logger
+    │
+ 12 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/signal_schema.ex:12:3
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     │
+ 107 │   def before_focus(%{topic_id: topic_id} = params) do
+     │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     │
+ 141 │       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     │                                                           ~
+     │
+     └─ lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    │
+ 17 │   @endpoint "https://api.mira.network/v1/chat/completions"
+    │   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+    warning: unused require Lux.Beam
+    │
+ 13 │   require Beam
+    │   ~
+    │
+    └─ lib/lux/llm/mira.ex:13:3
+
+    warning: unused require Lux.Lens
+    │
+ 14 │   require Lens
+    │   ~
+    │
+    └─ lib/lux/llm/mira.ex:14:3
+
+    warning: unused require Logger
+    │
+  6 │   require Logger
+    │   ~
+    │
+    └─ lib/lux/integrations/discord/client.ex:6:3
+
+    warning: the following clause is redundant:
+
+        def handle_signal(%{schema_id: Lux.Schemas.TaskSignal} = signal, context)
+
+    it has type:
+
+        dynamic(%{..., schema_id: Lux.Schemas.TaskSignal}), dynamic()
+
+    previous clauses have already matched on the following types:
+
+        %{..., schema_id: term()}, term()
+
+    │
+  8 │   - (other templates to be added)
+    │       ~
+    │
+    └─ lib/lux/agent.ex:8:7: Test.Support.Agents.Researcher.handle_signal/2
+
+    warning: incompatible types given to Lux.Lens.authenticate/1:
+
+        Lux.Lens.authenticate(
+          Map.update!(Lux.Lenses.Ollama.ListModels.view(), :params, &Map.merge(&1, input))
+        )
+
+    given types:
+
+        -dynamic(%Lux.Lens{
+          after_focus: (none() -> term()),
+          name: binary(),
+          module_name: binary(),
+          url: binary(),
+          method: :get,
+          headers: non_empty_list({binary(), binary()}),
+          auth: empty_map(),
+          description: binary(),
+          schema: %{properties: empty_map(), required: empty_list(), type: :object}
+        })-
+
+    but expected one of:
+
+        #1
+        %Lux.Lens{auth: nil}
+
+        #2
+        %Lux.Lens{
+          headers: list(term()),
+          auth:
+            %{..., key: (-> term()) or binary(), type: :api_key} or
+              %{..., password: term(), type: :basic, username: term()} or
+              %{..., token: term(), type: :oauth}
+        }
+
+        #3
+        %Lux.Lens{auth: %{..., auth_function: (none() -> term()), type: :custom}}
+
+    where "input" (context Lux.Lens) was given the type:
+
+        # type: dynamic()
+        # from: lib/lux/lenses/ollama/list_models.ex:21
+        input
+
+    type warning found at:
+    │
+ 21 │   use Lux.Lens,
+    │   ~~~~~~~~~~~~~
+    │
+    └─ lib/lux/lenses/ollama/list_models.ex:21: Lux.Lenses.Ollama.ListModels.focus/2
+
+
+13:04:57.888 [info] Started Snake Manager
+
+13:04:57.889 [info] Started Pet Snake Manager
+
+13:04:57.901 [info] Starting AgentHub with name: Lux.AgentHub
+
+13:04:57.902 [info] Initializing AgentHub with options: []
+Running ExUnit with seed: 922301, max_cases: 36
+Excluding tags: [:skip, :integration]
+Including tags: [:unit]
+
+
+13:04:57.955 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.Hub.LocalTest.TestCompany
+
+13:04:57.955 [debug] Before compile hook for Elixir.Lux.Company.Hub.LocalTest.TestCompany
+
+13:04:57.960 [debug] Final company config: %Lux.Company{id: "06cc638d-0ff3-446c-9b4e-c801bdce1d20", name: "Test Company", mission: "Testing company functionality", module: Lux.Company.Hub.LocalTest.TestCompany, ceo: %{id: "71c31b92-a1a3-4cb6-beee-54cadc458ee3", name: "Test CEO", type: :ceo, agent: Test.Support.Agents.TestCEO, capabilities: ["assign_tasks", "manage_company"], hub: nil, goal: "Lead and manage test company operations"}, signal_router: nil, agent_hub: nil, roles: [%{id: "6e0aaa74-7a7b-4bc9-8c4e-266ba28e3d05", name: "Test Member", type: :member, agent: Test.Support.Agents.TestMember, capabilities: ["execute_tasks"], hub: nil, goal: "Execute test tasks effectively"}], objectives: [], metadata: %{}}
+..
+13:04:57.971 [info] Agent TestAgent performing delete on model nonexistent
+
+13:04:57.979 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.DSLTest.TestCompany
+
+13:04:57.979 [debug] Before compile hook for Elixir.Lux.Company.DSLTest.TestCompany
+..
+13:04:57.983 [info] Agent Unknown Agent reacting to message 987654321098765432 in channel 123456789012345678 with emoji 👍
+
+13:04:57.989 [info] Agent Unknown Agent sending message to channel 123456789012345678: Hello, Discord!
+
+13:04:57.994 [debug] Final company config: %Lux.Company{id: "f38fee8d-806e-4be4-a243-913d32cd4cfe", name: "Test Company", mission: "To test all the things", module: Lux.Company.DSLTest.TestCompany, ceo: %{id: "3fa8c16f-f564-4d9d-a433-370f7d35a31c", name: "Test CEO", type: :ceo, agent: TestAgent, capabilities: ["approve", "review", "test"], hub: nil, goal: "Lead the testing efforts"}, signal_router: nil, agent_hub: nil, roles: [%{id: "3e496cb2-d8be-4c0b-8cb5-9aab6659909b", name: "QA Analyst", type: :member, agent: TestQA, capabilities: ["report", "analyze"], hub: nil, goal: "Ensure quality"}, %{id: "77caa135-79fb-43e4-98e9-5e60054d178e", name: "Test Engineer", type: :member, agent: {"test-123", :test_hub}, capabilities: ["run_tests", "write_tests"], hub: :test_hub, goal: "Write and execute tests"}], objectives: [%Lux.Company.Objective{id: "79b00d5d-07a4-4dbd-9451-7bb439373980", name: :run_test_suite, description: "Run the complete test suite", success_criteria: "All tests pass with >90% coverage", input_schema: %{required: ["test_input"], properties: %{"test_input" => %{type: "string"}}}, steps: ["Prepare test environment", "Run unit tests", "Run integration tests", "Generate coverage report"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+......
+13:04:58.009 [info] Agent Unknown Agent deleting channel 123456789012345678
+....
+13:04:58.020 [info] Agent TestAgent sending live location to chat 123456789
+.
+13:04:58.029 [info] Agent TestAgent sending contact to chat 123456789
+....
+13:04:58.032 [info] Agent TestAgent updating live location for message_id: 42 in chat: 123456789 to coordinates (37.7858, -122.4064)
+
+13:04:58.033 [info] Successfully sent live location to chat 123456789
+.
+13:04:58.033 [error] Failed to send message to channel 123456789012345678: {403, "Missing Permissions"}
+.
+13:04:58.033 [error] Failed to delete channel 123456789012345678: {403, "Missing Permissions"}
+.
+13:04:58.033 [error] Failed to react to message 987654321098765432 in channel 123456789012345678 with emoji 👍: {:error, {403, "Missing Permissions"}}
+..
+13:04:58.033 [info] Successfully updated live location for message_id: 42 in chat: 123456789
+.
+13:04:58.033 [info] Agent TestAgent sending live location to chat 123456789
+.
+13:04:58.034 [info] Successfully sent live location to chat 123456789
+.
+13:04:58.034 [info] Agent Unknown Agent reacting to message 987654321098765432 in channel 123456789012345678 with emoji custom_emoji:123456789
+.
+13:04:58.034 [info] Agent Unknown Agent deleting channel 123456789012345678
+.
+13:04:58.034 [info] Successfully reacted to message 987654321098765432 in channel 123456789012345678 with emoji custom_emoji:123456789
+.
+13:04:58.034 [info] Agent TestAgent performing delete on model llama3
+.
+13:04:58.034 [info] Successfully deleted channel 123456789012345678
+.
+13:04:58.034 [info] Agent TestAgent updating live location for inline_message: CAAqrxJRAqABAZaiqJ4sAJtvlCQI to coordinates (37.7858, -122.4064)
+.
+13:04:58.034 [info] Agent Unknown Agent sending message to channel 123456789012345678: Hello, Discord!
+.
+13:04:58.034 [info] Successfully deleted model llama3
+.
+13:04:58.034 [info] Successfully updated live location for inline_message: CAAqrxJRAqABAZaiqJ4sAJtvlCQI
+.
+13:04:58.034 [info] Agent TestAgent sending location to chat 123456789
+.
+13:04:58.034 [info] Successfully sent message 111111111111111111 to channel 123456789012345678
+.
+13:04:58.034 [info] Successfully sent location to chat 123456789
+.
+13:04:58.035 [info] Agent TestAgent sending contact to chat 123456789
+.
+13:04:58.035 [info] Agent TestAgent updating live location for message_id: 42 in chat: 123456789 to coordinates (37.7858, -122.4064)
+.
+13:04:58.036 [info] Successfully sent contact to chat 123456789
+.
+13:04:58.036 [info] Agent TestAgent performing pull on model nonexistent
+.
+13:04:58.036 [info] Agent Unknown Agent reacting to message 987654321098765432 in channel 123456789012345678 with emoji 👍
+.
+13:04:58.036 [info] Agent TestAgent sending location to chat 123456789
+.
+13:04:58.036 [info] Successfully updated live location for message_id: 42 in chat: 123456789
+
+13:04:58.036 [info] Successfully reacted to message 987654321098765432 in channel 123456789012345678 with emoji 👍
+.
+13:04:58.036 [info] Agent TestAgent updating live location for message_id: 42 in chat: 123456789 to coordinates (37.7858, -122.4064)
+.
+13:04:58.036 [info] Agent TestAgent performing pull on model llama3
+.
+13:04:58.036 [info] Agent TestAgent sending contact to chat 123456789
+.
+13:04:58.036 [info] Successfully pulled model llama3
+.
+13:04:58.036 [info] Successfully sent contact to chat 123456789
+.
+13:04:58.037 [warning] retry: got response with status 429, will retry in 1000ms, 3 attempts left
+........
+13:04:58.046 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.DSLTest.InvalidCompany3
+
+13:04:58.046 [debug] Before compile hook for Elixir.Lux.Company.DSLTest.InvalidCompany3
+.
+13:04:58.046 [debug] Final company config: %Lux.Company{id: "5d94436a-b309-486b-8d99-bd8932588f4c", name: "Invalid Roles", mission: "Testing invalid roles", module: Lux.Company.DSLTest.InvalidCompany3, ceo: %{id: "efde366d-aae3-4f0a-9052-1789a4fae753", name: "CEO", type: :ceo, agent: nil, capabilities: [], hub: nil, goal: "Lead"}, signal_router: nil, agent_hub: nil, roles: [], objectives: [], metadata: %{}}
+..
+13:04:58.047 [debug] Initializing TaskTracker with opts: [objective_id: "objective_1093", company_pid: #PID<0.741.0>]
+.
+13:04:58.047 [debug] Initial state: %{company_pid: #PID<0.741.0>, objective_id: "objective_1093", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.047 [debug] Creating new task: %{error: nil, id: "task_519", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.047 [debug] Assigning task task_519 to agent agent_1
+
+13:04:58.047 [debug] Starting task task_519 by agent agent_1
+
+13:04:58.047 [debug] Completing task task_519 with result: %{output: "success"}
+.
+13:04:58.048 [debug] Initializing TaskTracker with opts: [objective_id: "objective_592", company_pid: #PID<0.806.0>]
+.
+13:04:58.048 [debug] Initial state: %{company_pid: #PID<0.806.0>, objective_id: "objective_592", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.048 [debug] Creating new task: %{error: nil, id: "task_720", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+.
+13:04:58.048 [debug] Assigning task task_720 to agent agent_1
+.
+13:04:58.048 [debug] Initializing TaskTracker with opts: [objective_id: "objective_1289", company_pid: #PID<0.815.0>]
+.
+13:04:58.048 [debug] Initial state: %{company_pid: #PID<0.815.0>, objective_id: "objective_1289", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.048 [debug] Initializing TaskTracker with opts: [objective_id: "objective_1481", company_pid: #PID<0.826.0>]
+.
+13:04:58.048 [debug] Initial state: %{company_pid: #PID<0.826.0>, objective_id: "objective_1481", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.048 [debug] Creating new task: %{error: nil, id: "task_784", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.048 [debug] Assigning task task_784 to agent agent_1
+
+13:04:58.048 [debug] Starting task task_784 by agent agent_1
+
+13:04:58.048 [debug] Failing task task_784 with error: "error message"
+
+13:04:58.049 [debug] Initializing TaskTracker with opts: [objective_id: "objective_843", company_pid: #PID<0.835.0>]
+.
+13:04:58.049 [debug] Initial state: %{company_pid: #PID<0.835.0>, objective_id: "objective_843", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.049 [debug] Creating new task: %{error: nil, id: "task_971", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.049 [debug] Assigning task task_971 to agent agent_1
+
+13:04:58.049 [debug] Initializing TaskTracker with opts: [objective_id: "objective_2322", company_pid: #PID<0.842.0>]
+
+13:04:58.049 [debug] Initial state: %{company_pid: #PID<0.842.0>, objective_id: "objective_2322", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.049 [debug] Creating new task: %{error: nil, id: "task_458", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+.
+13:04:58.049 [debug] Assigning task task_458 to agent agent_1
+.
+13:04:58.049 [debug] Initializing TaskTracker with opts: [objective_id: "objective_2514", company_pid: #PID<0.849.0>]
+
+13:04:58.049 [debug] Initial state: %{company_pid: #PID<0.849.0>, objective_id: "objective_2514", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.049 [debug] Creating new task: %{error: nil, id: "task_1100", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+.
+13:04:58.049 [info] Agent Agent sending poll to chat 123456789
+.
+13:04:58.049 [info] Successfully sent poll to chat 123456789
+...
+13:04:58.049 [debug] Initializing TaskTracker with opts: [objective_id: "objective_2642", company_pid: #PID<0.858.0>]
+.
+13:04:58.050 [debug] Initial state: %{company_pid: #PID<0.858.0>, objective_id: "objective_2642", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.050 [info] Agent Agent sending poll to chat 123456789
+.
+13:04:58.050 [debug] Creating new task: %{error: nil, id: "task_518", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.050 [debug] Assigning task task_518 to agent agent_1
+
+13:04:58.050 [info] Successfully sent poll to chat 123456789
+
+13:04:58.050 [debug] Initializing TaskTracker with opts: [objective_id: "objective_912", company_pid: #PID<0.871.0>]
+
+13:04:58.050 [debug] Initial state: %{company_pid: #PID<0.871.0>, objective_id: "objective_912", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.050 [debug] Creating new task: %{error: nil, id: "task_264", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.050 [info] Agent Agent sending poll to chat 123456789
+
+13:04:58.050 [info] Successfully sent poll to chat 123456789
+.
+13:04:58.050 [debug] Initializing TaskTracker with opts: [objective_id: "objective_1228", company_pid: #PID<0.880.0>]
+
+13:04:58.050 [debug] Initial state: %{company_pid: #PID<0.880.0>, objective_id: "objective_1228", tasks: %{}, agent_tasks: %{}}
+.
+13:04:58.050 [debug] Creating new task: %{error: nil, id: "task_1356", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.050 [info] Agent TestAgent deleting message 42 from chat 123456789
+
+13:04:58.050 [info] Agent Agent sending poll to chat 123456789
+
+13:04:58.051 [debug] Initializing TaskTracker with opts: [objective_id: "objective_650", company_pid: #PID<0.892.0>]
+
+13:04:58.051 [debug] Initial state: %{company_pid: #PID<0.892.0>, objective_id: "objective_650", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.051 [info] Agent TestAgent deleting message 42 from chat 123456789
+
+13:04:58.052 [debug] Creating new task: %{error: nil, id: "task_582", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+
+13:04:58.052 [info] Successfully deleted message 42 from chat 123456789
+
+13:04:58.052 [debug] Assigning task task_582 to agent agent_1
+
+13:04:58.053 [debug] Starting task task_582 by agent agent_1
+
+13:04:58.053 [debug] Initializing TaskTracker with opts: [objective_id: "objective_392", company_pid: #PID<0.907.0>]
+.
+13:04:58.053 [debug] Initial state: %{company_pid: #PID<0.907.0>, objective_id: "objective_392", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.053 [debug] Initializing TaskTracker with opts: [objective_id: "objective_584", company_pid: #PID<0.914.0>]
+
+13:04:58.053 [debug] Initial state: %{company_pid: #PID<0.914.0>, objective_id: "objective_584", tasks: %{}, agent_tasks: %{}}
+
+13:04:58.053 [debug] Creating new task: %{error: nil, id: "task_646", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 1", completed_at: nil, assigned_agent: nil}
+.
+13:04:58.053 [debug] Creating new task: %{error: nil, id: "task_19", status: :pending, started_at: nil, metadata: %{}, result: nil, step: "Step 2", completed_at: nil, assigned_agent: nil}
+.....
+13:04:58.062 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_842", company_pid: #PID<0.938.0>]
+
+13:04:58.062 [debug] Initial state: %{company_pid: #PID<0.938.0>, objective_id: "objective_842", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.062 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.062 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+
+13:04:58.063 [info] Agent TestAgent sending video note to chat 123456789
+...
+13:04:58.063 [info] Agent TestAgent sending video note to chat 123456789
+
+13:04:58.063 [info] Successfully sent video note to chat 123456789
+.
+13:04:58.063 [info] Agent TestAgent sending video note to chat 123456789
+
+13:04:58.064 [info] Successfully sent video note to chat 123456789
+.
+13:04:58.064 [info] Agent TestAgent sending video note to chat 123456789
+
+13:04:58.064 [info] Successfully sent video note to chat 123456789
+..
+13:04:58.065 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.DSLTest.InvalidCompany4
+
+13:04:58.065 [debug] Before compile hook for Elixir.Lux.Company.DSLTest.InvalidCompany4
+
+13:04:58.065 [debug] Final company config: %Lux.Company{id: "7493fbe5-b098-4c7b-b386-d04661714141", name: "Invalid Objectives", mission: "Testing invalid objectives", module: Lux.Company.DSLTest.InvalidCompany4, ceo: %{id: "6e5a4a79-0363-4207-8a2e-2e810c5c4193", name: "CEO", type: :ceo, agent: TestAgent, capabilities: [], hub: nil, goal: "Lead"}, signal_router: nil, agent_hub: nil, roles: [], objectives: [%Lux.Company.Objective{id: "a38a13d6-4066-4e54-8dfc-2b91934b82ee", name: :invalid, description: nil, success_criteria: nil, input_schema: nil, steps: ["Step 1"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+
+13:04:58.066 [debug] Created artifact: %{id: "artifact_657", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.062711Z]}
+
+13:04:58.066 [debug] Listing artifacts with options: []
+.
+13:04:58.066 [debug] Found 1 matching artifacts
+
+13:04:58.066 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_1797", company_pid: #PID<0.986.0>]
+
+13:04:58.067 [debug] Initial state: %{company_pid: #PID<0.986.0>, objective_id: "objective_1797", artifacts: %{}, step_artifacts: %{}}
+.
+13:04:58.067 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.067 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+
+13:04:58.067 [debug] Created artifact: %{id: "artifact_1420", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.067066Z]}
+.
+13:04:58.067 [debug] Retrieving artifact artifact_1420
+
+13:04:58.067 [debug] Found artifact: %{id: "artifact_1420", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.067066Z]}
+
+13:04:58.067 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2834", company_pid: #PID<0.994.0>]
+.
+13:04:58.067 [debug] Initial state: %{company_pid: #PID<0.994.0>, objective_id: "objective_2834", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.067 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.067 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+.
+13:04:58.067 [debug] Created artifact: %{id: "artifact_712", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.067492Z]}
+    warning: variable "config" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    │
+ 15 │     test "can fetch current bot user information", %{config: config} do
+    │                                                              ~~~~~~
+    │
+    └─ test/integration/discord_client_test.exs:15:62: Lux.Integration.Discord.ClientTest."test basic Discord API integration can fetch current bot user information"/1
+
+.
+13:04:58.067 [debug] Listing artifacts with options: [created_by: "task_1"]
+
+13:04:58.067 [debug] Found 1 matching artifacts
+.
+13:04:58.067 [debug] Listing artifacts with options: [created_by: "nonexistent"]
+
+13:04:58.067 [debug] Found 0 matching artifacts
+
+13:04:58.067 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2962", company_pid: #PID<0.1003.0>]
+.....
+13:04:58.067 [debug] Initial state: %{company_pid: #PID<0.1003.0>, objective_id: "objective_2962", artifacts: %{}, step_artifacts: %{}}
+.
+13:04:58.067 [debug] Storing artifact 'test_artifact' of type text/plain
+.
+13:04:58.067 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+.
+13:04:58.068 [debug] Created artifact: %{id: "artifact_3090", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.068038Z]}
+
+13:04:58.068 [debug] Listing artifacts with options: [tags: ["tag1"]]
+
+13:04:58.068 [debug] Found 1 matching artifacts
+
+13:04:58.068 [debug] Listing artifacts with options: [tags: ["nonexistent"]]
+.
+13:04:58.068 [debug] Found 0 matching artifacts
+.
+13:04:58.068 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_1423", company_pid: #PID<0.1010.0>]
+.
+13:04:58.068 [debug] Initial state: %{company_pid: #PID<0.1010.0>, objective_id: "objective_1423", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.068 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.068 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+
+13:04:58.068 [debug] Created artifact: %{id: "artifact_1865", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.068616Z]}
+
+13:04:58.068 [debug] Listing artifacts for step step_1
+.
+13:04:58.068 [debug] Found 1 artifacts for step step_1
+.
+13:04:58.068 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_6467", company_pid: #PID<0.1020.0>]
+
+13:04:58.068 [debug] Initial state: %{company_pid: #PID<0.1020.0>, objective_id: "objective_6467", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.068 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.068 [debug] Artifact options: []
+
+13:04:58.068 [debug] Created artifact: %{id: "artifact_6595", name: "test_artifact", metadata: %{}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.068843Z]}
+
+13:04:58.069 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_1615", company_pid: #PID<0.1027.0>]
+
+13:04:58.069 [debug] Initial state: %{company_pid: #PID<0.1027.0>, objective_id: "objective_1615", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.069 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.069 [debug] Artifact options: [metadata: %{initial: "value"}]
+
+13:04:58.069 [debug] Created artifact: %{id: "artifact_1743", name: "test_artifact", metadata: %{initial: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069083Z]}
+
+13:04:58.069 [debug] Adding tags ["new_tag"] to artifact artifact_1743
+
+13:04:58.069 [debug] Retrieving artifact artifact_1743
+
+13:04:58.069 [debug] Found artifact: %{id: "artifact_1743", name: "test_artifact", metadata: %{initial: "value"}, tags: ["new_tag"], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069083Z]}
+
+13:04:58.069 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_904", company_pid: #PID<0.1034.0>]
+
+13:04:58.069 [debug] Initial state: %{company_pid: #PID<0.1034.0>, objective_id: "objective_904", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.069 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.069 [debug] Artifact options: [tags: ["tag1", "tag2"]]
+
+13:04:58.069 [debug] Created artifact: %{id: "artifact_583", name: "test_artifact", metadata: %{}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069416Z]}
+
+13:04:58.069 [debug] Retrieving artifact artifact_583
+
+13:04:58.069 [debug] Found artifact: %{id: "artifact_583", name: "test_artifact", metadata: %{}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069416Z]}
+
+13:04:58.069 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_711", company_pid: #PID<0.1045.0>]
+
+13:04:58.069 [debug] Initial state: %{company_pid: #PID<0.1045.0>, objective_id: "objective_711", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.069 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.069 [debug] Artifact options: [metadata: %{key: "value"}]
+
+13:04:58.069 [debug] Created artifact: %{id: "artifact_1871", name: "test_artifact", metadata: %{key: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069824Z]}
+
+13:04:58.069 [debug] Retrieving artifact artifact_1871
+
+13:04:58.069 [debug] Found artifact: %{id: "artifact_1871", name: "test_artifact", metadata: %{key: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069824Z]}
+
+13:04:58.069 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_1999", company_pid: #PID<0.1056.0>]
+
+13:04:58.069 [debug] Initial state: %{company_pid: #PID<0.1056.0>, objective_id: "objective_1999", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.069 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.069 [debug] Artifact options: []
+
+13:04:58.069 [debug] Created artifact: %{id: "artifact_2127", name: "test_artifact", metadata: %{}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069986Z]}
+.
+13:04:58.070 [debug] Retrieving artifact artifact_2127
+.
+13:04:58.070 [debug] Found artifact: %{id: "artifact_2127", name: "test_artifact", metadata: %{}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.069986Z]}
+
+13:04:58.070 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2255", company_pid: #PID<0.1063.0>]
+
+13:04:58.070 [debug] Initial state: %{company_pid: #PID<0.1063.0>, objective_id: "objective_2255", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.070 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.070 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+
+13:04:58.070 [debug] Created artifact: %{id: "artifact_2383", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.070113Z]}
+
+13:04:58.070 [debug] Retrieving artifact nonexistent
+
+13:04:58.070 [warning] Artifact nonexistent not found
+
+13:04:58.070 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2511", company_pid: #PID<0.1070.0>]
+
+13:04:58.070 [debug] Initial state: %{company_pid: #PID<0.1070.0>, objective_id: "objective_2511", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.070 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.070 [debug] Artifact options: [metadata: %{initial: "value"}]
+
+13:04:58.070 [debug] Created artifact: %{id: "artifact_2639", name: "test_artifact", metadata: %{initial: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.070259Z]}
+
+13:04:58.070 [debug] Updating metadata for artifact artifact_2639: %{new: "value"}
+
+13:04:58.070 [debug] Retrieving artifact artifact_2639
+
+13:04:58.070 [debug] Found artifact: %{id: "artifact_2639", name: "test_artifact", metadata: %{new: "value", initial: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.070259Z]}
+
+13:04:58.070 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2767", company_pid: #PID<0.1077.0>]
+
+13:04:58.070 [debug] Initial state: %{company_pid: #PID<0.1077.0>, objective_id: "objective_2767", artifacts: %{}, step_artifacts: %{}}
+
+13:04:58.070 [debug] Storing artifact 'test_artifact' of type text/plain
+
+13:04:58.070 [debug] Artifact options: [step_id: "step_1", task_id: "task_1", tags: ["tag1", "tag2"], metadata: %{key: "value"}]
+
+13:04:58.070 [debug] Created artifact: %{id: "artifact_2244", name: "test_artifact", metadata: %{key: "value"}, tags: ["tag1", "tag2"], content_type: "text/plain", content: "test content", step_id: "step_1", created_by: "task_1", created_at: ~U[2026-06-22 07:34:58.070503Z]}
+
+13:04:58.070 [debug] Listing artifacts with options: [content_type: "text/plain"]
+.
+13:04:58.070 [debug] Found 1 matching artifacts
+.
+13:04:58.070 [debug] Listing artifacts with options: [content_type: "application/json"]
+.
+13:04:58.070 [debug] Found 0 matching artifacts
+.
+13:04:58.070 [debug] Initializing ArtifactStore with opts: [objective_id: "objective_2372", company_pid: #PID<0.1084.0>]
+.
+13:04:58.073 [info] Agent TestAgent setting game score 100 for user 123456789
+.
+13:04:58.073 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.DSLTest.InvalidCompany2
+
+13:04:58.074 [info] Agent Agent stopping poll in message 42 in chat 123456789
+.
+13:04:58.080 [debug] Initial state: %{company_pid: #PID<0.1084.0>, objective_id: "objective_2372", artifacts: %{}, step_artifacts: %{}}
+.
+13:04:58.081 [debug] Before compile hook for Elixir.Lux.Company.DSLTest.InvalidCompany2
+
+13:04:58.081 [debug] Storing artifact 'test_artifact' of type text/plain
+.
+13:04:58.081 [debug] Artifact options: [metadata: %{initial: "value"}]
+.
+13:04:58.081 [debug] Final company config: %Lux.Company{id: "fccde46f-dd00-4e18-9e7a-eebfbdf7df5e", name: "Missing mission", mission: nil, module: Lux.Company.DSLTest.InvalidCompany2, ceo: nil, signal_router: nil, agent_hub: nil, roles: [], objectives: [], metadata: %{}}
+
+13:04:58.081 [debug] Created artifact: %{id: "artifact_2959", name: "test_artifact", metadata: %{initial: "value"}, tags: [], content_type: "text/plain", content: "test content", step_id: nil, created_by: nil, created_at: ~U[2026-06-22 07:34:58.081118Z]}
+
+13:04:58.081 [debug] Updating metadata for artifact artifact_2959: %{new: "value"}
+
+13:04:58.081 [info] Agent Agent stopping poll in message 42 in chat 123456789
+
+13:04:58.081 [info] Agent TestAgent setting game score 100 for user 123456789
+
+13:04:58.081 [info] Successfully stopped poll in chat 123456789
+
+13:04:58.081 [info] Successfully set game score 100 for user 123456789
+
+13:04:58.081 [info] Agent TestAgent setting game score 100 for user 123456789
+
+13:04:58.082 [info] Successfully set game score 100 for user 123456789
+
+13:04:58.082 [info] Agent TestAgent setting game score 100 for user 123456789
+
+13:04:58.082 [info] Successfully set game score 100 for user 123456789
+........
+13:04:58.089 [info] Agent TestAgent sending video to chat 123456789
+
+13:04:58.089 [info] Successfully sent video to chat 123456789
+.
+13:04:58.089 [info] Agent TestAgent sending video to chat 123456789
+
+13:04:58.089 [info] Successfully sent video to chat 123456789
+.
+13:04:58.090 [info] Agent TestAgent sending video to chat 123456789
+
+13:04:58.090 [info] Successfully sent video to chat 123456789
+.
+13:04:58.090 [info] Agent TestAgent sending video to chat 123456789
+
+13:04:58.090 [info] Successfully sent video to chat 123456789
+.
+13:04:58.090 [info] Agent TestAgent sending video to chat 123456789
+....
+13:04:58.094 [debug] Using Lux.Company.DSL in Elixir.Lux.Company.DSLTest.InvalidCompany1
+
+13:04:58.094 [debug] Before compile hook for Elixir.Lux.Company.DSLTest.InvalidCompany1
+
+13:04:58.094 [debug] Final company config: %Lux.Company{id: "1945ea53-ce5d-4e65-9763-dd0d8f9c4698", name: nil, mission: "Missing name", module: Lux.Company.DSLTest.InvalidCompany1, ceo: nil, signal_router: nil, agent_hub: nil, roles: [], objectives: [], metadata: %{}}
+
+13:04:58.097 [info] Agent TestAgent editing caption of message 42 in chat 123456789
+...
+13:04:58.098 [info] Agent TestAgent editing caption of message 42 in chat 123456789
+
+13:04:58.098 [info] Successfully edited caption of message 42 in chat 123456789
+.
+13:04:58.098 [info] Agent TestAgent editing caption of inline message CAAqrxJRAqABAZaiqJ4sAJtvlCQI
+
+13:04:58.098 [info] Successfully edited caption of inline message CAAqrxJRAqABAZaiqJ4sAJtvlCQI
+.
+13:04:58.098 [info] Agent TestAgent editing caption of message 42 in chat 123456789
+
+13:04:58.098 [info] Successfully edited caption of message 42 in chat 123456789
+.....
+13:04:58.100 [info] Agent Unknown Agent deleting message 987654321098765432 from channel 123456789012345678
+
+13:04:58.100 [error] Failed to delete message 987654321098765432 from channel 123456789012345678: {:error, {403, "Missing Permissions"}}
+.
+13:04:58.100 [info] Agent Unknown Agent deleting message 987654321098765432 from channel 123456789012345678
+.
+13:04:58.100 [info] Successfully deleted message 987654321098765432 from channel 123456789012345678
+
+13:04:58.100 [debug] Company configuration: %Lux.Company{id: "d01809fa-7d0f-44da-b7fc-51603caff964", name: "Capability Test Team", mission: "Test capability-based task distribution", module: Test.Support.Companies.CapabilityTeam, ceo: %{id: "aed59c68-c000-4bb5-a0e5-ec07d8852ebb", name: "Project Director", type: :ceo, agent: Test.Support.Agents.ProjectDirector, capabilities: ["delegation", "planning", "management"], hub: nil, goal: "Oversee project execution and team coordination"}, signal_router: nil, agent_hub: nil, roles: [%{id: "0455d3aa-7cd7-421f-9c90-db6e353f47a8", name: "Writer", type: :member, agent: Test.Support.Agents.Writer, capabilities: ["content_creation", "editing", "writing"], hub: nil, goal: "Create and edit content"}, %{id: "92500bd2-bfe1-41e8-afb4-bb2ef30eac22", name: "Analyst", type: :member, agent: Test.Support.Agents.Analyst, capabilities: ["reporting", "data_processing", "analysis"], hub: nil, goal: "Analyze data and create reports"}, %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}], objectives: [%Lux.Company.Objective{id: "2d028c94-bf7f-43ce-b6a6-ecb9a4e43fec", name: :multi_capability_task, description: "A project requiring multiple capabilities", success_criteria: "All required capabilities are matched and tasks are distributed optimally", input_schema: %{required: ["title", "required_capabilities"], properties: %{"required_capabilities" => %{type: "array"}, "title" => %{type: "string"}}}, steps: ["Research Phase: Gather and analyze data", "Analysis Phase: Process and analyze findings", "Documentation Phase: Create final documentation"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+
+13:04:58.100 [debug] Researcher role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}
+....
+13:04:58.104 [info] Agent Test Agent editing text of message 42 in chat 123456789
+.
+13:04:58.104 [info] Successfully edited text of message 42 in chat 123456789
+
+13:04:58.105 [info] Agent Test Agent editing text of message 42 in chat 123456789
+
+13:04:58.105 [info] Successfully edited text of message 42 in chat 123456789
+.
+13:04:58.105 [info] Agent Test Agent editing text of inline message 123456789abcdef
+
+13:04:58.105 [info] Successfully edited text of inline message 123456789abcdef
+.
+13:04:58.105 [info] Agent Test Agent editing text of message 42 in chat 123456789
+
+13:04:58.105 [info] Successfully edited text of message 42 in chat 123456789
+.
+13:04:58.106 [info] Agent Test Agent editing text of message 999 in chat 123456789
+.
+13:04:58.106 [debug] Test context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+...
+13:04:58.111 [info] Analyzing task: Analysis Task
+.
+13:04:58.111 [debug] Task context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+.
+13:04:58.111 [debug] Task payload: %{"description" => "Analyze research data", "objective_id" => "c5434e55-f52a-4f37-9669-e7b756664f0f", "required_capabilities" => ["analysis"], "task_id" => "20c6b2e1-84e6-46d8-95b3-b148007a0f42", "title" => "Analysis Task", "type" => "assignment"}
+.
+13:04:58.111 [debug] Company configuration: %Lux.Company{id: "d01809fa-7d0f-44da-b7fc-51603caff964", name: "Capability Test Team", mission: "Test capability-based task distribution", module: Test.Support.Companies.CapabilityTeam, ceo: %{id: "aed59c68-c000-4bb5-a0e5-ec07d8852ebb", name: "Project Director", type: :ceo, agent: Test.Support.Agents.ProjectDirector, capabilities: ["delegation", "planning", "management"], hub: nil, goal: "Oversee project execution and team coordination"}, signal_router: nil, agent_hub: nil, roles: [%{id: "0455d3aa-7cd7-421f-9c90-db6e353f47a8", name: "Writer", type: :member, agent: Test.Support.Agents.Writer, capabilities: ["content_creation", "editing", "writing"], hub: nil, goal: "Create and edit content"}, %{id: "92500bd2-bfe1-41e8-afb4-bb2ef30eac22", name: "Analyst", type: :member, agent: Test.Support.Agents.Analyst, capabilities: ["reporting", "data_processing", "analysis"], hub: nil, goal: "Analyze data and create reports"}, %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}], objectives: [%Lux.Company.Objective{id: "2d028c94-bf7f-43ce-b6a6-ecb9a4e43fec", name: :multi_capability_task, description: "A project requiring multiple capabilities", success_criteria: "All required capabilities are matched and tasks are distributed optimally", input_schema: %{required: ["title", "required_capabilities"], properties: %{"required_capabilities" => %{type: "array"}, "title" => %{type: "string"}}}, steps: ["Research Phase: Gather and analyze data", "Analysis Phase: Process and analyze findings", "Documentation Phase: Create final documentation"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+.
+13:04:58.111 [debug] Researcher role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}
+.
+13:04:58.111 [debug] Test context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Test signal: %Lux.Signal{id: "029af802-fe53-43aa-bdd8-3e1c4a0a9062", payload: %{"description" => "Basic task with no special requirements", "objective_id" => "4c904efb-61cb-4541-8372-af93a6b084d5", "required_capabilities" => [], "task_id" => "78264af8-81b0-45d4-8122-328b89ed12e3", "title" => "Simple Task", "type" => "assignment"}, sender: "933980a3-4d77-49bf-a224-8342916407e5", recipient: nil, timestamp: nil, topic: nil, metadata: %{}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.112 [info] Analyzing task: Simple Task
+
+13:04:58.112 [debug] Task context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Task payload: %{"description" => "Basic task with no special requirements", "objective_id" => "4c904efb-61cb-4541-8372-af93a6b084d5", "required_capabilities" => [], "task_id" => "78264af8-81b0-45d4-8122-328b89ed12e3", "title" => "Simple Task", "type" => "assignment"}
+
+13:04:58.112 [debug] Handler response: %Lux.Signal{id: "33c2138e-ac34-418c-8ac5-9aa070e15c52", payload: %{"objective_id" => "4c904efb-61cb-4541-8372-af93a6b084d5", "result" => %{"success" => true, "used_capabilities" => []}, "status" => "completed", "task_id" => "78264af8-81b0-45d4-8122-328b89ed12e3", "type" => "completion"}, sender: nil, recipient: nil, timestamp: ~U[2026-06-22 07:34:58.112099Z], topic: nil, metadata: %{"agent_capabilities" => ["analysis", "data_collection", "research"]}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.112 [debug] Company configuration: %Lux.Company{id: "d01809fa-7d0f-44da-b7fc-51603caff964", name: "Capability Test Team", mission: "Test capability-based task distribution", module: Test.Support.Companies.CapabilityTeam, ceo: %{id: "aed59c68-c000-4bb5-a0e5-ec07d8852ebb", name: "Project Director", type: :ceo, agent: Test.Support.Agents.ProjectDirector, capabilities: ["delegation", "planning", "management"], hub: nil, goal: "Oversee project execution and team coordination"}, signal_router: nil, agent_hub: nil, roles: [%{id: "0455d3aa-7cd7-421f-9c90-db6e353f47a8", name: "Writer", type: :member, agent: Test.Support.Agents.Writer, capabilities: ["content_creation", "editing", "writing"], hub: nil, goal: "Create and edit content"}, %{id: "92500bd2-bfe1-41e8-afb4-bb2ef30eac22", name: "Analyst", type: :member, agent: Test.Support.Agents.Analyst, capabilities: ["reporting", "data_processing", "analysis"], hub: nil, goal: "Analyze data and create reports"}, %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}], objectives: [%Lux.Company.Objective{id: "2d028c94-bf7f-43ce-b6a6-ecb9a4e43fec", name: :multi_capability_task, description: "A project requiring multiple capabilities", success_criteria: "All required capabilities are matched and tasks are distributed optimally", input_schema: %{required: ["title", "required_capabilities"], properties: %{"required_capabilities" => %{type: "array"}, "title" => %{type: "string"}}}, steps: ["Research Phase: Gather and analyze data", "Analysis Phase: Process and analyze findings", "Documentation Phase: Create final documentation"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+
+13:04:58.112 [debug] Researcher role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}
+
+13:04:58.112 [debug] Test context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Test signal: %Lux.Signal{id: "0d1bcd28-bcd4-4889-bc71-96b2412c6bc3", payload: %{"description" => "Create UI mockups", "objective_id" => "27924e15-078c-4bd2-8256-dd9bdab9597b", "required_capabilities" => ["design", "ui"], "task_id" => "e354be60-2e01-40c1-af96-d628e2c4449e", "title" => "Design Task", "type" => "assignment"}, sender: "5c734000-a84a-4f54-bc38-c45844c047fe", recipient: nil, timestamp: nil, topic: nil, metadata: %{}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.112 [info] Analyzing task: Design Task
+
+13:04:58.112 [debug] Task context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Task payload: %{"description" => "Create UI mockups", "objective_id" => "27924e15-078c-4bd2-8256-dd9bdab9597b", "required_capabilities" => ["design", "ui"], "task_id" => "e354be60-2e01-40c1-af96-d628e2c4449e", "title" => "Design Task", "type" => "assignment"}
+
+13:04:58.112 [debug] Handler response: %Lux.Signal{id: "14d9b16f-7144-421f-a2e5-02206a397b3d", payload: %{"objective_id" => "27924e15-078c-4bd2-8256-dd9bdab9597b", "result" => %{"agent_capabilities" => ["analysis", "data_collection", "research"], "error" => "Agent lacks required capabilities", "required_capabilities" => ["design", "ui"], "success" => false}, "status" => "failed", "task_id" => "e354be60-2e01-40c1-af96-d628e2c4449e", "type" => "failure"}, sender: nil, recipient: nil, timestamp: ~U[2026-06-22 07:34:58.112327Z], topic: nil, metadata: %{}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.112 [debug] Company configuration: %Lux.Company{id: "d01809fa-7d0f-44da-b7fc-51603caff964", name: "Capability Test Team", mission: "Test capability-based task distribution", module: Test.Support.Companies.CapabilityTeam, ceo: %{id: "aed59c68-c000-4bb5-a0e5-ec07d8852ebb", name: "Project Director", type: :ceo, agent: Test.Support.Agents.ProjectDirector, capabilities: ["delegation", "planning", "management"], hub: nil, goal: "Oversee project execution and team coordination"}, signal_router: nil, agent_hub: nil, roles: [%{id: "0455d3aa-7cd7-421f-9c90-db6e353f47a8", name: "Writer", type: :member, agent: Test.Support.Agents.Writer, capabilities: ["content_creation", "editing", "writing"], hub: nil, goal: "Create and edit content"}, %{id: "92500bd2-bfe1-41e8-afb4-bb2ef30eac22", name: "Analyst", type: :member, agent: Test.Support.Agents.Analyst, capabilities: ["reporting", "data_processing", "analysis"], hub: nil, goal: "Analyze data and create reports"}, %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}], objectives: [%Lux.Company.Objective{id: "2d028c94-bf7f-43ce-b6a6-ecb9a4e43fec", name: :multi_capability_task, description: "A project requiring multiple capabilities", success_criteria: "All required capabilities are matched and tasks are distributed optimally", input_schema: %{required: ["title", "required_capabilities"], properties: %{"required_capabilities" => %{type: "array"}, "title" => %{type: "string"}}}, steps: ["Research Phase: Gather and analyze data", "Analysis Phase: Process and analyze findings", "Documentation Phase: Create final documentation"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+
+13:04:58.112 [debug] Researcher role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}
+
+13:04:58.112 [debug] Test context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Test signal: %Lux.Signal{id: "f20f6c3a-bf48-4982-8599-27661feb2277", payload: %{"description" => "Conduct research on testing", "objective_id" => "461cdd4b-f820-4618-a8f1-2c352b7eb5a2", "required_capabilities" => ["research", "analysis"], "task_id" => "ea7a3a1a-4831-4a46-a9a4-03bf55c9beb8", "title" => "Research Task", "type" => "assignment"}, sender: "7c1233bb-7c0b-4743-a2a1-8c50f229ea1d", recipient: nil, timestamp: nil, topic: nil, metadata: %{}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.112 [info] Analyzing task: Research Task
+
+13:04:58.112 [debug] Task context: %{role: %{id: "a5d1ad3b-dba5-4238-9ab9-dd7a4047eddb", name: "Researcher", type: :member, agent: Test.Support.Agents.Researcher, capabilities: ["analysis", "data_collection", "research"], hub: nil, goal: "Conduct research and data collection"}, agent: Test.Support.Agents.Researcher, template_opts: %{llm_opts: %{model: "test-model", temperature: 0.7}}}
+
+13:04:58.112 [debug] Task payload: %{"description" => "Conduct research on testing", "objective_id" => "461cdd4b-f820-4618-a8f1-2c352b7eb5a2", "required_capabilities" => ["research", "analysis"], "task_id" => "ea7a3a1a-4831-4a46-a9a4-03bf55c9beb8", "title" => "Research Task", "type" => "assignment"}
+
+13:04:58.112 [debug] Handler response: %Lux.Signal{id: "01483be0-f6a1-4bde-bc3f-490474bd16d8", payload: %{"objective_id" => "461cdd4b-f820-4618-a8f1-2c352b7eb5a2", "result" => %{"success" => true, "used_capabilities" => ["research", "analysis"]}, "status" => "completed", "task_id" => "ea7a3a1a-4831-4a46-a9a4-03bf55c9beb8", "type" => "completion"}, sender: nil, recipient: nil, timestamp: ~U[2026-06-22 07:34:58.112516Z], topic: nil, metadata: %{"agent_capabilities" => ["analysis", "data_collection", "research"]}, schema_id: Lux.Schemas.Companies.TaskSignal}
+
+13:04:58.115 [debug] Allora GetInference before_focus (topic): %{params: %{topic_id: 1}, url: "https://api.upshot.xyz/v2/allora/consumer/ethereum-11155111?allora_topic_id=1&inference_value_type=uint256"}
+.
+13:04:58.115 [debug] Allora GetInference before_focus (price): %{params: %{asset: "BTC", timeframe: "5m"}, url: "https://api.upshot.xyz/v2/allora/consumer/price/ethereum-11155111/BTC/5m"}
+
+13:04:58.115 [debug] Allora GetInference after_focus success: %{"data" => %{"inference_data" => %{"confidence_interval_percentiles" => ["0.1", "0.5", "0.9"], "confidence_interval_percentiles_normalized" => ["0.1", "0.5", "0.9"], "confidence_interval_values" => ["49000000000", "50000000000", "51000000000"], "confidence_interval_values_normalized" => ["49000.0", "50000.0", "51000.0"], "extra_data" => "", "network_inference" => "50000000000", "network_inference_normalized" => "50000.0", "timestamp" => 1679529600, "topic_id" => "btc_5m"}, "signature" => "0xdef456"}}
+.
+13:04:58.115 [info] Successfully fetched inference data from Allora API (chain_id: allora-testnet-1, topic_id: btc_5m, timestamp: 1679529600)
+
+13:04:58.116 [debug] Allora GetInference before_focus (topic): %{params: %{topic_id: 1}, url: "https://api.upshot.xyz/v2/allora/consumer/ethereum-11155111?allora_topic_id=1&inference_value_type=uint256"}
+
+13:04:58.116 [debug] Allora GetInference after_focus success: %{"data" => %{"inference_data" => %{"confidence_interval_percentiles" => ["0.1", "0.5", "0.9"], "confidence_interval_percentiles_normalized" => ["0.1", "0.5", "0.9"], "confidence_interval_values" => ["1200000000", "1234567890", "1300000000"], "confidence_interval_values_normalized" => ["0.12", "0.12345", "0.13"], "extra_data" => "", "network_inference" => "1234567890", "network_inference_normalized" => "0.12345", "timestamp" => 1679529600, "topic_id" => "1"}, "signature" => "0xabc123"}}
+
+13:04:58.116 [info] Successfully fetched inference data from Allora API (chain_id: allora-testnet-1, topic_id: 1, timestamp: 1679529600)
+.*.............
+13:04:58.140 [info] Agent TestAgent sending message with inline keyboard to chat 123456789
+..
+13:04:58.141 [info] Agent TestAgent sending message with inline keyboard to chat 123456789
+.
+13:04:58.141 [info] Successfully sent message with inline keyboard to chat 123456789
+.
+13:04:58.141 [info] Agent TestAgent sending message with inline keyboard to chat 123456789
+.
+13:04:58.141 [info] Successfully sent message with inline keyboard to chat 123456789
+...........
+13:04:58.154 [info] Agent TestAgent sending game 'non_existent_game' to chat 123456789
+....
+13:04:58.154 [info] Agent TestAgent sending game 'tetris' to chat 123456789
+
+13:04:58.155 [info] Successfully sent game 'tetris' to chat 123456789
+.
+13:04:58.155 [info] Agent TestAgent sending game 'tetris' to chat 123456789
+
+13:04:58.155 [info] Successfully sent game 'tetris' to chat 123456789
+...
+13:04:58.160 [info] Agent TestAgent sending media group to chat 123456789
+....
+13:04:58.160 [info] Agent TestAgent sending media group to chat 123456789
+
+13:04:58.160 [info] Successfully sent media group to chat 123456789
+.
+13:04:58.160 [info] Agent TestAgent sending media group to chat 123456789
+
+13:04:58.160 [info] Successfully sent media group to chat 123456789
+...........
+13:04:58.186 [info] Successfully fetched 1 topics from Allora API (chain_id: allora-testnet-1)
+.......
+13:04:58.194 [info] Agent TestAgent sending voice message to chat 123456789
+.
+13:04:58.194 [info] Successfully sent voice message to chat 123456789
+.
+13:04:58.194 [info] Agent TestAgent sending voice message to chat 123456789
+
+13:04:58.195 [info] Successfully sent voice message to chat 123456789
+.
+13:04:58.195 [info] Agent TestAgent sending voice message to chat 123456789
+..
+13:04:58.195 [info] Successfully sent voice message to chat 123456789
+
+13:04:58.195 [info] Agent TestAgent sending voice message to chat 123456789
+.
+13:04:58.195 [info] Successfully sent voice message to chat 123456789
+
+13:04:58.195 [info] Agent TestAgent sending voice message to chat 123456789
+.
+13:04:58.196 [info] Agent Unknown Agent creating thread without message in channel 123456789012345678
+
+13:04:58.196 [error] Failed to create thread in channel 123456789012345678: {:error, {403, "Missing Permissions"}}
+.
+13:04:58.196 [info] Agent Unknown Agent creating thread without message in channel 123456789012345678
+.
+13:04:58.196 [info] Successfully created thread 111111111111111111 in channel 123456789012345678
+
+13:04:58.196 [info] Agent Unknown Agent creating thread from message 987654321098765432 in channel 123456789012345678
+.
+13:04:58.196 [info] Successfully created thread 111111111111111111 in channel 123456789012345678
+...
+
+  1) test handler/2 handles invalid network (Lux.Prisms.EthBalancePrismTest)
+     test/unit/lux/prisms/eth_balance_prism_test.exs:41
+     Expected truthy, got false
+     code: assert String.contains?(error, "Invalid network: invalid_network")
+     arguments:
+
+         # 1
+         "Failed to import Web3: No module named 'web3'"
+
+         # 2
+         "Invalid network: invalid_network"
+
+     stacktrace:
+       test/unit/lux/prisms/eth_balance_prism_test.exs:48: (test)
+
+
+
+  2) test handler/2 handles invalid address format (Lux.Prisms.EthBalancePrismTest)
+     test/unit/lux/prisms/eth_balance_prism_test.exs:31
+     Expected truthy, got false
+     code: assert String.contains?(error, "Failed to get balance")
+     arguments:
+
+         # 1
+         "Failed to import Web3: No module named 'web3'"
+
+         # 2
+         "Failed to get balance"
+
+     stacktrace:
+       test/unit/lux/prisms/eth_balance_prism_test.exs:38: (test)
+
+    warning: unused require Lux.Lens
+    │
+  9 │   require Lux.Lens
+    │   ~
+    │
+    └─ test/unit/lux/llm/together_ai_test.exs:9:3
+
+
+13:04:58.229 [info] Agent TestAgent stopping live location for message_id: 42 in chat: 123456789
+
+13:04:58.230 [info] Agent TestAgent stopping live location for message_id: 42 in chat: 123456789
+
+13:04:58.230 [info] Successfully stopped live location for message_id: 42 in chat: 123456789
+
+13:04:58.230 [info] Agent TestAgent stopping live location for inline_message: CAAqrxJRAqABAZaiqJ4sAJtvlCQI
+
+13:04:58.230 [info] Successfully stopped live location for inline_message: CAAqrxJRAqABAZaiqJ4sAJtvlCQI
+
+13:04:58.230 [info] Agent TestAgent stopping live location for message_id: 42 in chat: 123456789
+
+13:04:58.230 [info] Successfully stopped live location for message_id: 42 in chat: 123456789
+
+
+  3) test handler/2 defaults to mainnet when network not specified (Lux.Prisms.EthBalancePrismTest)
+     test/unit/lux/prisms/eth_balance_prism_test.exs:21
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import Web3: No module named 'web3'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/eth_balance_prism_test.exs:22: (test)
+
+
+
+  4) test handler/2 checks balance of a valid address (Lux.Prisms.EthBalancePrismTest)
+     test/unit/lux/prisms/eth_balance_prism_test.exs:9
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import Web3: No module named 'web3'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/eth_balance_prism_test.exs:10: (test)
+
+.....................
+
+  5) test handler/2 handles text with emojis (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:58
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:59: (test)
+
+.
+
+  6) test handler/2 defaults to English when no language is specified (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:81
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:82: (test)
+
+
+
+  7) test handler/2 handles empty text gracefully (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:46
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:47: (test)
+
+
+
+  8) test handler/2 analyzes neutral sentiment correctly (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:33
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:34: (test)
+
+
+
+  9) test handler/2 analyzes negative sentiment correctly (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:20
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:21: (test)
+
+
+
+ 10) test handler/2 analyzes positive sentiment correctly (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:7
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:8: (test)
+
+..
+
+ 11) test handler/2 handles text with mixed sentiments (Lux.Prisms.SentimentAnalysisPrismTest)
+     test/unit/lux/prisms/sentiment_analysis_prism_test.exs:70
+     ** (MatchError) no match of right hand side value:
+
+         {:error, "Failed to import NLTK: No module named 'nltk'"}
+
+     code: {:ok, result} =
+     stacktrace:
+       test/unit/lux/prisms/sentiment_analysis_prism_test.exs:71: (test)
+
+...............
+13:04:58.272 [info] Agent TestAgent answering inline query 123456789
+..
+13:04:58.273 [info] Agent TestAgent answering inline query 123456789
+
+13:04:58.273 [info] Successfully answered inline query 123456789
+.
+13:04:58.273 [info] Agent TestAgent answering inline query 123456789
+
+13:04:58.273 [info] Successfully answered inline query 123456789
+........
+13:04:58.285 [info] Agent Unknown Agent editing message 987654321098765432 in channel 123456789012345678
+
+13:04:58.286 [error] Failed to edit message 987654321098765432 in channel 123456789012345678: {:error, {403, "Missing Permissions"}}
+.
+13:04:58.286 [info] Agent Unknown Agent editing message 987654321098765432 in channel 123456789012345678
+
+13:04:58.286 [info] Successfully edited message 987654321098765432 in channel 123456789012345678
+..
+13:04:58.298 [info] Starting AgentHub with name: :agent_hub_2195
+
+13:04:58.298 [info] Initializing AgentHub with options: [name: :agent_hub_2195]
+......
+13:04:58.298 [debug] Registering agent "agent-1" with capabilities ["research", "analysis"] in hub :agent_hub_2195
+
+13:04:58.298 [debug] Hub handling register request for agent: "agent-1"
+
+13:04:58.298 [debug] Agent registered successfully with info: %{pid: #PID<0.2131.0>, status: :available, agent: %{id: "agent-1", name: "Test Agent", capabilities: ["research", "analysis"]}, capabilities: ["research", "analysis"], last_updated: ~U[2026-06-22 07:34:58.298756Z]}
+
+13:04:58.298 [debug] Received DOWN message for process #PID<0.2131.0> with reason: :shutdown
+
+13:04:58.299 [info] Starting AgentHub with name: :agent_hub_4754
+
+13:04:58.299 [info] Initializing AgentHub with options: [name: :agent_hub_4754]
+
+13:04:58.299 [debug] Registering agent "agent-1" with capabilities ["research", "analysis"] in hub :agent_hub_4754
+
+13:04:58.299 [debug] Hub handling register request for agent: "agent-1"
+
+13:04:58.299 [debug] Agent registered successfully with info: %{pid: #PID<0.2145.0>, status: :available, agent: %{id: "agent-1", name: "Test Agent", capabilities: ["research", "analysis"]}, capabilities: ["research", "analysis"], last_updated: ~U[2026-06-22 07:34:58.299068Z]}
+
+13:04:58.299 [debug] Evaluating objective with context: %{hub: :agent_hub_4754, prisms: [], beams: [], lenses: []}
+
+13:04:58.299 [debug] Evaluating next step with context: %{hub: :agent_hub_4754, prisms: [], beams: [], lenses: []}
+
+13:04:58.299 [debug] Required capabilities for next step: ["research"]
+
+13:04:58.299 [debug] Looking for hub in context: :agent_hub_4754
+
+13:04:58.299 [debug] Found hub: :agent_hub_4754
+
+13:04:58.299 [debug] Listing all agents in hub :agent_hub_4754
+
+13:04:58.299 [debug] Hub handling list_agents request, found 1 agents
+
+13:04:58.299 [debug] Found agents: [%{pid: #PID<0.2145.0>, status: :available, agent: %{id: "agent-1", name: "Test Agent", capabilities: ["research", "analysis"]}, capabilities: ["research", "analysis"], last_updated: ~U[2026-06-22 07:34:58.299068Z]}]
+
+13:04:58.299 [debug] Found matching agent: agent-1
+.
+13:04:58.299 [debug] Evaluation successful: %{"assigned_agent" => "agent-1", "decision" => "continue", "next_step_index" => 0, "reasoning" => "Selected agent with matching capabilities for next step", "required_capabilities" => ["research"]}
+.
+13:04:58.299 [info] Starting AgentHub with name: :agent_hub_4625
+.
+13:04:58.299 [info] Initializing AgentHub with options: [name: :agent_hub_4625]
+.
+13:04:58.299 [debug] Registering agent "agent-1" with capabilities ["research", "analysis"] in hub :agent_hub_4625
+.
+13:04:58.299 [debug] Hub handling register request for agent: "agent-1"
+.
+13:04:58.299 [debug] Agent registered successfully with info: %{pid: #PID<0.2153.0>, status: :available, agent: %{id: "agent-1", name: "Test Agent", capabilities: ["research", "analysis"]}, capabilities: ["research", "analysis"], last_updated: ~U[2026-06-22 07:34:58.299484Z]}
+..
+13:04:58.304 [info] Starting AgentHub with name: :test_hub_4868
+
+13:04:58.304 [info] Initializing AgentHub with options: [name: :test_hub_4868]
+    warning: unused require Logger
+    │
+  7 │   require Logger
+    │   ~
+    │
+    └─ test/unit/lux/signal/router/local_test.exs:7:3
+
+.
+13:04:58.308 [info] Starting Local Router with name: :test_router_4868
+
+13:04:58.308 [info] Initializing Local Router with options: [name: :test_router_4868]
+
+13:04:58.308 [debug] Registering agent "a8244ab2-0d4b-4d67-9ec6-1654c6023681" with capabilities [:test, :research] in hub :test_hub_4868
+
+13:04:58.308 [debug] Hub handling register request for agent: "a8244ab2-0d4b-4d67-9ec6-1654c6023681"
+
+13:04:58.308 [debug] Agent registered successfully with info: %{pid: #PID<0.2216.0>, status: :available, agent: %Lux.Agent{id: "a8244ab2-0d4b-4d67-9ec6-1654c6023681", template: nil, template_opts: %{}, name: :agent1_4868, description: "A test agent", goal: "Help with testing", module: Lux.Signal.Router.LocalTest.TestAgent1, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test, :research], last_updated: ~U[2026-06-22 07:34:58.308417Z]}
+
+13:04:58.308 [debug] Registering agent "aedf8d32-02b6-43e7-8539-76b71517034b" with capabilities [:test, :writing] in hub :test_hub_4868
+
+13:04:58.308 [debug] Hub handling register request for agent: "aedf8d32-02b6-43e7-8539-76b71517034b"
+
+13:04:58.308 [debug] Agent registered successfully with info: %{pid: #PID<0.2217.0>, status: :available, agent: %Lux.Agent{id: "aedf8d32-02b6-43e7-8539-76b71517034b", template: nil, template_opts: %{}, name: :agent2_4868, description: "A test agent", goal: "Help with testing", module: Lux.Signal.Router.LocalTest.TestAgent2, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test, :writing], last_updated: ~U[2026-06-22 07:34:58.308674Z]}
+
+13:04:58.308 [debug] Subscribing to signal test_signal on router :test_router_4868
+
+13:04:58.308 [debug] Router handling subscribe request for signal test_signal from #PID<0.2195.0>
+
+13:04:58.308 [debug] Received DOWN message for process #PID<0.2216.0> with reason: :killed
+
+13:04:58.313 [debug] Marking agent "a8244ab2-0d4b-4d67-9ec6-1654c6023681" as offline
+........
+13:04:58.346 [info] Agent TestAgent sending photo to chat 123456789
+
+13:04:58.346 [info] Successfully sent photo to chat 123456789
+.
+13:04:58.346 [info] Agent TestAgent sending photo to chat 123456789
+
+13:04:58.346 [info] Successfully sent photo to chat 123456789
+.
+13:04:58.347 [info] Agent TestAgent sending photo to chat 123456789
+
+13:04:58.347 [info] Successfully sent photo to chat 123456789
+.
+13:04:58.347 [info] Agent TestAgent sending photo to chat 123456789
+
+13:04:58.347 [info] Successfully sent photo to chat 123456789
+.
+13:04:58.347 [info] Agent TestAgent sending photo to chat 123456789
+.....
+13:04:58.358 [info] Agent TestAgent copying 3 messages from chat 987654321 to chat 123456789
+
+13:04:58.358 [info] Agent TestAgent copying 3 messages from chat 987654321 to chat 123456789
+
+13:04:58.358 [info] Successfully copied 3 messages from chat 987654321 to chat 123456789
+
+13:04:58.359 [info] Agent TestAgent copying 3 messages from chat 987654321 to chat 123456789
+
+13:04:58.359 [info] Successfully copied 3 messages from chat 987654321 to chat 123456789
+
+
+ 12) test web3 integration loads and uses web3 libraries (Lux.PythonTest)
+     test/unit/lux/python_test.exs:164
+     match (=) failed
+     code:  assert {:ok, %{"success" => true}} = Lux.Python.import_package("web3")
+     left:  {:ok, %{"success" => true}}
+     right: {:ok, %{"error" => "No module named 'web3'", "success" => false}}
+     stacktrace:
+       test/unit/lux/python_test.exs:166: (test)
+
+..................
+13:04:58.363 [info] Agent TestAgent forwarding message 42 from chat 987654321 to chat 123456789
+..
+13:04:58.363 [info] Agent TestAgent forwarding message 42 from chat 987654321 to chat 123456789
+
+13:04:58.363 [info] Successfully forwarded message 42 from chat 987654321 to chat 123456789
+.
+13:04:58.363 [info] Agent TestAgent forwarding message 42 from chat 987654321 to chat 123456789
+.
+13:04:58.363 [info] Successfully forwarded message 42 from chat 987654321 to chat 123456789
+...............................
+13:04:58.394 [info] Agent Unknown Agent pinning message 987654321098765432 in channel 123456789012345678
+
+13:04:58.394 [error] Failed to pin message 987654321098765432 in channel 123456789012345678: {403, "Missing Permissions"}
+.
+13:04:58.395 [info] Agent Unknown Agent pinning message 987654321098765432 in channel 123456789012345678
+.
+13:04:58.395 [info] Successfully pinned message 987654321098765432 in channel 123456789012345678
+
+13:04:58.397 [info] Agent Unknown Agent creating channel test-channel in guild 123456789012345678
+
+13:04:58.398 [error] Failed to create channel in guild 123456789012345678: {403, "Missing Permissions"}
+.
+13:04:58.398 [info] Agent Unknown Agent creating channel test-channel in guild 123456789012345678
+
+13:04:58.398 [info] Successfully created channel 111111111111111111 in guild 123456789012345678
+...
+13:04:58.408 [info] Agent TestAgent sending sticker to chat 123456789
+..
+13:04:58.409 [info] Agent TestAgent sending sticker to chat 123456789
+.
+13:04:58.409 [debug] Routing signal through router :test_router_4868 to hub :test_hub_4868
+
+13:04:58.409 [info] Successfully sent sticker to chat 123456789
+.
+13:04:58.409 [debug] Signal: %Lux.Signal{
+  id: "test_signal",
+  payload: %{data: "test message", type: :text},
+  sender: "sender",
+  recipient: "a8244ab2-0d4b-4d67-9ec6-1654c6023681",
+  timestamp: ~U[2026-06-22 07:34:58.308732Z],
+  topic: nil,
+  metadata: %{},
+  schema_id: nil
+}
+.
+13:04:58.409 [debug] Router handling route request for signal: "test_signal"
+
+13:04:58.409 [debug] Getting info for agent "a8244ab2-0d4b-4d67-9ec6-1654c6023681" from hub :test_hub_4868
+
+13:04:58.409 [debug] Hub handling get_agent_info request for agent: "a8244ab2-0d4b-4d67-9ec6-1654c6023681"
+
+13:04:58.409 [debug] Found agent info: %{pid: #PID<0.2216.0>, status: :offline, agent: %Lux.Agent{id: "a8244ab2-0d4b-4d67-9ec6-1654c6023681", template: nil, template_opts: %{}, name: :agent1_4868, description: "A test agent", goal: "Help with testing", module: Lux.Signal.Router.LocalTest.TestAgent1, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test, :research], last_updated: ~U[2026-06-22 07:34:58.313880Z]}
+
+13:04:58.409 [debug] Signal delivery results: [{:error, %{pid: #PID<0.2216.0>, status: :offline, agent: %Lux.Agent{id: "a8244ab2-0d4b-4d67-9ec6-1654c6023681", template: nil, template_opts: %{}, name: :agent1_4868, description: "A test agent", goal: "Help with testing", module: Lux.Signal.Router.LocalTest.TestAgent1, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test, :research], last_updated: ~U[2026-06-22 07:34:58.313880Z]}, :process_not_alive}]
+
+13:04:58.409 [info] Agent TestAgent sending sticker to chat 123456789
+
+13:04:58.409 [info] Successfully sent sticker to chat 123456789
+...
+13:04:58.416 [info] Agent TestAgent sending audio to chat 123456789
+
+13:04:58.417 [info] Successfully sent audio to chat 123456789
+..
+13:04:58.418 [info] Agent TestAgent sending audio to chat 123456789
+.
+13:04:58.418 [info] Successfully sent audio to chat 123456789
+.
+13:04:58.418 [info] Agent TestAgent sending audio to chat 123456789
+.
+13:04:58.418 [info] Successfully sent audio to chat 123456789
+.
+13:04:58.418 [info] Agent TestAgent sending audio to chat 123456789
+
+13:04:58.418 [info] Successfully sent audio to chat 123456789
+
+13:04:58.418 [info] Agent TestAgent sending audio to chat 123456789
+
+13:04:58.432 [info] Starting AgentHub with name: :hub_2896
+
+13:04:58.432 [info] Initializing AgentHub with options: [name: :hub_2896]
+.
+13:04:58.432 [debug] Registering agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" with capabilities [:test] in hub :hub_2896
+
+13:04:58.432 [debug] Hub handling register request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+.
+13:04:58.432 [debug] Agent registered successfully with info: %{pid: #PID<0.2753.0>, status: :available, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_2960, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432135Z]}
+
+13:04:58.432 [debug] Updating status for agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" to :busy in hub :hub_2896
+
+13:04:58.432 [debug] Hub handling status update for agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" to :busy
+
+13:04:58.432 [debug] Agent status updated successfully: %{pid: #PID<0.2753.0>, status: :busy, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_2960, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432194Z]}
+.
+13:04:58.432 [debug] Getting info for agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" from hub :hub_2896
+
+13:04:58.432 [debug] Hub handling get_agent_info request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+
+13:04:58.432 [debug] Found agent info: %{pid: #PID<0.2753.0>, status: :busy, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_2960, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432194Z]}
+
+13:04:58.432 [info] Starting AgentHub with name: :test_hub_3654
+
+13:04:58.432 [info] Initializing AgentHub with options: [name: :test_hub_3654]
+
+13:04:58.432 [debug] Registering agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" with capabilities [:test] in hub :test_hub_3654
+
+13:04:58.432 [debug] Hub handling register request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+
+13:04:58.432 [debug] Agent registered successfully with info: %{pid: #PID<0.2757.0>, status: :available, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_3718, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432441Z]}
+
+13:04:58.432 [debug] Listing all agents in hub :test_hub_3654
+
+13:04:58.432 [debug] Hub handling list_agents request, found 1 agents
+.
+13:04:58.432 [debug] Received DOWN message for process #PID<0.2757.0> with reason: :shutdown
+
+13:04:58.432 [debug] Marking agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" as offline
+
+13:04:58.432 [info] Starting AgentHub with name: :hub1_3782
+
+13:04:58.432 [info] Initializing AgentHub with options: [name: :hub1_3782]
+
+13:04:58.432 [info] Starting AgentHub with name: :hub2_3846
+
+13:04:58.432 [info] Initializing AgentHub with options: [name: :hub2_3846]
+
+13:04:58.432 [debug] Registering agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" with capabilities [:test] in hub :hub1_3782
+
+13:04:58.432 [debug] Hub handling register request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+
+13:04:58.432 [debug] Agent registered successfully with info: %{pid: #PID<0.2762.0>, status: :available, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_3910, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432689Z]}
+
+13:04:58.432 [debug] Listing all agents in hub :hub1_3782
+
+13:04:58.432 [debug] Hub handling list_agents request, found 1 agents
+
+13:04:58.432 [debug] Listing all agents in hub :hub2_3846
+
+13:04:58.432 [debug] Hub handling list_agents request, found 0 agents
+
+13:04:58.432 [debug] Registering agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" with capabilities [:other] in hub :hub2_3846
+
+13:04:58.432 [debug] Hub handling register request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+
+13:04:58.432 [debug] Agent registered successfully with info: %{pid: #PID<0.2762.0>, status: :available, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_3910, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:other], last_updated: ~U[2026-06-22 07:34:58.432790Z]}
+
+13:04:58.432 [debug] Listing all agents in hub :hub1_3782
+
+13:04:58.432 [debug] Hub handling list_agents request, found 1 agents
+
+13:04:58.432 [debug] Listing all agents in hub :hub2_3846
+
+13:04:58.432 [debug] Hub handling list_agents request, found 1 agents
+
+13:04:58.432 [debug] Received DOWN message for process #PID<0.2762.0> with reason: :shutdown
+
+13:04:58.432 [info] Starting AgentHub with name: :hub_3974
+
+13:04:58.432 [info] Initializing AgentHub with options: [name: :hub_3974]
+
+13:04:58.432 [debug] Registering agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" with capabilities [:test] in hub :hub_3974
+
+13:04:58.432 [debug] Hub handling register request for agent: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d"
+
+13:04:58.433 [debug] Agent registered successfully with info: %{pid: #PID<0.2767.0>, status: :available, agent: %Lux.Agent{id: "f0c35f20-51b4-4c7e-9122-dcdf5d50997d", template: nil, template_opts: %{}, name: :test_agent_4038, description: "A test agent", goal: "Help with testing", module: Lux.AgentHubTest.TestAgent, prisms: [], beams: [], lenses: [], accepts_signals: [], memory_config: nil, memory_pid: nil, scheduled_actions: [], signal_handlers: [], llm_config: %{}}, capabilities: [:test], last_updated: ~U[2026-06-22 07:34:58.432984Z]}
+
+13:04:58.433 [debug] Received DOWN message for process #PID<0.2767.0> with reason: :normal
+
+13:04:58.433 [debug] Marking agent "f0c35f20-51b4-4c7e-9122-dcdf5d50997d" as offline
+
+
+ 13) test focus/2 handles empty models list (Lux.Lenses.Ollama.ListModelsTest)
+     test/unit/lux/lenses/ollama/list_models_test.exs:99
+     ** (FunctionClauseError) no function clause matching in Lux.Lens.authenticate/1
+
+     The following arguments were given to Lux.Lens.authenticate/1:
+
+         # 1
+         %Lux.Lens{after_focus: &Lux.Lenses.Ollama.ListModels.after_focus/1, name: "List Ollama Models", module_name: "Lux.Lenses.Ollama.ListModels", url: "http://localhost:11434/api/tags", method: :get, params: %{}, headers: [{"Content-Type", "application/json"}], auth: %{}, description: "Lists all available models on the Ollama instance", schema: %{type: :object, required: [], properties: %{}}}
+
+     Attempted function clauses (showing 6 out of 6):
+
+         def authenticate(-%Lux.Lens{auth: nil} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_binary(key)-
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_function(key, 0)-
+         def authenticate(-%Lux.Lens{auth: %{type: :basic, username: username, password: password}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :oauth, token: token}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :custom, auth_function: func}} = lens-)
+
+     code: assert {:ok, []} = ListModels.focus(%{}, %{})
+     stacktrace:
+       (lux 0.5.0) lib/lux/lens.ex:170: Lux.Lens.authenticate/1
+       (lux 0.5.0) lib/lux/lenses/ollama/list_models.ex:21: Lux.Lenses.Ollama.ListModels.focus/2
+       test/unit/lux/lenses/ollama/list_models_test.exs:108: (test)
+
+
+
+ 14) test focus/2 handles Ollama API error (Lux.Lenses.Ollama.ListModelsTest)
+     test/unit/lux/lenses/ollama/list_models_test.exs:82
+     ** (FunctionClauseError) no function clause matching in Lux.Lens.authenticate/1
+
+     The following arguments were given to Lux.Lens.authenticate/1:
+
+         # 1
+         %Lux.Lens{after_focus: &Lux.Lenses.Ollama.ListModels.after_focus/1, name: "List Ollama Models", module_name: "Lux.Lenses.Ollama.ListModels", url: "http://localhost:11434/api/tags", method: :get, params: %{}, headers: [{"Content-Type", "application/json"}], auth: %{}, description: "Lists all available models on the Ollama instance", schema: %{type: :object, required: [], properties: %{}}}
+
+     Attempted function clauses (showing 6 out of 6):
+
+         def authenticate(-%Lux.Lens{auth: nil} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_binary(key)-
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_function(key, 0)-
+         def authenticate(-%Lux.Lens{auth: %{type: :basic, username: username, password: password}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :oauth, token: token}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :custom, auth_function: func}} = lens-)
+
+     code: assert {:error, _} = ListModels.focus(%{}, %{})
+     stacktrace:
+       (lux 0.5.0) lib/lux/lens.ex:170: Lux.Lens.authenticate/1
+       (lux 0.5.0) lib/lux/lenses/ollama/list_models.ex:21: Lux.Lenses.Ollama.ListModels.focus/2
+       test/unit/lux/lenses/ollama/list_models_test.exs:96: (test)
+
+
+
+ 15) test focus/2 successfully lists models (Lux.Lenses.Ollama.ListModelsTest)
+     test/unit/lux/lenses/ollama/list_models_test.exs:18
+     ** (FunctionClauseError) no function clause matching in Lux.Lens.authenticate/1
+
+     The following arguments were given to Lux.Lens.authenticate/1:
+
+         # 1
+         %Lux.Lens{after_focus: &Lux.Lenses.Ollama.ListModels.after_focus/1, name: "List Ollama Models", module_name: "Lux.Lenses.Ollama.ListModels", url: "http://localhost:11434/api/tags", method: :get, params: %{}, headers: [{"Content-Type", "application/json"}], auth: %{}, description: "Lists all available models on the Ollama instance", schema: %{type: :object, required: [], properties: %{}}}
+
+     Attempted function clauses (showing 6 out of 6):
+
+         def authenticate(-%Lux.Lens{auth: nil} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_binary(key)-
+         def authenticate(-%Lux.Lens{auth: %{type: :api_key, key: key}} = lens-) when -is_function(key, 0)-
+         def authenticate(-%Lux.Lens{auth: %{type: :basic, username: username, password: password}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :oauth, token: token}} = lens-)
+         def authenticate(-%Lux.Lens{auth: %{type: :custom, auth_function: func}} = lens-)
+
+     code: ]} = ListModels.focus(%{}, %{})
+     stacktrace:
+       (lux 0.5.0) lib/lux/lens.ex:170: Lux.Lens.authenticate/1
+       (lux 0.5.0) lib/lux/lenses/ollama/list_models.ex:21: Lux.Lenses.Ollama.ListModels.focus/2
+       test/unit/lux/lenses/ollama/list_models_test.exs:79: (test)
+
+....
+13:04:58.442 [info] Agent TestAgent sending document to chat 123456789
+
+13:04:58.442 [info] Successfully sent document to chat 123456789
+.
+13:04:58.442 [info] Agent TestAgent sending document to chat 123456789
+.
+13:04:58.442 [info] Successfully sent document to chat 123456789
+
+13:04:58.442 [info] Agent TestAgent sending document to chat 123456789
+
+13:04:58.443 [info] Successfully sent document to chat 123456789
+.
+13:04:58.443 [info] Agent TestAgent sending document to chat 123456789
+
+13:04:58.443 [info] Successfully sent document to chat 123456789
+.
+13:04:58.443 [info] Agent TestAgent sending document to chat 123456789
+.........
+13:04:58.453 [info] Agent TestAgent sending animation to chat 123456789
+..
+13:04:58.453 [info] Agent TestAgent sending animation to chat 123456789
+.....................................................................................    warning: comparison between distinct types found:
+
+        started.started_at == nil
+
+    given types:
+
+        dynamic(%DateTime{}) == nil
+
+    where "started" was given the type:
+
+        # type: dynamic(%Lux.Company.Objective{
+          status: :in_progress,
+          assigned_agents: not empty_list(),
+          started_at: %DateTime{}
+        })
+        # from: test/unit/lux/company/objectives_test.exs:83
+        {started} =
+          case right do
+            ...
+          end
+
+    While Elixir can compare across all types, you are comparing across types which are always disjoint, and the result is either always true or always false
+
+    type warning found at:
+    │
+ 85 │       refute is_nil(started.started_at)
+    │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    │
+    └─ test/unit/lux/company/objectives_test.exs:85: Lux.Company.ObjectivesTest."test start/1 starts an objective with assigned agents"/1
+
+     warning: comparison between distinct types found:
+
+         completed.completed_at == nil
+
+     given types:
+
+         dynamic(%DateTime{}) == nil
+
+     where "completed" was given the type:
+
+         # type: dynamic(%Lux.Company.Objective{
+           status: :completed,
+           progress: integer(),
+           completed_at: %DateTime{}
+         })
+         # from: test/unit/lux/company/objectives_test.exs:139
+         {completed} =
+           case right do
+             ...
+           end
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the result is either always true or always false
+
+     type warning found at:
+     │
+ 142 │       refute is_nil(completed.completed_at)
+     │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/unit/lux/company/objectives_test.exs:142: Lux.Company.ObjectivesTest."test complete/1 completes an in-progress objective"/1
+
+     warning: comparison between distinct types found:
+
+         failed.completed_at == nil
+
+     given types:
+
+         dynamic(%DateTime{}) == nil
+
+     where "failed" was given the type:
+
+         # type: dynamic(%Lux.Company.Objective{
+           status: :failed,
+           completed_at: %DateTime{},
+           metadata: %{..., failure_reason: term()}
+         })
+         # from: test/unit/lux/company/objectives_test.exs:172
+         {failed} =
+           case right do
+             ...
+           end
+
+     While Elixir can compare across all types, you are comparing across types which are always disjoint, and the result is either always true or always false
+
+     type warning found at:
+     │
+ 174 │       refute is_nil(failed.completed_at)
+     │       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     │
+     └─ test/unit/lux/company/objectives_test.exs:174: Lux.Company.ObjectivesTest."test fail/2 fails an in-progress objective"/1
+
+..     warning: expected a map or struct when accessing .error in expression:
+
+         status.error
+
+     where "status" was given the type:
+
+         # type: dynamic(:failed)
+         # from: test/integration/company/content_team_test.exs:154:17
+         status == :failed
+
+     hint: "var.field" (without parentheses) means "var" is a map() while "var.fun()" (with parentheses) means "var" is an atom()
+
+     type warning found at:
+     │
+ 155 │         assert status.error != nil
+     │                       ~
+     │
+     └─ test/integration/company/content_team_test.exs:155:23: Lux.Integration.Company.ContentTeamTest."test content creation workflow handles agent failures gracefully"/1
+
+     warning: Code.ensure_compiled?/1 is deprecated. Use Code.ensure_compiled/1 instead (see the proper disclaimers in its docs)
+     │
+ 480 │       assert Code.ensure_compiled?(agent)
+     │                   ~
+     │
+     └─ test/unit/lux/agent_test.exs:480:19: Lux.AgentTest."test from_json/1 loads single agent from json"/1
+     └─ test/unit/lux/agent_test.exs:507:21: Lux.AgentTest."test from_json/1 loads multiple agents from directory"/1
+     └─ test/unit/lux/agent_test.exs:531:19: Lux.AgentTest."test from_json/1 handles invalid json files gracefully"/1
+
+    warning: comparison between distinct types found:
+
+        left != right
+
+    given types:
+
+        integer() != nil
+
+    where "left" (context ExUnit.Assertions) was given the type:
+
+        # type: integer()
+        # from: test/integration/lenses/etherscan/logs/get_logs_lens_test.exs:85
+        left = block_number
+
+    where "right" (context ExUnit.Assertions) was given the type:
+
+        # type: nil
+        # from: test/integration/lenses/etherscan/logs/get_logs_lens_test.exs:85
+        right = nil
+
+    While Elixir can compare across all types, you are comparing across types which are always disjoint, and the result is either always true or always false
+
+    type warning found at:
+    │
+ 85 │               assert block_number != nil
+    │                                   ~
+    │
+    └─ test/integration/lenses/etherscan/logs/get_logs_lens_test.exs:85:35: Lux.Integration.Etherscan.GetLogsLensTest."test can fetch event logs by address with block range"/1
+
+..........    warning: the following pattern will never match:
+
+        {tx_count, _} = Integer.parse(result)
+
+    because the right-hand side has type:
+
+        none()
+
+    where "result" was given the type:
+
+        # type: dynamic(map())
+        # from: test/integration/lenses/etherscan/blocks/block_tx_count_lens_test.exs:27:12
+        Map.has_key?(result, :transactions_count)
+
+    type warning found at:
+    │
+ 52 │       {tx_count, _} = Integer.parse(result)
+    │                     ~
+    │
+    └─ test/integration/lenses/etherscan/blocks/block_tx_count_lens_test.exs:52:21: Lux.Integration.Etherscan.BlockTxCountLensTest."test can fetch transaction count for a specific block"/1
+
+     warning: a struct for Lux.Lens is expected on struct update:
+
+         %Lux.Lens{lens | headers: [{"X-Custom-Auth", "custom-value"}]}
+
+     but got type:
+
+         dynamic()
+
+     where "lens" was given the type:
+
+         # type: dynamic()
+         # from: test/unit/lux/lens_test.exs:216:24
+         lens
+
+     when defining the variable "lens", you must also pattern match on "%Lux.Lens{}"
+
+     type warning found at:
+     │
+ 217 │         %Lens{lens | headers: [{"X-Custom-Auth", "custom-value"}]}
+     │         ~
+     │
+     └─ test/unit/lux/lens_test.exs:217:9: Lux.LensTest."test authenticate calls custom auth function"/1
+
+..........................
+13:04:58.904 [info] Scheduled action test_prism completed successfully
+.........
+13:04:59.038 [warning] retry: got response with status 429, will retry in 2000ms, 2 attempts left
+.....................
+13:05:01.039 [warning] retry: got response with status 429, will retry in 4000ms, 1 attempt left
+.....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................
+Finished in 7.4 seconds (7.1s async, 0.3s sync)
+
+Result: 1120/1135 passed (1/1 doctest, 4/4 properties, 1115/1130 tests), 1 skipped, 163 excluded
+Failed: 15 tests
