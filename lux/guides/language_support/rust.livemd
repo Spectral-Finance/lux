@@ -1,0 +1,63 @@
+# Rust Language Support
+
+`Lux.Rust` provides deterministic Rust component definitions for Lux Prisms, Beams, and Lenses.
+
+The support layer focuses on definition, lifecycle, async runtime metadata, Cargo dependency planning, and trait templates. It does not compile or load NIFs by itself; a runtime adapter can execute the generated definitions.
+
+## Inline Rust Component
+
+```elixir
+require Lux.Rust
+
+code =
+  ~RS'''
+  pub fn handle(input: serde_json::Value) -> serde_json::Value {
+      input
+  }
+  '''
+
+Lux.Rust.component_from_code(code,
+  name: "ValidationPrism",
+  module: "validation_prism",
+  kind: :prism
+)
+```
+
+## Component Definition
+
+```elixir
+Lux.Rust.prism_definition(%{
+  name: "ValidationPrism",
+  module: "validation_prism",
+  handler: "handle",
+  async: true,
+  input_schema: %{type: :object},
+  output_schema: %{type: :object}
+})
+```
+
+## Cargo Manifest
+
+```elixir
+Lux.Rust.cargo_manifest(%{
+  package: "lux-example",
+  dependencies: %{
+    "serde" => %{version: "1", features: ["derive"]},
+    "serde_json" => "1",
+    "tokio" => %{version: "1", features: ["rt", "macros"]}
+  }
+})
+```
+
+## Runtime Plan
+
+```elixir
+Lux.Rust.runtime_plan(%{
+  async: true,
+  max_concurrency: 8,
+  queue_limit: 32,
+  zero_copy_candidates: [:binary]
+})
+```
+
+The generated plan includes Tokio runtime metadata, cooperative cancellation, backpressure policy, lifecycle callbacks, JSON input/output encoding, and telemetry hooks.
