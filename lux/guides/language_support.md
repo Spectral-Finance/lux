@@ -24,14 +24,21 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 - Support for modern ES modules and async/await
 - Full access to Node.js APIs
 
-## Future Language Support
+### Rust/Cargo Integration
+[Learn more about Rust integration](language_support/rust.livemd)
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+Rust integration brings high-performance compiled code to your Lux agents:
+- Compile and run Rust code using `Lux.Cargo.eval/2` or the `~RUST` sigil
+- Full Cargo.toml management — generate, parse, and modify project manifests
+- Dependency resolution — add, remove, and update crates from crates.io
+- Build system integration — compile, test, and check Rust projects
+- Version management — query crate versions and toolchain info
+- Package caching — shared registry cache for faster rebuilds
+
+> **Note**: Rust requires the Cargo/Rust toolchain to be installed. Run `mix setup`
+> to verify your environment, or install via [rustup.rs](https://rustup.rs).
+
+## Future Language Support
 
 ### Custom Language Integration
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
@@ -48,12 +55,13 @@ Check out our [Contributing Guide](contributing.md) for details on adding langua
    - Use Python for ML/AI tasks and data processing
    - Use Node.js for web integration and text processing
    - Use Elixir for coordination and state management
-   - Consider Rust (coming soon) for performance-critical components
+   - Use Rust for performance-critical components and compute-intensive tasks
 
 2. **Package Management**
    - Add custom Python modules under `priv/python/`
    - Use `poetry` for Python dependency management
    - Use `npm`/`yarn` for Node.js dependencies
+   - Use `Lux.Cargo` for Rust/Cargo dependency management
    - Follow the language's best practices for versioning
 
 3. **Performance Considerations**
