@@ -31,7 +31,8 @@ if config_env() in [:dev, :test] do
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
     integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
-    allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
+    allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661"),
+    youtube: env!("YOUTUBE_API_KEY", :string!, "missing youtube api key")
 
   config :lux, Lux.Integrations.Allora,
     base_url: env!("ALLORA_BASE_URL", :string!, "https://api.upshot.xyz/v2"),
