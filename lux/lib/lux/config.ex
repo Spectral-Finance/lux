@@ -128,6 +128,24 @@ defmodule Lux.Config do
     |> Keyword.get(:wallet_address, "")
   end
 
+  @doc """
+  Gets the Twitter client ID from configuration.
+  Raises if the key is not configured.
+  """
+  @spec twitter_client_id() :: String.t()
+  def twitter_client_id do
+    get_required_key(:twitter, :client_id)
+  end
+
+  @doc """
+  Gets the Twitter client secret from configuration.
+  Raises if the key is not configured.
+  """
+  @spec twitter_client_secret() :: String.t()
+  def twitter_client_secret do
+    get_required_key(:twitter, :client_secret)
+  end
+
   @doc false
   defp get_required_key(group, key) do
     :lux

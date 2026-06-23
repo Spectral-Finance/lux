@@ -22,3 +22,5 @@ config :venomous, :snake_manager, %{
     python_executable: "python3"
   ]
 }
+
+import_config "#{config_env()}.exs"
