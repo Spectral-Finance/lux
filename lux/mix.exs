@@ -54,6 +54,7 @@ defmodule Lux.MixProject do
     [
       "test.unit": "test --include unit",
       "test.integration": "test --include integration",
+      "rust.test": "rust.test",
       coveralls: "coveralls",
       "coveralls.detail": "coveralls.detail",
       "coveralls.post": "coveralls.post",
@@ -115,8 +116,9 @@ defmodule Lux.MixProject do
         "priv/python/*.py",
         "priv/python/*.toml",
         "priv/python/README.md",
-        "priv/node/*.json",
-        "priv/node/*.mjs",
+      "priv/node/*.json",
+      "priv/node/*.mjs",
+      "priv/rust/**/*",
         ".formatter.exs",
         "mix.exs",
         "../README.md",
@@ -137,8 +139,9 @@ defmodule Lux.MixProject do
         "guides/signals.livemd",
         "guides/lenses.livemd",
         "guides/language_support.md",
-        "guides/language_support/python.livemd",
-        "guides/language_support/nodejs.livemd",
+      "guides/language_support/python.livemd",
+      "guides/language_support/nodejs.livemd",
+      "guides/language_support/rust_testing.livemd",
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
         "guides/testing.md",
@@ -155,7 +158,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+          "guides/language_support/rust_testing.livemd"
         ],
         Setup: [
           "guides/troubleshooting.md",

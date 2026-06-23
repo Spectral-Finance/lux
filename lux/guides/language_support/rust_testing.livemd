@@ -1,0 +1,110 @@
+# Rust Testing in Lux
+
+## Overview
+
+Lux provides a testing framework for Rust code that integrates seamlessly with the existing test infrastructure. This allows you to write and run Rust tests alongside your Elixir tests, with support for coverage reporting and cross-language test utilities.
+
+## Prerequisites
+
+Make sure you have Rust installed:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+## Running Rust Tests
+
+### Using the Mix Task
+
+```bash
+# Run all Rust tests
+mix rust.test
+
+# Run tests for a specific project
+mix rust.test --project lux_rust_testing
+
+# Run tests with verbose output
+mix rust.test --verbose
+
+# Run tests matching a filter
+mix rust.test --filter test_serialize
+
+# Run tests in release mode
+mix rust.test --release
+
+# Run with coverage (requires cargo-tarpaulin)
+mix rust.test --coverage
+```
+
+### Using the Elixir API
+
+```elixir
+# Run all Rust tests
+{:ok, result} = Lux.RustTest.run()
+IO.puts(Lux.RustTest.summary(result))
+
+# Run with options
+{:ok, result} = Lux.RustTest.run(
+  path: "priv/rust/lux_rust_testing",
+  verbose: true,
+  filter: "test_unit"
+)
+
+# Run and raise on error
+result = Lux.RustTest.run!()
+```
+
+## Project Structure
+
+Rust projects should be placed under `priv/rust/`:
+
+```
+priv/rust/
+└── my_crate/
+    ├── Cargo.toml
+    ├── src/
+    │   └── lib.rs
+    └── tests/
+        └── integration.rs
+```
+
+## Test Utilities
+
+The `lux_rust_testing` crate provides helpers for building and reporting test results:
+
+```rust
+use lux_rust_testing::{create_test_suite, add_result, TestResult};
+
+let mut suite = create_test_suite("my_tests");
+add_result(&mut suite, TestResult {
+    name: "test_foo".into(),
+    passed: true,
+    duration_ms: 10,
+    error: None,
+});
+```
+
+## Cross-Language Testing
+
+You can call Rust tests from Elixir and parse results:
+
+```elixir
+{:ok, result} = Lux.RustTest.run()
+# result: %{passed: 5, failed: 0, total: 5, output: "..."}
+```
+
+## Coverage Reporting
+
+Install cargo-tarpaulin for coverage:
+
+```bash
+cargo install cargo-tarpaulin
+```
+
+Then run tests with coverage:
+
+```bash
+mix rust.test --coverage
+```
+
+Coverage reports are generated in the `coverage/` directory of each Rust project.
