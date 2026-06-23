@@ -25,6 +25,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
+    Application.put_env(:lux, Lux.Integrations.YouTube.Client, plug: {Req.Test, Lux.Integrations.YouTube.Client})
     :ok
   end
 end
