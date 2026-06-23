@@ -1,0 +1,16 @@
+[package]
+name = "lux_nif"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux_nif"
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.35.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+tokio = { version = "1", features = ["full"] }
