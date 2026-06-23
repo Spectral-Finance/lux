@@ -78,7 +78,7 @@ defmodule Lux.LLM.TogetherAI do
         |> maybe_add_tools(tools_config)
 
       [
-        url: @endpoint,
+        url: config.endpoint || @endpoint,
         json: body,
         headers: [
           {"Authorization", "Bearer #{Lux.Config.resolve(config.api_key)}"},
@@ -135,35 +135,47 @@ defmodule Lux.LLM.TogetherAI do
       end
     end
 
-    def tool_to_function(%Beam{name: name, description: description, input_schema: input_schema}) do
+    def tool_to_function(%Beam{} = beam) do
+      name = (is_binary(beam.module_name) and beam.module_name != "" and beam.module_name) || 
+             (is_binary(beam.name) and beam.name != "" and beam.name) || 
+             "unnamed_beam"
+
       %{
         type: "function",
         function: %{
           name: String.replace(name, ".", "_"),
-          description: description || "",
-          parameters: input_schema
+          description: beam.description || "",
+          parameters: beam.input_schema
         }
       }
     end
 
-    def tool_to_function(%Prism{module_name: name, description: description, input_schema: input_schema}) do
+    def tool_to_function(%Prism{} = prism) do
+      name = (is_binary(prism.module_name) and prism.module_name != "" and prism.module_name) || 
+             (is_binary(prism.name) and prism.name != "" and prism.name) || 
+             "unnamed_prism"
+
       %{
         type: "function",
         function: %{
           name: String.replace(name, ".", "_"),
-          description: description || "",
-          parameters: input_schema
+          description: prism.description || "",
+          parameters: prism.input_schema
         }
       }
     end
 
-    def tool_to_function(%Lens{name: name, description: description, schema: schema}) do
+    def tool_to_function(%Lens{} = lens) do
+      name = (is_binary(lens.module_name) and lens.module_name != "" and lens.module_name) || 
+             (is_binary(lens.name) and lens.name != "" and lens.name) || 
+             "unnamed_lens"
+
       %{
         type: "function",
         function: %{
-          name: name || "unnamed_lens",
-          description: description || "",
-          parameters: schema
+          name: String.replace(name, ".", "_"),
+          description: lens.description || "",
+          parameters: lens.schema
         }
       }
     end
@@ -201,7 +213,7 @@ defmodule Lux.LLM.TogetherAI do
     def parse_content(content) when is_binary(content) do
       case Jason.decode(content) do
         {:ok, structured_output} -> {:ok, structured_output}
-        {:error, _} -> {:error, "failed to parse content: #{inspect(content)}"}
+        {:error, _} -> {:ok, %{"text" => content}}
       end
     end
 
@@ -220,8 +232,10 @@ defmodule Lux.LLM.TogetherAI do
     def execute_tool_calls(nil), do: {:ok, nil}
 
     def execute_tool_call(%{"function" => %{"name" => tool_name, "arguments" => args}}) do
-      args = Jason.decode!(args)
-      execute_tool(tool_name, args, nil)
+      case Jason.decode(args) do
+        {:ok, parsed_args} -> execute_tool(tool_name, parsed_args, nil)
+        {:error, error} -> {:error, "Failed to parse tool arguments: #{inspect(error)}"}
+      end
     end
 
     def execute_tool(tool_name, args, ctx) when is_binary(tool_name) do
@@ -250,10 +264,13 @@ defmodule Lux.LLM.TogetherAI do
         Lux.beam?(tool_module) ->
           tool_module.run(args, ctx)
 
+        Lux.lens?(tool_module) ->
+          tool_module.focus(args)
+
         true ->
           {:error, """
-          Tool #{tool_module} does not seem to be a valid Beam or Prism
-          as it does not have a registered `handler` or `run` function.
+          Tool #{tool_module} does not seem to be a valid Beam, Prism, or Lens
+          as it does not have a registered `handler`, `run` or `focus` function.
           """}
       end
     end

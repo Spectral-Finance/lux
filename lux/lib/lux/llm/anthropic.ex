@@ -14,6 +14,9 @@ defmodule Lux.LLM.Anthropic do
   require Lens
   require Logger
 
+  alias Lux.LLM.ResponseSignal
+  alias Lux.Signal
+
   @endpoint "https://api.anthropic.com/v1/messages"
 
   defmodule Config do
@@ -80,7 +83,7 @@ defmodule Lux.LLM.Anthropic do
       |> maybe_add_response_format(config)
 
     [
-      url: @endpoint,
+      url: config.endpoint || @endpoint,
       json: body,
       headers: [
         {"x-api-key", Lux.Config.resolve(config.api_key)},
@@ -127,26 +130,38 @@ defmodule Lux.LLM.Anthropic do
   end
 
   defp tool_to_function(%Beam{} = beam) do
+    name = (is_binary(beam.module_name) and beam.module_name != "" and beam.module_name) || 
+           (is_binary(beam.name) and beam.name != "" and beam.name) || 
+           "unnamed_beam"
+
     %{
-      name: beam.name,
-      description: beam.description,
+      name: String.replace(name, ".", "_"),
+      description: beam.description || "",
       input_schema: beam.input_schema
     }
   end
 
   defp tool_to_function(%Prism{} = prism) do
+    name = (is_binary(prism.module_name) and prism.module_name != "" and prism.module_name) || 
+           (is_binary(prism.name) and prism.name != "" and prism.name) || 
+           "unnamed_prism"
+
     %{
-      name: prism.name,
-      description: prism.description,
+      name: String.replace(name, ".", "_"),
+      description: prism.description || "",
       input_schema: prism.input_schema
     }
   end
 
   defp tool_to_function(%Lens{} = lens) do
+    name = (is_binary(lens.module_name) and lens.module_name != "" and lens.module_name) || 
+           (is_binary(lens.name) and lens.name != "" and lens.name) || 
+           "unnamed_lens"
+
     %{
-      name: lens.name,
-      description: lens.description,
-      input_schema: lens.params
+      name: String.replace(name, ".", "_"),
+      description: lens.description || "",
+      input_schema: lens.schema
     }
   end
 
@@ -161,20 +176,42 @@ defmodule Lux.LLM.Anthropic do
   end
 
   defp handle_successful_response(response) do
+    payload_base = %{
+      model: response.body["model"],
+      finish_reason: response.body["stop_reason"],
+      tool_calls_results: []
+    }
+    
+    metadata = %{
+      id: response.body["id"],
+      usage: response.body["usage"]
+    }
+
     case extract_content_and_tool_calls(response.body) do
       {content, []} ->
-        {:ok, %Lux.LLM.Response{
-          content: content,
-          tool_calls: [],
-          finish_reason: response.body["stop_reason"]
-        }}
+        parsed_content = case Jason.decode(content) do
+          {:ok, decoded} -> decoded
+          _ -> %{"text" => content}
+        end
+
+        signal =
+          Lux.Signal.new(%{
+            schema_id: ResponseSignal,
+            payload: Map.merge(payload_base, %{content: parsed_content, tool_calls: []}),
+            metadata: metadata
+          })
+          
+        ResponseSignal.validate(signal)
 
       {_content, tool_calls} ->
-        {:ok, %Lux.LLM.Response{
-          content: nil,
-          tool_calls: tool_calls,
-          finish_reason: response.body["stop_reason"]
-        }}
+        signal =
+          Lux.Signal.new(%{
+            schema_id: ResponseSignal,
+            payload: Map.merge(payload_base, %{content: nil, tool_calls: tool_calls}),
+            metadata: metadata
+          })
+          
+        ResponseSignal.validate(signal)
     end
   end
 

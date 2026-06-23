@@ -86,7 +86,7 @@ defmodule Lux.LLM.OpenAI do
       |> maybe_add_response_format(config)
 
     [
-      url: @endpoint,
+      url: config.endpoint || @endpoint,
       json: body,
       headers: [
         {"Authorization", "Bearer #{Lux.Config.resolve(config.api_key)}"},
@@ -192,37 +192,49 @@ defmodule Lux.LLM.OpenAI do
     end
   end
 
-  def tool_to_function(%Beam{module_name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Beam{} = beam) do
+    name = (is_binary(beam.module_name) and beam.module_name != "" and beam.module_name) || 
+           (is_binary(beam.name) and beam.name != "" and beam.name) || 
+           "unnamed_beam"
+
     %{
       type: "function",
       function: %{
         # OpenAI function names must be [a-zA-Z0-9_-]
         name: String.replace(name, ".", "_"),
-        description: description || "",
-        parameters: input_schema
+        description: beam.description || "",
+        parameters: beam.input_schema
       }
     }
   end
 
-  def tool_to_function(%Prism{module_name: name, description: description, input_schema: input_schema}) do
+  def tool_to_function(%Prism{} = prism) do
+    name = (is_binary(prism.module_name) and prism.module_name != "" and prism.module_name) || 
+           (is_binary(prism.name) and prism.name != "" and prism.name) || 
+           "unnamed_prism"
+
     %{
       type: "function",
       function: %{
         # OpenAI function names must be [a-zA-Z0-9_-]
         name: String.replace(name, ".", "_"),
-        description: description || "",
-        parameters: input_schema
+        description: prism.description || "",
+        parameters: prism.input_schema
       }
     }
   end
 
-  def tool_to_function(%Lens{module_name: name, description: description, schema: schema}) do
+  def tool_to_function(%Lens{} = lens) do
+    name = (is_binary(lens.module_name) and lens.module_name != "" and lens.module_name) || 
+           (is_binary(lens.name) and lens.name != "" and lens.name) || 
+           "unnamed_lens"
+
     %{
       type: "function",
       function: %{
         name: String.replace(name, ".", "_"),
-        description: description || "",
-        parameters: schema
+        description: lens.description || "",
+        parameters: lens.schema
       }
     }
   end
@@ -263,7 +275,7 @@ defmodule Lux.LLM.OpenAI do
         {:ok, structured_output}
 
       {:error, _} ->
-        {:error, "failed to parse content: #{inspect(content)}"}
+        {:ok, %{"text" => content}}
     end
   end
 
@@ -287,9 +299,10 @@ defmodule Lux.LLM.OpenAI do
   def execute_tool_calls(nil), do: {:ok, nil}
 
   def execute_tool_call(%{"function" => %{"name" => tool_name, "arguments" => args}}) do
-    args = Jason.decode!(args)
-
-    execute_tool(tool_name, args, nil)
+    case Jason.decode(args) do
+      {:ok, parsed_args} -> execute_tool(tool_name, parsed_args, nil)
+      {:error, error} -> {:error, "Failed to parse tool arguments: #{inspect(error)}"}
+    end
   end
 
   def execute_tool(tool_name, args, ctx \\ nil)

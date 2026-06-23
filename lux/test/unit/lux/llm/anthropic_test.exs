@@ -44,8 +44,8 @@ defmodule Lux.LLM.AnthropicTest do
         })
 
       assert {:ok, response} = result
-      assert response.content == "This is a test response from Claude."
-      assert response.finish_reason == "end_turn"
+      assert response.payload.content["text"] == "This is a test response from Claude."
+      assert response.payload.finish_reason == "end_turn"
     end
 
     test "handles API error" do
@@ -138,8 +138,10 @@ defmodule Lux.LLM.AnthropicTest do
         })
 
       assert {:ok, response} = result
-      assert length(response.tool_calls) == 1
-      [tool_call] = response.tool_calls
+      assert response.payload.finish_reason == "tool_use"
+      assert length(response.payload.tool_calls) == 1
+
+      tool_call = hd(response.payload.tool_calls)
       assert tool_call.name == "test_tool"
       assert tool_call.params == %{"param1" => "value1", "param2" => "value2"}
     end
