@@ -18,6 +18,9 @@ mix test.integration
 
 # Run python tests
 mix python.test
+
+# Run Rust tests
+mix rust.test
 ```
 
 ## Test Organization
@@ -25,6 +28,8 @@ mix python.test
 - `test/unit/` - Contains all unit tests
 - `test/integration/` - Contains all integration tests
 - `test/support/` - Shared test helpers and utilities
+- `priv/rust/tests/` - Rust integration tests
+- `priv/rust/src/` - Rust source code with unit tests
 
 ## Configuration
 

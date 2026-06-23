@@ -148,14 +148,21 @@ end
    - Write Python tests in `priv/python/tests/`
    - Follow Python style guide (Black formatting)
    - Add type hints to Python code
+
    - Document Python functions
+
+5. **Rust Integration**
+   - Add Rust dependencies to `priv/rust/Cargo.toml`
+   - Write Rust tests in `priv/rust/tests/`
+   - Follow Rust style guide (rustfmt + clippy)
+   - Document Rust functions with doc comments
 
 ## Pull Request Process
 
 1. Fork the repository
 2. Create a feature branch
 3. Add your changes following the guidelines above
-4. Run all relevant tests (`mix test.unit`, `mix python.test`)
+4. Run all relevant tests (`mix test.unit`, `mix python.test`, `mix rust.test`)
 5. Format code (`mix format`)
 6. Submit a pull request with:
    - Clear description of changes
