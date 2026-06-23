@@ -1,0 +1,272 @@
+# Rust Type System and Serialization
+
+Lux provides a type mapping and serialization layer between Elixir and Rust, enabling seamless data exchange and complex type definitions.
+
+## Overview
+
+The Rust integration consists of three core modules:
+
+- **`Lux.Rust.TypeMapper`** - Advanced type mapping, struct/enum schemas, Serde integration, bidirectional encoding/decoding
+- **`Lux.Rust.SerdeField`** - Field-level Serde metadata handling (rename, default, skip, tag/content)
+- **`Lux.Rust`** - Centralized entry point with delegation to TypeMapper and SerdeField
+
+## Type Mapping
+
+### Primitive Types
+
+Map Elixir atoms to Rust type strings:
+
+```elixir
+Lux.Rust.TypeMapper.elixir_to_rust_type(:integer)
+# => {:ok, "i64"}
+
+Lux.Rust.TypeMapper.elixir_to_rust_type(:float)
+# => {:ok, "f64"}
+
+Lux.Rust.TypeMapper.elixir_to_rust_type(:string)
+# => {:ok, "String"}
+
+Lux.Rust.TypeMapper.elixir_to_rust_type(:boolean)
+# => {:ok, "bool"}
+
+Lux.Rust.TypeMapper.elixir_to_rust_type(:bytes)
+# => {:ok, "Vec<u8>"}
+
+Lux.Rust.TypeMapper.elixir_to_rust_type(:char)
+# => {:ok, "char"}
+```
+
+Reverse mapping from Rust to Elixir:
+
+```elixir
+Lux.Rust.TypeMapper.rust_to_elixir_type("i64")
+# => {:ok, :integer}
+
+Lux.Rust.TypeMapper.rust_to_elixir_type("Option<String>")
+# => {:ok, :option}
+
+Lux.Rust.TypeMapper.rust_to_elixir_type("HashMap<String, i64>")
+# => {:ok, :hash_map}
+```
+
+### Container Types
+
+```elixir
+# Vec<T>
+Lux.Rust.TypeMapper.container_to_rust(:vec, {:primitive, :integer})
+# => {:ok, "Vec<i64>"}
+
+# Option<T>
+Lux.Rust.TypeMapper.container_to_rust(:option, {:primitive, :string})
+# => {:ok, "Option<String>"}
+
+# HashMap<K, V>
+Lux.Rust.TypeMapper.container_to_rust(:hash_map, {:primitive, :string})
+# => {:ok, "HashMap<String, String>"}
+```
+
+### Type Descriptor Serialization
+
+Serialize/deserialize complex type descriptors:
+
+```elixir
+Lux.Rust.TypeMapper.serialize_type({:container, :vec, {:primitive, :float}})
+# => {:ok, "Vec<f64>"}
+
+Lux.Rust.TypeMapper.deserialize_type("Vec<Option<i64>>")
+# => {:ok, {:container, :vec, {:container, :option, {:primitive, :integer}}}}
+```
+
+## Struct Schemas
+
+Define Rust-compatible struct schemas with Serde metadata:
+
+```elixir
+schema = Lux.Rust.TypeMapper.struct_schema("TradeRequest", [
+  {:symbol, :string, [rename: :snake_case]},
+  {:price_usd, :float, [default: 0.0]},
+  {:quantity, :integer, []}
+])
+```
+
+Generate the corresponding Rust code:
+
+```elixir
+Lux.Rust.TypeMapper.rust_definition(schema)
+# => {:ok, "#[derive(Serialize, Deserialize, Debug)]\npub struct TradeRequest {\n    pub price_usd: f64,\n    pub quantity: i64,\n    pub symbol: String,\n}"}
+```
+
+### Struct Schemas with Serde Attributes
+
+```elixir
+schema = Lux.Rust.TypeMapper.serde_struct_schema(
+  "Position",
+  [
+    {:side, :string, []},
+    {:size, :float, []}
+  ],
+  tag: "type",
+  content: "data"
+)
+
+Lux.Rust.TypeMapper.rust_definition(schema)
+# => {:ok, "#[derive(Serialize, Deserialize, Debug)]\n#[serde(tag = \"type\", content = \"data\")]\npub struct Position {\n    pub side: String,\n    pub size: f64,\n}"}
+```
+
+## Enum Schemas
+
+Define Rust-compatible enum schemas:
+
+```elixir
+# Unit variants
+schema = Lux.Rust.TypeMapper.enum_schema("OrderSide", [:buy, :sell])
+
+# Tuple variants
+schema = Lux.Rust.TypeMapper.enum_schema("MarketEvent", [
+  {:price_update, {:primitive, :float}},
+  {:volume_change, {:primitive, :integer}},
+  :shutdown
+])
+
+# With Serde attributes
+schema = Lux.Rust.TypeMapper.serde_enum_schema(
+  "TradeSignal",
+  [:bullish, :bearish, :neutral],
+  tag: "kind"
+)
+```
+
+Generate Rust code:
+
+```elixir
+Lux.Rust.TypeMapper.rust_definition(schema)
+# => {:ok, "#[derive(Serialize, Deserialize, Debug)]\npub enum OrderSide {\n    Buy,\n    Sell,\n}"}
+```
+
+## Bidirectional Conversion
+
+### Encoding (Elixir to Rust Wire Format)
+
+```elixir
+schema = Lux.Rust.TypeMapper.struct_schema("Trade", [
+  {:symbol, :string, []},
+  {:price_usd, :float, [default: 0.0]}
+])
+
+Lux.Rust.TypeMapper.encode(%{symbol: "BTC/USD"}, schema)
+# => {:ok, %{"symbol" => "BTC/USD", "price_usd" => 0.0}}
+```
+
+### Decoding (Rust Wire Format to Elixir)
+
+```elixir
+Lux.Rust.TypeMapper.decode(%{"symbol" => "BTC/USD", "price_usd" => 50000.0}, schema)
+# => {:ok, %{symbol: "BTC/USD", price_usd: 50000.0}}
+```
+
+## Type Manifests
+
+Collect multiple schemas into a single manifest for code generation:
+
+```elixir
+trade_schema = Lux.Rust.TypeMapper.struct_schema("Trade", [
+  {:symbol, :string, []},
+  {:amount, :float, []}
+])
+
+status_enum = Lux.Rust.TypeMapper.enum_schema("Status", [:pending, :done])
+
+manifest = Lux.Rust.TypeMapper.manifest([trade_schema], [status_enum])
+
+# Access generated Rust code
+manifest[:rust_code]
+# => "// Auto-generated Rust type definitions..."
+
+# Access individual schemas
+manifest[:structs]  # => [trade_schema]
+manifest[:enums]    # => [status_enum]
+```
+
+## Serde Field Metadata
+
+Fine-grained control over individual field serialization:
+
+```elixir
+# Rename a field for Serde
+field = Lux.Rust.SerdeField.from_descriptor({
+  :price_usd,
+  :float,
+  [rename: :snake_case, default: 0.0]
+})
+
+Lux.Rust.SerdeField.rust_name(field)  # => "price_usd"
+Lux.Rust.SerdeField.elixir_name(field)  # => :price_usd
+
+# Generate Rust field definition
+Lux.Rust.SerdeField.to_rust_field(field)
+# => "#[serde(default = \"0.0\")]\npub price_usd: f64,"
+```
+
+Supported Serde attributes:
+
+| Attribute | Description | Example |
+|-----------|-------------|---------|
+| `:rename` | Rename field in Serde | `[rename: :snake_case]` |
+| `:rename_all` | Rename all fields with a rule | `[rename_all: :PascalCase]` |
+| `:default` | Default value | `[default: 0.0]` |
+| `:tag` | Internally tagged enum | `[tag: "type"]` |
+| `:content` | Adjacently tagged enum | `[content: "data"]` |
+| `:skip_serializing_if` | Skip when condition met | `[skip_serializing_if: "is_none"]` |
+| `:skip_deserializing` | Skip deserialization | `[skip_deserializing: true]` |
+
+## Examples
+
+### Complex Type Conversion
+
+```elixir
+# Define a complex struct with nested types
+order_schema = Lux.Rust.TypeMapper.struct_schema("Order", [
+  {:order_id, :string, [rename: :snake_case]},
+  {:side, :string, []},
+  {:price, :float, [default: 0.0]},
+  {:quantity, :integer, []},
+  {:tags, :vec, [type_inner: :string]}
+])
+
+# Generate Rust code
+{:ok, rust_code} = Lux.Rust.TypeMapper.rust_definition(order_schema)
+
+# Encode Elixir data
+Lux.Rust.TypeMapper.encode(%{order_id: "ORD-001", side: "buy", quantity: 100}, order_schema)
+# => {:ok, %{"order_id" => "ORD-001", "side" => "buy", "quantity" => 100}}
+
+# Decode back
+Lux.Rust.TypeMapper.decode(%{"order_id" => "ORD-001", "side" => "buy", "quantity" => 100}, order_schema)
+# => {:ok, %{order_id: "ORD-001", side: "buy", quantity: 100}}
+```
+
+### Enum with Tagged Variants
+
+```elixir
+event_schema = Lux.Rust.TypeMapper.serde_enum_schema(
+  "ExchangeEvent",
+  [
+    :connected,
+    :disconnected,
+    {:trade, {:primitive, :string}},
+    {:error, {:primitive, :string}}
+  ],
+  tag: "event_type"
+)
+
+{:ok, code} = Lux.Rust.TypeMapper.rust_definition(event_schema)
+# Generates:
+# #[derive(Serialize, Deserialize, Debug)]
+# #[serde(tag = "event_type")]
+# pub enum ExchangeEvent {
+#     Connected,
+#     Disconnected,
+#     Trade(String),
+#     Error(String),
+# }
+```
