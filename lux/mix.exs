@@ -65,6 +65,7 @@ defmodule Lux.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:rustler, "~> 0.35.0"},
       {:bandit, "~> 1.0"},
       {:req, "~> 0.5.0"},
       {:venomous, "~> 0.7.5"},

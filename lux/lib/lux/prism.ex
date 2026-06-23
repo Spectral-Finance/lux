@@ -150,8 +150,31 @@ defmodule Lux.Prism do
     end
   end
 
+  def view(path, ".rs") do
+    content = File.read!(path)
+    name = extract_comment_attr(content, "name") || Path.basename(path, ".rs")
+    description = extract_comment_attr(content, "description") || "A Rust component"
+    
+    %__MODULE__{
+      id: Lux.UUID.generate(),
+      name: name,
+      module_name: name,
+      handler: {:rust, path},
+      description: description,
+      input_schema: %{},
+      output_schema: %{}
+    }
+  end
+
   def view(path, _ext) do
     {:error, "Unsupported prism file: #{path}"}
+  end
+
+  defp extract_comment_attr(content, key) do
+    case Regex.run(~r/\/\/\s*#{key}:\s*"(.*)"/, content) do
+      [_, val] -> val
+      nil -> nil
+    end
   end
 
   def run(schema, input, context \\ nil)
@@ -168,6 +191,10 @@ defmodule Lux.Prism do
     run(path, ".py", input, context)
   end
 
+  def run(%__MODULE__{handler: {:rust, path}}, input, context) do
+    run(path, ".rs", input, context)
+  end
+
   def run(path, input, context) when is_binary(path) do
     ext = Path.extname(path)
     run(path, ext, input, context)
@@ -180,6 +207,14 @@ defmodule Lux.Prism do
         __lux_function_args__: [input, context]
       }
     )
+  end
+
+  def run(path, ".rs", input, context) do
+    input_str = inspect({input, context})
+    case Lux.Rust.run_async("path: #{path}, input: #{input_str}") do
+      {:ok, result} -> {:ok, %{result: result}}
+      error -> error
+    end
   end
 
   @optional_callbacks []
