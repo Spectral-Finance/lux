@@ -1,0 +1,18 @@
+[package]
+name = "lux-rust"
+version = "0.1.0"
+edition = "2021"
+description = "Rust components for the Lux framework"
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "benchmark"
+harness = true
+
+[lib]
+name = "lux_rust"
+path = "src/lib.rs"

@@ -8,6 +8,8 @@ defmodule Mix.Tasks.Setup do
   2. Ensures Poetry is installed and configured
   3. Create virtual env
   4. Installs Python dependencies
+  5. Installs Node.js dependencies
+  6. Checks Rust/Cargo installation
 
   ## Usage
 
@@ -19,6 +21,7 @@ defmodule Mix.Tasks.Setup do
 
   @priv_python_dir Application.app_dir(:lux, "priv/python")
   @priv_nodejs_dir Application.app_dir(:lux, "priv/node")
+  @priv_rust_dir Application.app_dir(:lux, "priv/rust")
 
   defp safe_cmd(cmd, args, opts) do
     System.cmd(cmd, args, opts)
@@ -31,7 +34,7 @@ defmodule Mix.Tasks.Setup do
   end
 
   @impl Mix.Task
-  def run(opts \\ []) do
+  def run(opts \ []) do
     install_deps? = Keyword.get(opts, :install_deps, true)
 
     Mix.shell().info("\n==> Setting up Lux for development\n")
@@ -50,7 +53,10 @@ defmodule Mix.Tasks.Setup do
          :ok <- install_python_deps(poetry_path),
          # Step 5: Install Node.js dependencies
          Mix.shell().info("\n==> Installing Node.js dependencies..."),
-         :ok <- install_nodejs_deps() do
+         :ok <- install_nodejs_deps(),
+         # Step 6: Check Rust/Cargo installation
+         Mix.shell().info("\n==> Checking Rust installation..."),
+         :ok <- check_rust() do
       Mix.shell().info("""
       \n==> Setup completed successfully! 🎉
 
@@ -62,6 +68,7 @@ defmodule Mix.Tasks.Setup do
           mix test.unit         # Run Elixir unit tests
           mix test.integration  # Run Elixir integration tests
           mix python.test       # Run Python tests
+          mix rust.test         # Run Rust tests
 
       • Generate documentation:
           mix docs
@@ -237,6 +244,30 @@ defmodule Mix.Tasks.Setup do
         """)
 
         exit({:shutdown, 1})
+    end
+  end
+
+  defp check_rust do
+    case safe_cmd("which", ["cargo"], stderr_to_stdout: true) do
+      {:error, :not_found} ->
+        Mix.shell().warn("""
+        Cargo (Rust) not found. Rust testing framework is available but not configured.
+
+        To install Rust:
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+            source $HOME/.cargo/env
+
+        Then run `mix setup` again.
+        """)
+        :ok
+
+      {_, 0} ->
+        Mix.shell().info("Cargo (Rust) is available")
+        :ok
+
+      {_, _} ->
+        Mix.shell().info("Cargo (Rust) is available")
+        :ok
     end
   end
 end

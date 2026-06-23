@@ -306,4 +306,5 @@ setup-deps: ## Install project dependencies
 test: ## Run test suite
 	@echo "Running test suite..."
 	@mix test.unit
-	@mix python.test 
+	@mix python.test
+	@mix rust.test

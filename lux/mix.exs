@@ -117,6 +117,7 @@ defmodule Lux.MixProject do
         "priv/python/README.md",
         "priv/node/*.json",
         "priv/node/*.mjs",
+        "priv/rust/Cargo.toml",
         ".formatter.exs",
         "mix.exs",
         "../README.md",
