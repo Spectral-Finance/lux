@@ -178,7 +178,7 @@ defmodule Lux.Rust do
         }
 
         fn kind(&self) -> ComponentKind {
-            ComponentKind::#{kind |> Atom.to_string() |> Macro.camelize()}
+            ComponentKind::#{kind |> Atom.to_string() |> String.capitalize()}
         }
 
         fn handle(&self, input: Value) -> Result<Value, LuxError> {
