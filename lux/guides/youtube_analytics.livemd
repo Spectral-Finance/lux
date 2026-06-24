@@ -1,0 +1,55 @@
+# YouTube Analytics & Growth Engine
+
+## Introduction
+
+The YouTube Analytics & Growth Engine is an agent designed to help creators analyze their channel performance, predict growth, and optimize revenue streams. It leverages the YouTube Data API to fetch channel metrics, which are then passed to the `Lux.Agents.YouTubeAnalytics` agent for analysis.
+
+## Setup
+
+First, ensure you have set up your YouTube Data API Key and OpenAI API key in your configuration:
+
+```elixir
+# In your config.exs or secrets configuration
+config :lux, :api_keys,
+  youtube: "YOUR_YOUTUBE_API_KEY",
+  openai: "YOUR_OPENAI_API_KEY"
+```
+
+## Creating the Agent
+
+We can create an instance of the YouTube Analytics agent.
+
+```elixir
+alias Lux.Agents.YouTubeAnalytics
+
+{:ok, agent_pid} = YouTubeAnalytics.start_link(%{
+  llm_config: %{
+    model: "gpt-4o",
+    temperature: 0.7
+  }
+})
+```
+
+## Collecting Data
+
+We can use `Lux.Lenses.YouTube.GetChannelInfo` to collect channel metrics.
+
+```elixir
+alias Lux.Lenses.YouTube.GetChannelInfo
+
+{:ok, channel_data} = GetChannelInfo.focus(%{
+  id: "UC_x5XG1OV2P6uZZ5FSM9Ttw" # Example channel ID
+})
+```
+
+## Generating the Growth and Revenue Report
+
+Pass the collected metrics into our agent to receive an automated analysis report containing growth prediction, revenue optimization strategies, retention analysis, and a step-by-step action plan.
+
+```elixir
+{:ok, report} = YouTubeAnalytics.generate_report(agent_pid, channel_data)
+
+IO.inspect(report.growth_prediction, label: "Growth Prediction")
+IO.inspect(report.revenue_optimization, label: "Revenue Optimization")
+IO.inspect(report.action_plan, label: "Action Plan")
+```
