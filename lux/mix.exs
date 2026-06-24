@@ -117,6 +117,10 @@ defmodule Lux.MixProject do
         "priv/python/README.md",
         "priv/node/*.json",
         "priv/node/*.mjs",
+        "priv/rust/src/*.rs",
+        "priv/rust/examples/*.rs",
+        "priv/rust/Cargo.toml",
+        "priv/rust/Cargo.lock",
         ".formatter.exs",
         "mix.exs",
         "../README.md",
@@ -139,6 +143,7 @@ defmodule Lux.MixProject do
         "guides/language_support.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
+        "guides/language_support/rust.livemd",
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
         "guides/testing.md",
@@ -155,7 +160,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+        "guides/language_support/rust.livemd"
         ],
         Setup: [
           "guides/troubleshooting.md",
