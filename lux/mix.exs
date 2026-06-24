@@ -73,6 +73,7 @@ defmodule Lux.MixProject do
       {:nodejs, "~> 3.1"},
       {:ethers, "~> 0.6.4"},
       {:ex_secp256k1, "~> 0.7.4"},
+      {:ex_keccak, "~> 0.2.2"},
       {:yaml_elixir, "~> 2.9"},
       {:hammer, "~> 7.0", only: [:test]},
       # test and dev dependencies

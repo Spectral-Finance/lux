@@ -72,11 +72,8 @@ defmodule Lux.Lenses.Etherscan.Events.EventDecoder do
     params = Enum.map(inputs, &Map.get(&1, "type", "")) |> Enum.join(",")
     compute_event_signature("#{name}(#{params})")
   end
-
   def compute_event_signature(signature_string) when is_binary(signature_string) do
-    signature_string
-    |> :binary.bin_to_list()
-    |> :crypto.hash(:keccak_256)
+    ExKeccak.Hash.keccak(signature_string, 256)
     |> Base.encode16(case: :lower)
     |> then(&"0x#{&1}")
   end
