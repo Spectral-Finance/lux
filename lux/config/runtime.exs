@@ -33,6 +33,8 @@ if config_env() in [:dev, :test] do
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
     integration_twitter: env!("INTEGRATION_TWITTER_API_KEY", :string!, "missing twitter"),
     integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
+    binance: env!("BINANCE_API_KEY", :string!, required: false),
+    binance_secret: env!("BINANCE_API_SECRET", :string!, required: false),
     allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
 
   config :lux, Lux.Integrations.Allora,

@@ -1,0 +1,18 @@
+[package]
+name = "lux_nif"
+version = "0.1.0"
+edition = "2021"
+description = "Rust core for Lux - high-performance native bindings"
+
+[lib]
+name = "lux_nif"
+crate-type = ["dylib"]
+
+[dependencies]
+rustler = "0.32"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+lto = true
+opt-level = 3
