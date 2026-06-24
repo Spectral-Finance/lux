@@ -22,6 +22,8 @@ if config_env() in [:dev, :test] do
     openweather: env!("OPENWEATHER_API_KEY", :string!, "missing open weather"),
     transpose: env!("TRANSPOSE_API_KEY", :string!, "missing transpose"),
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
+    twitter_api_key: env!("TWITTER_API_KEY", :string!, required: false),
+    twitter_bearer_token: env!("TWITTER_BEARER_TOKEN", :string!, required: false),
     etherscan: env!("ETHERSCAN_API_KEY", :string!, "missing etherscan"),
     etherscan_pro: env!("ETHERSCAN_API_KEY_PRO", :string!, required: false) == "true",
     telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
@@ -30,6 +32,7 @@ if config_env() in [:dev, :test] do
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
+    integration_twitter_bearer_token: env!("INTEGRATION_TWITTER_BEARER_TOKEN", :string!, required: false),
     integration_telegram_bot: env!("INTEGRATION_TELEGRAM_BOT_TOKEN", :string!, required: false),
     allora: env!("ALLORA_API_KEY", :string!, "UP-8cbc632a67a84ac1b4078661")
 
