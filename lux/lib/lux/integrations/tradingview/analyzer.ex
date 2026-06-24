@@ -133,7 +133,7 @@ defmodule Lux.Integrations.TradingView.Analyzer do
   """
   @spec bollinger_bands(price_list(), non_neg_integer(), float()) :: map()
   def bollinger_bands(prices, window \\ 20, std_dev_mult \\ 2.0)
-      when is_list(prices) and is_integer(window) and window >= 0 and is_float(std_dev_mult) do
+      when is_list(prices) and is_integer(window) and window > 0 and is_float(std_dev_mult) do
     sma_values = sma(prices, window)
     bands =
       Enum.zip(sma_values, sliding_window_prices(prices, window))
@@ -196,7 +196,7 @@ defmodule Lux.Integrations.TradingView.Analyzer do
           di_plus = if minus == 0, do: 100.0, else: (plus / (plus + minus)) * 100.0
           di_minus = if plus == 0, do: 100.0, else: (minus / (plus + minus)) * 100.0
           total = di_plus + di_minus
-          if total == 0, do: 0.0, else: ((di_plus + di_minus) / 2.0)
+          if total == 0, do: 0.0, else: (abs(di_plus - di_minus) / total) * 100.0
         end
       end)
     smoothed_dx = smooth_series(dx_values, period)
@@ -442,9 +442,9 @@ defmodule Lux.Integrations.TradingView.Analyzer do
     do_true_range(highs, lows, closes, [])
   end
 
-  defp do_true_range([h1 | [h2 | _]], [l1 | [l2 | _]], [c1 | [c2 | _]], acc) do
+  defp do_true_range([h1 | [h2 | tail]], [l1 | [l2 | tl2]], [c1 | [c2 | tl3]], acc) do
     tr = max(h1 - l1, abs(h1 - c2), abs(l1 - c2))
-    do_true_range([h2 | _], [l2 | _], [c2 | _], [tr | acc])
+    do_true_range([h2 | tail], [l2 | tl2], [c2 | tl3], [tr | acc])
   end
 
   defp do_true_range(_highs, _lows, _closes, acc), do: :lists.reverse(acc)
@@ -453,7 +453,7 @@ defmodule Lux.Integrations.TradingView.Analyzer do
     do_directional_movement(highs, lows, [])
   end
 
-  defp do_directional_movement([h1 | [h2 | _]], [l1 | [l2 | _]], acc) do
+  defp do_directional_movement([h1 | [h2 | tl2]], [l1 | [l2 | tl3]], acc) do
     plus_dm =
       case h2 - h1 do
         pd when pd > l1 - l2 and pd > 0 -> pd
@@ -464,7 +464,7 @@ defmodule Lux.Integrations.TradingView.Analyzer do
         md when md > h2 - h1 and md > 0 -> md
         _ -> 0.0
       end
-    do_directional_movement([h2 | _], [l2 | _], [%{plus_dm: plus_dm, minus_dm: minus_dm} | acc])
+    do_directional_movement([h2 | tl2], [l2 | tl3], [%{plus_dm: plus_dm, minus_dm: minus_dm} | acc])
   end
 
   defp do_directional_movement(_highs, _lows, acc) do
