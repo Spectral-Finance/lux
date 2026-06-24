@@ -217,13 +217,22 @@ defmodule LuxApp.Contexts.Web3Auth do
   @spec pubkey_to_address(binary()) :: String.t()
   def pubkey_to_address(pk), do: "0x" <> Base.encode16(:crypto.hash(:keccak, pk) |> :crypto.hash(:sha256) |> String.slice(-20..-1), case: :lower)
 
-  @doc false
+    @doc false
   @spec recover_public_key(binary(), binary(), binary(), integer()) :: {:ok, binary()} | {:error, term()}
-  def recover_public_key(_, _, _, _), do: {:ok, <<0::size(160)>>}
+  def recover_public_key(mh, r, sv, v) do
+    with {:ok, sig} <- ExSecp256k1.Signature.from_compact(r, sv),
+         {:ok, pk} <- ExSecp256k1.PublicKey.recover(sig, mh, v) do
+      {:ok, ExSecp256k1.PublicKey.encode(pk, :uncompressed)}
+    else
+      {:error, reason} -> {:error, reason}
+    end
+  end
 
   @doc false
   @spec fetch_token_balance(String.t(), integer(), String.t(), integer()) :: {:ok, integer()} | {:error, String.t()}
-  def fetch_token_balance(_, _, _, _), do: {:ok, 0}
+  def fetch_token_balance(_wallet, _chain_id, _contract, _decimals) do
+    {:error, "Token balance fetching not yet implemented - requires RPC connection"}
+  end
 
   @doc false
   @spec audit_log(String.t() | nil, String.t(), map()) :: :ok
