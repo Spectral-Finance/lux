@@ -14,10 +14,34 @@ defmodule LuxAppWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :web3_auth do
+    plug LuxAppWeb.Plugs.Web3AuthPlug
+  end
+
   scope "/", LuxAppWeb do
     pipe_through :browser
 
     live "/", NodeEditorLive
+  end
+
+  scope "/api/v1", LuxAppWeb do
+    pipe_through [:api]
+
+    post "/auth/challenge", Web3AuthController, :create_challenge
+    post "/auth/verify", Web3AuthController, :verify_signature
+    get "/auth/session/:id", Web3AuthController, :get_session
+    post "/auth/session/:id/revoke", Web3AuthController, :revoke_session
+    post "/auth/session/revoke-all", Web3AuthController, :revoke_all_sessions
+    get "/auth/permissions", Web3AuthController, :check_permissions
+    get "/auth/roles", Web3AuthController, :list_roles
+    get "/auth/audit", Web3AuthController, :list_audit_logs
+  end
+
+  scope "/api/v1", LuxAppWeb do
+    pipe_through [:api, :web3_auth]
+
+    # Protected resource example
+    get "/protected", Web3AuthController, :check_permissions
   end
 
   # Other scopes may use custom stacks.
