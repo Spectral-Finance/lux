@@ -57,9 +57,17 @@ defmodule Lux.Prisms.NFTMarketplace.CalculateRarity do
   alias Lux.Integrations.NFTMarketplace
 
   def handler(params, _agent) do
-    slug = params.collection_slug
-    data = params.traits_data
+    slug = Map.get(params, "collection_slug") || Map.get(params, :collection_slug)
+    data = Map.get(params, "traits_data") || Map.get(params, :traits_data)
 
-    NFTMarketplace.calculate_rarity(slug, data)
+    if is_nil(slug) or slug == "" do
+      {:error, "Missing required parameter: collection_slug"}
+    else
+      if is_nil(data) do
+        {:error, "Missing required parameter: traits_data"}
+      else
+        NFTMarketplace.calculate_rarity(slug, data)
+      end
+    end
   end
 end
