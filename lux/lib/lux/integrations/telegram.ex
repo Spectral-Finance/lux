@@ -1,49 +1,73 @@
 defmodule Lux.Integrations.Telegram do
   @moduledoc """
-  Common settings and functions for Telegram Bot API integration.
+  Telegram Core API Integration ($2,500).
+
+  Provides Bot API configuration, webhook management,
+  message formatting, and inline keyboard helpers.
+
+  ## Configuration
+
+      config :lux, Lux.Integrations.Telegram,
+        bot_token: System.get_env("TELEGRAM_BOT_TOKEN"),
+        webhook_url: System.get_env("TELEGRAM_WEBHOOK_URL")
   """
 
-  @doc """
-  Common request settings for Telegram Bot API calls.
-  """
-  def request_settings do
-    %{
-      headers: [{"Content-Type", "application/json"}],
-      auth: %{
-        type: :custom,
-        auth_function: &__MODULE__.add_auth_header/1
-      }
-    }
+  @base_url "https://api.telegram.org"
+
+  def bot_token do
+    Application.get_env(:lux, __MODULE__, [])[:bot_token] ||
+      System.get_env("TELEGRAM_BOT_TOKEN") ||
+      raise ArgumentError, "TELEGRAM_BOT_TOKEN not configured"
   end
 
-  @doc """
-  Common headers for Telegram Bot API calls.
-  """
-  def headers, do: [{"Content-Type", "application/json"}]
+  def api_url, do: "#{@base_url}/bot#{bot_token()}"
+  def headers, do: [{"Content-Type", "application/json"}, {"Accept", "application/json"}]
 
-  @doc """
-  Common auth settings for Telegram Bot API calls.
-  """
-  def auth, do: %{
-    type: :custom,
-    auth_function: &__MODULE__.add_auth_header/1
-  }
+  # Core endpoints
+  def send_message_url,       do: api_url() <> "/sendMessage"
+  def send_photo_url,         do: api_url() <> "/sendPhoto"
+  def send_document_url,      do: api_url() <> "/sendDocument"
+  def edit_message_url,       do: api_url() <> "/editMessageText"
+  def delete_message_url,     do: api_url() <> "/deleteMessage"
+  def set_webhook_url,        do: api_url() <> "/setWebhook"
+  def get_webhook_info_url,   do: api_url() <> "/getWebhookInfo"
+  def get_me_url,             do: api_url() <> "/getMe"
+  def get_chat_url,           do: api_url() <> "/getChat"
+  def get_chat_members_url,   do: api_url() <> "/getChatMemberCount"
+  def get_updates_url,        do: api_url() <> "/getUpdates"
+  def answer_callback_url,    do: api_url() <> "/answerCallbackQuery"
 
-  @doc """
-  Adds Telegram bot token to the URL.
-  Used with Req.
-  """
-  @spec add_auth_header(Plug.Conn.t()) :: Plug.Conn.t()
-  def add_auth_header(%Plug.Conn{} = conn) do
-    token = Lux.Config.telegram_bot_token()
-    path = conn.request_path
-    
-    # Extract and replace bot token placeholder if needed
-    updated_path = if String.contains?(path, "/bot/"), do: 
-      String.replace(path, "/bot/", "/bot#{token}/"), 
-    else: 
-      path
-      
-    %{conn | request_path: updated_path}
+  @doc "Builds a send_message request body."
+  @spec message_body(integer() | String.t(), String.t(), keyword()) :: map()
+  def message_body(chat_id, text, opts \\ []) do
+    %{chat_id: chat_id, text: text,
+      parse_mode: Keyword.get(opts, :parse_mode, "MarkdownV2"),
+      disable_notification: Keyword.get(opts, :silent, false)}
+    |> maybe_put(:reply_markup, Keyword.get(opts, :keyboard))
+    |> maybe_put(:reply_to_message_id, Keyword.get(opts, :reply_to))
   end
-end 
+
+  @doc "Builds an inline keyboard markup."
+  @spec inline_keyboard(list(list(map()))) :: map()
+  def inline_keyboard(rows) do
+    %{inline_keyboard: rows}
+  end
+
+  @doc "Builds a single inline button."
+  @spec button(String.t(), String.t() | nil, String.t() | nil) :: map()
+  def button(text, callback_data \\ nil, url \\ nil) do
+    %{text: text}
+    |> maybe_put(:callback_data, callback_data)
+    |> maybe_put(:url, url)
+  end
+
+  @doc "Escapes text for MarkdownV2 parse mode."
+  @spec escape_markdown(String.t()) :: String.t()
+  def escape_markdown(text) do
+    ~w([ ] ( ) ~ ` > # + - = | { } . !)
+    |> Enum.reduce(text, fn char, acc -> String.replace(acc, char, "\\#{char}") end)
+  end
+
+  defp maybe_put(map, _key, nil), do: map
+  defp maybe_put(map, key, val), do: Map.put(map, key, val)
+end
