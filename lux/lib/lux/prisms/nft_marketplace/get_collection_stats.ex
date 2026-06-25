@@ -36,12 +36,17 @@ defmodule Lux.Prisms.NFTMarketplace.GetCollectionStats do
   alias Lux.Integrations.NFTMarketplace
 
   def handler(params, _agent) do
-    slug = params.collection_slug
-    mkt = String.to_existing_atom(Map.get(params, :marketplace, "opensea"))
+    # Safely fetch parameter keys supporting both string and atom maps
+    slug = Map.get(params, "collection_slug") || Map.get(params, :collection_slug)
+    mkt = Map.get(params, "marketplace") || Map.get(params, :marketplace) || "opensea"
 
-    case NFTMarketplace.get_collection_stats(slug, mkt) do
-      {:ok, stats} -> {:ok, stats}
-      {:error, reason} -> {:error, reason}
+    if is_nil(slug) or slug == "" do
+      {:error, "Missing required parameter: collection_slug"}
+    else
+      case NFTMarketplace.get_collection_stats(slug, mkt) do
+        {:ok, stats} -> {:ok, stats}
+        {:error, reason} -> {:error, reason}
+      end
     end
   end
 end
