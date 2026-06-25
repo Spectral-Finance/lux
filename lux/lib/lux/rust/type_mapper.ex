@@ -44,9 +44,9 @@ defmodule Lux.Rust.TypeMapper do
   def rust_to_elixir_type("String"), do: {:ok, :string}
   def rust_to_elixir_type("char"), do: {:ok, :char}
   def rust_to_elixir_type("Vec<u8>"), do: {:ok, :bytes}
-  def rust_to_elixir_type("Vec<#{_rest}>" = _type), do: {:ok, :vec}
-  def rust_to_elixir_type("HashMap<#{_k}, #{_v}>"), do: {:ok, :hash_map}
-  def rust_to_elixir_type("Option<#{_inner}>"), do: {:ok, :option}
+  def rust_to_elixir_type("Vec<" <> _rest), do: {:ok, :vec}
+  def rust_to_elixir_type("HashMap<" <> _k <> ", " <> _v <> ">"), do: {:ok, :hash_map}
+  def rust_to_elixir_type("Option<" <> _inner), do: {:ok, :option}
   def rust_to_elixir_type(type), do: {:error, "Unknown Rust type: #{type}"}
 
   @doc "Converts an Elixir container type to its Rust equivalent."
@@ -82,7 +82,7 @@ defmodule Lux.Rust.TypeMapper do
 
   @doc "Converts a Rust container type string back to Elixir."
   @spec container_from_rust(String.t()) :: type_result()
-  def container_from_rust("Vec<#{_inner}>" = full_type) do
+  def container_from_rust("Vec<" <> _inner = full_type) do
     inner = full_type |> String.trim_trailing(">") |> String.trim_leading("Vec<")
     case rust_to_elixir_type(inner) do
       {:ok, prim} -> {:ok, {:container, :vec, {:primitive, prim}}}
@@ -90,7 +90,7 @@ defmodule Lux.Rust.TypeMapper do
     end
   end
 
-  def container_from_rust("Option<#{_inner}>" = full_type) do
+  def container_from_rust("Option<" <> _inner = full_type) do
     inner = full_type |> String.trim_trailing(">") |> String.trim_leading("Option<")
     case rust_to_elixir_type(inner) do
       {:ok, prim} -> {:ok, {:container, :option, {:primitive, prim}}}
@@ -98,7 +98,7 @@ defmodule Lux.Rust.TypeMapper do
     end
   end
 
-  def container_from_rust("HashMap<#{_k}, #{_v}>" = _full_type),
+  def container_from_rust("HashMap<" <> _k <> ", " <> _v <> ">" = _full_type),
     do: {:ok, {:container, :hash_map, {:type, "HashMap"}}}
 
   def container_from_rust(_), do: {:error, "Not a container type"}
@@ -294,17 +294,17 @@ defmodule Lux.Rust.TypeMapper do
   defp do_deserialize_type("char"), do: {:ok, {:primitive, :char}}
   defp do_deserialize_type("Vec<u8>"), do: {:ok, {:primitive, :bytes}}
 
-  defp do_deserialize_type("Vec<#{_inner}>" = full) do
+  defp do_deserialize_type("Vec<" <> _inner = full) do
     inner = full |> String.trim_trailing(">") |> String.trim_leading("Vec<")
     with {:ok, desc} <- do_deserialize_type(inner), do: {:ok, {:container, :vec, desc}}
   end
 
-  defp do_deserialize_type("Option<#{_inner}>" = full) do
+  defp do_deserialize_type("Option<" <> _inner = full) do
     inner = full |> String.trim_trailing(">") |> String.trim_leading("Option<")
     with {:ok, desc} <- do_deserialize_type(inner), do: {:ok, {:container, :option, desc}}
   end
 
-  defp do_deserialize_type("HashMap<#{_k}, #{_v}>" = full) do
+  defp do_deserialize_type("HashMap<" <> _k <> ", " <> _v <> ">" = full) do
     inner =
       full
       |> String.trim_trailing(">")
