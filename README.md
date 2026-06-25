@@ -1,7 +1,4 @@
-# Lux
-
-<!-- [![Build Status](https://github.com/spectrallabs/lux/workflows/CI/badge.svg)](https://github.com/spectrallabs/lux/actions) -->
-[![Lux CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml)
+[![Lux CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/llex-ci.yml)
 [![Lux App CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml)
 [![Hex.pm](https://img.shields.io/hexpm/v/lux.svg)](https://hex.pm/packages/lux)
 [![Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/lux)
@@ -27,10 +24,22 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
 - [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
 - [Language Support](lux/guides/language_support.md) - Language integration details
+- 📊 **Observable**: Built-in monitoring, metrics, and debugging tools
+- 🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
 
-### Core Concepts
-- [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
-- [Signals](lux/guides/signals.livemd) - Type-safe communication between agents
+## Documentation
+
+### Perplexity AI Integration
+
+The framework now includes integration with Perplexity AI for advanced language model capabilities. This integration enables:
+
+- Specialized model access for complex reasoning tasks
+- Knowledge-intensive capabilities through Perplexity's advanced APIs
+- Cost optimization for enterprise-scale deployments
+- Response streaming for real-time interaction
+- Error handling and detailed cost tracking
+
+## Getting Started
 - [Prisms](lux/guides/prisms.livemd) - Modular functional components
 - [Beams](lux/guides/beams.livemd) - Workflow orchestration
 - [Lenses](lux/guides/lenses.livemd) - External service integration

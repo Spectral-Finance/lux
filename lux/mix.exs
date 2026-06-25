@@ -1,6 +1,22 @@
 defmodule Lux.MixProject do
   use Mix.Project
-
+  def project() do
+    [
+      app: :lux,
+      version: "0.1.0",
+      elixir: ">= 1.14.0",
+      start_permanent: false,
+      deps: deps()
+    ]
+  end
+end
+  def deps() do
+    [
+      {:tesla, "~> 1.7"}
+    ]
+  end
+end
+end
   def project do
     [
       app: :lux,

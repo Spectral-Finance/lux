@@ -50,4 +50,34 @@ node_modules/
 !*.envrc.example
 
 # Dialyzer
+# Dependencies
+node_modules
+browser
+
+*.o
+*.s
+*.so
+*.beam
+*.d
+deps/
+doc/
+doc-disas
+rebar/ebat
+rebar/relx
+rebar/rebar
+rebar/rebar3
+rebar/rebar3
+_build/
+_build/
+_build/
+_build/*/
+_build/default/
+*.d
+*.d/
+*.o
+*.s
+*.so
+*.beam
+deps/
+doc/
 priv/plts/
