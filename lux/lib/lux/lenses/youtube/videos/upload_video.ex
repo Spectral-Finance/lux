@@ -217,8 +217,6 @@ defmodule Lux.Lenses.YouTube.Videos.UploadVideo do
     status =
       if end_time = Map.get(params, :scheduled_end_time) do
         Map.put(status, :selfDeclaredMadeForKids, true)
-        # Note: actual made_for_kids and self_declared fields would go here
-        status
       else
         status
       end
