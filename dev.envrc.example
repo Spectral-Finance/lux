@@ -14,3 +14,5 @@ SECRET_KEY_BASE=zDOKhgvZMQfdRIbEBDrpMeV7zxeStRbH9BONTMd12vY86CtHmf2KaMyJakv2WqLf
 
 # Optional: Set to true to enable server
 PHX_SERVER=false 
+# DeFi Analytics Integration
+DUNE_API_KEY="your-dune-api-key"
