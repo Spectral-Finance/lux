@@ -26,8 +26,12 @@ defmodule Lux.Prisms.NFTMarketplace.CompareMarketplaces do
   alias Lux.Integrations.NFTMarketplace
 
   def handler(params, _agent) do
-    slug = params.collection_slug
+    slug = Map.get(params, "collection_slug") || Map.get(params, :collection_slug)
 
-    NFTMarketplace.compare_marketplaces(slug)
+    if is_nil(slug) or slug == "" do
+      {:error, "Missing required parameter: collection_slug"}
+    else
+      NFTMarketplace.compare_marketplaces(slug)
+    end
   end
 end
