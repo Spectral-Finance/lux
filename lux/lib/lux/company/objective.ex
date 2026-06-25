@@ -24,7 +24,9 @@ defmodule Lux.Company.Objective do
           started_at: DateTime.t() | nil,
           completed_at: DateTime.t() | nil,
           metadata: map(),
-          input_schema: map() | nil
+          input_schema: map() | nil,
+          tasks: list(),
+          error: term() | nil
         }
 
   @type status :: :pending | :in_progress | :completed | :failed
@@ -41,7 +43,9 @@ defmodule Lux.Company.Objective do
     progress: 0,
     started_at: nil,
     completed_at: nil,
-    metadata: %{}
+    metadata: %{},
+    tasks: [],
+    error: nil
   ]
 
   @doc """
