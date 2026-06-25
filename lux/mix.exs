@@ -4,12 +4,13 @@ defmodule Lux.MixProject do
   def project do
     [
       app: :lux,
-      version: "0.5.0",
-      elixir: "~> 1.18",
-      start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      dialyzer: [
-        plt_add_apps: [:mix],
+      version: "0.1.0",
+      elixir: "~> 1.15",
+      elixir: "~> 1.15",
+      compilers: [:rustler] ++ Mix.compilers(),
+      deps: deps()
+    ]
+  end
         plt_file: {:no_warn, "priv/plts/dialyzer.plt"},
         plt_core_path: "priv/plts/"
       ],
@@ -18,13 +19,13 @@ defmodule Lux.MixProject do
       # Test coverage
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
-        coveralls: :test,
-        "coveralls.detail": :test,
-        "coveralls.post": :test,
-        "coveralls.html": :test,
-        "coveralls.github": :test
-      ],
-      # Package
+  # Run "mix help deps" to learn about dependencies.
+  defp deps do
+    [
+      {:rustler, "~> 0.30.0", runtime: false}
+      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+    ]
+  end
       description:
         "A framework for building and orchestrating LLM-powered agent workflows in Elixir",
       package: package(),

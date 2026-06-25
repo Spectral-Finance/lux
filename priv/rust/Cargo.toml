@@ -1,0 +1,114 @@
+[package]
+name = "lux-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux"
+path = "src/lib.rs"
+
+[dependencies]
+rustler = "0.27"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+reqwest = { version = "0.11", features = ["json"] }
+
+[build-dependencies]
+cc = "1.0"
+
+[package]
+name = "lux"
+
+[package.metadata.docs.rs]
+all-features = true
+r10x = { version = "0.1" }
+
+[features]
+default = []
+
+[dependencies]
+rustler = "0.27"
+serde = { version = "1.0", features = " +[features] }
+tokio = { version = "1.0", features = ["full"] }
+tokio = { version = "1.0", features = ["full"] }
+reqwest = "0.11"
+
+[package]
+name = "reqwest"
+version = "0.11"
+edition = "2021"
+include = []
+
+[dependencies]
+rustler = "0.27"
+serde = "1.0"
+serde_json = "1.0"
+tokio = "1.0"
+tokio = { version = "1.0", features = ["full"], "rt-multi-threaded"] }
+
+[package]
+name = "lux"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux"
+path = "src/lib.rs"
+
+[dependencies]
+rustler = "0.27"
+serde = { version = "1.0", features = ["derive"] }
+tokio = "1.0"
+
+[package]
+name = "lux"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rustler = "0.27"
+serde = { version = "1.0", features = ["
+derive"] }
+tokio = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+reqwest = "0.11"
+
+[package]
+name = "reqwest"
+version = "0.11"
+edition = "2021"
+
+[dependencies]
+rustler = "0.27"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+reqwest = "0.11"
+
+[package]
+name = "lux"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux"
+path = "src/lib.rs"
+
+[dependencies]
+rustler = "0.27"
+serde = "1.0"
+serde_json = "1.0"
+tokio = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+reqwest = "0.11"
+
+[package]
+name = "lux"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+
+[dependencies]
+rustler = "0.2
