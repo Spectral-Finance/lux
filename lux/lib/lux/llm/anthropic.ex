@@ -8,6 +8,7 @@ defmodule Lux.LLM.Anthropic do
 
   alias Lux.Beam
   alias Lux.Lens
+  alias Lux.LLM.Response
   alias Lux.Prism
 
   require Beam
@@ -163,17 +164,21 @@ defmodule Lux.LLM.Anthropic do
   defp handle_successful_response(response) do
     case extract_content_and_tool_calls(response.body) do
       {content, []} ->
-        {:ok, %Lux.LLM.Response{
+        {:ok, %Response{
           content: content,
           tool_calls: [],
-          finish_reason: response.body["stop_reason"]
+          finish_reason: response.body["stop_reason"],
+          model: response.body["model"],
+          provider: __MODULE__
         }}
 
       {_content, tool_calls} ->
-        {:ok, %Lux.LLM.Response{
+        {:ok, %Response{
           content: nil,
           tool_calls: tool_calls,
-          finish_reason: response.body["stop_reason"]
+          finish_reason: response.body["stop_reason"],
+          model: response.body["model"],
+          provider: __MODULE__
         }}
     end
   end

@@ -40,6 +40,15 @@ defmodule Lux.Config do
     get_required_key(:api_keys, :openai)
   end
 
+  @doc """
+  Gets the OpenRouter API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec openrouter_api_key() :: api_key()
+  def openrouter_api_key do
+    get_required_key(:api_keys, :openrouter)
+  end
+
   @spec openweather_api_key() :: api_key()
   def openweather_api_key do
     get_required_key(:api_keys, :openweather)
