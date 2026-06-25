@@ -1,0 +1,30 @@
+defmodule Lux.NFTAggregator.MarketplaceData do
+  @moduledoc """
+  Data module for marketplace information
+  """
+  defstruct [
+    :marketplace,
+    :collection_name,
+    :contract_address,
+    :chain_id,
+    :floor_price,
+    :average_price,
+    :total_volume,
+    :owners,
+    :items,
+    :sales_24h,
+    :sales_7d,
+    :sales_30d,
+    :items_listed,
+    :items_sold,
+    :rarity_scores,
+    :traits
+  ]
+
+  @doc """
+  Create new marketplace data structure
+  """
+  def new() do
+    %__MODULE__{}
+  end
+end
