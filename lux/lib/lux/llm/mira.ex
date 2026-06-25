@@ -7,7 +7,7 @@ defmodule Lux.LLM.Mira do
 
   alias Lux.Beam
   alias Lux.Lens
-  alias Lux.LLM.ResponseSignal
+  alias Lux.LLM.Response
   alias Lux.Prism
 
   require Beam
@@ -153,28 +153,18 @@ defmodule Lux.LLM.Mira do
          %{"message" => message, "finish_reason" => finish_reason} <- choice,
          {:ok, content} <- parse_content(message["content"]),
          {:ok, tool_calls_results} <- execute_tool_calls(message["tool_calls"]) do
-      payload = %{
+      {:ok, %Response{
         content: content,
-        model: data["model"],
+        tool_calls: message["tool_calls"] || [],
+        tool_calls_results: tool_calls_results,
         finish_reason: finish_reason,
-        tool_calls: message["tool_calls"],
-        tool_calls_results: tool_calls_results
-      }
-
-      metadata = %{
-        id: id,
-        created: created,
+        structured_output: content,
+        model: data["model"],
         usage: usage,
-        system_fingerprint: data["system_fingerprint"]
-      }
-
-      %{
-        schema_id: ResponseSignal,
-        payload: payload,
-        metadata: metadata
-      }
-      |> Lux.Signal.new()
-      |> ResponseSignal.validate()
+        provider: __MODULE__
+      }}
+    else
+      _ -> {:error, "Failed to parse Mira response"}
     end
   end
 
