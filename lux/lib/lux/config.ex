@@ -139,3 +139,58 @@ defmodule Lux.Config do
     end
   end
 end
+
+  @doc """
+  Gets the Coinbase API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec coinbase_api_key() :: api_key()
+  def coinbase_api_key do
+    get_required_key(:api_keys, :coinbase)
+  end
+
+  @doc """
+  Gets the Coinbase API secret from configuration.
+  Raises if the key is not configured.
+  """
+  @spec coinbase_api_secret() :: api_key()
+  def coinbase_api_secret do
+    get_required_key(:api_keys, :coinbase_secret)
+  end
+
+  @doc """
+  Gets the Coinbase API key file path for JWT-based authentication.
+  Returns empty string if not configured.
+  """
+  @spec coinbase_key_file() :: String.t()
+  def coinbase_key_file do
+    :lux
+    |> Application.fetch_env!(:api_keys)
+    |> Keyword.get(:coinbase_key_file, "")
+  end
+
+  @doc """
+  Gets the configured Coinbase REST API base URL.
+  """
+  @spec coinbase_api_url() :: String.t()
+  def coinbase_api_url do
+    Application.get_env(:lux, :accounts)[:coinbase_api_url] || "api.coinbase.com"
+  end
+
+  @doc """
+  Gets the configured Coinbase WebSocket base URL.
+  """
+  @spec coinbase_ws_url() :: String.t()
+  def coinbase_ws_url do
+    Application.get_env(:lux, :accounts)[:coinbase_ws_url] ||
+      "wss://advanced-trade-ws.coinbase.com"
+  end
+
+  @doc """
+  Gets the configured Coinbase WebSocket user URL.
+  """
+  @spec coinbase_ws_user_url() :: String.t()
+  def coinbase_ws_user_url do
+    Application.get_env(:lux, :accounts)[:coinbase_ws_user_url] ||
+      "wss://advanced-trade-ws-user.coinbase.com"
+  end
