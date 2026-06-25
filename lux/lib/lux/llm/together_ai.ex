@@ -7,7 +7,7 @@ defmodule Lux.LLM.TogetherAI do
 
     alias Lux.Beam
     alias Lux.Lens
-    alias Lux.LLM.ResponseSignal
+    alias Lux.LLM.Response
     alias Lux.Prism
 
     require Beam
@@ -173,28 +173,18 @@ defmodule Lux.LLM.TogetherAI do
            %{"message" => message} <- choice,
            {:ok, content} <- parse_content(message["content"]),
            {:ok, tool_calls_results} <- execute_tool_calls(message["tool_calls"]) do
-        payload = %{
+        {:ok, %Response{
           content: content,
-          model: body["model"],
+          tool_calls: message["tool_calls"] || [],
+          tool_calls_results: tool_calls_results,
           finish_reason: choice["finish_reason"],
-          tool_calls: message["tool_calls"],
-          tool_calls_results: tool_calls_results
-        }
-
-        metadata = %{
-          id: body["id"],
-          created: body["created"],
+          structured_output: content,
+          model: body["model"],
           usage: body["usage"],
-          system_fingerprint: body["system_fingerprint"]
-        }
-
-        %{
-          schema_id: ResponseSignal,
-          payload: payload,
-          metadata: metadata
-        }
-        |> Lux.Signal.new()
-        |> ResponseSignal.validate()
+          provider: __MODULE__
+        }}
+      else
+        _ -> {:error, "Failed to parse Together AI response"}
       end
     end
 

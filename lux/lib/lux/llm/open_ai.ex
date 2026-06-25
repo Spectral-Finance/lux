@@ -7,7 +7,7 @@ defmodule Lux.LLM.OpenAI do
 
   alias Lux.Beam
   alias Lux.Lens
-  alias Lux.LLM.ResponseSignal
+  alias Lux.LLM.Response
   alias Lux.Prism
 
   require Beam
@@ -227,33 +227,23 @@ defmodule Lux.LLM.OpenAI do
     }
   end
 
-  defp handle_response(%{body: body}, _config) do
+  defp handle_response(%{body: body}, config) do
     with %{"choices" => [choice | _]} <- body,
          %{"message" => message, "finish_reason" => finish_reason} <- choice,
          {:ok, content} <- parse_content(message["content"]),
          {:ok, tool_calls_results} <- execute_tool_calls(message["tool_calls"]) do
-      payload = %{
+      {:ok, %Response{
         content: content,
-        model: body["model"],
+        tool_calls: message["tool_calls"] || [],
+        tool_calls_results: tool_calls_results,
         finish_reason: finish_reason,
-        tool_calls: message["tool_calls"],
-        tool_calls_results: tool_calls_results
-      }
-
-      metadata = %{
-        id: body["id"],
-        created: body["created"],
+        structured_output: content,
+        model: body["model"],
         usage: body["usage"],
-        system_fingerprint: body["system_fingerprint"]
-      }
-
-      %{
-        schema_id: ResponseSignal,
-        payload: payload,
-        metadata: metadata
-      }
-      |> Lux.Signal.new()
-      |> ResponseSignal.validate()
+        provider: __MODULE__
+      }}
+    else
+      _ -> {:error, "Failed to parse OpenAI response"}
     end
   end
 
