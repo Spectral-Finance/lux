@@ -4,6 +4,16 @@ Lux is designed to be language-agnostic, allowing you to build agents in your pr
 
 ## Currently Supported Languages
 
+### Rust Integration
+[Learn more about Rust integration](language_support/rust.livemd)
+
+Rust integration provides high-performance native code execution with memory safety guarantees:
+- Write Rust code and compile to a shared library for FFI access
+- Use `Lux.Rust.eval/1` to execute Rust operations from Elixir
+- Automatic type conversion between Elixir terms and Rust `LuxValue` types
+- Structured error handling with categorized error types
+- Ideal for compute-intensive tasks: cryptography, numerical algorithms, data processing
+
 ### Python Integration
 [Learn more about Python integration](language_support/python.livemd)
 
@@ -24,33 +34,16 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 - Support for modern ES modules and async/await
 - Full access to Node.js APIs
 
-## Future Language Support
-
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
-
-### Custom Language Integration
-Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
-- Add new language runtimes
-- Define type conversion rules
-- Handle package management
-- Implement error handling
-
-Check out our [Contributing Guide](contributing.md) for details on adding language support.
-
 ## Best Practices
 
 1. **Choose the Right Language**
+   - Use Rust for performance-critical and compute-intensive tasks
    - Use Python for ML/AI tasks and data processing
    - Use Node.js for web integration and text processing
    - Use Elixir for coordination and state management
-   - Consider Rust (coming soon) for performance-critical components
 
 2. **Package Management**
+   - Add custom Rust code under `priv/rust/` and use Cargo
    - Add custom Python modules under `priv/python/`
    - Use `poetry` for Python dependency management
    - Use `npm`/`yarn` for Node.js dependencies
@@ -86,4 +79,4 @@ Want to add support for a new language? Check our [Contributing Guide](contribut
 4. Document the integration
 5. Submit a pull request
 
-For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux). 
+For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux).

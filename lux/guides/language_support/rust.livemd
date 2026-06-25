@@ -1,0 +1,258 @@
+# Rust Integration in Lux
+
+```elixir
+Mix.install([
+  {:lux, ">= 0.5.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:lux])
+```
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Frust.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+Lux provides high-performance Rust integration, allowing you to leverage Rust's speed and memory safety for compute-intensive tasks in your agents. This guide explains how to use Rust effectively with Lux.
+
+## Why Rust?
+
+Rust is ideal for:
+- **Numerical computations** - cryptography, hashing, mathematical operations
+- **Data processing** - sorting, filtering, aggregating large datasets
+- **Algorithmic trading** - low-latency market data analysis
+- **Memory-safe FFI** - zero-cost abstractions with guaranteed memory safety
+
+## Setting Up the Rust Core
+
+### Prerequisites
+
+Install Rust via [rustup](https://rustup.rs/):
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+```
+
+### Building the Rust Core
+
+```bash
+cd priv/rust
+cargo build --release
+```
+
+### Verifying Installation
+
+```elixir
+iex> Lux.Rust.available?()
+true
+
+iex> Lux.Rust.version()
+"0.1.0"
+```
+
+## Using the Rust Evaluation API
+
+### Basic Evaluation
+
+Use `Lux.Rust.eval/1` to execute Rust operations:
+
+```elixir
+defmodule MyApp.Prisms.MathPrism do
+  use Lux.Prism,
+    name: "Math Operations",
+    description: "Performs high-performance mathematical calculations"
+
+  require Lux.Rust
+
+  def handler(input, _ctx) do
+    result = Lux.Rust.eval(%{
+      code: "add",
+      a: input.x,
+      b: input.y
+    })
+
+    case result do
+      {:ok, %{"result" => value}} -> {:ok, %{sum: value}}
+      {:error, error} -> {:error, error}
+    end
+  end
+end
+```
+
+### Type Conversion
+
+Lux automatically converts between Elixir and Rust types:
+
+| Elixir Type | Rust LuxValue |
+|-------------|---------------|
+| `nil` | `Nil` |
+| `true`/`false` | `Bool` |
+| Integer | `Int` |
+| Float | `Float` |
+| String | `Str` |
+| List | `List` |
+| Map | `Map` |
+
+```elixir
+iex> Lux.Rust.to_lux_value(42)
+{:ok, %{"type" => "Int", "value" => 42}}
+
+iex> Lux.Rust.to_lux_value("hello")
+{:ok, %{"type" => "Str", "value" => "hello"}}
+
+iex> Lux.Rust.to_lux_value([1, 2, 3])
+{:ok, %{"type" => "List", "value" => [1, 2, 3]}}
+```
+
+## Custom Rust Modules
+
+### Project Structure
+
+Add custom Rust code under `priv/rust/src`:
+
+```
+priv/rust/
+├── Cargo.toml
+├── src/
+│   ├── lib.rs          # Main library entry point
+│   ├── types.rs        # LuxValue type definitions
+│   ├── error.rs        # Error handling framework
+│   ├── ffi.rs          # FFI bindings
+│   └── conversion.rs   # Type conversion layer
+└── tests/
+    └── integration_tests.rs
+```
+
+### Adding Custom Functions
+
+To add a new Rust function:
+
+1. Define it in `priv/rust/src/ffi.rs`:
+
+```rust
+#[no_mangle]
+pub unsafe extern "C" fn lux_multiply(
+    a: i64,
+    b: i64,
+) -> i64 {
+    a * b
+}
+```
+
+2. Re-export from `priv/rust/src/lib.rs`:
+
+```rust
+pub mod ffi;
+```
+
+3. Call from Elixir via `Lux.Rust.eval/1`.
+
+## Error Handling
+
+### Error Categories
+
+Rust errors are categorized for structured handling:
+
+- `:type_error` - Type mismatch or conversion failure
+- `:runtime_error` - Runtime computation error
+- `:ffi_error` - FFI boundary communication error
+- `:not_found` - Resource not found
+- `:unknown` - Generic unknown error
+
+### Handling Errors
+
+```elixir
+defmodule MyApp.Prisms.SafeMathPrism do
+  use Lux.Prism, name: "Safe Math"
+
+  def handler(input, _ctx) do
+    case Lux.Rust.eval(%{code: "add", a: input.x, b: input.y}) do
+      {:ok, result} -> {:ok, result}
+      {:error, %Lux.Rust.Error{kind: :type_error, message: msg}} ->
+        {:error, "Type error: #{msg}"}
+      {:error, %Lux.Rust.Error{kind: :ffi_error, message: msg}} ->
+        {:error, "Communication error: #{msg}"}
+      {:error, error} ->
+        {:error, "Unknown error: #{error}"}
+    end
+  end
+end
+```
+
+### Raising Errors
+
+Use `eval!/1` to raise on failure:
+
+```elixir
+try do
+  Lux.Rust.eval!(%{code: "add", a: "x", b: "y"})
+rescue
+  Error -> "Type mismatch occurred"
+end
+```
+
+## Memory Safety Guarantees
+
+The Rust integration provides several memory safety guarantees:
+
+1. **No dangling pointers** - All FFI strings are heap-allocated and freed by the caller
+2. **No buffer overflows** - Rust's ownership system prevents out-of-bounds access
+3. **No data races** - The Rust compiler enforces thread safety at compile time
+4. **Graceful shutdown** - `lux_runtime_free` properly deallocates all resources
+
+## Testing
+
+### Running Rust Tests
+
+```bash
+cd priv/rust
+cargo test
+```
+
+### Elixir Integration Tests
+
+```elixir
+defmodule MathPrismTest do
+  use UnitCase, async: true
+
+  test "performs addition correctly" do
+    result = Lux.Rust.eval(%{code: "add", a: 10, b: 32})
+    assert {:ok, _} = result
+  end
+
+  test "handles type errors gracefully" do
+    result = Lux.Rust.eval(%{code: "add", a: "x", b: "y"})
+    assert {:error, %Lux.Rust.Error{kind: :type_error}} = result
+  end
+end
+```
+
+## Best Practices
+
+1. **Keep Rust code minimal** - Only move compute-intensive functions to Rust
+2. **Batch operations** - Minimize FFI calls by batching data transfers
+3. **Use proper error handling** - Always check `{:ok, result}` vs `{:error, error}`
+4. **Build in release mode** - Use `cargo build --release` for production deployments
+5. **Document FFI contracts** - Clearly specify input/output formats for each function
+
+## Comparison with Other Language Integrations
+
+| Feature | Rust | Python | Node.js |
+|---------|------|--------|---------|
+| Performance | Highest (compiled) | Medium (interpreted) | Medium (JIT) |
+| Memory Safety | Compile-time guarantees | Runtime | Runtime |
+| Concurrency | Borrow checker | GIL limitations | Event loop |
+| Ecosystem | Growing (crates.io) | Rich (PyPI) | Largest (npm) |
+| Learning Curve | Steep | Moderate | Moderate |
+
+## Future Directions
+
+Planned enhancements for Rust integration:
+
+- **Direct Prism/Beam definitions in Rust** - Define Lux components natively in Rust
+- **Async/Future support** - Handle asynchronous Rust computations
+- **Streaming data** - Large dataset processing without full serialization
+- **Custom derive macros** - Automatic type conversion for Rust structs
