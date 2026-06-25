@@ -1,10 +1,10 @@
 defmodule Lux.Integrations.NFTMarketplace do
   @moduledoc """
-  Integration with major NFT marketplaces like OpenSea, Blur, and X2Y2.
+  Integration with major NFT marketplaces: OpenSea, Blur, and X2Y2.
 
   Provides functions for collection stats, sales, listings, rarity scores,
   traits analysis, trends, and cross-marketplace comparisons.
-  Supports both real API requests (when keys are configured) and rich mock data.
+  Supports both real API requests (when keys are configured) and response normalization.
   """
 
   require Logger
@@ -15,14 +15,19 @@ defmodule Lux.Integrations.NFTMarketplace do
   Gets collection stats from the specified marketplace.
   """
   def get_collection_stats(collection_slug, marketplace \\ :opensea) do
-    Logger.info("Fetching collection stats for #{collection_slug} from #{marketplace}")
-    
-    if api_configured?(marketplace) do
-      # Make actual REST API request via Req
-      make_api_request(marketplace, "/collection/#{collection_slug}/stats")
+    marketplace_atom = normalize_marketplace(marketplace)
+    Logger.info("Fetching collection stats for #{collection_slug} from #{marketplace_atom}")
+
+    if api_configured?(marketplace_atom) or test_mode?() do
+      url = stats_url(collection_slug, marketplace_atom)
+      case make_api_request(marketplace_atom, url) do
+        {:ok, body} ->
+          {:ok, normalize_stats_response(body, marketplace_atom, collection_slug)}
+        {:error, reason} ->
+          {:error, reason}
+      end
     else
-      # Return realistic mock data
-      {:ok, mock_collection_stats(collection_slug, marketplace)}
+      {:ok, mock_collection_stats(collection_slug, marketplace_atom)}
     end
   end
 
@@ -30,12 +35,19 @@ defmodule Lux.Integrations.NFTMarketplace do
   Gets active listings for a collection.
   """
   def get_listings(collection_slug, marketplace \\ :opensea) do
-    Logger.info("Fetching listings for #{collection_slug} from #{marketplace}")
-    
-    if api_configured?(marketplace) do
-      make_api_request(marketplace, "/listings/collection/#{collection_slug}")
+    marketplace_atom = normalize_marketplace(marketplace)
+    Logger.info("Fetching listings for #{collection_slug} from #{marketplace_atom}")
+
+    if api_configured?(marketplace_atom) or test_mode?() do
+      url = listings_url(collection_slug, marketplace_atom)
+      case make_api_request(marketplace_atom, url) do
+        {:ok, body} ->
+          {:ok, normalize_listings_response(body, marketplace_atom)}
+        {:error, reason} ->
+          {:error, reason}
+      end
     else
-      {:ok, mock_listings(collection_slug, marketplace)}
+      {:ok, mock_listings(collection_slug, marketplace_atom)}
     end
   end
 
@@ -43,12 +55,19 @@ defmodule Lux.Integrations.NFTMarketplace do
   Gets recent sales events for a collection.
   """
   def get_sales(collection_slug, marketplace \\ :opensea) do
-    Logger.info("Fetching sales for #{collection_slug} from #{marketplace}")
-    
-    if api_configured?(marketplace) do
-      make_api_request(marketplace, "/events/collection/#{collection_slug}")
+    marketplace_atom = normalize_marketplace(marketplace)
+    Logger.info("Fetching sales for #{collection_slug} from #{marketplace_atom}")
+
+    if api_configured?(marketplace_atom) or test_mode?() do
+      url = sales_url(collection_slug, marketplace_atom)
+      case make_api_request(marketplace_atom, url) do
+        {:ok, body} ->
+          {:ok, normalize_sales_response(body, marketplace_atom)}
+        {:error, reason} ->
+          {:error, reason}
+      end
     else
-      {:ok, mock_sales(collection_slug, marketplace)}
+      {:ok, mock_sales(collection_slug, marketplace_atom)}
     end
   end
 
@@ -57,26 +76,34 @@ defmodule Lux.Integrations.NFTMarketplace do
   """
   def calculate_rarity(collection_slug, traits_data) do
     Logger.info("Calculating rarity scores for collection: #{collection_slug}")
-    
-    # Calculate rarity based on trait frequencies
-    # Formula: Rarity Score = Sum(1 / (Trait Frequency / Total Supply))
-    total_supply = Map.get(traits_data, "total_supply", 10000)
-    traits = Map.get(traits_data, "traits", %{})
-    tokens = Map.get(traits_data, "tokens", [])
 
-    rarity_scores = 
+    total_supply = get_any_key(traits_data, ["total_supply", :total_supply], 10000)
+    traits = get_any_key(traits_data, ["traits", :traits], %{})
+    tokens = get_any_key(traits_data, ["tokens", :tokens], [])
+
+    rarity_scores =
       tokens
       |> Enum.map(fn token ->
-        token_traits = Map.get(token, "traits", %{})
-        score = 
+        token_traits = get_any_key(token, ["traits", :traits], %{})
+        score =
           token_traits
           |> Enum.reduce(0.0, fn {trait_type, trait_value}, acc ->
-            freq = get_in(traits, [trait_type, trait_value]) || 1
+            trait_type_str = to_string(trait_type)
+            trait_value_str = to_string(trait_value)
+            
+            # Look up frequency in traits map, supporting string and atom keys
+            type_map = Map.get(traits, trait_type_str) || Map.get(traits, trait_type) || %{}
+            freq = Map.get(type_map, trait_value_str) || Map.get(type_map, trait_value) || 1
             acc + (total_supply / freq)
           end)
-        
-        token
-        |> Map.put("rarity_score", Float.round(score, 2))
+
+        token_id = get_any_key(token, ["token_id", :token_id])
+
+        %{
+          "token_id" => to_string(token_id),
+          "traits" => token_traits,
+          "rarity_score" => Float.round(score, 2)
+        }
       end)
       |> Enum.sort_by(& &1["rarity_score"], :desc)
       |> Enum.with_index(1)
@@ -93,8 +120,9 @@ defmodule Lux.Integrations.NFTMarketplace do
   Analyzes trait distributions and floor prices.
   """
   def analyze_traits(collection_slug, marketplace \\ :opensea) do
+    marketplace_atom = normalize_marketplace(marketplace)
     Logger.info("Analyzing traits for #{collection_slug}")
-    {:ok, mock_trait_analysis(collection_slug, marketplace)}
+    {:ok, mock_trait_analysis(collection_slug, marketplace_atom)}
   end
 
   @doc """
@@ -121,7 +149,7 @@ defmodule Lux.Integrations.NFTMarketplace do
   """
   def compare_marketplaces(collection_slug) do
     Logger.info("Comparing marketplaces for collection: #{collection_slug}")
-    
+
     {:ok, opensea_stats} = get_collection_stats(collection_slug, :opensea)
     {:ok, blur_stats} = get_collection_stats(collection_slug, :blur)
     {:ok, x2y2_stats} = get_collection_stats(collection_slug, :x2y2)
@@ -163,10 +191,180 @@ defmodule Lux.Integrations.NFTMarketplace do
     {:ok, comparison}
   end
 
-  # Helper functions
+  # Endpoint Path Builders
+
+  defp stats_url(slug, :opensea), do: "https://api.opensea.io/api/v2/collections/#{slug}/stats"
+  defp stats_url(slug, :blur), do: "https://api.blur.io/v1/collections/#{slug}"
+  defp stats_url(slug, :x2y2), do: "https://api.x2y2.org/v1/contracts/#{slug}/stats"
+
+  defp listings_url(slug, :opensea), do: "https://api.opensea.io/api/v2/listings/collection/#{slug}/all"
+  defp listings_url(slug, :blur), do: "https://api.blur.io/v1/collections/#{slug}/listings"
+  defp listings_url(slug, :x2y2), do: "https://api.x2y2.org/v1/orders?contract=#{slug}&status=1"
+
+  defp sales_url(slug, :opensea), do: "https://api.opensea.io/api/v2/events/collection/#{slug}"
+  defp sales_url(slug, :blur), do: "https://api.blur.io/v1/collections/#{slug}/sales"
+  defp sales_url(slug, :x2y2), do: "https://api.x2y2.org/v1/events?contract=#{slug}&type=sales"
+
+  # Headers Builders
+
+  defp auth_headers(:opensea), do: [{"X-API-KEY", System.get_env("OPENSEA_API_KEY")}, {"accept", "application/json"}]
+  defp auth_headers(:blur), do: [{"X-API-KEY", System.get_env("BLUR_API_KEY")}, {"accept", "application/json"}]
+  defp auth_headers(:x2y2), do: [{"X-API-KEY", System.get_env("X2Y2_API_KEY")}, {"accept", "application/json"}]
+
+  # Response Normalizers
+
+  defp normalize_stats_response(body, :opensea, slug) do
+    %{
+      "collection" => slug,
+      "marketplace" => "opensea",
+      "floor_price" => get_in(body, ["floor_price"]) || 0.0,
+      "volume_24h" => get_in(body, ["volume", "1d"]) || 0.0,
+      "num_owners" => get_in(body, ["num_owners"]) || 0,
+      "total_supply" => get_in(body, ["total_supply"]) || 0,
+      "average_price" => get_in(body, ["average_price"]) || 0.0
+    }
+  end
+
+  defp normalize_stats_response(body, :blur, slug) do
+    collection = Map.get(body, "collection", %{})
+    %{
+      "collection" => slug,
+      "marketplace" => "blur",
+      "floor_price" => parse_float(get_in(collection, ["floorPrice", "amount"])),
+      "volume_24h" => parse_float(get_in(collection, ["volume24h", "amount"])),
+      "num_owners" => Map.get(collection, "numberOwners", 0),
+      "total_supply" => Map.get(collection, "totalSupply", 0),
+      "average_price" => parse_float(get_in(collection, ["floorPrice", "amount"]))
+    }
+  end
+
+  defp normalize_stats_response(body, :x2y2, slug) do
+    data = Map.get(body, "data", %{})
+    %{
+      "collection" => slug,
+      "marketplace" => "x2y2",
+      "floor_price" => parse_float(Map.get(data, "floor_price")),
+      "volume_24h" => parse_float(Map.get(data, "volume_24h")),
+      "num_owners" => Map.get(data, "num_owners", 0),
+      "total_supply" => Map.get(data, "total_supply", 0),
+      "average_price" => parse_float(Map.get(data, "floor_price"))
+    }
+  end
+
+  defp normalize_listings_response(body, :opensea) do
+    listings = Map.get(body, "listings", [])
+    Enum.map(listings, fn l ->
+      price_val = get_in(l, ["price", "current", "value"]) || "0"
+      decimals = get_in(l, ["price", "current", "decimals"]) || 18
+      currency = get_in(l, ["price", "current", "currency"]) || "ETH"
+      price = parse_float(price_val) / :math.pow(10, decimals)
+
+      %{
+        "token_id" => to_string(get_in(l, ["criteria", "value"])),
+        "price" => Float.round(price, 4),
+        "payment_token" => currency,
+        "seller" => Map.get(l, "maker"),
+        "marketplace" => "opensea"
+      }
+    end)
+  end
+
+  defp normalize_listings_response(body, :blur) do
+    listings = Map.get(body, "listings", [])
+    Enum.map(listings, fn l ->
+      %{
+        "token_id" => to_string(Map.get(l, "tokenId")),
+        "price" => parse_float(Map.get(l, "price")),
+        "payment_token" => "ETH",
+        "seller" => Map.get(l, "seller"),
+        "marketplace" => "blur"
+      }
+    end)
+  end
+
+  defp normalize_listings_response(body, :x2y2) do
+    orders = Map.get(body, "data", [])
+    Enum.map(orders, fn o ->
+      price_val = Map.get(o, "price") || "0"
+      price = parse_float(price_val) / 1.0e18
+      %{
+        "token_id" => to_string(Map.get(o, "token_id")),
+        "price" => Float.round(price, 4),
+        "payment_token" => "ETH",
+        "seller" => Map.get(o, "owner"),
+        "marketplace" => "x2y2"
+      }
+    end)
+  end
+
+  defp normalize_sales_response(body, :opensea) do
+    events = Map.get(body, "asset_events", [])
+    Enum.map(events, fn e ->
+      price_val = get_in(e, ["payment", "quantity"]) || "0"
+      decimals = get_in(e, ["payment", "decimals"]) || 18
+      currency = get_in(e, ["payment", "symbol"]) || "ETH"
+      price = parse_float(price_val) / :math.pow(10, decimals)
+
+      %{
+        "token_id" => to_string(get_in(e, ["nft", "identifier"])),
+        "price" => Float.round(price, 4),
+        "payment_token" => currency,
+        "buyer" => Map.get(e, "buyer"),
+        "seller" => Map.get(e, "seller"),
+        "timestamp" => Map.get(e, "event_timestamp"),
+        "marketplace" => "opensea"
+      }
+    end)
+  end
+
+  defp normalize_sales_response(body, :blur) do
+    sales = Map.get(body, "sales", [])
+    Enum.map(sales, fn s ->
+      %{
+        "token_id" => to_string(Map.get(s, "tokenId")),
+        "price" => parse_float(Map.get(s, "price")),
+        "payment_token" => "ETH",
+        "buyer" => Map.get(s, "buyer"),
+        "seller" => Map.get(s, "seller"),
+        "timestamp" => parse_timestamp(Map.get(s, "createdAt")),
+        "marketplace" => "blur"
+      }
+    end)
+  end
+
+  defp normalize_sales_response(body, :x2y2) do
+    events = Map.get(body, "data", [])
+    Enum.map(events, fn e ->
+      price_val = get_in(e, ["price"]) || "0"
+      price = parse_float(price_val) / 1.0e18
+
+      %{
+        "token_id" => to_string(get_in(e, ["token_id"])),
+        "price" => Float.round(price, 4),
+        "payment_token" => "ETH",
+        "buyer" => Map.get(e, "buyer"),
+        "seller" => Map.get(e, "seller"),
+        "timestamp" => Map.get(e, "created_at"),
+        "marketplace" => "x2y2"
+      }
+    end)
+  end
+
+  # Helpers
+
+  defp normalize_marketplace(mkt) when is_binary(mkt) do
+    case String.downcase(mkt) do
+      "opensea" -> :opensea
+      "blur" -> :blur
+      "x2y2" -> :x2y2
+      _ -> :opensea
+    end
+  end
+  defp normalize_marketplace(mkt) when is_atom(mkt), do: mkt
+  defp normalize_marketplace(_), do: :opensea
 
   defp api_configured?(marketplace) do
-    key = 
+    key =
       case marketplace do
         :opensea -> System.get_env("OPENSEA_API_KEY")
         :blur -> System.get_env("BLUR_API_KEY")
@@ -175,43 +373,68 @@ defmodule Lux.Integrations.NFTMarketplace do
     !is_nil(key) && key != ""
   end
 
-  defp make_api_request(marketplace, path) do
-    # Implementation of actual requests if api key is configured
-    base_url = 
-      case marketplace do
-        :opensea -> "https://api.opensea.io/api/v2"
-        :blur -> "https://api.blur.io/v1"
-        :x2y2 -> "https://api.x2y2.org/v1"
-      end
+  defp test_mode? do
+    # Returns true if test plug override is configured
+    !is_nil(Application.get_env(:lux, __MODULE__))
+  end
 
-    api_key = 
-      case marketplace do
-        :opensea -> System.get_env("OPENSEA_API_KEY")
-        :blur -> System.get_env("BLUR_API_KEY")
-        :x2y2 -> System.get_env("X2Y2_API_KEY")
-      end
+  defp make_api_request(marketplace, url) do
+    headers = auth_headers(marketplace)
+    
+    # Dynamically inject the test plug setup configured in tests
+    req_opts = [headers: headers] |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
 
-    headers = [{"X-API-KEY", api_key}, {"accept", "application/json"}]
-
-    case Req.get(base_url <> path, headers: headers) do
+    case Req.get(url, req_opts) do
       {:ok, %{status: 200, body: body}} -> {:ok, body}
       {:ok, %{status: status, body: body}} -> {:error, {status, body}}
       {:error, reason} -> {:error, reason}
     end
   end
 
+  defp get_any_key(map, keys, default \\ nil)
+
+  defp get_any_key(map, keys, default) when is_map(map) do
+    Enum.find_value(keys, default, fn key ->
+      Map.get(map, key)
+    end)
+  end
+
+  defp get_any_key(_, _, default), do: default
+
+  defp parse_float(nil), do: 0.0
+  defp parse_float(str) when is_binary(str) do
+    case Float.parse(str) do
+      {f, _} -> f
+      :error ->
+        case Integer.parse(str) do
+          {i, _} -> i * 1.0
+          :error -> 0.0
+        end
+    end
+  end
+  defp parse_float(n) when is_number(n), do: n * 1.0
+  defp parse_float(_), do: 0.0
+
+  defp parse_timestamp(nil), do: 0
+  defp parse_timestamp(str) when is_binary(str) do
+    case DateTime.from_iso8601(str) do
+      {:ok, dt, _} -> DateTime.to_unix(dt)
+      _ -> 0
+    end
+  end
+  defp parse_timestamp(_), do: 0
+
   # Mock Data Creators
 
   defp mock_collection_stats(slug, marketplace) do
-    # Generates slightly different stats for each marketplace to allow real comparison
-    floor_mod = 
+    floor_mod =
       case marketplace do
         :opensea -> 0.0
         :blur -> -0.05
         :x2y2 -> 0.03
       end
 
-    base_floor = 
+    base_floor =
       case String.downcase(slug) do
         "boredapeyachtclub" -> 22.5
         "pudgypenguins" -> 9.5
