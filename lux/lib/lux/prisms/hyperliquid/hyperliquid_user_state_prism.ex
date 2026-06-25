@@ -53,6 +53,11 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidUserStatePrism do
           description:
             "Ethereum address to fetch state for (can be user's address or vault address)",
           pattern: "^0x[a-fA-F0-9]{40}$"
+        },
+        vault_address: %{
+          type: :string,
+          description: "Optional vault address to fetch state for",
+          pattern: "^0x[a-fA-F0-9]{40}$"
         }
       },
       required: ["address"]
@@ -107,12 +112,12 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidUserStatePrism do
 
   require Lux.Python
 
-  def handler(%{address: address} = _input, _ctx) do
+  def handler(%{address: address} = input, _ctx) do
     with {:ok, private_key} <- get_private_key(),
          {:ok, api_url} <- {:ok, Config.hyperliquid_api_url()},
          {:ok, %{"success" => true}} <- Lux.Python.import_package("hyperliquid.info"),
          {:ok, %{"success" => true}} <- Lux.Python.import_package("hyperliquid_utils.setup"),
-         {:ok, result} <- fetch_user_state(private_key, address, api_url) do
+         {:ok, result} <- fetch_user_state(private_key, address, api_url, input) do
       {:ok, %{status: "success", user_state: result}}
     else
       {:error, :missing_private_key} ->
@@ -135,12 +140,13 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidUserStatePrism do
     RuntimeError -> {:error, :missing_private_key}
   end
 
-  defp fetch_user_state(private_key, target_address, api_url) do
+  defp fetch_user_state(private_key, target_address, api_url, input) do
     python_result =
       python variables: %{
                private_key: private_key,
                target_address: target_address,
-               api_url: api_url
+               api_url: api_url,
+               vault_address: Map.get(input, :vault_address, nil)
              } do
         ~PY"""
         from hyperliquid.info import Info
