@@ -38,7 +38,7 @@ defmodule Lux.Web3.Auth.AccessControl do
           }
         ) ::
           {:ok, map()} | {:error, String.t()}
-  def authorize(address, resource, opts \ %{}) do
+  def authorize(address, resource, opts \\ %{}) do
     checks = build_checks(resource, opts)
     results = run_checks(address, checks)
 

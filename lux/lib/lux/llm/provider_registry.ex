@@ -35,7 +35,7 @@ defmodule Lux.LLM.ProviderRegistry do
   Starts the provider registry server.
   """
   @spec start_link(keyword()) :: GenServer.on_start()
-  def start_link(opts \ []) do
+  def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: Keyword.get(opts, :name, __MODULE__))
   end
 
@@ -51,7 +51,7 @@ defmodule Lux.LLM.ProviderRegistry do
       :ok
   """
   @spec register(provider_name(), provider_module(), keyword()) :: :ok | {:error, String.t()}
-  def register(name, module, opts \ []) do
+  def register(name, module, opts \\ []) do
     GenServer.call(__MODULE__, {:register, name, module, opts})
   end
 
@@ -67,7 +67,7 @@ defmodule Lux.LLM.ProviderRegistry do
       {:ok, %Lux.LLM.Response{content: "..."}}
   """
   @spec call(String.t(), list(), keyword()) :: {:ok, Response.t()} | {:error, String.t()}
-  def call(prompt, tools, opts \ []) do
+  def call(prompt, tools, opts \\ []) do
     GenServer.call(__MODULE__, {:call, prompt, tools, opts})
   end
 

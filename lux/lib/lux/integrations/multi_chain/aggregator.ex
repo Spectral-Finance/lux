@@ -15,7 +15,7 @@ defmodule Lux.Integrations.MultiChain.Aggregator do
   @spec chain_health() :: map()
   def chain_health, do: GenServer.call(__MODULE__,:health)
   @impl true
-  def init(_), do: {:ok,%{chains::[:ethereum,:polygon,:arbitrum,:optimism,:base,:bnb],cache:Cache.new()}}
+  def init(_), do: {:ok,%{chains:[:ethereum,:polygon,:arbitrum,:optimism,:base,:bnb],cache:Cache.new()}}
   @impl true
   def handle_call({:portfolio,addr},_,s) do
     bs=Enum.map(s.chains,fn c-> case ChainAdapter.get_balance(addr,c) do {:ok,b}->{Atom.to_string(c),b};_->{Atom.to_string(c),nil} end end)

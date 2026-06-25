@@ -15,7 +15,7 @@ defmodule Lux.Integrations.Youtube.Community.Manager do
   Analyzes a comment and returns a structured response.
   """
   @spec analyze_comment(String.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def analyze_comment(text, metadata \ %{}) do
+  def analyze_comment(text, metadata \\ %{}) do
     sentiment = SentimentAnalyzer.analyze(text)
     spam_score = SpamDetector.detect(text, metadata)
     
@@ -36,7 +36,7 @@ defmodule Lux.Integrations.Youtube.Community.Manager do
   Generates an automated response to a comment.
   """
   @spec generate_response(String.t(), map()) :: {:ok, String.t()} | {:error, String.t()}
-  def generate_response(comment_text, context \ %{}) do
+  def generate_response(comment_text, context \\ %{}) do
     sentiment = SentimentAnalyzer.analyze(comment_text)
     
     response = case sentiment.score do
@@ -57,7 +57,7 @@ defmodule Lux.Integrations.Youtube.Community.Manager do
   Creates a new engagement campaign.
   """
   @spec create_campaign(String.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def create_campaign(name, opts \ %{}) do
+  def create_campaign(name, opts \\ %{}) do
     campaign = %Campaign{
       name: name,
       status: :active,

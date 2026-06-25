@@ -94,7 +94,7 @@ defmodule Lux.Cargo.TOMLParser do
   end
 
   defp parse_package(pkg) when is_map(pkg) do
-    Map.take(pkg, ~w[name version edition authors description license repository homepage documentation readme categories keywords]]
+    Map.take(pkg, ~w[name version edition authors description license repository homepage documentation readme categories keywords])
   end
 
   defp parse_package(_), do: %{}

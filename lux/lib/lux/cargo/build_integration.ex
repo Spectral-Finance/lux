@@ -10,13 +10,13 @@ defmodule Lux.Cargo.BuildIntegration do
   Runs cargo build with the given profile.
   """
   @spec build(String.t(), keyword()) :: {:ok, String.t()} | {:error, String.t()}
-  def build(path, opts \ []) do
+  def build(path, opts \\ []) do
     profile = Keyword.get(opts, :profile, "release")
     quiet = Keyword.get(opts, :quiet, false)
-    
-    cmd = if quiet, do: "cargo build --profile #{profile} --quiet", else: "cargo build --profile #{profile}"
-    
-    case System.cmd("sh", ["-c", "cd #{path} && #{cmd}"], stderr_to_stdout: true) do
+
+    args = if quiet, do: ["build", "--profile", profile, "--quiet"], else: ["build", "--profile", profile]
+
+    case System.cmd("cargo", args, cd: path, stderr_to_stdout: true) do
       {output, 0} -> {:ok, output}
       {output, _} -> {:error, output}
     end
@@ -27,7 +27,7 @@ defmodule Lux.Cargo.BuildIntegration do
   """
   @spec test(String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def test(path) do
-    case System.cmd("sh", ["-c", "cd #{path} && cargo test"], stderr_to_stdout: true) do
+    case System.cmd("cargo", ["test"], cd: path, stderr_to_stdout: true) do
       {output, 0} -> {:ok, output}
       {output, _} -> {:error, output}
     end
@@ -38,7 +38,7 @@ defmodule Lux.Cargo.BuildIntegration do
   """
   @spec check(String.t()) :: {:ok, String.t()} | {:error, String.t()}
   def check(path) do
-    case System.cmd("sh", ["-c", "cd #{path} && cargo check"], stderr_to_stdout: true) do
+    case System.cmd("cargo", ["check"], cd: path, stderr_to_stdout: true) do
       {output, 0} -> {:ok, output}
       {output, _} -> {:error, output}
     end

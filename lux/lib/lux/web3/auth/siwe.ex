@@ -25,7 +25,7 @@ defmodule Lux.Web3.Auth.SIWE do
   """
   @spec challenge(String.t(), String.t(), keyword()) ::
           {:ok, SIWEMessage.t(), String.t()} | {:error, term()}
-  def challenge(address, domain, opts \ []) do
+  def challenge(address, domain, opts \\ []) do
     uri = Keyword.get(opts, :uri, "https://#{domain}")
     version = Keyword.get(opts, :version, "1")
     statement = Keyword.get(opts, :statement)

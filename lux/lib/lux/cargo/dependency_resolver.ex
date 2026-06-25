@@ -66,22 +66,22 @@ defmodule Lux.Cargo.DependencyResolver do
   @spec get_cached() :: [%{name: String.t(), version: String.t(), source: String.t()}]
   def get_cached do
     cache_dir = Path.join(:code.priv_dir(:lux), "cargo_cache")
-    
+
     unless File.exists?(cache_dir) do
-      return []
+      []
+    else
+      cache_dir
+      |> File.ls!()
+      |> Enum.filter(&String.starts_with?(&1, "lux-"))
+      |> Enum.map(fn dir ->
+        path = Path.join(cache_dir, dir)
+        %{
+          name: dir,
+          version: File.read!(Path.join(path, "version")),
+          source: File.read!(Path.join(path, "source"))
+        }
+      end)
     end
-    
-    cache_dir
-    |> File.ls!()
-    |> Enum.filter(&String.starts_with?(&1, "lux-"))
-    |> Enum.map(fn dir ->
-      path = Path.join(cache_dir, dir)
-      %{
-        name: dir,
-        version: File.read!(Path.join(path, "version")),
-        source: File.read!(Path.join(path, "source"))
-      }
-    end)
   end
 
   defp resolve_versions(deps) do

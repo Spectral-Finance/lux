@@ -61,7 +61,7 @@ defmodule Lux.Web3.Auth do
   """
   @spec challenge(String.t(), String.t(), keyword()) ::
           {:ok, SIWEMessage.t(), String.t()} | {:error, term()}
-  def challenge(address, domain, opts \ []) do
+  def challenge(address, domain, opts \\ []) do
     SIWE.challenge(address, domain, opts)
   end
 
@@ -115,7 +115,7 @@ defmodule Lux.Web3.Auth do
           non_neg_integer()
         ) ::
           {:ok, Approval.proposal()} | {:error, String.t()}
-  def create_multisig_proposal(config, proposer, target, data, value \ 0) do
+  def create_multisig_proposal(config, proposer, target, data, value \\ 0) do
     Approval.create_proposal(config, proposer, target, data, value)
   end
 
@@ -134,7 +134,7 @@ defmodule Lux.Web3.Auth do
   Delegates to Lux.Web3.Session.Manager.create_session/2.
   """
   @spec create_session(String.t(), map()) :: {:ok, String.t()} | {:error, term()}
-  def create_session(address, metadata \ %{}) do
+  def create_session(address, metadata \\ %{}) do
     Manager.create_session(address, metadata)
   end
 
@@ -207,7 +207,7 @@ defmodule Lux.Web3.Auth do
   Log an authentication event.
   """
   @spec log_event(AuditLog.action(), String.t(), map()) :: AuditLog.t()
-  def log_event(action, address, details \ %{}) do
+  def log_event(action, address, details \\ %{}) do
     AuditLog.create(action, address, details)
   end
 

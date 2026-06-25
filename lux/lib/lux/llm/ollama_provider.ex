@@ -6,16 +6,16 @@ defmodule Lux.LLM.OllamaProvider do
   @spec complete(String.t(),String.t(),map()) :: {:ok,String.t()}|{:error,term()}
   def complete(model,prompt,opts) do
     ep=Map.get(opts,:ep,@default_ep)
-    body=Poison.encode!(%{model:model,prompt:prompt,stream:false,temperature:Map.get(opts,:temperature,0.7)})
+    body=Jason.encode!(%{model:model,prompt:prompt,stream:false,temperature:Map.get(opts,:temperature,0.7)})
     case :httpc.request(to_charlist(ep+"/api/generate"),[],[],[body:body,content_type:"application/json"]) do
-      {:ok,{{_,200,_},_,resp}}->case Poison.decode(resp) do {:ok,%{"response"=>a}}->{:ok,a};_->{:error,"decode"} end
+      {:ok,{{_,200,_},_,resp}}->case Jason.decode(resp) do {:ok,%{"response"=>a}}->{:ok,a};_->{:error,"decode"} end
       {:error,r}->{:error,"Request failed: "+inspect(r)}
     end
   end
   @spec list_models(String.t()|nil) :: {:ok,[String.t()]}|{:error,term()}
   def list_models(ep) do
     case :httpc.request(to_charlist(ep+"/api/tags"),[],[],[]) do
-      {:ok,{{_,200,_},_,body}}->case Poison.decode(body) do {:ok,%{"models"=>ms}}->{:ok,Enum.map(ms,&to_string(&1["name"]))};_->{:error,"bad"} end
+      {:ok,{{_,200,_},_,body}}->case Jason.decode(body) do {:ok,%{"models"=>ms}}->{:ok,Enum.map(ms,&to_string(&1["name"]))};_->{:error,"bad"} end
       _->{:error,"list fail"}
     end
   end

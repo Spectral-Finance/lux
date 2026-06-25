@@ -13,7 +13,7 @@ defmodule Lux.Integrations.Youtube.SpamDetector do
   Returns a score between 0.0 (not spam) and 1.0 (definite spam).
   """
   @spec detect(String.t(), map()) :: float()
-  def detect(text, metadata \ %{}) when is_binary(text) do
+  def detect(text, metadata \\ %{}) when is_binary(text) do
     score = 0.0
     
     # Check for spam patterns

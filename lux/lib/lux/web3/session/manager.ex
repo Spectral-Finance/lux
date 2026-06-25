@@ -16,7 +16,7 @@ defmodule Lux.Web3.Session.Manager do
   Start the session manager server.
   """
   @spec start_link(list()) :: GenServer.on_start()
-  def start_link(opts \ []) do
+  def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
@@ -24,7 +24,7 @@ defmodule Lux.Web3.Session.Manager do
   Create a new session for an address.
   """
   @spec create_session(String.t(), map()) :: {:ok, String.t()} | {:error, term()}
-  def create_session(address, metadata \ %{}) do
+  def create_session(address, metadata \\ %{}) do
     GenServer.call(__MODULE__, {:create, String.downcase(address), metadata})
   end
 
