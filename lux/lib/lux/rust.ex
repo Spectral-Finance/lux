@@ -20,7 +20,7 @@ defmodule Lux.Rust do
 
       iex> require Lux.Rust
       iex> Lux.Rust.eval(%{code: "add", a: 10, b: 32})
-      {:ok, %{"result" => 42}}
+      {:ok, %{"status" => "evaluated", "length" => 3, "input_vars" => %{a: 10, b: 32}}}
 
   ### Type Conversion
 
@@ -94,10 +94,10 @@ defmodule Lux.Rust do
   ## Examples
 
       iex> Lux.Rust.eval(%{code: "add", a: 10, b: 32})
-      {:ok, %{"status" => "evaluated", "length" => 3}}
+      {:ok, %{"status" => "evaluated", "length" => 3, "input_vars" => %{a: 10, b: 32}}}
 
       iex> Lux.Rust.eval(%{code: "concat", a: "hello", b: " world"})
-      {:ok, %{"status" => "evaluated", "length" => 11}}
+      {:ok, %{"status" => "evaluated", "length" => 11, "input_vars" => %{a: "hello", b: " world"}}}
   """
   @spec eval(eval_input()) :: eval_result()
   def eval(input) when is_map(input) do
