@@ -1,6 +1,7 @@
 defmodule Lux do
   @moduledoc """
-  Documentation for `Lux`.
+  Lux is a framework for building intelligent, adaptive, and collaborative multi-agent systems,
+  with comprehensive Web3 and DeFi integrations including Uniswap V3 liquidity management.
   """
 
   @doc """
@@ -11,10 +12,18 @@ defmodule Lux do
       iex> Lux.hello()
       :world
 
-  """
-  def hello do
-    :world
+  def version do
+    "0.1.0"
   end
+
+  @doc """
+  Returns the Uniswap V3 integration module.
+  """
+  @spec uniswap_v3 :: module()
+  def uniswap_v3 do
+    Lux.Integrations.Uniswap.V3
+  end
+end
 
   @doc """
   Check if a module is a beam.
