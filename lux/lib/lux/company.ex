@@ -264,7 +264,7 @@ defmodule Lux.Company do
         {:reply, {:error, :not_found}, state}
 
       objective ->
-        updated_objective = %{objective | assigned_agent: agent_id}
+        updated_objective = %{objective | assigned_agents: [agent_id | objective.assigned_agents]}
         updated_objectives = Map.put(state.objectives, objective_id, updated_objective)
         {:reply, {:ok, updated_objective}, %{state | objectives: updated_objectives}}
     end
