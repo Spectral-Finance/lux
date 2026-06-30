@@ -1,0 +1,54 @@
+{
+  "id": "advanced-agent-1",
+  "name": "Advanced Agent",
+  "description": "An agent with advanced configuration",
+  "goal": "Demonstrate advanced agent capabilities",
+  "module": "AdvancedAgent",
+  "template": "company_agent",
+  "template_opts": {
+    "llm_config": {
+      "temperature": 0.5,
+      "json_response": true
+    }
+  },
+  "llm_config": {
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are an advanced agent..."
+      }
+    ]
+  },
+  "memory_config": {
+    "backend": "Lux.Memory.SimpleMemory",
+    "name": "advanced_agent_memory"
+  },
+  "prisms": ["MyApp.Prisms.DataAnalysis", "MyApp.Prisms.TextProcessor"],
+  "beams": ["MyApp.Beams.WorkflowEngine", "MyApp.Beams.DataPipeline"],
+  "lenses": ["MyApp.Lenses.DataVisualizer"],
+  "signal_handlers": [
+    {
+      "schema": "MyApp.Schemas.TaskSignal",
+      "handler": "MyApp.Handlers.TaskHandler"
+    }
+  ],
+  "scheduled_actions": [
+    {
+      "module": "MyApp.Prisms.HealthCheck",
+      "interval_ms": 60000,
+      "input": {
+        "scope": "full"
+      },
+      "opts": {
+        "name": "health_check",
+        "timeout": 30000
+      }
+    }
+  ],
+  "this is an extra field": [
+    "this field should be ignore! The loader should not crash."
+  ],
+  "this_field_too_should_be_ignored": true
+}

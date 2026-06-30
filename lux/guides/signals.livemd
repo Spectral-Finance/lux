@@ -1,0 +1,808 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# Signals Guide
+
+```elixir
+Mix.install(
+  [
+    {:lux, ">= 0.5.0"}
+    {:kino, "~> 0.14.2"}
+  ]
+)
+```
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fsignals.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+Signals are the fundamental units of communication in Lux. They provide a type-safe, schema-validated way for components to exchange information.
+
+A Signal consists of:
+
+* A unique identifier
+* A schema identifier that defines its structure
+* Content that conforms to the schema
+* Metadata about the signal's context and processing
+
+## Creating a Signal Schema
+
+Signal schemas define the structure and validation rules for signals:
+
+```elixir
+defmodule MyApp.Schemas.TaskSchema do
+  use Lux.SignalSchema,
+    name: "task",
+    version: "1.0.0",
+    description: "Represents a task assignment",
+    schema: %{
+      type: :object,
+      properties: %{
+        title: %{type: :string},
+        description: %{type: :string},
+        priority: %{type: :string, enum: ["low", "medium", "high"]},
+        due_date: %{type: :string, format: "date-time"},
+        assignee: %{type: :string},
+        tags: %{type: :array, items: %{type: :string}}
+      },
+      required: ["title", "priority", "assignee"]
+    },
+    tags: ["task", "workflow"],
+    compatibility: :full,
+    format: :json
+end
+
+Kino.nothing()
+```
+
+## Creating a Signal
+
+Signals are created by modules that use the `Lux.Signal` behaviour:
+
+```elixir
+defmodule MyApp.Signals.Task do
+  use Lux.Signal,
+    schema_id: MyApp.Schemas.TaskSchema
+end
+
+Kino.nothing()
+```
+
+When you create a signal with new/1 function, signal module perform validation with schema.
+
+```elixir
+MyApp.Signals.Task.new(%{
+  payload: %{
+    title: "new signal",
+    priority: "low",
+    assignee: "agent"
+  }
+})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "8597236a-ee9e-4f24-a05e-a0f86816e2cb",
+   payload: %{priority: "low", title: "new signal", assignee: "agent"},
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.873770Z],
+   metadata: %{},
+   schema_id: MyApp.Schemas.TaskSchema
+ }}
+```
+
+```elixir
+MyApp.Signals.Task.new(%{
+  payload: %{message: "invalid"}
+})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:error, [{"Required properties title, priority, assignee were not present.", "#"}]}
+```
+
+## Signal Validation
+
+Lux uses JSON Schema (Draft 4) for validating signal payloads. This provides a robust, standardized way to ensure your signals conform to their expected structure.
+
+### Basic Types
+
+The following basic types are supported:
+
+<!-- livebook:{"break_markdown":true} -->
+
+#### Null Validation
+
+```elixir
+defmodule NullSchema do
+  use Lux.SignalSchema,
+    schema: %{type: :null}
+end
+
+defmodule NullSignal do
+  use Lux.Signal, schema_id: NullSchema
+end
+
+NullSignal.new(%{payload: nil})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "bb30cfe4-ab2c-4716-9e4e-9ef7419ad021",
+   payload: nil,
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.899178Z],
+   metadata: %{},
+   schema_id: NullSchema
+ }}
+```
+
+#### Boolean Validation
+
+```elixir
+defmodule BooleanSchema do
+  use Lux.SignalSchema,
+    schema: %{type: :boolean}
+end
+
+defmodule BooleanSignal do
+  use Lux.Signal, schema_id: BooleanSchema
+end
+
+BooleanSignal.new(%{payload: true})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "3d26ee2f-f2bc-42bb-89e8-3942079dc1dc",
+   payload: true,
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.918708Z],
+   metadata: %{},
+   schema_id: BooleanSchema
+ }}
+```
+
+#### Integer Validation
+
+```elixir
+defmodule IntegerSchema do
+  use Lux.SignalSchema,
+    schema: %{type: :integer}
+end
+
+defmodule IntegerSignal do
+  use Lux.Signal, schema_id: IntegerSchema
+end
+
+IntegerSignal.new(%{payload: 1})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "7adaf40b-e022-4b72-9dd8-9457078e0fde",
+   payload: 1,
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.938289Z],
+   metadata: %{},
+   schema_id: IntegerSchema
+ }}
+```
+
+#### String Validation
+
+```elixir
+defmodule StringSchema do
+  use Lux.SignalSchema,
+    schema: %{type: :string}
+end
+
+defmodule StringSignal do
+  use Lux.Signal, schema_id: StringSchema
+end
+
+StringSignal.new(%{payload: "payload"})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "a6f4b7fa-88fc-47d8-8242-a3d588807d78",
+   payload: "payload",
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.958540Z],
+   metadata: %{},
+   schema_id: StringSchema
+ }}
+```
+
+#### Array Validation
+
+```elixir
+# Array validation
+defmodule ArraySchema do
+  use Lux.SignalSchema,
+    schema: %{
+      type: :array,
+      items: %{type: :string}  # Validates each array item
+    }
+end
+
+defmodule ArraySignal do
+  use Lux.Signal, schema_id: ArraySchema
+end
+
+ArraySignal.new(%{payload: ["data"]})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "37d23fea-bf81-43a2-8930-ba0aefbd7ff7",
+   payload: ["data"],
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.978059Z],
+   metadata: %{},
+   schema_id: ArraySchema
+ }}
+```
+
+### Object Validation
+
+Objects can have nested properties and required fields:
+
+```elixir
+defmodule ComplexObjectSchema do
+  use Lux.SignalSchema,
+    schema: %{
+      type: :object,
+      properties: %{
+        name: %{type: :string},
+        age: %{type: :integer},
+        tags: %{
+          type: :array,
+          items: %{type: :string}
+        },
+        metadata: %{
+          type: :object,
+          properties: %{
+            created_at: %{type: :string, format: "date-time"},
+            priority: %{type: :string, enum: ["low", "medium", "high"]}
+          },
+          required: ["created_at"]
+        }
+      },
+      required: ["name", "age"]  # Top-level required fields
+    }
+end
+
+defmodule ComplexObjectSignal do
+  use Lux.Signal, schema_id: ComplexObjectSchema
+end
+
+ComplexObjectSignal.new(%{payload: %{
+  name: "John Doe",
+  age: 10,
+  tags: ["user"],
+  metadata: %{
+    created_at: "2024-03-21T17:32:28Z",
+  }
+}})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "134ec6d0-e05f-4142-bc7b-561c70335b3f",
+   payload: %{
+     name: "John Doe",
+     metadata: %{created_at: "2024-03-21T17:32:28Z"},
+     tags: ["user"],
+     age: 10
+   },
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:51.998781Z],
+   metadata: %{},
+   schema_id: ComplexObjectSchema
+ }}
+```
+
+### Format Validation
+
+Lux supports the following formats out of the box:
+
+* `date-time`: ISO 8601 dates (e.g., "2024-03-21T17:32:28Z")
+* `email`: Email addresses
+* `hostname`: Valid hostnames
+* `ipv4`: IPv4 addresses
+* `ipv6`: IPv6 addresses
+
+Example:
+
+```elixir
+defmodule UserSchema do
+  use Lux.SignalSchema,
+    schema: %{
+      type: :object,
+      properties: %{
+        email: %{type: :string, format: "email"},
+        last_login: %{type: :string, format: "date-time"},
+        server: %{type: :string, format: "hostname"}
+      }
+    }
+end
+
+defmodule UserSignal do
+  use Lux.Signal, schema_id: UserSchema
+end
+
+UserSignal.new(%{payload: %{
+  email: "hello@lux.io",
+  last_login: "2024-03-21T17:32:28Z",
+  server: "lux.io"
+}})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:ok,
+ %Lux.Signal{
+   id: "6bb89ac0-cba3-45fd-a06d-3c3bf0c6bda1",
+   payload: %{server: "lux.io", email: "hello@lux.io", last_login: "2024-03-21T17:32:28Z"},
+   sender: nil,
+   recipient: nil,
+   topic: nil,
+   timestamp: ~U[2025-02-12 12:56:52.026939Z],
+   metadata: %{},
+   schema_id: UserSchema
+ }}
+```
+
+### Custom Format Validation
+
+You can add custom format validators in your configuration:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# In config/config.exs
+config :ex_json_schema,
+  :custom_format_validator,
+  fn
+    # Validate a custom UUID format
+    "uuid", value ->
+      case UUID.info(value) do
+        {:ok, _} -> true
+        {:error, _} -> false
+      end
+    
+    # Return true for unknown formats (as per JSON Schema spec)
+    _, _ -> true
+  end
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+<!-- TODO: Add support for runtime custom formatters via resolve callbacks at schema definition. ref: https://github.com/jonasschmidt/ex_json_schema?tab=readme-ov-file#custom-formats -->
+
+### Validation Errors
+
+When validation fails, you get detailed error messages:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+# Missing required field
+{:error, [{"Required property name was not present.", "#"}]}
+
+# Type mismatch
+{:error, [{"Type mismatch. Expected Integer but got String.", "#/age"}]}
+
+# Invalid format
+{:error, [{"Format validation failed.", "#/email"}]}
+
+# Invalid enum value
+{:error, [{"Value not allowed.", "#/metadata/priority"}]}
+```
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Best Practices for Schema Validation
+
+1. **Type Safety**
+
+   * Always specify types for properties
+   * Use appropriate types (e.g., `:integer` vs `:number`)
+   * Consider using enums for constrained string values
+
+2. **Required Fields**
+
+   * Mark essential fields as required
+   * Consider the impact on backward compatibility
+   * Document why fields are required
+
+3. **Nested Validation**
+
+   * Break down complex objects into logical groups
+   * Use nested required fields for sub-objects
+   * Keep nesting depth reasonable
+
+4. **Format Validation**
+
+   * Use built-in formats when possible
+   * Create custom formats for domain-specific values
+   * Document format requirements
+
+5. **Error Handling**
+
+   * Handle validation errors gracefully
+   * Provide clear error messages
+   * Consider aggregating multiple validation errors
+
+6. **Testing**
+
+   * Test both valid and invalid cases
+   * Test edge cases and boundary values
+   * Test format validation thoroughly
+
+Example test:
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+defmodule MyApp.Schemas.TaskSchemaTest do
+  use UnitCase, async: true
+
+  alias MyApp.Schemas.TaskSchema
+
+  test "validates required fields" do
+    assert {:error, _} = TaskSchema.validate(%Lux.Signal{payload: %{}})
+    assert {:error, _} = TaskSchema.validate(%Lux.Signal{payload: %{title: "Test"}})
+    assert {:ok, _} = TaskSchema.validate(
+      %Lux.Signal{payload: %{title: "Test", priority: "high", assignee: "alice"}}
+    )
+  end
+
+  test "validates field types" do
+    assert {:error, _} = TaskSchema.validate(
+      %Lux.Signal{payload: %{title: 123, priority: "high", assignee: "alice"}}
+    )
+  end
+
+  test "validates enums" do
+    assert {:error, _} = TaskSchema.validate(
+      %Lux.Signal{payload: %{title: "Test", priority: "invalid", assignee: "alice"}}
+    )
+  end
+end
+```
+
+## Using Signals
+
+Signals can be created and used in various ways:
+
+```elixir
+# Create a new task signal
+{:ok, signal} =
+  MyApp.Signals.Task.new(%{
+    payload: %{
+      title: "Review PR",
+      priority: "high",
+      assignee: "alice",
+      tags: ["github", "code-review"]
+    }
+  })
+
+signal
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%Lux.Signal{
+  id: "9c69dae9-fa78-416d-afb2-e94d0cb8cf3a",
+  payload: %{
+    priority: "high",
+    title: "Review PR",
+    tags: ["github", "code-review"],
+    assignee: "alice"
+  },
+  sender: nil,
+  recipient: nil,
+  topic: nil,
+  timestamp: ~U[2025-02-12 12:58:06.802667Z],
+  metadata: %{},
+  schema_id: MyApp.Schemas.TaskSchema
+}
+```
+
+## Schema Evolution
+
+Lux supports schema evolution through versioning and compatibility levels:
+
+* `:full` - New schema must be fully compatible with old schema
+* `:backward` - New schema can read old data
+* `:forward` - Old schema can read new data
+* `:none` - No compatibility guarantees
+
+Example of schema evolution:
+
+```elixir
+defmodule MyApp.Schemas.TaskSchemaV2 do
+  use Lux.SignalSchema,
+    name: "task",
+    version: "2.0.0",
+    description: "Task assignment with status tracking",
+    schema: %{
+      type: :object,
+      properties: %{
+        title: %{type: :string},
+        description: %{type: :string},
+        priority: %{type: :string, enum: ["low", "medium", "high"]},
+        due_date: %{type: :string, format: "date-time"},
+        assignee: %{type: :string},
+        tags: %{type: :array, items: %{type: :string}},
+        status: %{type: :string, enum: ["pending", "in_progress", "completed"]},
+        progress: %{type: :integer, minimum: 0, maximum: 100}
+      },
+      required: ["title", "priority", "assignee", "status"]
+    },
+    compatibility: :backward,
+    reference: "v1: MyApp.Schemas.TaskSchema"
+end
+
+Kino.nothing()
+```
+
+## Best Practices
+
+1. **Schema Design**
+
+   * Use semantic versioning for schemas
+   * Document schema changes
+   * Consider backward compatibility
+   * Use appropriate compatibility levels
+
+2. **Validation**
+
+   * Validate business rules in `validate/1`
+   * Keep validations focused and specific
+   * Return clear error messages
+
+3. **Testing**
+
+   * Test schema validation
+   * Test business rule validation
+   * Test compatibility between versions
+
+Example test:
+
+```elixir
+defmodule MyApp.Signals.TaskTest do
+  use UnitCase, async: true
+
+  describe "new/1" do
+    test "creates valid task signal" do
+      {:ok, signal} =
+        MyApp.Signals.Task.new(%{
+          payload: %{
+            title: "Test Task",
+            priority: "high",
+            assignee: "bob"
+          }
+        })
+
+      assert signal.payload.title == "Test Task"
+      assert signal.payload.priority == "high"
+      assert signal.payload.assignee == "bob"
+    end
+
+    test "validates title presence" do
+      assert {:error,
+              [
+                {"Required property title was not present.", "#"}
+              ]} =
+               MyApp.Signals.Task.new(%{
+                 payload: %{
+                   priority: "high",
+                   assignee: "bob"
+                 }
+               })
+    end
+  end
+end
+
+ExUnit.run()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Running ExUnit with seed: 49621, max_cases: 40
+
+..
+Finished in 0.00 seconds (0.00s async, 0.00s sync)
+2 tests, 0 failures
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%{total: 2, failures: 0, excluded: 0, skipped: 0}
+```
+
+## Advanced Topics
+
+### Schema Documentation
+
+Schemas can include rich documentation:
+
+```elixir
+defmodule MyApp.Schemas.DocumentedTaskSchema do
+  use Lux.SignalSchema,
+    name: "documented_task",
+    version: "1.0.0",
+    description: """
+    Represents a task assignment in the system.
+    Tasks are the basic unit of work assignment and tracking.
+    """,
+    schema: %{
+      type: :object,
+      properties: %{
+        title: %{
+          type: :string,
+          description: "Short title describing the task",
+          examples: ["Review PR #123", "Deploy to production"]
+        },
+        priority: %{
+          type: :string,
+          enum: ["low", "medium", "high"],
+          description: "Task priority level",
+          default: "medium"
+        }
+      }
+    },
+    tags: ["task", "workflow"],
+    reference: "https://example.com/docs/task-schema"
+end
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:module, MyApp.Schemas.DocumentedTaskSchema, <<70, 79, 82, 49, 0, 0, 14, ...>>, :ok}
+```
+
+### Custom Validation Rules
+
+You can implement complex validation rules:
+
+```elixir
+defmodule MyApp.Schemas.CustomSchema do
+  use Lux.SignalSchema,
+    name: "task",
+    version: "1.0.0",
+    description: "Represents a task assignment",
+    schema: %{
+      type: :object,
+      properties: %{
+        due_date: %{type: :string, format: "date-time"},
+      }
+    },
+    tags: ["task", "workflow"],
+    compatibility: :full,
+    format: :json
+
+  def validate(%{payload: %{due_date: due_date}} = content) do
+    with {:ok, parsed_date, _offset} <- DateTime.from_iso8601(due_date),
+         :ok <- validate_future_date(parsed_date),
+         :ok <- validate_working_hours(parsed_date) do
+      {:ok, content}
+    end
+  end
+
+  defp validate_future_date(date) do
+    if DateTime.compare(date, DateTime.utc_now()) == :gt do
+      :ok
+    else
+      {:error, "Due date must be in the future"}
+    end
+  end
+
+  defp validate_working_hours(date) do
+    if date.hour >= 9 and date.hour <= 17 do
+      :ok
+    else
+      {:error, "Due date must be during working hours (9-17)"}
+    end
+  end
+end
+
+defmodule MyApp.Signals.CustomSignal do
+  use Lux.Signal,
+    schema_id: MyApp.Schemas.CustomSchema
+end
+
+MyApp.Signals.CustomSignal.new(%{
+  payload: %{
+    due_date: "2024-03-21T17:32:28Z"
+  }
+})
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+{:error, "Due date must be in the future"}
+```
+
+### Signal Metadata
+
+Metadata provides context about the signal's creation and processing:
+
+```elixir
+defmodule MyApp.Signals.MetadataTask do
+  use Lux.Signal,
+    schema_id: MyApp.Schemas.TaskSchema
+end
+
+{:ok, signal} = MyApp.Signals.MetadataTask.new(%{
+  payload: %{
+    title: "Test Task",
+    priority: "high",
+    assignee: "bob"
+  }
+})
+
+signal.metadata
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%{}
+```
+
+### Signal Destination
+
+In Lux we provide two identifiers for where the signal is sent to.
+
+The first one is `recipient` and the second one is `topic`, in the recipient, a unique identifier of the expected agent to receive the signal is expected.
+On the other hand, a topic is used to indicate that the signal should be shared with a group of agents subscribed to that topic. So far, the routing by topic is
+an implementation detail of the server using Lux and not part of Lux out of the box.

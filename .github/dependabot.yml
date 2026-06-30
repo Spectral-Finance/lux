@@ -1,0 +1,43 @@
+version: 2
+updates:
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for npm in lux/priv/node
+  - package-ecosystem: "npm"
+    directory: "/lux/priv/node"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for npm in lux_app/assets
+  - package-ecosystem: "npm"
+    directory: "/lux_app/assets"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for pip in lux/priv/python
+  - package-ecosystem: "pip"
+    directory: "/lux/priv/python"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for mix in lux
+  - package-ecosystem: "mix"
+    directory: "/lux"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # Maintain dependencies for mix in lux_app
+  - package-ecosystem: "mix"
+    directory: "/lux_app"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10 

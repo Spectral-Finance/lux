@@ -1,287 +1,222 @@
-# Lux Framework
+# Lux
 
-Lux is an open-source Elixir framework for building modular, adaptive, and collaborative multi-agent systems. Designed for developers and researchers alike, Lux enables autonomous entities (Specters) to communicate, plan, and execute workflows in dynamic environments. It integrates seamlessly with other languages and frameworks, offering flexibility and extensibility.
+<!-- [![Build Status](https://github.com/spectrallabs/lux/workflows/CI/badge.svg)](https://github.com/spectrallabs/lux/actions) -->
+[![Lux CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-ci.yml)
+[![Lux App CI](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml/badge.svg)](https://github.com/Spectral-Finance/lux/actions/workflows/lux-app-ci.yml)
+[![Hex.pm](https://img.shields.io/hexpm/v/lux.svg)](https://hex.pm/packages/lux)
+[![Docs](https://img.shields.io/badge/hex-docs-blue.svg)](https://hexdocs.pm/lux)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
----
+Lux is a powerful language-agnostic framework for building intelligent, adaptive, and collaborative multi-agent systems. It enables autonomous entities (Agents) to communicate, learn, and execute complex workflows while continuously improving through reflection.
 
-## Key Features
+## Why Lux?
 
-- **Specters:** Stateful autonomous agents that can evolve, communicate, and execute tasks.
-- **Prisms:** Modular, composable units of functionality for defining actions.
-- **Beams:** Flexible workflows that orchestrate multiple actions.
-- **Lenses:** Event-driven sensors for data gathering and broadcasting.
-- **Signals:** A robust messaging system enabling agent collaboration.
-- **Reflections:** Dynamic Specter evolution, allowing agents to create new versions of themselves or generate workflows on the fly.
-- **Multi-Language Support:** Integrates Python, TypeScript, and other languages via Venomous.
-- **Observability:** Built-in telemetry and debugging tools for seamless monitoring.
+- 🧠 **Self-Improving Agents**: Agents with built-in reflection capabilities (coming soon)
+- 🚀 **Language Agnostic**: Build agents in your favorite programming language
+- 🔄 **Type-Safe Communication**: Structured data flow with schema validation
+- 🤖 **AI-First**: Deep LLM integration with advanced prompting and context management
+- 🔌 **Extensible**: Easy integration with external services and APIs
+- 📊 **Observable**: Built-in monitoring, metrics, and debugging tools
+- 🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
 
----
+## Documentation
 
-## Installation
+📚 [Read the full documentation on hexdocs.pm/lux](https://hexdocs.pm/lux)
 
-Add `lux` to your dependencies in `mix.exs`:
+### Getting Started
+- [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
+- [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
+- [Language Support](lux/guides/language_support.md) - Language integration details
 
-```elixir
-def deps do
-  [
-    {:lux, "~> 0.1.0"}
-  ]
-end
-```
+### Core Concepts
+- [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
+- [Signals](lux/guides/signals.livemd) - Type-safe communication between agents
+- [Prisms](lux/guides/prisms.livemd) - Modular functional components
+- [Beams](lux/guides/beams.livemd) - Workflow orchestration
+- [Lenses](lux/guides/lenses.livemd) - External service integration
 
-Run `mix deps.get` to fetch the dependency.
+### Examples & Guides
+- [Multi-Agent Collaboration](lux/guides/multi_agent_collaboration.livemd) - Build collaborative systems
+- [Trading System](lux/guides/trading_system.livemd) - Complete crypto trading example
+- [Running a Company](lux/guides/running_a_company.livemd) - Multi-agent content creation pipeline
+- [Role Management](lux/guides/role_management.md) - Managing agent roles
+- [Companies](lux/guides/companies.md) - Organizing agents into companies
 
----
+### Development
+- [Contributing Guide](lux/guides/contributing.md) - Help improve Lux
+- [Testing Guide](lux/guides/testing.md) - Testing your Lux applications
+- [Troubleshooting](lux/guides/troubleshooting.md) - Common issues and solutions
 
-## Getting Started
+## Core Concepts
 
-### Defining a Prism
-A Prism represents a discrete action. For example, here’s a Prism that adds two numbers:
+### 1. Agents 👻
+[Learn more about Agents](lux/guides/agents.livemd)
 
-```elixir
-defmodule MyApp.Prism.Add do
-  use Lux.Prism,
-    name: "add",
-    description: "Adds two numbers",
-    schema: [
-      value: [type: :number, required: true],
-      amount: [type: :number, required: true]
-    ]
+Autonomous agents that combine intelligence and execution. Agents can:
+- Monitor and analyze data
+- Make strategic decisions
+- Delegate tasks to other agents
+- Adapt to changing conditions
+- Collaborate through structured protocols
 
-  @impl true
-  def run(%{value: value, amount: amount}, _context) do
-    {:ok, %{result: value + amount}}
-  end
-end
-```
+### 2. Signals 📡
+[Learn more about Signals](lux/guides/signals.livemd)
 
-### Calling Python Code in a Prism
-Prisms can integrate external logic using Venomous to run Python code:
+Type-safe communication using predefined schemas. Signals provide:
+- Structured data validation
+- Type safety across language boundaries
+- Clear communication protocols
+- Versioning and compatibility
 
-```elixir
-defmodule MyApp.Prism.PythonAdd do
-  use Lux.Prism,
-    name: "python_add",
-    description: "Adds two numbers using Python",
-    schema: [
-      value: [type: :number, required: true],
-      amount: [type: :number, required: true]
-    ]
+### 3. Prisms 🔮
+[Learn more about Prisms](lux/guides/prisms.livemd)
 
-  @impl true
-  def run(%{value: value, amount: amount}, _context) do
-    script = """
-    def add(a, b):
-        return a + b
+Pure functional components for specific tasks. Prisms enable:
+- Modular functionality
+- Language-specific implementations
+- Clear input/output contracts
+- Easy testing and validation
 
-    result = add({value}, {amount})
-    """
+### 4. Beams 🌟
+[Learn more about Beams](lux/guides/beams.livemd)
 
-    Lux.Venomous.run(:python, script, %{value: value, amount: amount})
-  end
-end
-```
+Composable workflow orchestrators. Beams allow you to:
+- Define complex workflows
+- Coordinate multiple agents
+- Handle parallel execution
+- Manage state and dependencies
 
-### Creating a Specter
-A Specter combines workflows and communicates with other agents:
+## Language Support
 
-```elixir
-defmodule MyApp.Specter.CEO do
-  use Lux.Specter,
-    name: "CEO Agent",
-    description: "Manages hedge fund strategy and coordinates agents"
+Lux provides first-class support for multiple programming languages:
 
-  @impl true
-  def plan(%__MODULE__{} = specter) do
-    {:ok, [
-      {MyApp.Beams.GatherInsights, %{}},
-      {MyApp.Beams.ExecuteTrades, %{}}
-    ]}
-  end
+- **Python**: Deep integration with Python's scientific and ML ecosystem
+- **JavaScript/TypeScript**: Frontend and Node.js support
+- **Other Languages**: Language-agnostic protocols for easy integration
 
-  @impl true
-  def reflect(%__MODULE__{} = specter, new_capability) do
-    {:ok, Lux.Reflections.create_new_version(specter, new_capability)}
-  end
-end
-```
+[Learn more about language support](lux/guides/language_support.md)
 
-### Defining a Beam
-Beams orchestrate workflows by combining multiple Prisms:
+## Examples
 
-```elixir
-defmodule MyApp.Beams.GatherInsights do
-  use Lux.Beam,
-    name: "Gather Insights",
-    description: "Aggregates trading signals and risk assessments"
+Check out these examples to see Lux in action:
 
-  @impl true
-  def steps do
-    [
-      {MyApp.Prism.AlphaSignals, %{symbol: "BTC", interval: "1h"}},
-      {MyApp.Prism.RiskAssessment, %{positions: [%{symbol: "BTC", value: 10000, volatility: 0.05}], max_risk: 0.15}}
-    ]
-  end
-end
-```
+- [Trading System](lux/guides/trading_system.livemd): A complete crypto trading system
+- [Content Creation](lux/guides/running_a_company.livemd): Multi-agent content creation pipeline
+- [Research Assistant](lux/guides/multi_agent_collaboration.livemd): Collaborative research system
 
-### Defining a Lens
-Lenses are event-driven sensors for gathering and broadcasting data:
+## Contributing
 
-```elixir
-defmodule MyApp.Lens.MarketData do
-  use Lux.Lens,
-    name: "Market Data Lens",
-    description: "Monitors market prices and broadcasts updates",
-    schema: [
-      symbol: [type: :string, required: true],
-      price: [type: :float, required: true]
-    ]
+We welcome contributions! Whether you want to add support for a new language, improve documentation, or fix bugs, check out our [Contributing Guide](lux/guides/contributing.md).
 
-  @impl true
-  def observe(%{symbol: symbol, price: price}) do
-    IO.puts("Market update: #{symbol} is now $#{price}")
-    {:ok, %{symbol: symbol, price: price}}
-  end
-end
-```
+## Community
 
-### Defining a Signal
-Signals facilitate communication between Specters:
-
-```elixir
-defmodule MyApp.Signal.Message do
-  use Lux.Signal,
-    name: "Message Signal",
-    description: "Facilitates inter-agent communication",
-    schema: [
-      sender: [type: :string, required: true],
-      room_id: [type: :string, required: true],
-      content: [type: :map, required: true]
-    ]
-
-  @impl true
-  def broadcast(%{sender: sender, room_id: room_id, content: content}) do
-    IO.puts("#{sender} in room #{room_id}: #{inspect(content)}")
-    {:ok, content}
-  end
-end
-```
-
-### YAML Workflow Example
-Lux supports defining workflows in YAML for non-Elixir developers. Here’s an example:
-
-```yaml
-specter:
-  name: CEO Agent
-  description: Manages the hedge fund
-  beams:
-    - name: GatherInsights
-      steps:
-        - action: AlphaSignals
-          params:
-            symbol: BTC
-            interval: 1h
-        - action: RiskAssessment
-          params:
-            positions:
-              - symbol: BTC
-                value: 10000
-                volatility: 0.05
-            max_risk: 0.15
-```
-
-### Advanced Example: Inter-Agent Collaboration
-This example shows agents collaborating via Signals and Lenses.
-
-#### Risk Agent
-```elixir
-defmodule MyApp.Specter.RiskAgent do
-  use Lux.Specter,
-    name: "Risk Agent",
-    description: "Evaluates trading risks and provides feedback"
-
-  @impl true
-  def plan(%__MODULE__{} = specter) do
-    {:ok, [
-      {MyApp.Prism.RiskAssessment, %{positions: [%{symbol: "BTC", value: 10000, volatility: 0.05}], max_risk: 0.15}}
-    ]}
-  end
-end
-```
-
-#### Alpha Signals Agent
-```elixir
-defmodule MyApp.Specter.AlphaSignalsAgent do
-  use Lux.Specter,
-    name: "Alpha Signals Agent",
-    description: "Generates trading signals based on market data"
-
-  @impl true
-  def plan(%__MODULE__{} = specter) do
-    {:ok, [
-      {MyApp.Prism.AlphaSignals, %{symbol: "BTC", interval: "1h"}}
-    ]}
-  end
-end
-```
-
-#### CEO Agent Utilizing Collaboration
-```elixir
-defmodule MyApp.Specter.CEO do
-  use Lux.Specter,
-    name: "CEO Agent",
-    description: "Manages hedge fund strategy and coordinates agents"
-
-  @impl true
-  def plan(%__MODULE__{} = specter) do
-    {:ok, [
-      {MyApp.Beams.GatherInsights, %{}},
-      {MyApp.Beams.ExecuteTrades, %{}}
-    ]}
-  end
-
-  @impl true
-  def handle_signal(%Lux.Signal.Message{content: %{risk: risk, alpha: alpha}}) do
-    if risk <= 0.15 and alpha > 0.8 do
-      IO.puts("Trade approved with alpha #{alpha} and risk #{risk}")
-      {:ok, :trade}
-    else
-      IO.puts("Trade rejected due to risk #{risk} or low alpha #{alpha}")
-      {:error, :reject}
-    end
-  end
-end
-```
-
----
-
-## Advanced Features
-
-- **Dynamic Reflections:** Specters can generate new versions or workflows on the fly.
-- **Telemetry and Debugging:** Built-in tools for monitoring and debugging workflows.
-- **Inter-Agent Communication:** Specters use Signals and Lenses to collaborate in real-time.
-
----
-
-## Example Use Case: Crypto Hedge Fund
-### Agents:
-1. **CEO Agent:** Coordinates tasks and makes trading decisions.
-2. **Alpha Signals Agent:** Analyzes market data to generate signals.
-3. **Risk Agent:** Evaluates risk and ensures compliance with constraints.
-4. **Marketing Agent:** Posts updates to social media based on fund activity.
-
-### Workflow:
-1. Gather trading signals from the Alpha Signals Agent.
-2. Evaluate risk with the Risk Agent.
-3. Execute trades and publish updates via the Marketing Agent.
-
----
-
-## Community and Contribution
-We welcome contributions to Lux! Feel free to submit issues, fork the repository, and create pull requests. Join the discussion to help improve Lux and build the next generation of multi-agent systems.
-
----
+- 💬 [Discord Community](https://discord.gg/dsRPcjeH)
+- 📝 [Blog](https://blog.spectrallabs.xyz)
+- 🐦 [Twitter](https://twitter.com/Spectral_Labs)
 
 ## License
-Lux is open-source software licensed under the MIT License.
+
+Lux is released under the MIT License. See [LICENSE](LICENSE) for details.
+
+### Using GitHub Codespaces
+
+Lux supports development using GitHub Codespaces, providing a pre-configured development environment with all necessary dependencies.
+
+#### Option 1: Using VS Code (Recommended for VS Code users)
+
+The simplest way to get started with VS Code is through GitHub's native Codespaces integration:
+
+1. Click the "Code" button on the GitHub repository
+2. Select "Create codespace on main"
+3. Wait for the environment to be created (this may take a few minutes)
+
+For more information, see the [official GitHub Codespaces documentation](https://docs.github.com/en/codespaces/developing-in-codespaces/developing-in-a-codespace).
+
+#### Option 2: Using Cursor
+
+For Cursor users, you'll need to set up SSH access to your Codespace as they currently do not support Codespaces directly. We provide a convenient setup script:
+
+```bash
+# Make the script executable if needed
+chmod +x scripts/setup-codespace-ssh.sh
+
+# Run the setup script
+./scripts/setup-codespace-ssh.sh
+
+The script will:
+1. Check for GitHub CLI installation and authentication
+2. Let you create a new Codespace or select an existing one with customizable options:
+   - Machine type (2-core to 16-core)
+   - Geographic region for optimal latency
+   - Git branch selection
+3. Configure SSH access for Cursor
+4. Set up a welcoming development environment
+5. Provide clear instructions for connecting
+
+Once complete, connect to your Codespace in Cursor:
+1. Open Cursor
+2. Press Cmd/Ctrl + Shift + P
+3. Type 'Connect to Host'
+4. Select your Codespace (it will be prefixed with 'codespaces-')
+
+#### Development Environment Features
+
+The Codespace comes with:
+- VS Code extensions for Elixir, Python, and JavaScript development
+- GitHub CLI
+- asdf version manager
+- All necessary development tools and plugins
+
+When you first access the workspace:
+- You'll be greeted with a welcome message showing available commands
+- If it's a new codespace, development dependencies will be automatically installed
+- The workspace will be ready at `/workspaces/lux`
+
+The environment will automatically:
+- Install development tools via asdf (based on .tool-versions)
+- Install all Elixir dependencies for both Lux and LuxApp
+- Set up a Python virtual environment
+- Install required Python packages
+- Configure VS Code settings for optimal development
+- Install and configure Livebook
+
+To set up the development environment:
+1. Wait for the automatic tool installation (triggered when folder opens)
+2. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+3. Type "Tasks: Run Build Task" and select it (or use Cmd/Ctrl + Shift + B)
+4. This will run the "Initialize Environment" task which:
+   - Installs Elixir dependencies for both Lux and LuxApp
+   - Sets up Python virtual environment and dependencies
+   - Installs Node.js dependencies
+   - Installs and configures Livebook
+
+To start the development servers:
+1. Open VS Code's Command Palette (Cmd/Ctrl + Shift + P)
+2. Type "Tasks: Run Task" and select it
+3. Choose "Start All Services" to launch both LuxApp and Livebook
+4. Access:
+   - LuxApp at port 4000
+   - Livebook at port 4001 (no authentication required in dev mode)
+   - Additional ports 8080 and 8081 are available for your services
+
+Available Tasks:
+Setup Tasks:
+- "Initialize Environment" - Sets up all dependencies (default build task)
+- "Install Development Tools" - Installs tools via asdf (runs automatically)
+- "Install Elixir Dependencies" - Installs Lux dependencies
+- "Install LuxApp Dependencies" - Installs LuxApp dependencies
+- "Install Python Dependencies" - Sets up Python environment
+- "Install Node.js Dependencies" - Installs Node.js packages
+- "Install Livebook" - Installs Livebook
+
+Service Tasks:
+- "Start All Services" - Launches both servers (default test task)
+- "Start LuxApp Server" - Starts only the Phoenix server
+- "Start Livebook" - Starts only the Livebook server
+
+For development:
+- The main Lux library is in the `lux` directory
+- LuxApp is in the `lux_app` directory
+- Livebook notebooks can be created and run directly in the browser
+- All necessary ports are automatically forwarded
+- VS Code is configured for Elixir, Phoenix, and LiveView development

@@ -1,0 +1,315 @@
+name: Main CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'lux/**'
+      - 'lux_app/**'
+      - '**.md'
+      - '.vscode/**'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'lux/**'
+      - 'lux_app/**'
+      - '**.md'
+      - '.vscode/**'
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      lux: ${{ steps.filter.outputs.lux }}
+      lux_app: ${{ steps.filter.outputs.lux_app }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lux:
+              - 'lux/**'
+            lux_app:
+              - 'lux_app/**'
+
+  lux:
+    name: Build and Test Lux
+    needs: changes
+    if: ${{ needs.changes.outputs.lux == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lux
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Set up Python venv
+        working-directory: lux
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+
+      - name: Cache Poetry
+        uses: actions/cache@v4
+        with:
+          path: ~/.local
+          key: ${{ runner.os }}-poetry-2.0.0
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.0.0
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+          installer-parallel: true
+
+      - name: Cache Mix deps
+        uses: actions/cache@v4
+        with:
+          path: lux/deps
+          key: ${{ runner.os }}-mix-deps-lux-${{ hashFiles('lux/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-deps-lux-
+
+      - name: Cache Mix build
+        uses: actions/cache@v4
+        with:
+          path: lux/_build
+          key: ${{ runner.os }}-mix-build-lux-${{ hashFiles('lux/mix.lock', 'lux/lib/**/*.ex', 'lux/test/**/*.ex') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-build-lux-${{ hashFiles('lux/mix.lock') }}
+            ${{ runner.os }}-mix-build-lux-
+
+      - name: Cache Poetry deps
+        uses: actions/cache@v4
+        with:
+          path: lux/.venv
+          key: ${{ runner.os }}-poetry-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-lux-
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lux-${{ hashFiles('lux/priv/python/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-lux-
+
+      - name: Cache Python bytecode
+        uses: actions/cache@v4
+        with:
+          path: lux/**/__pycache__
+          key: ${{ runner.os }}-python-bytecode-lux-${{ hashFiles('lux/priv/python/**/*.py') }}
+          restore-keys: |
+            ${{ runner.os }}-python-bytecode-lux-
+
+      - name: Cache Node.js deps
+        uses: actions/cache@v4
+        with:
+          path: lux/priv/node/node_modules
+          key: ${{ runner.os }}-node-lux-${{ hashFiles('lux/priv/node/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-lux-
+
+      - name: Restore PLT cache
+        uses: actions/cache/restore@v4
+        id: plt_cache
+        with:
+          path: |
+            lux/priv/plts/*.plt
+            lux/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dialyzer-lux-
+
+      - name: Install Mix Dependencies
+        run: mix deps.get
+
+      - name: Create PLT directory
+        run: mkdir -p priv/plts
+
+      - name: Compile
+        run: mix compile
+
+      - name: Build PLT
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        uses: actions/cache/save@v4
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            lux/priv/plts/*.plt
+            lux/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-${{ hashFiles('lux/mix.lock') }}
+
+      - name: Run Dialyzer
+        run: mix dialyzer --format github
+
+      - name: Install Python dependencies
+        run: poetry install --directory priv/python
+
+      - name: Install Node.js dependencies
+        run: cd priv/node && npm install
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Run Elixir Tests
+        run: mix test.unit
+
+      - name: Run Python Tests
+        run: mix python.test
+
+      - name: Generate Test Coverage
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIX_ENV: test
+
+  lux_app:
+    name: Build and Test Lux App
+    needs: changes
+    if: ${{ needs.changes.outputs.lux_app == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lux_app
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: lux_app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Cache Mix deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            lux_app/deps
+            lux_app/_build
+          key: ${{ runner.os }}-mix-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-lux-app-
+
+      - name: Cache Node.js deps
+        uses: actions/cache@v4
+        with:
+          path: lux_app/assets/node_modules
+          key: ${{ runner.os }}-node-lux-app-${{ hashFiles('lux_app/assets/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-lux-app-
+
+      - name: Restore PLT cache
+        uses: actions/cache/restore@v4
+        id: plt_cache_app
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dialyzer-lux-app-
+
+      - name: Install Mix Dependencies
+        run: mix deps.get
+
+      - name: Create PLT directory
+        run: mkdir -p priv/plts
+
+      - name: Compile
+        run: mix compile
+
+      - name: Build PLT
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        uses: actions/cache/save@v4
+        if: steps.plt_cache_app.outputs.cache-hit != 'true'
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+
+      - name: Run Dialyzer
+        run: mix dialyzer --format github
+
+      - name: Install Python dependencies
+        run: poetry install --directory priv/python
+
+      - name: Install Node.js dependencies
+        run: cd assets && npm ci
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Setup database
+        run: mix ecto.setup
+
+      - name: Run Tests
+        run: mix test
+
+      - name: Generate Test Coverage
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIX_ENV: test
+      - name: Build assets
+        run: |
+          mix assets.deploy
+          mix phx.digest 

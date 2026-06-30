@@ -1,0 +1,460 @@
+# Python Integration in Lux
+
+```elixir
+Mix.install([
+  {:lux, ">= 0.5.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:lux])
+```
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Fpython.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+Lux provides first-class support for Python, allowing you to leverage Python's rich ecosystem of libraries and tools in your agents. This guide explains how to use Python effectively with Lux.
+
+## Writing Python Code
+
+### Using the ~PY Sigil
+
+The `~PY` sigil allows you to write Python code directly in your Elixir files:
+
+```elixir
+defmodule MyApp.Prisms.DataAnalysisPrism do
+  use Lux.Prism,
+    name: "Data Analysis"
+
+  require Lux.Python
+  import Lux.Python
+
+  def handler(input, _ctx) do
+    result = python variables: %{data: input} do
+      ~PY"""
+      import numpy as np
+      
+      # Process input data
+      array = np.array(data)
+      mean = np.mean(array)
+      std = np.std(array)
+      
+      {
+          "mean": float(mean),
+          "std": float(std),
+          "shape": array.shape
+      }
+      """
+    end
+
+    {:ok, result}
+  end
+end
+```
+
+Let's try it out with some real data:
+
+```elixir
+require Lux.Python
+import Lux.Python
+
+data = [1, 2, 3, 4, 5]
+
+python variables: %{data: data} do
+  ~PY"""
+  import numpy as np
+  
+  array = np.array(data)
+  mean = np.mean(array)
+  std = np.std(array)
+  
+  {
+      "mean": float(mean),
+      "std": float(std),
+      "shape": array.shape
+  }
+  """
+end
+```
+
+Key features:
+- Multi-line Python code with proper indentation
+- Variable binding between Elixir and Python
+- Automatic type conversion
+- Error handling and timeouts
+
+### Custom Python Modules
+
+You can add your own Python modules under the `priv/python` directory:
+
+```
+priv/python/
+├── my_module/
+│   ├── __init__.py
+│   ├── analysis.py
+│   └── utils.py
+├── another_module.py
+└── pyproject.toml
+```
+
+These modules can be imported and used in your Lux code:
+
+```elixir
+python do
+  ~PY"""
+  from my_module.analysis import process_data
+  from my_module.utils import format_output
+  
+  result = process_data(input_data)
+  formatted = format_output(result)
+  """
+end
+```
+
+## Package Management
+
+### Using Poetry
+
+Lux uses Poetry for Python package management. The `pyproject.toml` file in `priv/python` defines your dependencies:
+
+```toml
+[tool.poetry]
+name = "lux-python"
+version = "0.1.0"
+description = "Python support for Lux framework"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.24.0"
+pandas = "^2.0.0"
+scikit-learn = "^1.2.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.0"
+black = "^23.0.0"
+```
+
+To install dependencies:
+
+```bash
+cd priv/python
+poetry install
+```
+
+### Importing Packages
+
+Use `Lux.Python.import_package/1` to dynamically import Python packages:
+
+```elixir
+# Import numpy for numerical operations
+{:ok, %{"success" => true}} = Lux.Python.import_package("numpy")
+
+# Let's use it in a calculation
+python do
+  ~PY"""
+  import numpy as np
+  
+  # Create an array and perform operations
+  array = np.array([1, 2, 3, 4, 5])
+  mean = np.mean(array)
+  std = np.std(array)
+  
+  {"mean": float(mean), "std": float(std)}
+  """
+end
+```
+
+## Type Conversion
+
+Lux automatically handles type conversion between Elixir and Python:
+
+| Elixir Type | Python Type |
+|-------------|-------------|
+| `nil` | `None` |
+| `true`/`false` | `True`/`False` |
+| Integer | `int` |
+| Float | `float` |
+| String | `str` |
+| List | `list` |
+| Map | `dict` |
+| Struct | `dict` |
+
+Let's see type conversion in action:
+
+```elixir
+python variables: %{
+  number: 42,
+  text: "hello",
+  list: [1, 2, 3],
+  map: %{key: "value"}
+} do
+  ~PY"""
+  # Check types of converted variables
+  result = {
+    "number_type": str(type(number)),
+    "text_type": str(type(text)),
+    "list_type": str(type(list)),
+    "map_type": str(type(map))
+  }
+  
+  # Show some conversions
+  result["conversions"] = {
+    "none_to_nil": None,
+    "bool_to_atom": True,
+    "int_to_integer": 42,
+    "list_to_list": [1, "two", 3.0]
+  }
+  
+  result
+  """
+end
+```
+
+## Error Handling
+
+Python errors are converted to Elixir exceptions. You have several options for handling them:
+
+### 1. Handle Errors in Python
+
+```elixir
+# Handle errors directly in Python code
+python do
+  ~PY"""
+  try:
+    # This will raise a NameError
+    result = undefined_variable
+  except NameError as e:
+    result = {"error": str(e)}
+  except Exception as e:
+    result = {"error": f"Unexpected error: {str(e)}"}
+    
+  result
+  """
+end
+```
+
+### 2. Handle Exceptions in Elixir
+
+```elixir
+# Use try/rescue in Elixir
+try do
+  python! do
+    ~PY"""
+    # This will raise a NameError
+    undefined_variable
+    """
+  end
+rescue
+  RuntimeError -> "Caught Python error"
+end
+```
+
+### 3. Pattern Match on Results
+
+```elixir
+# Use pattern matching with python/2
+case python do
+  ~PY"""
+  import math
+  
+  try:
+    result = math.sqrt(-1)  # This will raise a ValueError
+    {"success": True, "result": result}
+  except ValueError as e:
+    {"success": False, "error": str(e)}
+  """
+end do
+  {:ok, %{"success" => true, "result" => result}} -> 
+    "Got result: #{result}"
+  {:ok, %{"success" => false, "error" => error}} -> 
+    "Got error: #{error}"
+  {:error, error} -> 
+    "Python execution failed: #{error}"
+end
+```
+
+## Testing
+
+### Elixir Tests
+
+Test your Python code using the standard Elixir testing tools:
+
+```elixir
+defmodule MyApp.Prisms.DataAnalysisPrismTest do
+  use UnitCase, async: true
+  
+  import Lux.Python
+  
+  test "processes data correctly" do
+    result = python variables: %{data: [1, 2, 3, 4, 5]} do
+      ~PY"""
+      import numpy as np
+      np.mean(data)
+      """
+    end
+    
+    assert {:ok, 3.0} = result
+  end
+  
+  test "handles errors gracefully" do
+    result = python do
+      ~PY"""
+      try:
+        undefined_variable
+      except NameError:
+        {"status": "error", "message": "Variable not defined"}
+      """
+    end
+    
+    assert {:ok, %{"status" => "error"}} = result
+  end
+end
+```
+
+### Python Tests
+
+You can write native Python tests under `priv/python/tests/`. These tests use pytest and can be run directly from your project root using the `mix python.test` command.
+
+Here's an example test structure:
+
+```
+priv/python/
+├── tests/
+│   ├── __init__.py
+│   ├── test_eval.py      # Tests for eval module
+│   ├── test_analysis.py  # Tests for your custom modules
+│   └── test_utils.py     # Tests for utility functions
+├── my_module/
+│   ├── __init__.py
+│   ├── analysis.py
+│   └── utils.py
+└── pyproject.toml
+```
+
+Example test file (`test_analysis.py`):
+
+```python
+"""Tests for the analysis module."""
+import pytest
+from my_module.analysis import process_data
+
+def test_process_data():
+    """Test basic data processing functionality."""
+    input_data = [1, 2, 3, 4, 5]
+    result = process_data(input_data)
+    assert "mean" in result
+    assert "std" in result
+    assert result["mean"] == 3.0
+
+def test_process_data_empty():
+    """Test handling of empty input."""
+    with pytest.raises(ValueError, match="Input data cannot be empty"):
+        process_data([])
+
+def test_process_data_types():
+    """Test type conversion and validation."""
+    result = process_data([1, 2.5, "3"])  # Mixed types
+    assert isinstance(result["mean"], float)
+    assert isinstance(result["std"], float)
+```
+
+To run the Python tests:
+
+```bash
+# Run all Python tests
+mix python.test
+
+# Run specific test file
+mix python.test tests/test_analysis.py
+
+# Run tests with specific marker
+mix python.test --marker=integration
+
+# Run tests with pytest options
+mix python.test --verbose --capture=no
+```
+
+The test runner will:
+1. Ensure the test directory exists and create it if needed
+2. Install pytest and pytest-cov if not already installed
+3. Run the tests with coverage reporting
+4. Display test results and coverage information
+
+### Test Best Practices
+
+1. **Test Organization**
+   - Keep Python tests in `priv/python/tests/`
+   - Use descriptive test names with docstrings
+   - Group related tests in classes or modules
+   - Follow pytest best practices for fixtures and markers
+
+2. **Test Coverage**
+   - Test both success and error paths
+   - Test type conversions thoroughly
+   - Test edge cases and boundary conditions
+   - Use pytest's parametrize for multiple test cases
+
+3. **Test Performance**
+   - Use pytest fixtures for setup/teardown
+   - Mock external services and heavy operations
+   - Use appropriate scopes for fixtures
+   - Consider test isolation needs
+
+4. **Test Maintenance**
+   - Keep tests focused and readable
+   - Document test requirements in docstrings
+   - Update tests when behavior changes
+   - Use CI/CD to run tests automatically
+
+## Best Practices
+
+1. **Module Organization**
+   - Keep related Python code in modules under `priv/python`
+   - Use clear module and function names
+   - Follow Python style guidelines (PEP 8)
+
+2. **Performance**
+   - Batch operations to minimize cross-language calls
+   - Use NumPy for numerical operations
+   - Consider memory usage with large datasets
+
+3. **Error Handling**
+   - Handle expected errors in Python with try/except
+   - Use pattern matching in Elixir for high-level flow control
+   - Provide meaningful error messages
+   - Clean up resources in error cases
+
+4. **Testing**
+   - Test both success and error cases
+   - Verify type conversions
+   - Test with realistic data
+
+## Coming Soon
+
+Lux will soon support defining components entirely in Python:
+
+```python
+from lux import Prism, Beam, Agent
+
+class MyPrism(Prism):
+    name = "Python Prism"
+    description = "A prism implemented in Python"
+    
+    def handler(self, input, context):
+        try:
+            # Process input
+            result = self.process_data(input)
+            return {"success": True, "data": result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+```
+
+This will allow you to:
+- Write agents entirely in Python
+- Define prisms and beams in Python
+- Use Python's class system
+- Leverage Python's async capabilities
+
+Stay tuned for updates! 

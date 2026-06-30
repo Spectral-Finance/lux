@@ -1,0 +1,16 @@
+# API Keys
+ETHERSCAN_API_KEY="your-etherscan-api-key"
+ETHERSCAN_API_KEY_PRO="false"
+
+# Base environment variables for development
+TOGETHER_API_KEY="sample-api-key"
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_HOST=localhost
+POSTGRES_DB=lux_app_dev
+POSTGRES_PORT=5432
+PORT=4000
+SECRET_KEY_BASE=zDOKhgvZMQfdRIbEBDrpMeV7zxeStRbH9BONTMd12vY86CtHmf2KaMyJakv2WqLf
+
+# Optional: Set to true to enable server
+PHX_SERVER=false 

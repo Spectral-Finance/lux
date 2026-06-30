@@ -1,0 +1,424 @@
+# Node.js Integration in Lux
+
+```elixir
+Mix.install([
+  {:lux, ">= 0.5.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:lux])
+```
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Flanguage_support%2Fnodejs.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+Lux provides robust support for Node.js, allowing you to leverage the vast JavaScript ecosystem in your agents. This guide explains how to use Node.js effectively with Lux.
+
+## Writing JavaScript Code
+
+### Using the ~JS Sigil
+
+The `~JS` sigil allows you to write JavaScript code directly in your Elixir files. Note that all JavaScript code must export a `main` function that will be called by Lux:
+
+```elixir
+defmodule MyApp.Prisms.TextProcessingPrism do
+  use Lux.Prism,
+    name: "Text Processing"
+
+  require Lux.NodeJS
+  import Lux.NodeJS
+
+  def handler(input, _ctx) do
+    result = nodejs variables: %{text: input} do
+      ~JS"""
+      import { tokenize } from 'natural';
+      import { sentiment } from 'sentiment';
+      
+      export const main = ({text}) => {
+        // Process input text
+        const tokens = tokenize(text);
+        const analysis = sentiment(text);
+        
+        return {
+          tokens,
+          sentiment: analysis.score,
+          comparative: analysis.comparative
+        };
+      };
+      """
+    end
+
+    {:ok, result}
+  end
+end
+```
+
+Let's try it with some simple text processing:
+
+```elixir
+require Lux.NodeJS
+import Lux.NodeJS
+
+# First, import the natural language processing package
+{:ok, %{"success" => true}} = Lux.NodeJS.import_package("natural")
+
+# Now process some text
+nodejs variables: %{text: "Hello, this is a test sentence!"} do
+  ~JS"""
+  import { tokenize, PorterStemmer } from 'natural';
+  
+  export const main = ({text}) => {
+    const tokens = tokenize(text);
+    const stems = tokens.map(token => PorterStemmer.stem(token));
+    
+    return {
+      original: text,
+      tokens,
+      stems
+    };
+  };
+  """
+end
+```
+
+Key features:
+- Modern JavaScript (ES modules) support
+- Variable binding between Elixir and JavaScript
+- Automatic type conversion
+- Error handling and timeouts
+- Full async/await support
+
+### Custom JavaScript Modules
+
+You can add your own JavaScript modules under the `priv/node` directory:
+
+```
+priv/node/
+├── src/
+│   ├── analysis.mjs
+│   └── utils.mjs
+├── package.json
+└── package-lock.json
+```
+
+These modules can be imported and used in your Lux code:
+
+```elixir
+nodejs do
+  ~JS"""
+  import { analyzeText } from './src/analysis.mjs';
+  import { formatOutput } from './src/utils.mjs';
+  
+  export const main = async () => {
+    const result = await analyzeText(input);
+    return formatOutput(result);
+  };
+  """
+end
+```
+
+## Package Management
+
+### Using NPM
+
+Lux uses NPM for JavaScript package management. The `package.json` file in `priv/node` defines your dependencies:
+
+```json
+{
+  "name": "lux-nodejs",
+  "version": "0.1.0",
+  "description": "Node.js support for Lux framework",
+  "type": "module",
+  "dependencies": {
+    "natural": "^6.0.0",
+    "sentiment": "^5.0.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  }
+}
+```
+
+To install dependencies:
+
+```bash
+cd priv/node
+npm install
+```
+
+### Importing Packages
+
+Use `Lux.NodeJS.import_package/1` to dynamically import Node.js packages:
+
+```elixir
+# Import lodash for data manipulation
+{:ok, %{"success" => true}} = Lux.NodeJS.import_package("lodash")
+
+# Let's use it to process some data
+nodejs variables: %{data: [1, 2, 3, 4, 5]} do
+  ~JS"""
+  import _ from 'lodash';
+  
+  export const main = ({data}) => {
+    return {
+      sum: _.sum(data),
+      mean: _.mean(data),
+      chunks: _.chunk(data, 2)
+    };
+  };
+  """
+end
+```
+
+## Type Conversion
+
+Lux automatically handles type conversion between Elixir and JavaScript:
+
+| Elixir Type | JavaScript Type |
+|-------------|----------------|
+| `nil` | `null` |
+| `true`/`false` | `true`/`false` |
+| Integer | `number` |
+| Float | `number` |
+| String | `string` |
+| List | `Array` |
+| Map | `Object` |
+| Struct | JavaScript class |
+
+Let's see type conversion in action:
+
+```elixir
+nodejs variables: %{
+  number: 42,
+  text: "hello",
+  list: [1, 2, 3],
+  map: %{key: "value"}
+} do
+  ~JS"""
+  export const main = (vars) => ({
+    numberType: typeof vars.number,
+    textType: typeof vars.text,
+    listType: Array.isArray(vars.list),
+    mapType: typeof vars.map,
+    
+    // Show some conversions
+    conversions: {
+      nullToNil: null,
+      boolToAtom: true,
+      intToNumber: 42,
+      arrayToList: [1, "two", 3.0]
+    }
+  });
+  """
+end
+```
+
+## Async/Await Support
+
+Lux fully supports JavaScript's async/await. The `main` function can be async:
+
+```elixir
+# Import axios for HTTP requests
+{:ok, %{"success" => true}} = Lux.NodeJS.import_package("axios")
+
+nodejs do
+  ~JS"""
+  import axios from 'axios';
+  
+  export const main = async () => {
+    try {
+      const response = await axios.get('https://api.github.com/users/octocat');
+      return {
+        success: true,
+        data: {
+          login: response.data.login,
+          name: response.data.name,
+          repos: response.data.public_repos
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  };
+  """
+end
+```
+
+## Error Handling
+
+JavaScript errors are converted to Elixir exceptions. You have several options for handling them:
+
+### 1. Handle Errors in JavaScript
+
+```elixir
+# Handle errors in the JavaScript code
+nodejs do
+  ~JS"""
+  export const main = () => {
+    try {
+      // This will throw a ReferenceError
+      const result = undefinedVariable;
+      return { success: true, result };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.message,
+        type: error.constructor.name
+      };
+    }
+  };
+  """
+end
+```
+
+### 2. Handle Exceptions in Elixir
+
+```elixir
+# Use try/rescue in Elixir
+try do
+  nodejs! do
+    ~JS"""
+    export const main = () => {
+      // This will throw an Error
+      throw new Error("Something went wrong");
+    };
+    """
+  end
+rescue
+  NodeJS.Error -> "Caught JavaScript error"
+end
+```
+
+### 3. Pattern Match on Results
+
+```elixir
+# Use pattern matching with nodejs/2
+case nodejs do
+  ~JS"""
+  export const main = () => {
+    try {
+      const result = JSON.parse('invalid json');
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+  """
+end do
+  {:ok, %{"success" => true, "data" => data}} -> 
+    "Got data: #{inspect(data)}"
+  {:ok, %{"success" => false, "error" => error}} -> 
+    "Got error: #{error}"
+  {:error, error} -> 
+    "JavaScript execution failed: #{error}"
+end
+```
+
+## Testing
+
+Test your JavaScript code using the standard Elixir testing tools:
+
+```elixir
+defmodule MyApp.Prisms.TextProcessingPrismTest do
+  use UnitCase, async: true
+  
+  import Lux.NodeJS
+  
+  test "processes text correctly" do
+    {:ok, %{"success" => true}} = Lux.NodeJS.import_package("natural")
+    
+    result = nodejs variables: %{text: "Hello, world!"} do
+      ~JS"""
+      import { tokenize } from 'natural';
+      
+      export const main = ({text}) => {
+        return tokenize(text);
+      };
+      """
+    end
+    
+    assert {:ok, ["Hello", "world"]} = result
+  end
+  
+  test "handles errors gracefully" do
+    result = nodejs do
+      ~JS"""
+      export const main = () => {
+        try {
+          undefinedVariable;
+        } catch (error) {
+          return {
+            status: "error",
+            message: "Variable not defined"
+          };
+        }
+      };
+      """
+    end
+    
+    assert {:ok, %{"status" => "error"}} = result
+  end
+end
+```
+
+## Best Practices
+
+1. **Module Organization**
+   - Keep related JavaScript code in modules under `priv/node/src`
+   - Use ES modules for better code organization
+   - Follow JavaScript style guidelines
+
+2. **Performance**
+   - Use async/await for I/O operations
+   - Batch operations to minimize cross-language calls
+   - Consider memory usage with large datasets
+
+3. **Error Handling**
+   - Handle expected errors in JavaScript with try/catch
+   - Use pattern matching in Elixir for high-level flow control
+   - Provide meaningful error messages
+   - Clean up resources in error cases
+
+4. **Testing**
+   - Test both success and error cases
+   - Verify type conversions
+   - Test with realistic data
+
+## Coming Soon
+
+Lux will soon support defining components entirely in JavaScript:
+
+```javascript
+import { Prism, Beam, Agent } from 'lux';
+
+class MyPrism extends Prism {
+  name = "JavaScript Prism";
+  description = "A prism implemented in JavaScript";
+  
+  async handler(input, context) {
+    try {
+      // Process input
+      const result = await this.processData(input);
+      return { success: true, data: result };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+}
+```
+
+This will allow you to:
+- Write agents entirely in JavaScript
+- Define prisms and beams in JavaScript
+- Use JavaScript's class system
+- Leverage Node.js's async capabilities
+
+Stay tuned for updates! 
