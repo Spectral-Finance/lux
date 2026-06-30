@@ -36,3 +36,8 @@
   stroke-width: 3px;
   cursor: pointer;
 }
+
+.selected-edge {
+  stroke: #fff !important;
+  stroke-width: 3px !important;
+}

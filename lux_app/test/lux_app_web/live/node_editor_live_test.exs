@@ -1179,28 +1179,27 @@ defmodule LuxAppWeb.NodeEditorLiveTest do
       html = render(view)
       assert html =~ "edge-agent-select-edge-prism-select-edge"
 
-      # TODO: Implement edge selection functionality
-      # The following tests will pass once the functionality is implemented:
+      # The following tests will pass since the functionality is implemented:
 
       # 1. Edge should have phx-click attribute for selection
-      # assert has_element?(view, "path.edge-path[phx-click='edge_selected']")
+      assert has_element?(view, "path.edge-path[phx-click='edge_selected']")
 
       # 2. Clicking the edge should select it
-      # view |> element("path.edge-path[data-edge-id='edge-agent-select-edge-prism-select-edge']") |> render_click()
+      view |> element("path.edge-path[data-edge-id='edge-agent-select-edge-prism-select-edge']") |> render_click()
 
       # 3. Selected edge should have a visual indicator
-      # html = render(view)
-      # assert html =~ "selected-edge"
+      html = render(view)
+      assert html =~ "selected-edge"
 
       # 4. Properties panel should show edge information
-      # assert html =~ "Edge Properties"
-      # assert html =~ "Source: Source Agent"
-      # assert html =~ "Target: Target Prism"
+      assert html =~ "Edge Properties"
+      assert html =~ "Source: Source Agent"
+      assert html =~ "Target: Target Prism"
 
       # 5. Edge should be deletable
-      # view |> element("#delete-edge-button") |> render_click()
-      # html = render(view)
-      # refute html =~ "edge-agent-select-edge-prism-select-edge"
+      view |> element("#delete-edge-button") |> render_click()
+      html = render(view)
+      refute html =~ "edge-agent-select-edge-prism-select-edge"
     end
 
     test "edges remain stable during node interactions", %{conn: conn} do

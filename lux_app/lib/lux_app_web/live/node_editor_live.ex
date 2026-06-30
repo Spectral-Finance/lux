@@ -58,7 +58,8 @@ defmodule LuxAppWeb.NodeEditorLive do
      |> assign(:node_types, @node_types)
      |> assign(:selected_node, nil)
      |> assign(:dragging_node, nil)
-     |> assign(:drawing_edge, nil)}
+     |> assign(:drawing_edge, nil)
+     |> assign(:selected_edge, nil)}
   end
 
   # Node selection and canvas interaction
@@ -68,14 +69,24 @@ defmodule LuxAppWeb.NodeEditorLive do
     # Broadcast node selection to all clients
     send(self(), {:broadcast_node_selected, node_id})
 
-    {:noreply, assign(socket, :selected_node, selected_node)}
+    {:noreply, socket |> assign(:selected_node, selected_node) |> assign(:selected_edge, nil)}
+  end
+
+  def handle_event("edge_selected", %{"edge_id" => edge_id}, socket) do
+    selected_edge = Enum.find(socket.assigns.edges, &(&1["id"] == edge_id))
+    {:noreply, socket |> assign(:selected_edge, selected_edge) |> assign(:selected_node, nil)}
   end
 
   def handle_event("canvas_clicked", _params, socket) do
     # Broadcast canvas click to all clients
     send(self(), {:broadcast_canvas_clicked})
 
-    {:noreply, assign(socket, :selected_node, nil)}
+    {:noreply, socket |> assign(:selected_node, nil) |> assign(:selected_edge, nil)}
+  end
+
+  def handle_event("delete_edge", %{"edge_id" => edge_id}, socket) do
+    edges = Enum.reject(socket.assigns.edges, &(&1["id"] == edge_id))
+    {:noreply, socket |> assign(:edges, edges) |> assign(:selected_edge, nil)}
   end
 
   # Node dragging and movement
@@ -426,7 +437,9 @@ defmodule LuxAppWeb.NodeEditorLive do
             <g class="edge">
               <!-- We'll implement the edge path calculation in JS -->
               <path
-                class="edge-path"
+                class={"edge-path #{if @selected_edge && @selected_edge["id"] == edge["id"], do: "selected-edge", else: ""}"}
+                phx-click="edge_selected"
+                phx-value-edge_id={edge["id"]}
                 data-edge-id={edge["id"]}
                 data-source={edge["source"]}
                 data-target={edge["target"]}
@@ -546,9 +559,29 @@ defmodule LuxAppWeb.NodeEditorLive do
             </div>
           </form>
         <% else %>
-          <div class="text-gray-400 text-sm">
-            Select a node to view and edit its properties.
-          </div>
+          <%= if @selected_edge do %>
+            <% source_node = Enum.find(@nodes, &(&1["id"] == @selected_edge["source"])) %>
+            <% target_node = Enum.find(@nodes, &(&1["id"] == @selected_edge["target"])) %>
+            <div class="space-y-4">
+              <h3 class="text-lg font-medium text-white mb-2">Edge Properties</h3>
+              <div class="text-gray-300 text-sm">
+                <p class="mb-1">Source: <%= if source_node, do: source_node["data"]["label"], else: "Unknown" %></p>
+                <p class="mb-4">Target: <%= if target_node, do: target_node["data"]["label"], else: "Unknown" %></p>
+              </div>
+              <button
+                id="delete-edge-button"
+                phx-click="delete_edge"
+                phx-value-edge_id={@selected_edge["id"]}
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md"
+              >
+                Delete Edge
+              </button>
+            </div>
+          <% else %>
+            <div class="text-gray-400 text-sm">
+              Select a node or edge to view and edit its properties.
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>
