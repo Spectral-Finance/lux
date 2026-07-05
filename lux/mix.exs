@@ -14,6 +14,12 @@ defmodule Lux.MixProject do
         plt_core_path: "priv/plts/"
       ],
       elixirc_paths: elixirc_paths(Mix.env()),
+      rustler_crates: [
+        lux_core: [
+          path: "priv/rust/lux_core",
+          mode: if(Mix.env() == :prod, do: :release, else: :debug)
+        ]
+      ],
       aliases: aliases(),
       # Test coverage
       test_coverage: [tool: ExCoveralls],
@@ -83,7 +89,8 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:rustler, "~> 0.35.0"}
     ]
   end
 
@@ -147,6 +154,7 @@ defmodule Lux.MixProject do
         "guides/troubleshooting.md",
         "guides/getting_started.md",
         "guides/core_concepts.md",
+        "guides/rust_integration.md",
         "CHANGELOG.md",
         "LICENSE"
       ],
@@ -155,7 +163,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+          "guides/rust_integration.md"
         ],
         Setup: [
           "guides/troubleshooting.md",

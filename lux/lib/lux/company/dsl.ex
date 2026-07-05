@@ -90,6 +90,14 @@ defmodule Lux.Company.DSL do
       def __company__ do
         @company_config
       end
+
+      def ceo do
+        @company_config.ceo
+      end
+
+      def members do
+        @company_config.roles
+      end
     end
   end
 

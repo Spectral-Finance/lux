@@ -38,6 +38,7 @@ defmodule Lux.Company.ExecutionEngine.Supervisor do
 
     # Generate a unique objective ID if none provided
     objective_id = objective_id || "objective_#{:erlang.unique_integer([:positive])}"
+    objective_id = if is_atom(objective_id), do: Atom.to_string(objective_id), else: objective_id
 
     # Validate objective ID format
     if valid_objective_id?(objective_id) do
