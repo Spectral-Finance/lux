@@ -75,56 +75,56 @@ defmodule Lux.Company do
   Gets a specific objective by ID.
   """
   def get_objective(company, objective_id) do
-    GenServer.call(company, {:get_objective, objective_id})
+    GenServer.call(company, {:get_objective, get_id(objective_id)})
   end
 
   @doc """
   Gets the status of an objective.
   """
   def get_objective_status(company, objective_id) do
-    GenServer.call(company, {:get_objective_status, objective_id})
+    GenServer.call(company, {:get_objective_status, get_id(objective_id)})
   end
 
   @doc """
   Gets the artifacts produced by an objective.
   """
   def get_objective_artifacts(company, objective_id) do
-    GenServer.call(company, {:get_objective_artifacts, objective_id})
+    GenServer.call(company, {:get_objective_artifacts, get_id(objective_id)})
   end
 
   @doc """
   Assigns an agent to an objective.
   """
   def assign_agent_to_objective(company, objective_id, agent_id) do
-    GenServer.call(company, {:assign_agent_to_objective, objective_id, agent_id})
+    GenServer.call(company, {:assign_agent_to_objective, get_id(objective_id), agent_id})
   end
 
   @doc """
   Starts an objective.
   """
   def start_objective(company, objective_id) do
-    GenServer.call(company, {:start_objective, objective_id})
+    GenServer.call(company, {:start_objective, get_id(objective_id)})
   end
 
   @doc """
   Updates the progress of an objective.
   """
   def update_objective_progress(company, objective_id, progress) do
-    GenServer.call(company, {:update_objective_progress, objective_id, progress})
+    GenServer.call(company, {:update_objective_progress, get_id(objective_id), progress})
   end
 
   @doc """
   Completes an objective.
   """
   def complete_objective(company, objective_id) do
-    GenServer.call(company, {:complete_objective, objective_id})
+    GenServer.call(company, {:complete_objective, get_id(objective_id)})
   end
 
   @doc """
   Marks an objective as failed.
   """
   def fail_objective(company, objective_id, reason \\ nil) do
-    GenServer.call(company, {:fail_objective, objective_id, reason})
+    GenServer.call(company, {:fail_objective, get_id(objective_id), reason})
   end
 
   @doc """
@@ -137,8 +137,8 @@ defmodule Lux.Company do
   - `:timeout` - Timeout for agent initialization (default: 30_000)
   """
   def run(company, opts \\ []) do
-    router = Keyword.fetch!(opts, :router)
-    hub = Keyword.fetch!(opts, :hub)
+    router = Keyword.get(opts, :router) || Keyword.get(opts, :signal_router)
+    hub = Keyword.get(opts, :hub) || Keyword.get(opts, :agent_hub)
     timeout = Keyword.get(opts, :timeout, 30_000)
 
     with {:ok, _} <- validate_company(company),
@@ -168,6 +168,8 @@ defmodule Lux.Company do
   def init({module, opts}) do
     require Logger
 
+    opts = if is_map(opts), do: Map.to_list(opts), else: opts
+
     Logger.debug("Initializing company with module: #{inspect(module)}")
 
     # Get company configuration
@@ -194,8 +196,10 @@ defmodule Lux.Company do
     end)
 
     # Store signal router and agent hub if provided
-    signal_router = Keyword.get(opts, :signal_router)
-    agent_hub = Keyword.get(opts, :agent_hub)
+    signal_router = Keyword.get(opts, :signal_router) || Keyword.get(opts, :router)
+    agent_hub = Keyword.get(opts, :agent_hub) || Keyword.get(opts, :hub)
+
+    objectives = Map.new(company_config.objectives, &{&1.name, &1})
 
     {:ok,
      %{
@@ -204,7 +208,7 @@ defmodule Lux.Company do
        signal_router: signal_router,
        agent_hub: agent_hub,
        roles: %{},
-       objectives: %{},
+       objectives: objectives,
        artifacts: %{}
      }}
   end
@@ -212,6 +216,30 @@ defmodule Lux.Company do
   @impl true
   def handle_call(:list_roles, _from, state) do
     {:reply, {:ok, Map.values(state.roles)}, state}
+  end
+
+  def handle_call({:create_role, role}, _from, state) do
+    role_id = role.id || role[:id] || Lux.UUID.generate()
+    role = Map.put(role, :id, role_id)
+    updated_roles = Map.put(state.roles, role_id, role)
+    {:reply, {:ok, role}, %{state | roles: updated_roles}}
+  end
+
+  def handle_call({:update_role, role_id, updates}, _from, state) do
+    case Map.get(state.roles, role_id) do
+      nil ->
+        {:reply, {:error, :not_found}, state}
+
+      role ->
+        updated_role = Map.merge(role, updates)
+        updated_roles = Map.put(state.roles, role_id, updated_role)
+        {:reply, {:ok, updated_role}, %{state | roles: updated_roles}}
+    end
+  end
+
+  def handle_call({:delete_role, role_id}, _from, state) do
+    updated_roles = Map.delete(state.roles, role_id)
+    {:reply, :ok, %{state | roles: updated_roles}}
   end
 
   def handle_call({:get_role, role_id}, _from, state) do
@@ -391,6 +419,94 @@ defmodule Lux.Company do
     end
   end
 
+  @impl true
+  def handle_info({:objective_update, execution_id, objective_proc_state}, state) do
+    mapped_status =
+      case objective_proc_state.status do
+        :initializing -> :in_progress
+        :cancelled -> :failed
+        other -> other
+      end
+
+    case Map.get(state.objectives, execution_id) do
+      nil ->
+        Logger.debug("Received objective update for unknown objective: #{execution_id}")
+        {:noreply, state}
+
+      objective ->
+        updated_objective = %{
+          objective
+          | status: mapped_status,
+            progress: objective_proc_state.progress,
+            error: objective_proc_state.error,
+            started_at: objective_proc_state.started_at,
+            completed_at: objective_proc_state.completed_at
+        }
+
+        updated_objectives = Map.put(state.objectives, execution_id, updated_objective)
+        {:noreply, %{state | objectives: updated_objectives}}
+    end
+  end
+
+  @impl true
+  def handle_info({:task_tracker_update, execution_id, event}, state) do
+    case Map.get(state.objectives, execution_id) do
+      nil ->
+        Logger.debug("Received task tracker update for unknown objective: #{execution_id}")
+        {:noreply, state}
+
+      objective ->
+        {_event_type, task} = event
+
+        step_capabilities =
+          case Enum.find(objective.steps || [], fn
+                 s when is_map(s) ->
+                   (s["name"] || s[:name] || s["description"] || s[:description]) == task.step
+
+                 s when is_binary(s) ->
+                   s == task.step
+
+                 _ ->
+                   false
+               end) do
+            s when is_map(s) -> s["required_capabilities"] || s[:required_capabilities] || []
+            _ -> []
+          end
+
+        mapped_task = %{
+          id: task.id,
+          step: task.step,
+          assigned_to: task.assigned_agent,
+          status: task.status,
+          started_at: task.started_at,
+          completed_at: task.completed_at,
+          error: task.error,
+          result: task.result,
+          metadata: task.metadata,
+          required_capabilities: step_capabilities
+        }
+
+        updated_tasks =
+          case Enum.find_index(objective.tasks || [], &(&1.id == task.id)) do
+            nil ->
+              (objective.tasks || []) ++ [mapped_task]
+
+            index ->
+              List.replace_at(objective.tasks, index, mapped_task)
+          end
+
+        updated_objective = %{objective | tasks: updated_tasks}
+        updated_objectives = Map.put(state.objectives, execution_id, updated_objective)
+        {:noreply, %{state | objectives: updated_objectives}}
+    end
+  end
+
+  @impl true
+  def handle_info(msg, state) do
+    Logger.warning("Received unexpected message: #{inspect(msg)}")
+    {:noreply, state}
+  end
+
   # Private Functions
 
   defp validate_company(company) do
@@ -425,6 +541,7 @@ defmodule Lux.Company do
     end
   end
 
+  defp validate_router(nil), do: {:ok, nil}
   defp validate_router(router) do
     if function_exported?(router, :start_link, 1) do
       {:ok, router}
@@ -433,6 +550,8 @@ defmodule Lux.Company do
     end
   end
 
+  defp validate_hub(nil), do: {:ok, nil}
+  defp validate_hub(hub) when is_atom(hub) or is_pid(hub), do: {:ok, hub}
   defp validate_hub(hub) do
     if function_exported?(hub, :start_link, 1) do
       {:ok, hub}
@@ -526,8 +645,16 @@ defmodule Lux.Company do
   defp init_agents(pid, _timeout) do
     # Start agents for each role
     {:ok, roles} = list_roles(pid)
+    state = :sys.get_state(pid)
+    agent_hub = state.agent_hub
 
     Enum.each(roles, fn role ->
+      if function_exported?(role.agent, :start_link, 1) do
+        agent_name = :"#{role.agent}_#{Lux.UUID.generate()}"
+        # Start the agent with a unique name to avoid concurrent test clashes
+        role.agent.start_link(hub: agent_hub, name: agent_name)
+      end
+
       {:ok, _} = assign_agent(pid, role.id, role.agent)
     end)
 
@@ -547,8 +674,11 @@ defmodule Lux.Company do
         # Validate input against objective schema
         case validate_objective_input(objective, input, state) do
           {:ok, _} ->
+            # Generate a unique execution ID for this run
+            execution_id = "#{objective_id}_#{:erlang.unique_integer([:positive])}"
+
             # Start the execution engine supervisor for this objective
-            supervisor_name = Module.concat(objective_id, ExecutionSupervisor)
+            supervisor_name = Module.concat([execution_id, "ExecutionSupervisor"])
 
             case Lux.Company.ExecutionEngine.Supervisor.start_link(name: supervisor_name) do
               {:ok, _pid} ->
@@ -558,7 +688,7 @@ defmodule Lux.Company do
                        objective,
                        self(),
                        input,
-                       objective_id
+                       execution_id
                      ) do
                   {:ok, _pid} ->
                     # Create initial signal for CEO evaluation
@@ -567,12 +697,12 @@ defmodule Lux.Company do
                       schema_id: ObjectiveSignal,
                       payload: %{
                         "type" => "evaluate",
-                        "objective_id" => objective_id,
+                        "objective_id" => execution_id,
                         "title" => to_string(objective.name),
                         "input" => input
                       },
                       recipient: state.module.ceo().id,
-                      sender: objective_id
+                      sender: execution_id
                     }
 
                     # Route the signal through the router if configured
@@ -588,16 +718,18 @@ defmodule Lux.Company do
                     # Update objective status
                     updated_objective = %{
                       objective
-                      | status: :in_progress,
+                      | id: execution_id,
+                        status: :in_progress,
                         started_at: DateTime.utc_now()
                     }
 
                     updated_objectives =
-                      Map.put(state.objectives, objective_id, updated_objective)
+                      Map.put(state.objectives, execution_id, updated_objective)
 
                     new_state = %{state | objectives: updated_objectives}
 
-                    {:ok, updated_objective, new_state}
+                    signal = put_in(signal.payload["id"], execution_id)
+                    {:ok, signal, new_state}
 
                   error ->
                     Logger.error("Failed to start objective process: #{inspect(error)}")
@@ -614,6 +746,12 @@ defmodule Lux.Company do
         end
     end
   end
+
+  defp get_id(%Lux.Signal{payload: %{"id" => id}}) when is_binary(id), do: id
+  defp get_id(%Lux.Signal{payload: %{"objective_id" => id}}) when is_binary(id), do: id
+  defp get_id(%Lux.Signal{id: id}) when is_binary(id), do: id
+  defp get_id(%Lux.Company.Objective{id: id}) when is_binary(id), do: id
+  defp get_id(id), do: id
 
   defmacro __using__(_opts) do
     quote do

@@ -1,0 +1,13 @@
+[package]
+name = "lux_core"
+version = "0.1.0"
+edition = "2021"
+authors = ["Spectral Labs"]
+
+[lib]
+name = "lux_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.35.0"
+thiserror = "1.0"
