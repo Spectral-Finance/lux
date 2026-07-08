@@ -1,0 +1,100 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    - cron: '0 0 * * 1'  # Run weekly on Monday at midnight
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Update Elixir Dependencies for Lux
+        working-directory: lux
+        run: |
+          mix deps.get
+          mix deps.update --all
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add mix.lock
+          git diff --staged --quiet || git commit -m "Update Lux dependencies"
+
+      - name: Update Elixir Dependencies for Lux App
+        working-directory: lux_app
+        run: |
+          mix deps.get
+          mix deps.update --all
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add mix.lock
+          git diff --staged --quiet || git commit -m "Update Lux App dependencies"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.3'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 2.0.0
+          virtualenvs-create: false
+          virtualenvs-in-project: false
+          installer-parallel: true
+
+      - name: Update Python Dependencies
+        working-directory: lux/priv/python
+        run: |
+          poetry update
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add poetry.lock
+          git diff --staged --quiet || git commit -m "Update Python dependencies"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Update Node.js Dependencies for Lux
+        working-directory: lux/priv/node
+        run: |
+          npm update
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add package-lock.json
+          git diff --staged --quiet || git commit -m "Update Lux Node.js dependencies"
+
+      - name: Update Node.js Dependencies for Lux App
+        working-directory: lux_app/assets
+        run: |
+          npm update
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add package-lock.json
+          git diff --staged --quiet || git commit -m "Update Lux App Node.js dependencies"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Update dependencies
+          title: 'chore: Update dependencies'
+          body: |
+            This PR updates dependencies across all projects.
+            
+            - Lux
+            - Lux App
+            
+            This is an automated PR created by the dependency update workflow.
+          branch: dependency-updates
+          base: main 

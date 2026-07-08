@@ -1,0 +1,138 @@
+name: Lux App CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lux_app/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lux_app/**'
+
+jobs:
+  test:
+    name: Build and Test Lux App
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lux_app
+    
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: lux_app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Cache Mix deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            lux_app/deps
+            lux_app/_build
+          key: ${{ runner.os }}-mix-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-lux-app-
+
+      - name: Cache Node.js deps
+        uses: actions/cache@v4
+        with:
+          path: lux_app/assets/node_modules
+          key: ${{ runner.os }}-node-lux-app-${{ hashFiles('lux_app/assets/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-lux-app-
+
+      - name: Cache Dialyzer PLTs
+        uses: actions/cache@v4
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dialyzer-lux-app-
+
+      - name: Install Mix Dependencies
+        run: mix deps.get
+
+      - name: Create PLT directory
+        run: mkdir -p priv/plts
+
+      - name: Restore PLT cache
+        uses: actions/cache/restore@v4
+        id: plt_cache
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-dialyzer-lux-app-
+
+      - name: Compile
+        run: mix compile
+
+      - name: Build PLT
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        run: mix dialyzer --plt
+
+      - name: Save PLT cache
+        uses: actions/cache/save@v4
+        if: steps.plt_cache.outputs.cache-hit != 'true'
+        with:
+          path: |
+            lux_app/priv/plts/*.plt
+            lux_app/priv/plts/*.hash
+          key: ${{ runner.os }}-dialyzer-lux-app-${{ hashFiles('lux_app/mix.lock') }}
+
+      - name: Install Node.js dependencies
+        run: cd assets && npm ci
+
+      - name: Check Formatting
+        run: mix format --check-formatted
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Run Dialyzer
+        run: mix dialyzer
+
+      - name: Setup database
+        run: mix ecto.setup
+
+      - name: Run Tests
+        run: mix test
+
+      - name: Generate Test Coverage
+        run: mix coveralls.github
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MIX_ENV: test
+
+      - name: Build assets
+        run: |
+          mix assets.deploy
+          mix phx.digest 

@@ -1,0 +1,310 @@
+# Multi-Agent Collaboration Guide
+
+```elixir
+Mix.install(
+  [
+    {:lux, ">= 0.5.0"}
+    {:kino, "~> 0.14.2"}
+  ],
+  config: [
+    lux: [
+      open_ai_models: [
+        default: "gpt-4o-mini"
+      ],
+      api_keys: [
+        openai: System.fetch_env!("LB_OPENAI_API_KEY")
+      ]
+    ]
+  ]
+)
+```
+
+## Introduction
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Fmulti_agent_collaboration.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+This guide demonstrates how to create and coordinate multiple agents working together in Lux.
+
+## Basic Concepts
+
+Multi-agent collaboration in Lux is built on several key components:
+
+1. **Agent Hub**: Central system for discovering and tracking agents
+2. **Capabilities**: Tags that describe what an agent can do
+3. **Status Tracking**: Monitoring agent availability and workload
+4. **Message Passing**: Communication between agents
+
+## Creating Collaborative Agents
+
+Here's an example of creating two agents that work together:
+
+```elixir
+defmodule MyApp.Agents.Researcher do
+  use Lux.Agent,
+    name: "Research Assistant",
+    description: "Specialized in research and analysis",
+    goal: "Find and analyze information accurately",
+    capabilities: [:research, :analysis],
+    llm_config: %{
+      model: "gpt-4o-mini",
+      max_tokens: 500,
+      messages: [
+        %{
+          role: "system",
+          content: """
+          You are a Research Assistant specialized in finding and analyzing information.
+          Work with other agents to provide comprehensive research results.
+          """
+        }
+      ]
+    }
+end
+
+defmodule MyApp.Agents.Writer do
+  use Lux.Agent,
+    name: "Content Writer",
+    description: "Specialized in content creation",
+    goal: "Create engaging content from research",
+    capabilities: [:writing, :editing],
+    llm_config: %{
+      model: "gpt-4o-mini",
+      max_tokens: 500,
+      messages: [
+        %{
+          role: "system",
+          content: """
+          You are a Content Writer specialized in creating engaging content.
+          Work with researchers to transform their findings into compelling articles.
+          """
+        }
+      ]
+    }
+end
+```
+
+## Starting and Registering Agents
+
+Let's start the agents.
+
+```elixir
+alias MyApp.Agents.Researcher
+alias MyApp.Agents.Writer
+
+{:ok, researcher_pid} = Kino.start_child({Researcher, []})
+{:ok, writer_pid} = Kino.start_child({Writer, []})
+```
+
+You can check agent's state with `get_state/1` function.
+
+```elixir
+researcher = Researcher.get_state(researcher_pid)
+```
+
+```elixir
+writer = Writer.get_state(writer_pid)
+```
+
+Start your own agent hub.
+
+> If you want to use default agent hub, you can get it with `Lux.AgentHub.get_default/0` function.
+
+```elixir
+{:ok, hub} = Kino.start_child({Lux.AgentHub, [name: :my_hub]})
+```
+
+Register agents with their capabilities
+
+```elixir
+:ok =
+  Lux.AgentHub.register(
+    hub,
+    researcher,
+    researcher_pid,
+    [:research, :analysis]
+  )
+
+:ok =
+  Lux.AgentHub.register(
+    hub,
+    writer,
+    writer_pid,
+    [:writing, :editing]
+  )
+```
+
+## Finding and Using Agents
+
+You can find agents by their capabilities.
+
+```elixir
+research_agents = Lux.AgentHub.find_by_capability(hub, :research)
+```
+
+```elixir
+writing_agents = Lux.AgentHub.find_by_capability(hub, :writing)
+```
+
+Or you can get specific agent info with `id`
+
+```elixir
+{:ok, researcher_info} = Lux.AgentHub.get_agent_info(hub, researcher.id)
+```
+
+## Coordinating Work Between Agents
+
+Here's an example of how to coordinate work between a researcher and writer:
+
+```elixir
+frame = Kino.Frame.new() |> Kino.render()
+
+# 1. Update researcher status to busy
+:ok = Lux.AgentHub.update_status(hub, researcher.id, :busy)
+
+# 2. Start with a research task
+{:ok, research_response} = 
+  Researcher.send_message(
+    researcher_pid,
+    "Research the impact of AI on healthcare"
+  )
+
+# 3. Mark researcher as available again
+:ok = Lux.AgentHub.update_status(hub, researcher.id, :available)
+
+Kino.Frame.append(frame, research_response)
+
+# 4. Update writer status to busy
+:ok = Lux.AgentHub.update_status(hub, writer.id, :busy)
+
+# 5. Send research to writer for content creation
+{:ok, article} = 
+  Writer.send_message(
+    writer_pid,
+    """
+    Create an engaging blog post based on this research:
+    #{research_response}
+    """
+  )
+
+# 6. Mark writer as avaiable again
+:ok = Lux.AgentHub.update_status(hub, writer.id, :available)
+
+Kino.Frame.append(frame, article)
+
+Kino.nothing()
+```
+
+## Best Practices
+
+1. **Status Management**
+
+   * Always update agent status when starting/finishing work
+   * Check agent availability before sending tasks
+   * Handle offline agents gracefully
+
+2. **Capability Design**
+
+   * Use specific, descriptive capability names
+   * Avoid overlapping capabilities
+   * Document expected inputs/outputs for each capability
+
+3. **Error Handling**
+
+   * Handle agent unavailability
+   * Implement retry mechanisms for failed communications
+   * Monitor agent health
+
+```elixir
+Lux.AgentHub.find_by_capability(hub, :research)
+```
+
+## Example: Research and Writing Pipeline
+
+Here's a complete example of a research and writing pipeline:
+
+```elixir
+defmodule MyApp.Workflows.ContentCreation do
+  alias Lux.AgentHub
+  
+  def create_article(topic) do
+    # Get Agent Hub's pid
+    hub = Process.whereis(:my_hub)
+
+    # Find available researcher
+    case AgentHub.find_by_capability(hub, :research) do
+      [%{agent: researcher, pid: researcher_pid, status: :available} | _] ->
+        # Update researcher status
+        :ok = AgentHub.update_status(hub, researcher.id, :busy)
+        
+        # Get research
+        {:ok, research} = Researcher.send_message(
+          researcher_pid,
+          "Research #{topic} comprehensively"
+        )
+        
+        # Mark researcher as available
+        :ok = AgentHub.update_status(hub, researcher.id, :available)
+        
+        # Find available writer
+        case AgentHub.find_by_capability(hub, :writing) do
+          [%{pid: writer_pid} | _] ->
+            # Create content
+            {:ok, article} = Writer.send_message(
+              writer_pid,
+              """
+              Create an engaging article based on this research:
+              #{research}
+              """
+            )
+            
+            {:ok, article}
+            
+          [] ->
+            {:error, :no_writers_available}
+        end
+        
+      [] ->
+        {:error, :no_researchers_available}
+    end
+  end
+end
+```
+
+```elixir
+MyApp.Workflows.ContentCreation.create_article("""
+AI & Blockchain
+""")
+```
+
+## Advanced Topics
+
+### Scaling Agent Teams
+
+As your system grows, consider:
+
+* Implementing load balancing between similar agents
+* Adding specialized agents for specific tasks
+* Using agent pools for high-demand capabilities
+
+### Monitoring and Debugging
+
+Track agent collaboration using:
+
+* Agent status history
+* Task completion metrics
+* Communication logs
+
+### Security Considerations
+
+* Implement authentication between agents
+* Validate message contents
+* Rate limit agent interactions
+* Monitor resource usage
+
+## Next Steps
+
+1. Implement more sophisticated collaboration patterns
+2. Add error recovery mechanisms
+3. Create specialized agent teams
+4. Implement performance monitoring

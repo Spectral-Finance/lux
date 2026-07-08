@@ -1,0 +1,507 @@
+# Running a Complete Lux Company
+
+## Introduction
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Frunning_a_company.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+In this guide, we'll create and run a complete Lux company that creates blog content. We'll:
+
+1. Define the company structure
+2. Create specialized agents with different roles
+3. Implement necessary tools (prisms, beams, lenses)
+4. Run the company and execute objectives
+
+## Setup
+
+First, let's make sure we have all the necessary dependencies:
+
+```elixir
+Mix.install([
+  {:lux, ">= 0.5.0"},
+  {:jason, "~> 1.4"},
+  {:req, "~> 0.4.0"}
+])
+```
+
+## Creating the Tools
+
+Let's create the tools our content creation company will need. We'll start with some prisms for different content-related tasks:
+
+```elixir
+defmodule ContentTools.ResearchPrism do
+  use Lux.Prism,
+    name: "Research Tool",
+    description: "Performs research on a given topic",
+    input_schema: %{
+      type: "object",
+      properties: %{
+        "topic" => %{
+          type: "string",
+          description: "The topic to research"
+        },
+        "depth" => %{
+          type: "string",
+          enum: ["basic", "detailed", "comprehensive"],
+          default: "detailed",
+          description: "How deep the research should go"
+        }
+      },
+      required: ["topic"]
+    }
+
+  def handler(%{"topic" => topic, "depth" => depth}, _context) do
+    # In a real implementation, this would do actual research
+    # For demo purposes, we'll simulate research results
+    research = %{
+      topic: topic,
+      depth: depth,
+      key_points: [
+        "First key point about #{topic}",
+        "Second key point about #{topic}",
+        "Third key point about #{topic}"
+      ],
+      sources: [
+        "Source 1 for #{topic}",
+        "Source 2 for #{topic}"
+      ]
+    }
+    
+    {:ok, research}
+  end
+end
+
+defmodule ContentTools.OutlinePrism do
+  use Lux.Prism,
+    name: "Outline Generator",
+    description: "Creates a content outline based on research",
+    input_schema: %{
+      type: "object",
+      properties: %{
+        "topic" => %{type: "string"},
+        "research" => %{
+          type: "object",
+          properties: %{
+            "key_points" => %{
+              type: "array",
+              items: %{type: "string"}
+            }
+          }
+        },
+        "style" => %{
+          type: "string",
+          enum: ["blog", "article", "tutorial"],
+          default: "blog"
+        }
+      },
+      required: ["topic", "research"]
+    }
+
+  def handler(%{"topic" => topic, "research" => research, "style" => style}, _context) do
+    outline = %{
+      title: "#{topic} - A Comprehensive Guide",
+      sections: [
+        %{
+          title: "Introduction",
+          points: ["Background", "Why this matters"]
+        },
+        %{
+          title: "Main Content",
+          points: research.key_points
+        },
+        %{
+          title: "Conclusion",
+          points: ["Summary", "Next steps"]
+        }
+      ],
+      style: style
+    }
+    
+    {:ok, outline}
+  end
+end
+
+defmodule ContentTools.WritingBeam do
+  use Lux.Beam,
+    name: "Content Writer",
+    description: "Coordinates the content creation process",
+    input_schema: %{
+      type: "object",
+      properties: %{
+        "topic" => %{type: "string"},
+        "style" => %{
+          type: "string",
+          enum: ["blog", "article", "tutorial"]
+        }
+      },
+      required: ["topic"]
+    }
+
+  def steps do
+    sequence do
+      # First do research
+      step(:research, ContentTools.ResearchPrism, %{
+        topic: [:input, "topic"],
+        depth: "detailed"
+      })
+
+      # Then create outline
+      step(:outline, ContentTools.OutlinePrism, %{
+        topic: [:input, "topic"],
+        research: [:steps, :research, :result],
+        style: [:input, "style"]
+      })
+    end
+  end
+end
+```
+
+## Defining Company Agents
+
+Now let's create our specialized agents:
+
+```elixir
+defmodule ContentTeam.Agents.Researcher do
+  use Lux.Agent,
+    name: "Research Specialist",
+    description: "Specializes in gathering and analyzing information",
+    goal: "Provide well-researched, accurate information for content creation",
+    prisms: [ContentTools.ResearchPrism],
+    llm_config: %{
+      temperature: 0.3  # Lower temperature for more focused research
+    }
+
+  # Implement the task handler for research assignments
+  @impl true
+  def handle_task_assignment(%Lux.Signal{payload: payload} = signal, context) do
+    case payload do
+      %{"type" => "assignment", "title" => title, "description" => description} ->
+        # Extract topic from description
+        topic = extract_topic(description)
+        
+        # Use the research prism
+        case ContentTools.ResearchPrism.handler(%{"topic" => topic, "depth" => "detailed"}, context) do
+          {:ok, research} ->
+            {:ok, create_completion_signal(signal, research)}
+            
+          {:error, reason} ->
+            {:ok, create_failure_signal(signal, reason)}
+        end
+        
+      _ ->
+        {:error, :invalid_task}
+    end
+  end
+  
+  defp extract_topic(description) do
+    # Simple implementation - in real world, would use LLM to extract topic
+    description
+    |> String.split(" ")
+    |> Enum.take(3)
+    |> Enum.join(" ")
+  end
+  
+  defp create_completion_signal(original, result) do
+    %Lux.Signal{
+      id: Lux.UUID.generate(),
+      schema_id: original.schema_id,
+      payload: %{
+        "type" => "completion",
+        "task_id" => original.payload["task_id"],
+        "objective_id" => original.payload["objective_id"],
+        "title" => original.payload["title"],
+        "status" => "completed",
+        "result" => %{
+          "success" => true,
+          "output" => result
+        }
+      },
+      recipient: original.sender
+    }
+  end
+  
+  defp create_failure_signal(original, reason) do
+    %Lux.Signal{
+      id: Lux.UUID.generate(),
+      schema_id: original.schema_id,
+      payload: %{
+        "type" => "failure",
+        "task_id" => original.payload["task_id"],
+        "objective_id" => original.payload["objective_id"],
+        "title" => original.payload["title"],
+        "status" => "failed",
+        "result" => %{
+          "success" => false,
+          "error" => inspect(reason)
+        }
+      },
+      recipient: original.sender
+    }
+  end
+end
+
+defmodule ContentTeam.Agents.Writer do
+  use Lux.Agent,
+    name: "Content Writer",
+    description: "Creates engaging written content",
+    goal: "Transform research and outlines into polished content",
+    beams: [ContentTools.WritingBeam],
+    llm_config: %{
+      temperature: 0.7  # Higher temperature for more creative writing
+    }
+
+  @impl true
+  def handle_task_assignment(%Lux.Signal{payload: payload} = signal, context) do
+    case payload do
+      %{"type" => "assignment", "title" => title, "context" => %{"research" => research}} ->
+        # Use the writing beam
+        case ContentTools.WritingBeam.run(%{
+          "topic" => title,
+          "style" => "blog"
+        }, context) do
+          {:ok, content} ->
+            {:ok, create_completion_signal(signal, content)}
+            
+          {:error, reason} ->
+            {:ok, create_failure_signal(signal, reason)}
+        end
+        
+      _ ->
+        {:error, :invalid_task}
+    end
+  end
+  
+  # Reuse the same helper functions as Researcher
+  defp create_completion_signal(original, result) do
+    %Lux.Signal{
+      id: Lux.UUID.generate(),
+      schema_id: original.schema_id,
+      payload: %{
+        "type" => "completion",
+        "task_id" => original.payload["task_id"],
+        "objective_id" => original.payload["objective_id"],
+        "title" => original.payload["title"],
+        "status" => "completed",
+        "result" => %{
+          "success" => true,
+          "output" => result
+        }
+      },
+      recipient: original.sender
+    }
+  end
+  
+  defp create_failure_signal(original, reason) do
+    %Lux.Signal{
+      id: Lux.UUID.generate(),
+      schema_id: original.schema_id,
+      payload: %{
+        "type" => "failure",
+        "task_id" => original.payload["task_id"],
+        "objective_id" => original.payload["objective_id"],
+        "title" => original.payload["title"],
+        "status" => "failed",
+        "result" => %{
+          "success" => false,
+          "error" => inspect(reason)
+        }
+      },
+      recipient: original.sender
+    }
+  end
+end
+
+defmodule ContentTeam.Agents.Editor do
+  use Lux.Agent,
+    name: "Content Editor",
+    description: "Reviews and improves content",
+    goal: "Ensure content meets quality standards and style guidelines",
+    llm_config: %{
+      temperature: 0.4  # Balanced temperature for editing
+    }
+
+  @impl true
+  def handle_task_assignment(%Lux.Signal{payload: payload} = signal, _context) do
+    case payload do
+      %{"type" => "assignment", "context" => %{"content" => content}} ->
+        # Simulate editing process
+        edited_content = %{
+          original: content,
+          edits: [
+            "Improved flow in introduction",
+            "Enhanced clarity in main points",
+            "Fixed grammar and style issues"
+          ],
+          final_version: content  # In real implementation, would actually edit
+        }
+        
+        {:ok, create_completion_signal(signal, edited_content)}
+        
+      _ ->
+        {:error, :invalid_task}
+    end
+  end
+  
+  # Reuse the same helper functions
+  defp create_completion_signal(original, result) do
+    %Lux.Signal{
+      id: Lux.UUID.generate(),
+      schema_id: original.schema_id,
+      payload: %{
+        "type" => "completion",
+        "task_id" => original.payload["task_id"],
+        "objective_id" => original.payload["objective_id"],
+        "title" => original.payload["title"],
+        "status" => "completed",
+        "result" => %{
+          "success" => true,
+          "output" => result
+        }
+      },
+      recipient: original.sender
+    }
+  end
+end
+```
+
+## Defining the Company
+
+Now let's define our content creation company:
+
+```elixir
+defmodule ContentTeam.Company do
+  use Lux.Company
+
+  company do
+    name "Content Creation Team"
+    mission "Create high-quality, research-backed blog content"
+
+    has_ceo "Content Director" do
+      agent ContentTeam.Agents.Editor
+      goal "Oversee content creation and ensure quality"
+      can "review"
+      can "approve"
+      can "coordinate"
+    end
+
+    members do
+      has_role "Research Specialist" do
+        agent ContentTeam.Agents.Researcher
+        goal "Research topics and provide comprehensive insights"
+        can "research"
+        can "analyze"
+        can "summarize"
+      end
+
+      has_role "Content Writer" do
+        agent ContentTeam.Agents.Writer
+        goal "Create engaging and well-structured content"
+        can "write"
+        can "edit"
+        can "draft"
+      end
+    end
+  end
+
+  objective :create_blog_post do
+    description "Create a well-researched blog post"
+    success_criteria """
+    - Well-researched content with cited sources
+    - Engaging writing style appropriate for target audience
+    - Proper structure and flow
+    - Error-free content
+    - Approved by Content Director
+    """
+    steps [
+      "Research the topic thoroughly and gather key insights",
+      "Create a detailed outline based on research",
+      "Write the first draft following the outline",
+      "Review and edit the content",
+      "Get final approval from Content Director"
+    ]
+  end
+end
+```
+
+## Running the Company
+
+Let's start the company and create a blog post:
+
+```elixir
+# Start the company
+{:ok, company_pid} = ContentTeam.Company.start_link()
+
+# Create a blog post
+{:ok, objective_id} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
+  "topic" => "The Future of AI",
+  "target_audience" => "tech enthusiasts",
+  "tone" => "informative yet engaging"
+})
+
+# Monitor the objective status
+{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
+
+# The status will include:
+# - Current step
+# - Overall progress
+# - Any completed artifacts
+# - Error information (if any)
+```
+
+## Monitoring and Debugging
+
+You can monitor the company's operation in several ways:
+
+1. Check objective status:
+```elixir
+{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
+IO.inspect(status)
+```
+
+2. List all active objectives:
+```elixir
+{:ok, objectives} = Lux.Company.list_objectives(company_pid)
+IO.inspect(objectives)
+```
+
+3. Get agent status:
+```elixir
+{:ok, agents} = Lux.Company.list_agents(company_pid)
+IO.inspect(agents)
+```
+
+4. View objective artifacts:
+```elixir
+{:ok, artifacts} = Lux.Company.get_objective_artifacts(company_pid, objective_id)
+IO.inspect(artifacts)
+```
+
+## Error Handling
+
+The company handles various types of errors:
+
+1. Invalid inputs:
+```elixir
+{:error, :invalid_input} = Lux.Company.run_objective(company_pid, :create_blog_post, %{
+  "topic" => "AI"  # Missing required fields
+})
+```
+
+2. Agent failures:
+```elixir
+# The company will attempt to recover from agent failures
+# You can check the error in the objective status
+{:ok, status} = Lux.Company.get_objective_status(company_pid, objective_id)
+if status.error do
+  IO.puts("Error: #{status.error}")
+end
+```
+
+## Next Steps
+
+1. Add more specialized agents to your company
+2. Create custom tools for specific tasks
+3. Implement more complex objectives
+4. Add monitoring and alerting
+5. Implement recovery strategies for different failure modes 

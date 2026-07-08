@@ -1,0 +1,447 @@
+# Telegram Bot API Integration Guide
+
+```elixir
+Mix.install([
+  {:lux, "~> 0.5.0"},
+  {:kino, "~> 0.14.2"}
+])
+
+Application.ensure_all_started([:ex_unit])
+```
+
+## Overview
+
+Lux provides a comprehensive set of prisms for interacting with the Telegram Bot API, allowing you to easily build bots that can send messages, manage media, edit content, and more. These prisms handle authentication, data transformation, and error handling, making it simple to integrate Telegram functionality into your applications.
+
+This guide covers:
+
+* Setting up Telegram Bot API access
+* Using different types of Telegram prisms
+* Managing messages and media
+* Testing and debugging your bots
+* Error handling and best practices
+
+## Getting Started
+
+### Bot Token Setup
+
+To use the Telegram Bot API, you'll need a bot token:
+
+1. Start a chat with [@BotFather](https://t.me/botfather) on Telegram
+2. Send the `/newbot` command and follow the instructions
+3. Once created, BotFather will provide your bot token
+4. Add your bot token to the appropriate override files
+
+For security best practices, store your bot tokens in the following files:
+
+```bash
+# In dev.override.envrc
+TELEGRAM_BOT_TOKEN="your_development_bot_token"
+
+# In test.override.envrc
+TELEGRAM_BOT_TOKEN="your_testing_bot_token"
+```
+
+That's it! Lux will automatically use these tokens when making requests to the Telegram Bot API.
+
+### Basic Usage
+
+Here's a simple example of using a Telegram prism:
+
+```elixir
+alias Lux.Prisms.Telegram.Messages.SendMessage
+
+# Send a message to a chat
+{:ok, result} = SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "Hello from Lux!"
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+## Prism Categories
+
+Telegram prisms are organized into several categories:
+
+### Messages
+
+Prisms for sending and managing text messages:
+
+```elixir
+alias Lux.Prisms.Telegram.Messages.SendMessage
+alias Lux.Prisms.Telegram.Messages.EditMessageText
+alias Lux.Prisms.Telegram.Messages.DeleteMessage
+
+# Send a basic message
+{:ok, result} = SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "Hello from Lux!"
+  },
+  %{name: "Demo Bot"}
+)
+
+# Edit a message you've sent
+{:ok, edited} = EditMessageText.handler(
+  %{
+    chat_id: 123_456_789,
+    message_id: result.message_id,
+    text: "Updated message"
+  },
+  %{name: "Demo Bot"}
+)
+
+# Delete a message
+{:ok, _} = DeleteMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    message_id: result.message_id
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+### Media
+
+Prisms for sending and managing media content:
+
+```elixir
+alias Lux.Prisms.Telegram.Media.SendPhoto
+
+# Send a photo by URL
+{:ok, photo_result} = SendPhoto.handler(
+  %{
+    chat_id: 123_456_789,
+    photo: "https://example.com/image.jpg",
+    caption: "Check out this image!"
+  },
+  %{name: "Demo Bot"}
+)
+
+# Send a photo with markdown caption
+{:ok, _} = SendPhoto.handler(
+  %{
+    chat_id: 123_456_789,
+    photo: "https://example.com/image.jpg",
+    caption: "*Bold* and _italic_ formatting",
+    parse_mode: "Markdown"
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+### Message Management
+
+Prisms for copying, forwarding, and managing existing messages:
+
+```elixir
+alias Lux.Prisms.Telegram.Messages.CopyMessage
+alias Lux.Prisms.Telegram.Messages.ForwardMessage
+alias Lux.Prisms.Telegram.Messages.EditMessageCaption
+
+# Copy a message between chats
+{:ok, copied} = CopyMessage.handler(
+  %{
+    chat_id: 123_456_789, # Destination chat
+    from_chat_id: 987654321, # Source chat
+    message_id: 42 # Message to copy
+  },
+  %{name: "Demo Bot"}
+)
+
+# Forward a message between chats
+{:ok, forwarded} = ForwardMessage.handler(
+  %{
+    chat_id: 123_456_789, # Destination chat
+    from_chat_id: 987654321, # Source chat
+    message_id: 42 # Message to forward
+  },
+  %{name: "Demo Bot"}
+)
+
+# Edit a media caption
+{:ok, _} = EditMessageCaption.handler(
+  %{
+    chat_id: 123_456_789,
+    message_id: photo_result.message_id,
+    caption: "Updated caption"
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+## Advanced Usage
+
+### Formatting Options
+
+Telegram supports rich formatting in messages using Markdown or HTML:
+
+```elixir
+# Using MarkdownV2 formatting
+SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "*Bold text*\n_Italic text_\n`Code`\n[Link](https://example.com)",
+    parse_mode: "MarkdownV2"
+  },
+  %{name: "Demo Bot"}
+)
+
+# Using HTML formatting
+SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "<b>Bold text</b>\n<i>Italic text</i>\n<code>Code</code>\n<a href='https://example.com'>Link</a>",
+    parse_mode: "HTML"
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+### Message Options
+
+You can customize message behavior with various options:
+
+```elixir
+# Silent messages (no notification)
+SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "This message won't trigger a notification",
+    disable_notification: true
+  },
+  %{name: "Demo Bot"}
+)
+
+# Protected content (prevent forwarding)
+SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "This message cannot be forwarded",
+    protect_content: true
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+## Testing Your Bot
+
+### Using a Test Bot
+
+Create a separate bot for testing:
+1. Create a new bot with @BotFather
+2. Use this test bot token in your development environment
+
+### Using the Test Environment
+
+For advanced testing, use Telegram's dedicated test environment:
+
+```elixir
+# Example of modifying the client request to use test environment
+defmodule MyApp.Telegram.TestClient do
+  alias Lux.Integrations.Telegram.Client
+  
+  def request(method, path, opts \\ %{}) do
+    test_path = "/test" <> path
+    Client.request(method, test_path, opts)
+  end
+end
+```
+
+## Error Handling
+
+Telegram prisms provide detailed error information:
+
+```elixir
+case SendMessage.handler(%{chat_id: "invalid_chat_id", text: "Test"}, %{name: "Demo Bot"}) do
+  {:ok, result} ->
+    # Process successful result
+    
+  {:error, error} when error =~ "chat not found" ->
+    # Handle invalid chat error
+    
+  {:error, error} when error =~ "not enough rights" ->
+    # Handle permission error
+    
+  {:error, error} ->
+    # Handle other errors
+end
+```
+
+## Rate Limiting
+
+Telegram has API rate limits that vary based on the method. Consider:
+1. Adding delays between calls
+2. Implementing exponential backoff for retries
+3. Batching operations when possible
+
+## Webhook vs. Polling
+
+There are two ways to receive updates from Telegram:
+
+### Polling
+
+Periodically query for updates:
+
+```elixir
+defmodule MyApp.Telegram.Poller do
+  alias Lux.Integrations.Telegram.Client
+  
+  def poll_updates(offset \\ 0) do
+    case Client.request(:get, "/getUpdates", %{json: %{offset: offset, timeout: 30}}) do
+      {:ok, %{"result" => updates}} when updates != [] ->
+        # Process updates
+        process_updates(updates)
+        
+        # Get the last update ID for next polling
+        last_update = List.last(updates)
+        new_offset = last_update["update_id"] + 1
+        
+        # Continue polling
+        poll_updates(new_offset)
+        
+      {:ok, _} ->
+        # No updates, continue polling
+        poll_updates(offset)
+        
+      {:error, error} ->
+        # Handle error, retry with backoff
+        Process.sleep(5000)
+        poll_updates(offset)
+    end
+  end
+  
+  defp process_updates(updates) do
+    # Process each update based on type
+    Enum.each(updates, fn update ->
+      cond do
+        Map.has_key?(update, "message") -> handle_message(update["message"])
+        Map.has_key?(update, "callback_query") -> handle_callback_query(update["callback_query"])
+        true -> :ok
+      end
+    end)
+  end
+end
+```
+
+### Webhook
+
+For production, webhooks are more efficient:
+
+```elixir
+# Set up webhook
+Client.request(:post, "/setWebhook", %{
+  json: %{
+    url: "https://your-domain.com/telegram/webhook",
+    max_connections: 40,
+    allowed_updates: ["message", "callback_query"]
+  }
+})
+```
+
+## Implementing Interactive Features
+
+### Buttons and Keyboards
+
+Telegram supports interactive buttons in messages:
+
+```elixir
+# Example of inline keyboard
+SendMessage.handler(
+  %{
+    chat_id: 123_456_789,
+    text: "Please select an option:",
+    reply_markup: %{
+      inline_keyboard: [
+        [
+          %{text: "Option 1", callback_data: "option1"},
+          %{text: "Option 2", callback_data: "option2"}
+        ],
+        [
+          %{text: "Visit our website", url: "https://example.com"}
+        ]
+      ]
+    }
+  },
+  %{name: "Demo Bot"}
+)
+```
+
+### Handling Callback Queries
+
+When users click inline buttons, your bot receives callback queries:
+
+```elixir
+def handle_callback_query(%{"id" => query_id, "data" => "option1", "from" => user}) do
+  # Process option 1
+  
+  # Answer the callback query to remove the loading state
+  Client.request(:post, "/answerCallbackQuery", %{
+    json: %{
+      callback_query_id: query_id,
+      text: "You selected Option 1"
+    }
+  })
+end
+```
+
+### Multi-Language Support
+
+Telegram provides user language information:
+
+```elixir
+defmodule MyApp.Bots.MultilingualBot do
+  @translations %{
+    "en" => %{welcome: "Welcome!", help: "How can I help you?"},
+    "es" => %{welcome: "¡Bienvenido!", help: "¿Cómo puedo ayudarte?"},
+    "fr" => %{welcome: "Bienvenue!", help: "Comment puis-je vous aider?"}
+  }
+  
+  def get_text(key, language_code) do
+    language = if Map.has_key?(@translations, language_code), do: language_code, else: "en"
+    @translations[language][key]
+  end
+end
+```
+
+## Best Practices
+
+### Security
+* Never hardcode bot tokens in your code
+* Use environment variables or secure storage
+* Have separate tokens for development and production
+* Always validate user input before processing
+
+### Performance
+* Use webhooks in production for real-time updates
+* Keep response times under 2 seconds
+* Use asynchronous processing for slow operations
+* Batch operations when possible
+
+### User Experience
+* Always acknowledge user commands
+* Provide feedback for long-running operations
+* Use formatting to enhance readability
+* Implement proper conversation state management
+
+## Troubleshooting
+
+### Common Issues
+* **Bot not responding**: Check your bot token and network connectivity
+* **Permission errors**: Ensure your bot has the necessary permissions
+* **Rate limiting**: Implement proper delays between requests
+
+### Debugging Tips
+* Enable verbose logging: `Logger.configure(level: :debug)`
+* Monitor API responses
+* Use the Telegram Bot API Explorer at https://core.telegram.org/bots/api
+
+## Conclusion
+
+Lux's Telegram prisms provide a powerful and flexible way to build Telegram bots. By following the patterns and practices in this guide, you can build robust applications that leverage the full potential of the Telegram Bot API.
+
+For more information, refer to:
+- [Telegram Bot API Documentation](https://core.telegram.org/bots/api)
+- [Lux Documentation](https://hexdocs.pm/lux)

@@ -1,0 +1,8 @@
+company:
+  name: Blockchain Solutions Inc
+  agent_token: "0x0000000000000000000000000000000000000000"  # zero address for no token
+
+jobs:
+  - name: Senior Smart Contract Developer
+  - name: Blockchain Security Analyst
+  - name: DeFi Protocol Engineer 

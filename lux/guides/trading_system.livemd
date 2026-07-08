@@ -1,0 +1,223 @@
+# Trading System Example
+
+```elixir
+Mix.install(
+  [
+    {:lux, ">= 0.5.0"}
+    {:kino, "~> 0.14.2"}
+  ],
+  start_applications: false,
+  config: [
+    lux: [
+      api_keys: [
+        openai: System.fetch_env!("LB_OPENAI_API_KEY")
+      ],
+      open_ai_models: [
+        default: "gpt-4o-mini"
+      ],
+      accounts: [
+        hyperliquid_private_key: System.fetch_env!("LB_HYPERLIQUID_PRIVATE_KEY"),
+        hyperliquid_address: System.fetch_env!("LB_HYPERLIQUID_ADDRESS"),
+        hyperliquid_api_url: System.fetch_env!("LB_HYPERLIQUID_API_URL")
+      ]
+    ]
+  ]
+)
+
+Mix.Task.run("setup", install_deps: false)
+
+Application.put_env(:venomous, :snake_manager, %{
+  python_opts: [
+    module_paths: [
+      Lux.Python.module_path(),
+      Lux.Python.module_path(:deps)
+    ],
+    python_executable: "python3"
+  ]
+})
+
+Application.ensure_all_started([:lux, :kino])
+```
+
+## Environment Setup
+
+Before running this notebook, you'll need to set up the following secrets in your Livebook settings:
+
+```
+LB_OPENAI_API_KEY=""          # Your OpenAI API key
+LB_HYPERLIQUID_PRIVATE_KEY="" # Your Hyperliquid private key
+LB_HYPERLIQUID_ADDRESS=""     # Your Hyperliquid wallet address
+LB_HYPERLIQUID_API_URL="https://api.hyperliquid.xyz"
+```
+
+When you run this notebook for the first time, you can get an error and see `Add secret` button. After you add the secret and evaludate the setup cell again, you'll get another button to add other secrets.
+
+![](https://github.com/user-attachments/assets/907d68cb-2d73-46b3-93ab-c55149a4f992)
+
+## Overview
+
+<a href="https://livebook.dev/run?url=https%3A%2F%2Fgithub.com%2FSpectral-Finance%2Flux%2Fblob%2Fmain%2Flux%2Fguides%2Ftrading_system.livemd" style="display: none">
+  <img src="https://livebook.dev/badge/v1/blue.svg" alt="Run in Livebook" />
+</a>
+
+This example demonstrates a simple trading system built with Lux agents. The system consists of:
+
+* A Market Researcher agent that analyzes market conditions and proposes trades
+* A Risk Manager agent that evaluates trade proposals
+* An Agent Hub that coordinates communication between agents
+* A Local Signal Router for message passing
+
+## Running the Trading System
+
+Here's the complete trading system implementation:
+
+```elixir
+defmodule ExampleApp.TradingSystem do
+  @moduledoc """
+  Simple interface for running the trading system.
+  """
+
+  alias Lux.Agents.MarketResearcher
+  alias Lux.AgentHub
+  alias Lux.Signal.Router.Local
+  alias Lux.Signals.TradeProposal
+
+  require Logger
+
+  @doc """
+  Runs one iteration of market analysis and trading.
+  """
+  def run(researcher_id, risk_manager_id) do
+    hub = AgentHub.get_default()
+    router = Process.whereis(:trading_router)
+
+    {:ok, %{agent: researcher, pid: researcher_pid}} = AgentHub.get_agent_info(hub, researcher_id)
+    {:ok, %{agent: risk_manager}} = AgentHub.get_agent_info(hub, risk_manager_id)
+
+    # Example market conditions (replace with real data)
+    market_conditions = %{
+      "ETH" => %{
+        "price" => 2800.0,
+        "24h_volume" => 1_000_000,
+        "volatility" => 0.15
+      }
+    }
+
+    # Get trade proposal from researcher and send to risk manager
+    with {:ok, signal} <- MarketResearcher.propose_trade(researcher_pid, market_conditions) do
+      # Create a signal to send to the risk manager
+      {:ok, trade_signal} = TradeProposal.new(%{
+        payload: signal,
+        sender: researcher.id,
+        recipient: risk_manager.id
+      })
+
+      signal_id = trade_signal.id
+
+      # Subscribe to signal delivery events
+      :ok = Local.subscribe(signal_id, name: router)
+
+      # Update researcher status to busy while processing
+      :ok = AgentHub.update_status(hub, researcher.id, :busy)
+
+      # Route the signal through the local router
+      :ok = Local.route(trade_signal, name: router, hub: hub)
+
+      # Wait for signal delivery confirmation
+      receive do
+        {:signal_delivered, ^signal_id} ->
+          Logger.info("Trade signal delivered successfully")
+          :ok = AgentHub.update_status(hub, researcher.id, :available)
+
+        {:signal_failed, ^signal_id, reason} ->
+          Logger.error("Failed to deliver trade signal: #{inspect(reason)}")
+          :ok = AgentHub.update_status(hub, researcher.id, :available)
+      after
+        5000 ->
+          Logger.error("Timeout waiting for signal delivery")
+          :ok = AgentHub.update_status(hub, researcher.id, :available)
+          {:error, :timeout}
+      end
+    end
+  end
+end
+```
+
+Before start the system, let's start some agents and register them to `Lux.AgentHub`.
+
+```elixir
+alias Lux.Agents.MarketResearcher
+alias Lux.Agents.RiskManager
+alias Lux.AgentHub
+alias Lux.Signal.Router.Local
+
+# Get default agent hub 
+hub = AgentHub.get_default()
+
+# Start the signal router
+{:ok, router} = Kino.start_child({Local, [name: :trading_router]})
+
+# Start both agents
+{:ok, researcher_pid} = Kino.start_child({MarketResearcher, []})
+{:ok, risk_manager_pid} = Kino.start_child({RiskManager, []})
+
+# Get agent states
+researcher = :sys.get_state(researcher_pid)
+risk_manager = :sys.get_state(risk_manager_pid)
+
+# Register agents with their capabilities
+:ok = AgentHub.register(hub, researcher, researcher_pid, [:market_research, :analysis])
+:ok = AgentHub.register(hub, risk_manager, risk_manager_pid, [:risk_management])
+```
+
+Let's try running the trading system:
+
+```elixir
+ExampleApp.TradingSystem.run(
+  researcher.id,
+  risk_manager.id
+)
+```
+
+## How It Works
+
+1. **System Setup**
+
+   * The system starts by initializing an AgentHub and Local Router
+   * Two agents are created: MarketResearcher and RiskManager
+   * Agents are registered with their capabilities in the hub
+
+2. **Market Analysis**
+
+   * The MarketResearcher analyzes market conditions
+   * If a trading opportunity is found, it creates a trade proposal
+
+3. **Signal Routing**
+
+   * Trade proposals are wrapped in a TradeProposal signal
+   * The Local Router handles delivery between agents
+   * The system monitors signal delivery status
+
+4. **Risk Management**
+
+   * The RiskManager receives and evaluates trade proposals
+   * It applies risk management rules before approving trades
+
+This example demonstrates core Lux concepts including:
+
+* Agent-based architecture
+* Signal-based communication
+* Capability registration
+* Status management
+* Error handling
+
+## Next Steps
+
+To extend this example, you could:
+
+* Add more sophisticated market analysis
+* Implement additional risk management rules
+* Add trade execution functionality
+* Include position tracking
+* Add portfolio management
+* Implement backtesting capabilities
