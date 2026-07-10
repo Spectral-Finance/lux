@@ -14,11 +14,12 @@ defmodule LuxAppWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", LuxAppWeb do
-    pipe_through :browser
+    scope "/", LuxAppWeb do
+      pipe_through :browser
 
-    live "/", NodeEditorLive
-  end
+      live "/", NodeEditorLive
+      live "/analytics", AnalyticsLive
+    end
 
   # Other scopes may use custom stacks.
   # scope "/api", LuxAppWeb do
