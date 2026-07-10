@@ -72,6 +72,22 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the YouTube API key from configuration.
+  Raises if the key is not configured.
+  """
+  @spec youtube_api_key() :: api_key()
+  def youtube_api_key do
+    case Application.get_env(:lux, :env) do
+      :test ->
+        :lux
+        |> Application.fetch_env!(:api_keys)
+        |> Keyword.get(:youtube, "test_youtube_key")
+      _ ->
+        get_required_key(:api_keys, :youtube)
+    end
+  end
+
+  @doc """
   Gets the Etherscan API key from configuration.
   Raises if the key is not configured.
   """
