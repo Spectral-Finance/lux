@@ -12,6 +12,11 @@ defmodule LuxAppWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+  end
+
+  pipeline :auth_required do
+    plug LuxAppWeb.Plugs.RequireAuth
   end
 
   scope "/", LuxAppWeb do
@@ -21,9 +26,22 @@ defmodule LuxAppWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", LuxAppWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", LuxAppWeb do
+    pipe_through :api
+
+    scope "/auth" do
+      get "/nonce", AuthController, :nonce
+      post "/verify", AuthController, :verify
+      post "/logout", AuthController, :logout
+    end
+
+    # Authenticated API routes
+    scope "/secure" do
+      pipe_through [:auth_required]
+      
+      get "/profile", ProfileController, :show
+    end
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:lux_app, :dev_routes) do

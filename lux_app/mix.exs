@@ -77,7 +77,9 @@ defmodule LuxApp.MixProject do
       {:flop, "~> 0.26.1"},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:ex_secp256k1, "~> 0.7.4"},
+      {:ex_keccak, "~> 0.7.1"}
     ]
   end
 
