@@ -1,0 +1,15 @@
+[package]
+name = "lux-rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lux_rust"
+path = "src/lib.rs"
+
+[[test]]
+name = "integration"
+path = "tests/integration_test.rs"
+harness = true
+
+[dependencies]
