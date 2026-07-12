@@ -1,0 +1,53 @@
+# Event Monitoring Dashboard
+
+```elixir
+Mix.install([
+  {:lux, path: Path.join(__DIR__, "..")},
+  {:kino, "~> 0.12.0"}
+])
+```
+
+## Setup
+
+First, let's start the EventMonitor if it's not already running:
+
+```elixir
+# Start the event monitor
+Lux.Web3.EventMonitor.start_link(poll_interval: 2000)
+```
+
+## Subscription
+
+Let's subscribe to a smart contract. For example, a standard ERC20 Transfer event:
+
+```elixir
+contract_address = "0xdac17f958d2ee523a2206206994597c13d831ec7" # USDT
+event_signature = "Transfer(address,address,uint256)"
+chain = "ethereum"
+
+Lux.Web3.EventMonitor.subscribe(contract_address, event_signature, chain)
+```
+
+## View Events
+
+Run the following block to poll the EventMonitor for the latest persisted events and display them in a table.
+
+```elixir
+events = Lux.Web3.EventMonitor.get_persisted_events(contract_address)
+
+# Display as a Kino DataTable
+if Enum.empty?(events) do
+  IO.puts("No events received yet. Waiting for blocks...")
+else
+  events
+  |> Enum.map(fn e ->
+    %{
+      block_number: e.block_number,
+      tx_hash: e.tx_hash,
+      log_index: e.log_index,
+      data: e.data
+    }
+  end)
+  |> Kino.DataTable.new()
+end
+```
