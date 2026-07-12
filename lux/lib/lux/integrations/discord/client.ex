@@ -73,8 +73,12 @@ defmodule Lux.Integrations.Discord.Client do
       {:ok, %{status: 401}} ->
         {:error, :invalid_token}
 
-      {:ok, %{status: status, body: %{"message" => message}}} ->
-        {:error, {status, message}}
+      {:ok, %{status: status, body: %{"message" => message} = body}} ->
+        if retry = body["retry_after"] do
+          {:error, {status, message, retry}}
+        else
+          {:error, {status, message}}
+        end
 
       {:error, error} ->
         {:error, error}

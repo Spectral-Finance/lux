@@ -24,3 +24,9 @@ node_modules/
 # Environment files
 *.envrc
 !*.envrc.example
+
+# Local Erlang/Elixir bootstrap artifacts and CI output
+/QA_report.txt
+/qa_logs/
+/hex-*.ez
+/rebar3-*
