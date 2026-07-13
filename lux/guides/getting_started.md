@@ -79,12 +79,12 @@ A typical Lux project consists of:
 
 ```
 lux/
-├── lib/              # Elixir source code
-├── priv/
-│   ├── python/      # Python modules and dependencies
-│   └── node/        # Node.js modules and dependencies
-├── test/            # Test files
-└── guides/          # Documentation and guides
+??? lib/              # Elixir source code
+??? priv/
+?   ??? python/      # Python modules and dependencies
+?   ??? node/        # Node.js modules and dependencies
+??? test/            # Test files
+??? guides/          # Documentation and guides
 ```
 
 ## Core Concepts
@@ -103,6 +103,7 @@ For detailed information about each component, refer to their respective guides:
 - [Prisms Guide](prisms.livemd)
 - [Beams Guide](beams.livemd)
 - [Lenses Guide](lenses.livemd)
+- [Ollama LLM Provider](ollama.md)
 
 ## Language Support
 

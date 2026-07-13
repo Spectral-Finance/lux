@@ -11,22 +11,23 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 
 ## Why Lux?
 
-- 🧠 **Self-Improving Agents**: Agents with built-in reflection capabilities (coming soon)
-- 🚀 **Language Agnostic**: Build agents in your favorite programming language
-- 🔄 **Type-Safe Communication**: Structured data flow with schema validation
-- 🤖 **AI-First**: Deep LLM integration with advanced prompting and context management
-- 🔌 **Extensible**: Easy integration with external services and APIs
-- 📊 **Observable**: Built-in monitoring, metrics, and debugging tools
-- 🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
+- ?? **Self-Improving Agents**: Agents with built-in reflection capabilities (coming soon)
+- ?? **Language Agnostic**: Build agents in your favorite programming language
+- ?? **Type-Safe Communication**: Structured data flow with schema validation
+- ?? **AI-First**: Deep LLM integration with advanced prompting and context management
+- ?? **Extensible**: Easy integration with external services and APIs
+- ?? **Observable**: Built-in monitoring, metrics, and debugging tools
+- ?? **Testable**: Comprehensive testing utilities for deterministic agent behavior
 
 ## Documentation
 
-📚 [Read the full documentation on hexdocs.pm/lux](https://hexdocs.pm/lux)
+?? [Read the full documentation on hexdocs.pm/lux](https://hexdocs.pm/lux)
 
 ### Getting Started
 - [Getting Started Guide](lux/guides/getting_started.md) - Start here if you're new to Lux
 - [Core Concepts](lux/guides/core_concepts.md) - Learn about Agents, Signals, Prisms, and Beams
 - [Language Support](lux/guides/language_support.md) - Language integration details
+- [Ollama LLM Provider](lux/guides/ollama.md) - Run Lux agents against local Ollama models
 
 ### Core Concepts
 - [Agents](lux/guides/agents.livemd) - Building intelligent autonomous agents
@@ -49,7 +50,7 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 
 ## Core Concepts
 
-### 1. Agents 👻
+### 1. Agents ??
 [Learn more about Agents](lux/guides/agents.livemd)
 
 Autonomous agents that combine intelligence and execution. Agents can:
@@ -59,7 +60,7 @@ Autonomous agents that combine intelligence and execution. Agents can:
 - Adapt to changing conditions
 - Collaborate through structured protocols
 
-### 2. Signals 📡
+### 2. Signals ??
 [Learn more about Signals](lux/guides/signals.livemd)
 
 Type-safe communication using predefined schemas. Signals provide:
@@ -68,7 +69,7 @@ Type-safe communication using predefined schemas. Signals provide:
 - Clear communication protocols
 - Versioning and compatibility
 
-### 3. Prisms 🔮
+### 3. Prisms ??
 [Learn more about Prisms](lux/guides/prisms.livemd)
 
 Pure functional components for specific tasks. Prisms enable:
@@ -77,7 +78,7 @@ Pure functional components for specific tasks. Prisms enable:
 - Clear input/output contracts
 - Easy testing and validation
 
-### 4. Beams 🌟
+### 4. Beams ??
 [Learn more about Beams](lux/guides/beams.livemd)
 
 Composable workflow orchestrators. Beams allow you to:
@@ -110,9 +111,9 @@ We welcome contributions! Whether you want to add support for a new language, im
 
 ## Community
 
-- 💬 [Discord Community](https://discord.gg/dsRPcjeH)
-- 📝 [Blog](https://blog.spectrallabs.xyz)
-- 🐦 [Twitter](https://twitter.com/Spectral_Labs)
+- ?? [Discord Community](https://discord.gg/dsRPcjeH)
+- ?? [Blog](https://blog.spectrallabs.xyz)
+- ?? [Twitter](https://twitter.com/Spectral_Labs)
 
 ## License
 
