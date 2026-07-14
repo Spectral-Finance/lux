@@ -21,7 +21,7 @@ defmodule Lux.Integrations.Discord.Client do
 
   ## Parameters
 
-    * `method` - HTTP method (:get, :post, :put, :delete)
+    * `method` - HTTP method (:get, :post, :put, :patch, :delete)
     * `path` - API endpoint path (e.g. "/channels/123")
     * `opts` - Request options (see Options section)
 
