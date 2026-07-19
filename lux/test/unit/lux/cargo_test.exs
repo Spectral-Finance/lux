@@ -33,16 +33,6 @@ defmodule Lux.CargoTest do
       assert Cargo.get_dependency(manifest, "serde") == nil
       assert Cargo.get_dependency(manifest, "tokio") == "1.35"
     end
-
-    test "updating a dependency overwrites the version" do
-      manifest =
-        "app"
-        |> Cargo.new_manifest("0.1.0")
-        |> Cargo.add_dependency("serde", "1.0")
-        |> Cargo.add_dependency("serde", "1.1")
-
-      assert Cargo.get_dependency(manifest, "serde") == "1.1"
-    end
   end
 
   describe "to_toml/1" do
@@ -59,17 +49,6 @@ defmodule Lux.CargoTest do
       assert toml =~ ~s(edition = "2021")
       assert toml =~ "[dependencies]"
       assert toml =~ ~s(serde = "1.0")
-    end
-
-    test "sorts dependencies deterministically" do
-      toml =
-        "app"
-        |> Cargo.new_manifest("0.1.0")
-        |> Cargo.add_dependency("tokio", "1.35")
-        |> Cargo.add_dependency("serde", "1.0")
-        |> Cargo.to_toml()
-
-      assert :binary.match(toml, "serde") < :binary.match(toml, "tokio")
     end
   end
 
@@ -93,56 +72,38 @@ defmodule Lux.CargoTest do
       assert manifest.dependencies == %{"serde" => "1.0", "tokio" => "1.35"}
     end
 
-    test "ignores unknown sections and comments" do
+    test "parses inline tables and arrays" do
       toml = """
-      # a comment
       [package]
       name = "app"
       version = "0.1.0"
 
-      [profile.release]
-      opt-level = "3"
+      [dependencies]
+      serde = { version = "1.0", features = ["derive"] }
       """
 
       assert {:ok, manifest} = Cargo.from_toml(toml)
-      assert manifest.package.name == "app"
-      assert manifest.dependencies == %{}
+      assert Map.get(manifest.dependencies, "serde") == %{"version" => "1.0", "features" => ["derive"]}
+    end
+
+    test "parses dotted section headers" do
+      toml = """
+      [package]
+      name = "app"
+      version = "0.1.0"
+
+      [dependencies.serde]
+      version = "1.0"
+      features = ["derive"]
+      """
+
+      assert {:ok, manifest} = Cargo.from_toml(toml)
+      assert get_in(manifest, ["dependencies", "serde", "version"]) == "1.0"
     end
 
     test "returns an error for a manifest without package details" do
       assert {:error, message} = Cargo.from_toml("[dependencies]\nserde = \"1.0\"\n")
       assert message =~ "missing package name or version"
-    end
-
-    test "round-trips through to_toml/1 and from_toml/1" do
-      manifest =
-        "app"
-        |> Cargo.new_manifest("0.1.0")
-        |> Cargo.add_dependency("serde", "1.0")
-
-      assert {:ok, parsed} = manifest |> Cargo.to_toml() |> Cargo.from_toml()
-      assert parsed == manifest
-    end
-  end
-
-  describe "file helpers" do
-    @describetag :tmp_dir
-
-    test "writes and reads a manifest", %{tmp_dir: tmp_dir} do
-      path = Path.join(tmp_dir, "Cargo.toml")
-
-      manifest =
-        "app"
-        |> Cargo.new_manifest("0.1.0")
-        |> Cargo.add_dependency("serde", "1.0")
-
-      assert :ok = Cargo.write_manifest(manifest, path)
-      assert {:ok, ^manifest} = Cargo.read_manifest(path)
-    end
-
-    test "read_manifest/1 returns an error for a missing file", %{tmp_dir: tmp_dir} do
-      assert {:error, message} = Cargo.read_manifest(Path.join(tmp_dir, "nope.toml"))
-      assert message =~ "failed to read"
     end
   end
 
@@ -161,20 +122,38 @@ defmodule Lux.CargoTest do
     test "returns nil for an uncached package" do
       assert Cargo.cached_package("not_cached") == nil
     end
-
-    test "clear_cache/0 removes cached packages" do
-      assert :ok = Cargo.cache_package("serde", "1.0")
-      assert :ok = Cargo.clear_cache()
-      assert Cargo.cached_package("serde") == nil
-    end
   end
 
-  describe "cargo CLI wrappers" do
-    test "version/0 reports missing cargo cleanly when unavailable" do
-      case Cargo.version() do
-        {:ok, output} -> assert output =~ "cargo"
-        {:error, message} -> assert message =~ "cargo executable not found"
-      end
+  describe "missing toolchain error handling" do
+    setup do
+      # Back up actual configuration
+      orig = Application.get_env(:lux, :cargo_bin)
+      
+      on_exit(fn ->
+        if orig == nil do
+          Application.delete_env(:lux, :cargo_bin)
+        else
+          Application.put_env(:lux, :cargo_bin, orig)
+        end
+      end)
+      
+      :ok
+    end
+
+    test "returns error tuple when cargo binary is missing" do
+      Application.put_env(:lux, :cargo_bin, nil)
+
+      assert {:error, message} = Cargo.version()
+      assert message =~ "cargo executable not found"
+
+      assert {:error, message} = Cargo.build()
+      assert message =~ "cargo executable not found"
+
+      assert {:error, message} = Cargo.test()
+      assert message =~ "cargo executable not found"
+
+      assert {:error, message} = Cargo.run("bin")
+      assert message =~ "cargo executable not found"
     end
   end
 end

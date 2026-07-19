@@ -1,165 +1,159 @@
 defmodule Lux.Cargo.Toml do
   @moduledoc """
-  Minimal TOML decoder/encoder supporting the subset of TOML used by
-  `Cargo.toml` manifests.
-
-  This avoids introducing an external TOML dependency for the Cargo
-  integration. It supports flat and nested tables (`[package]`,
-  `[dependencies.serde]`), string/integer/float/boolean values, inline
-  tables, and arrays.
+  A robust native Elixir parser and encoder for Cargo.toml structures.
+  Supports arrays, inline tables, dotted keys, and basic string escaping.
   """
 
-  @doc """
-  Decodes a TOML string into a nested map.
-
-  Returns `{:ok, map}` or `{:error, reason}`.
-  """
   @spec decode(String.t()) :: {:ok, map()} | {:error, String.t()}
-  def decode(toml) when is_binary(toml) do
-    lines = String.split(toml, "\n")
+  def decode(toml_str) when is_binary(toml_str) do
+    lines = String.split(toml_str, "\n")
 
-    {result, _} =
-      Enum.reduce(lines, {%{}, []}, fn line, {acc, table_path} ->
-        trimmed = String.trim(line)
+    try do
+      {result, _} =
+        Enum.reduce(lines, {%{}, []}, fn line, {acc, section} ->
+          line = String.trim(line)
 
-        cond do
-          trimmed == "" or String.starts_with?(trimmed, "#") ->
-            {acc, table_path}
+          cond do
+            line == "" or String.starts_with?(line, "#") ->
+              {acc, section}
 
-          String.starts_with?(trimmed, "[") ->
-            {acc, parse_table_header(trimmed)}
+            String.starts_with?(line, "[[") and String.ends_with?(line, "]]") ->
+              sec_name = String.slice(line, 2..(String.length(line) - 3)) |> String.trim()
+              sec_path = parse_section_path(sec_name)
+              updated_acc = append_to_array_of_tables(acc, sec_path)
+              {updated_acc, sec_path ++ [:last]}
 
-          String.contains?(trimmed, "=") ->
-            {acc, table_path} = assign_key_value(acc, table_path, trimmed)
-            {acc, table_path}
+            String.starts_with?(line, "[") and String.ends_with?(line, "]") ->
+              sec_name = String.slice(line, 1..(String.length(line) - 2)) |> String.trim()
+              sec_path = parse_section_path(sec_name)
+              updated_acc = ensure_section_exists(acc, sec_path)
+              {updated_acc, sec_path}
 
-          true ->
-            {acc, table_path}
-        end
-      end)
+            String.contains?(line, "=") ->
+              [k, v] = String.split(line, "=", parts: 2)
+              key = String.trim(k)
+              val = parse_value(String.trim(v))
+              updated_acc = put_in_section(acc, section, key, val)
+              {updated_acc, section}
 
-    {:ok, result}
-  rescue
-    e -> {:error, Exception.message(e)}
+            true ->
+              {acc, section}
+          end
+        end)
+
+      {:ok, result}
+    rescue
+      e -> {:error, "TOML parsing failed: #{inspect(e)}"}
+    end
   end
 
-  @doc """
-  Encodes a nested map into a TOML string.
-
-  Returns `{:ok, toml}` or `{:error, reason}`.
-  """
   @spec encode(map()) :: {:ok, String.t()} | {:error, String.t()}
   def encode(map) when is_map(map) do
-    top_level =
-      Enum.flat_map(Map.to_list(map), fn {key, value} ->
-        if is_map(value) do
-          []
-        else
-          ["#{encode_key(key)} = #{encode_value(value)}"]
-        end
-      end)
-
-    tables =
-      Enum.flat_map(Map.to_list(map), fn {key, value} ->
-        if is_map(value) do
-          render_table([key], value)
-        else
-          []
-        end
-      end)
-
-    sections =
-      [top_level | tables]
-      |> Enum.reject(&(&1 == []))
-      |> Enum.intersperse([""])
-
-    {:ok, Enum.join(sections, "\n") <> "\n"}
-  rescue
-    e -> {:error, Exception.message(e)}
+    try do
+      lines = encode_map(map, [])
+      {:ok, Enum.join(lines, "\n") <> "\n"}
+    rescue
+      e -> {:error, "TOML encoding failed: #{inspect(e)}"}
+    end
   end
 
-  defp parse_table_header(header) do
-    inner = String.trim(header, "[]")
-    String.split(inner, ".")
+  defp parse_section_path(sec_name) do
+    sec_name
+    |> String.split(".")
+    |> Enum.map(&String.trim/1)
+    |> Enum.reject(&(&1 == ""))
   end
 
-  defp assign_key_value(acc, table_path, line) do
-    [key_str, value_str] = String.split(line, "=", parts: 2)
-    key = String.trim(key_str)
-    value = parse_value(String.trim(value_str))
-
-    path = table_path ++ [key]
-    {put_in_path(acc, path, value), table_path}
+  defp ensure_section_exists(acc, path) do
+    put_in_path(acc, path, %{})
   end
 
-  defp put_in_path(map, [key], value) do
-    Map.put(map, key, value)
+  defp append_to_array_of_tables(acc, path) do
+    current = get_in_path(acc, path) || []
+    put_in_path(acc, path, current ++ [%{}])
   end
 
-  defp put_in_path(map, [key | rest], value) do
-    Map.update(map, key, %{}, fn child ->
-      put_in_path(child, rest, value)
-    end)
+  defp put_in_section(acc, [], key, val) do
+    Map.put(acc, key, val)
   end
 
-  defp render_table(path, map) when is_map(map) do
-    header = "[" <> Enum.join(path, ".") <> "]"
-
-    scalar_lines =
-      Enum.flat_map(Map.to_list(map), fn {key, value} ->
-        if is_map(value) do
-          []
-        else
-          ["#{encode_key(key)} = #{encode_value(value)}"]
-        end
-      end)
-
-    nested =
-      Enum.flat_map(Map.to_list(map), fn {key, value} ->
-        if is_map(value) do
-          render_table(path ++ [key], value)
-        else
-          []
-        end
-      end)
-
-    [["", header | scalar_lines] | Enum.map(nested, fn lines -> ["", "" | lines] end)]
+  defp put_in_section(acc, section, key, val) do
+    path = resolve_section_path(acc, section)
+    update_in_path(acc, path, fn map -> Map.put(map || %{}, key, val) end)
   end
 
-  defp encode_key(key) when is_atom(key), do: to_string(key)
-  defp encode_key(key) when is_binary(key), do: key
-
-  defp encode_value(value) when is_binary(value), do: inspect(value)
-  defp encode_value(value) when is_boolean(value), do: to_string(value)
-  defp encode_value(value) when is_integer(value), do: to_string(value)
-  defp encode_value(value) when is_float(value), do: to_string(value)
-
-  defp encode_value(value) when is_list(value) do
-    items = Enum.map(value, &encode_value/1)
-    "[" <> Enum.join(items, ", ") <> "]"
+  defp resolve_section_path(acc, section) do
+    if List.last(section) == :last do
+      parent_path = Enum.drop(section, -1)
+      list = get_in_path(acc, parent_path) || []
+      parent_path ++ [length(list) - 1]
+    else
+      section
+    end
   end
 
-  defp encode_value(value) when is_map(value) do
-    items =
-      Enum.map(Map.to_list(value), fn {k, v} ->
-        "#{encode_key(k)} = #{encode_value(v)}"
-      end)
-
-    "{#{Enum.join(items, ", ")}}"
+  defp get_in_path(map, path) do
+    get_in(map, Enum.map(path, &Access.key(&1, nil)))
   end
 
-  defp parse_value("true"), do: true
-  defp parse_value("false"), do: false
-  defp parse_value(str) when is_binary(str) do
+  defp put_in_path(map, path, value) do
+    case path do
+      [] -> map
+      [h | t] ->
+        current = Map.get(map, h, %{})
+        Map.put(map, h, put_in_path(current, t, value))
+    end
+  end
+
+  defp update_in_path(map, path, fun) do
+    case path do
+      [] -> map
+      [h] when is_integer(h) ->
+        List.update_at(map, h, fun)
+      [h] ->
+        Map.update(map, h, fun.(nil), fun)
+      [h | t] when is_integer(h) ->
+        List.update_at(map, h, &update_in_path(&1, t, fun))
+      [h | t] ->
+        current = Map.get(map, h, %{})
+        Map.put(map, h, update_in_path(current, t, fun))
+    end
+  end
+
+  defp parse_value(str) do
+    str = String.trim(str)
+
     cond do
-      String.starts_with?(str, "\"") ->
-        parse_string(str)
+      String.starts_with?(str, "\"") and String.ends_with?(str, "\"") ->
+        str
+        |> String.slice(1..(String.length(str) - 2))
+        |> String.replace("\\\"", "\"")
+        |> String.replace("\\n", "\n")
+        |> String.replace("\\\\", "\\")
 
-      String.starts_with?(str, "[") ->
-        parse_array(str)
+      String.starts_with?(str, "[") and String.ends_with?(str, "]") ->
+        str
+        |> String.slice(1..(String.length(str) - 2))
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+        |> Enum.map(&parse_value/1)
 
-      String.starts_with?(str, "{") ->
-        parse_inline_table(str)
+      String.starts_with?(str, "{") and String.ends_with?(str, "}") ->
+        str
+        |> String.slice(1..(String.length(str) - 2))
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.reject(&(&1 == ""))
+        |> Enum.reduce(%{}, fn pair, acc ->
+          case String.split(pair, "=", parts: 2) do
+            [k, v] -> Map.put(acc, String.trim(k), parse_value(String.trim(v)))
+            _ -> acc
+          end
+        end)
+
+      str == "true" -> true
+      str == "false" -> false
 
       Regex.match?(~r/^-?\d+\.\d+$/, str) ->
         String.to_float(str)
@@ -172,29 +166,61 @@ defmodule Lux.Cargo.Toml do
     end
   end
 
-  defp parse_string(str) do
-    trimmed = String.trim(str, "\"")
-    String.replace(trimmed, "\\n", "\n")
+  defp encode_map(map, parent_keys) do
+    {simple, complex} =
+      map
+      |> Enum.sort_by(fn {k, _} -> k end)
+      |> Enum.split_with(fn {_, v} -> not is_map(v) and not is_list(v) end)
+
+    simple_lines = Enum.map(simple, fn {k, v} -> "#{k} = #{encode_val(v)}" end)
+
+    complex_lines =
+      Enum.flat_map(complex, fn
+        {k, v} when is_map(v) ->
+          header = "[" <> Enum.join(parent_keys ++ [k], ".") <> "]"
+          ["", header] ++ encode_map(v, parent_keys ++ [k])
+
+        {k, v} when is_list(v) ->
+          if Enum.all?(v, &is_map/1) do
+            Enum.flat_map(v, fn item ->
+              header = "[[" <> Enum.join(parent_keys ++ [k], ".") <> "]]"
+              ["", header] ++ encode_map(item, parent_keys ++ [k])
+            end)
+          else
+            ["#{k} = #{encode_val(v)}"]
+          end
+      end)
+
+    simple_lines ++ complex_lines
   end
 
-  defp parse_array(str) do
-    inner = String.trim(str, "[]")
-    inner
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.map(&parse_value/1)
-  end
+  defp encode_val(val) do
+    cond do
+      is_binary(val) ->
+        escaped =
+          val
+          |> String.replace("\\", "\\\\")
+          |> String.replace("\"", "\\\"")
+          |> String.replace("\n", "\\n")
 
-  defp parse_inline_table(str) do
-    inner = String.trim(str, "{}")
-    inner
-    |> String.split(",")
-    |> Enum.map(&String.trim/1)
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.reduce(%{}, fn pair, acc ->
-      [k, v] = String.split(pair, "=", parts: 2)
-      Map.put(acc, String.trim(k), parse_value(String.trim(v)))
-    end)
+        "\"#{escaped}\""
+
+      is_boolean(val) -> to_string(val)
+      is_integer(val) -> to_string(val)
+      is_float(val) -> to_string(val)
+      is_list(val) ->
+        "[" <> (Enum.map(val, &encode_val/1) |> Enum.join(", ")) <> "]"
+
+      is_map(val) ->
+        pairs =
+          val
+          |> Enum.sort_by(fn {k, _} -> k end)
+          |> Enum.map(fn {k, v} -> "#{k} = #{encode_val(v)}" end)
+
+        "{ " <> Enum.join(pairs, ", ") <> " }"
+
+      true ->
+        inspect(val)
+    end
   end
 end
