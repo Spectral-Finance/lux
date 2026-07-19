@@ -26,12 +26,16 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 
 ## Future Language Support
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+### Rust Integration
+[Learn more about Rust (Cargo) integration](language_support/cargo.md)
+
+Lux provides Cargo package-management integration for Rust through the `Lux.Cargo` module, enabling dependency management and build-pipeline integration from Elixir:
+- Parse and generate `Cargo.toml` manifests
+- Resolve crate dependencies and manage versions
+- Integrate with the `cargo` build pipeline (`resolve`/`build`)
+- Cache resolved package versions
+
+> 🔥 **Coming Soon**: Execute Rust components directly and define Prisms/Beams in Rust via FFI.
 
 ### Custom Language Integration
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
@@ -53,8 +57,9 @@ Check out our [Contributing Guide](contributing.md) for details on adding langua
 2. **Package Management**
    - Add custom Python modules under `priv/python/`
    - Use `poetry` for Python dependency management
-   - Use `npm`/`yarn` for Node.js dependencies
-   - Follow the language's best practices for versioning
+    - Use `npm`/`yarn` for Node.js dependencies
+    - Use `cargo` for Rust (Cargo) dependencies
+    - Follow the language's best practices for versioning
 
 3. **Performance Considerations**
    - Minimize cross-language calls

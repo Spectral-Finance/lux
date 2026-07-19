@@ -1,0 +1,149 @@
+# Rust (Cargo) Integration in Lux
+
+Lux provides Cargo package-management integration for Rust through the
+`Lux.Cargo` module. It lets agents manage Rust dependencies, versions, and
+builds uniformly with the other language adapters, without leaving Elixir.
+
+> 🔥 **Coming Soon**: Execute Rust components directly and define Prisms/Beams
+> in Rust via FFI. This guide covers the package-management layer that is
+> available today.
+
+## Overview
+
+The integration consists of:
+
+- `Lux.Cargo` — `Cargo.toml` parsing/generation, dependency management,
+  version management, and `cargo` build-pipeline invocation.
+- `Lux.Cargo.Cache` — on-disk caching of resolved versions and crate
+  artifacts with TTL invalidation.
+
+## Managing Cargo.toml
+
+### Creating a manifest
+
+```elixir
+manifest = Lux.Cargo.new("my_crate", "0.1.0",
+  edition: "2021",
+  description: "A Lux-managed Rust crate"
+)
+```
+
+### Adding dependencies
+
+```elixir
+{:ok, manifest} = Lux.Cargo.add_dependency(manifest, "serde", "1.0")
+{:ok, manifest} = Lux.Cargo.add_dependency(manifest, "tokio", "1", features: ["full"])
+{:ok, manifest} = Lux.Cargo.add_dependency(manifest, "my_lib", nil, git: "https://github.com/example/my_lib")
+{:ok, manifest} = Lux.Cargo.add_dependency(manifest, "tempfile", "3", section: :dev_dependencies)
+```
+
+### Generating and writing Cargo.toml
+
+```elixir
+{:ok, toml} = Lux.Cargo.generate(manifest)
+IO.puts(toml)
+
+:ok = Lux.Cargo.to_file(manifest, "priv/rust/Cargo.toml")
+```
+
+### Parsing an existing Cargo.toml
+
+```elixir
+{:ok, manifest} = Lux.Cargo.from_file("priv/rust/Cargo.toml")
+manifest.package.name
+```
+
+## Version Management
+
+```elixir
+# Get the current version
+Lux.Cargo.version(manifest)
+
+# Set an explicit version
+updated = Lux.Cargo.set_version(manifest, "0.2.0")
+
+# Bump following semantic versioning
+{:ok, minor} = Lux.Cargo.bump_version(manifest, level: :minor)
+{:ok, major} = Lux.Cargo.bump_version(manifest, level: :major)
+{:ok, patch} = Lux.Cargo.bump_version(manifest, level: :patch)
+```
+
+## Dependency Resolution
+
+```elixir
+{:ok, resolved} = Lux.Cargo.resolve_dependencies(manifest)
+# %{"serde" => "1.0.130", "tokio" => "1.12.0", ...}
+```
+
+Git- and path-based dependencies are passed through unchanged (`"git"` /
+`"path"`), while version-requirement dependencies are resolved against the
+cargo registry when the toolchain is available.
+
+## Build Pipeline Integration
+
+These functions wrap the `cargo` CLI and require `cargo`/`rustc` on the host
+(or dev container).
+
+```elixir
+# Build a crate
+{:ok, output} = Lux.Cargo.build(dir: "priv/rust")
+{:ok, output} = Lux.Cargo.build(dir: "priv/rust", release: true)
+
+# Run tests
+{:ok, output} = Lux.Cargo.test(dir: "priv/rust")
+
+# Run any cargo subcommand
+{:ok, output} = Lux.Cargo.run(["--version"])
+```
+
+If `cargo` is not found, the functions return
+`{:error, "cargo executable not found in PATH"}`.
+
+## Package Caching
+
+`Lux.Cargo.Cache` caches resolved versions and crate artifacts on disk under
+the `:cargo_cache_dir` application env (default `priv/cargo_cache`), with a
+configurable TTL (`:cargo_cache_ttl`, default 24 hours):
+
+```elixir
+# Resolve + cache a version requirement
+{:ok, version} = Lux.Cargo.Cache.resolve_version("serde", "~> 1.0")
+
+# Cache a downloaded artifact path
+:ok = Lux.Cargo.Cache.put_artifact("serde-1.0.130", "/path/to/serde.crate")
+
+# Read it back
+{:ok, path} = Lux.Cargo.Cache.get_artifact("serde-1.0.130")
+
+# Invalidate or clear
+Lux.Cargo.Cache.invalidate("serde-1.0.130")
+Lux.Cargo.Cache.clear()
+```
+
+## Examples
+
+A minimal end-to-end flow for adding a dependency and building:
+
+```elixir
+alias Lux.Cargo
+
+manifest =
+  Cargo.new("agent_worker", "0.1.0")
+  |> then(fn m -> {:ok, m2} = Cargo.add_dependency(m, "serde", "1.0"); m2 end)
+
+:ok = Cargo.to_file(manifest, "priv/rust/agent_worker/Cargo.toml")
+
+case Cargo.build(dir: "priv/rust/agent_worker") do
+  {:ok, output} -> IO.puts("Build succeeded:\n#{output}")
+  {:error, reason} -> IO.puts("Build failed: #{reason}")
+end
+```
+
+## Best Practices
+
+1. **Pin versions** for reproducible builds and cache hits.
+2. **Use sections** (`dev_dependencies`, `build_dependencies`) appropriately.
+3. **Cache aggressively** — resolved versions are cached with a TTL so repeated
+   resolutions are fast and offline-tolerant.
+4. **Validate the toolchain** — check for `cargo` before invoking build steps in
+   production agents.
