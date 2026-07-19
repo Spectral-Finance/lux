@@ -1,4 +1,15 @@
 defmodule Lux.NodeJSTest do
+  @moduledoc """
+  Comprehensive tests for Lux.NodeJS module.
+
+  Tests cover:
+  - Code evaluation (eval/2, eval!/2)
+  - Variable bindings
+  - Error handling (timeout, invalid code, runtime errors)
+  - Package import functionality
+  - The nodejs macro
+  - Edge cases and regression tests
+  """
   use UnitCase, async: true
 
   import Lux.NodeJS
@@ -30,6 +41,57 @@ defmodule Lux.NodeJSTest do
 
       assert {:ok, 120} = eval(code, variables: %{n: 5})
     end
+
+    test "handles string return values" do
+      assert {:ok, "hello world"} =
+               eval("export const main = () => 'hello world'")
+    end
+
+    test "handles object return values" do
+      assert {:ok, %{"a" => 1, "b" => 2}} =
+               eval("export const main = () => ({a: 1, b: 2})")
+    end
+
+    test "handles array return values" do
+      assert {:ok, [1, 2, 3]} = eval("export const main = () => [1, 2, 3]")
+    end
+
+    test "handles boolean return values" do
+      assert {:ok, true} = eval("export const main = () => true")
+      assert {:ok, false} = eval("export const main = () => false")
+    end
+
+    test "handles null return values" do
+      assert {:ok, nil} = eval("export const main = () => null")
+    end
+
+    test "handles async functions" do
+      code = """
+      export const main = async () => {
+        await new Promise(resolve => setTimeout(resolve, 10))
+        return 42
+      }
+      """
+
+      assert {:ok, 42} = eval(code)
+    end
+
+    test "returns error for empty code" do
+      assert {:error, :invalid_code} = eval("")
+      assert {:error, :invalid_code} = eval("   ")
+    end
+
+    test "returns error for runtime errors" do
+      assert {:error, _} = eval("export const main = () => undefined_var")
+    end
+
+    test "supports complex variable types" do
+      assert {:ok, %{"result" => [1, 2, 3]}} =
+               eval(
+                 "export const main = ({data}) => ({result: data.flat()})",
+                 variables: %{data: [1, [2, [3]]]}
+               )
+    end
   end
 
   describe "eval!/2" do
@@ -43,6 +105,12 @@ defmodule Lux.NodeJSTest do
                    fn ->
                      eval!("undefined_var")
                    end
+    end
+
+    test "raises error for empty code" do
+      assert_raise FunctionClauseError, fn ->
+        eval!("")
+      end
     end
 
     test "supports variable bindings" do
@@ -104,10 +172,23 @@ defmodule Lux.NodeJSTest do
 
       assert {:error, :timeout} = result
     end
+
+    test "keeps working after timeout" do
+      timeout_result =
+        nodejs timeout: 10 do
+          ~JS"""
+          export const main = async () => {
+             await new Promise(resolve => setTimeout(() => resolve(), 1000))
+          }
+          """
+        end
+
+      assert {:error, :timeout} = timeout_result
+      assert {:ok, 4} = eval("export const main = () => 2 + 2")
+    end
   end
 
   describe "web3 integration" do
-    #  this test keeps on failing in CI, must fix.
     @tag :skip
     test "loads and uses web3 library" do
       assert {:ok, %{"success" => true}} = import_package("flatten", update_lock_file: false)
