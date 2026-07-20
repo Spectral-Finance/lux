@@ -9,6 +9,7 @@ defmodule Lux.Application do
       {Venomous.PetSnakeSupervisor, [strategy: :one_for_one, max_children: 10]},
       {Task.Supervisor, name: Lux.ScheduledTasksSupervisor},
       Lux.NodeJS,
+      Lux.Cargo,
       {Lux.Agent.Supervisor, []},
       Lux.AgentHub
     ] ++ optional_children()
