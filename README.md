@@ -16,8 +16,10 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 - 🔄 **Type-Safe Communication**: Structured data flow with schema validation
 - 🤖 **AI-First**: Deep LLM integration with advanced prompting and context management
 - 🔌 **Extensible**: Easy integration with external services and APIs
+- 📦 **Package Management**: Built-in dependency management, including Cargo (Rust) integration
 - 📊 **Observable**: Built-in monitoring, metrics, and debugging tools
 - 🧪 **Testable**: Comprehensive testing utilities for deterministic agent behavior
+- 📦 **Package Management**: Manage dependencies for Python, Node.js, and Rust (Cargo) out of the box
 
 ## Documentation
 

@@ -67,6 +67,7 @@ defmodule Lux.MixProject do
     [
       {:bandit, "~> 1.0"},
       {:req, "~> 0.5.0"},
+      {:jason, "~> 1.4"},
       {:venomous, "~> 0.7.5"},
       {:crontab, "~> 1.1"},
       {:ex_json_schema, "~> 0.10.2"},
@@ -139,6 +140,7 @@ defmodule Lux.MixProject do
         "guides/language_support.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",
+        "guides/language_support/rust.livemd",
         "guides/multi_agent_collaboration.livemd",
         "guides/trading_system.livemd",
         "guides/testing.md",
@@ -155,7 +157,8 @@ defmodule Lux.MixProject do
         "Language Support": [
           "guides/language_support.md",
           "guides/language_support/python.livemd",
-          "guides/language_support/nodejs.livemd"
+          "guides/language_support/nodejs.livemd",
+          "guides/language_support/rust.livemd"
         ],
         Setup: [
           "guides/troubleshooting.md",
