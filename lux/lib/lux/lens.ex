@@ -99,7 +99,7 @@ defmodule Lux.Lens do
       @doc """
       Focuses the lens with the given input.
       """
-      def focus(input \\ %{}, opts \\ []) do
+      def focus(input, opts) do
         __MODULE__.view()
         |> Map.update!(:params, &Map.merge(&1, input))
         |> Lux.Lens.authenticate()
@@ -107,10 +107,18 @@ defmodule Lux.Lens do
         |> Lux.Lens.focus(opts)
       end
 
+      def focus(input) do
+        focus(input, [])
+      end
+
+      def focus do
+        focus(%{}, [])
+      end
+
       def after_focus(body), do: {:ok, body}
       def before_focus(params), do: params
 
-      defoverridable after_focus: 1, before_focus: 1
+      defoverridable after_focus: 1, before_focus: 1, focus: 2
     end
   end
 
