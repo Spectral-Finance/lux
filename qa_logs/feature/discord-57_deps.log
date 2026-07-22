@@ -1,0 +1,146 @@
+Resolving Hex dependencies...
+Resolution completed in 0.097s
+Unchanged:
+  bandit 1.6.10 VULNERABLE!
+    EEF-CVE-2026-39804 (HIGH)
+    aka: CVE-2026-39804, GHSA-frh3-6pv6-rc8j
+    WebSocket permessage-deflate inflate has no output-size cap in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-39804
+
+    EEF-CVE-2026-39803 (HIGH)
+    aka: CVE-2026-39803, GHSA-9q9q-324x-93r2
+    HTTP/1 chunked body reader ignores length cap in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-39803
+
+    EEF-CVE-2026-42788 (MEDIUM)
+    aka: CVE-2026-42788, GHSA-q6v9-r226-v65f
+    HTTP/2 frame size limit checked after body is buffered in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-42788
+
+    EEF-CVE-2026-39807 (MEDIUM)
+    aka: CVE-2026-39807, GHSA-375f-4r2h-f99j
+    Client-supplied URI scheme trusted without transport verification in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-39807
+
+    EEF-CVE-2026-39806 (HIGH)
+    aka: CVE-2026-39806, GHSA-rf5q-vwxw-gmrf
+    HTTP/1 chunked decoder infinite loop on requests with trailer fields in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-39806
+
+    EEF-CVE-2026-42786 (HIGH)
+    aka: CVE-2026-42786, GHSA-pf94-94m9-536p
+    WebSocket fragmented message reassembly unbounded in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-42786
+
+    EEF-CVE-2026-39805 (MEDIUM)
+    aka: CVE-2026-39805, GHSA-c67r-gc9j-2qf7
+    CL.CL HTTP request smuggling via duplicate Content-Length in bandit
+    https://osv.dev/vulnerability/EEF-CVE-2026-39805
+  bunt 1.0.0
+  castore 1.0.12
+  credo 1.7.11
+  crontab 1.1.14
+  decimal 2.3.0 VULNERABLE!
+    EEF-CVE-2026-32686 (MEDIUM)
+    aka: CVE-2026-32686, GHSA-rhv4-8758-jx7v
+    Unbounded exponent in decimal enables unauthenticated DoS
+    https://osv.dev/vulnerability/EEF-CVE-2026-32686
+  dialyxir 1.4.5
+  dotenvy 1.1.0
+  earmark_parser 1.4.43
+  erlex 0.2.7
+  erlport 0.11.0
+  ethereumex 0.11.1
+  ethers 0.6.4
+  ex_abi 0.8.2
+  ex_doc 0.37.3
+  ex_json_schema 0.10.2
+  ex_keccak 0.7.6
+  ex_rlp 0.6.0
+  ex_secp256k1 0.7.4
+  excoveralls 0.18.5
+  file_system 1.1.0
+  finch 0.19.0
+  hammer 7.0.1
+  hpax 1.0.3 VULNERABLE!
+    EEF-CVE-2026-58226 (HIGH)
+    aka: CVE-2026-58226, GHSA-jj2p-32j7-whj2
+    Unauthenticated denial-of-service via unbounded HPACK integer decoding in hpax
+    https://osv.dev/vulnerability/EEF-CVE-2026-58226
+  idna 6.1.1
+  jason 1.4.4
+  makeup 1.2.1
+  makeup_elixir 1.0.1
+  makeup_erlang 1.0.2
+  meck 0.9.2
+  mime 2.0.6
+  mint 1.7.1 VULNERABLE!
+    EEF-CVE-2026-48861 (LOW)
+    aka: CVE-2026-48861, GHSA-2pg6-44cx-c49v
+    CRLF injection in HTTP/1 request line via unvalidated method in Mint
+    https://osv.dev/vulnerability/EEF-CVE-2026-48861
+
+    EEF-CVE-2026-56810 (HIGH)
+    aka: CVE-2026-56810, GHSA-c59h-fq4p-r36r
+    mint buffers an entire chunked response chunk in memory in Mint.HTTP1.decode_body/5
+    https://osv.dev/vulnerability/EEF-CVE-2026-56810
+
+    EEF-CVE-2026-49753 (MEDIUM)
+    aka: CVE-2026-49753, GHSA-mjqx-c6f6-7rc2
+    HTTP response smuggling in Mint HTTP/1 client via lenient Content-Length parsing
+    https://osv.dev/vulnerability/EEF-CVE-2026-49753
+
+    EEF-CVE-2026-49754 (HIGH)
+    aka: CVE-2026-49754, GHSA-2p26-p43x-fhp8
+    HTTP/2 CONTINUATION flood in Mint client via unbounded header-block accumulation
+    https://osv.dev/vulnerability/EEF-CVE-2026-49754
+
+    EEF-CVE-2026-48862 (HIGH)
+    aka: CVE-2026-48862, GHSA-g586-ccqf-7x4r
+    Unbounded conn.streams growth in Mint HTTP/2 client via unenforced PUSH_PROMISE concurrency
+    https://osv.dev/vulnerability/EEF-CVE-2026-48862
+  mock 0.3.9
+  nimble_options 1.1.1
+  nimble_parsec 1.4.2
+  nimble_pool 1.1.0
+  nodejs 3.1.3 VULNERABLE!
+    GHSA-rwcr-rpcc-3g9m (HIGH)
+    aka: CVE-2026-33872
+    elixir-nodejs has Cross-User Data Leakage or Information Disclosure due to Worker Protocol Race Condition
+    https://osv.dev/vulnerability/GHSA-rwcr-rpcc-3g9m
+  plug 1.17.0 VULNERABLE!
+    EEF-CVE-2026-8468 (HIGH)
+    aka: CVE-2026-8468, GHSA-468c-vq7p-gh64
+    Unbounded buffer accumulation in multipart header parsing causes denial of service in plug
+    https://osv.dev/vulnerability/EEF-CVE-2026-8468
+
+    EEF-CVE-2026-54892 (HIGH)
+    aka: CVE-2026-54892, GHSA-j43x-5hjq-rgxf
+    Plug: quadratic-time decoding of nested query/body parameters enables denial of service
+    https://osv.dev/vulnerability/EEF-CVE-2026-54892
+  plug_crypto 2.1.0
+  poolboy 1.5.2
+  req 0.5.10 VULNERABLE!
+    EEF-CVE-2026-49756 (LOW)
+    aka: CVE-2026-49756, GHSA-px9f-whj3-246m
+    Multipart form-data header injection in Req via unescaped name/filename/content_type
+    https://osv.dev/vulnerability/EEF-CVE-2026-49756
+
+    EEF-CVE-2026-49755 (HIGH)
+    aka: CVE-2026-49755, GHSA-655f-mp8p-96gv
+    Decompression bomb DoS in Req via auto-decoded archive and compressed response bodies
+    https://osv.dev/vulnerability/EEF-CVE-2026-49755
+  rustler_precompiled 0.8.2
+  ssl_verify_fun 1.1.7
+  stream_data 1.2.0
+  styler 1.4.1
+  telemetry 1.3.0
+  thousand_island 1.3.12
+  unicode_util_compat 0.7.0
+  venomous 0.7.7
+  websock 0.5.3
+  websockex 0.4.3
+  yamerl 0.10.0
+  yaml_elixir 2.11.0
+Found packages with security advisories, see above for details
+All dependencies are up to date

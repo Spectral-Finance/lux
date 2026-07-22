@@ -1,0 +1,193 @@
+
+20:10:55.040 [info] Compiling file system watcher for Mac...
+
+20:10:55.403 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> ex_json_schema
+Compiling 39 files (.ex)
+    warning: nil.validate/5 is undefined (module nil is not available or is yet to be defined)
+    \x{2502}
+ 85 \x{2502}         validator -> validator.validate(root, schema, property, data, path)
+    \x{2502}                                ~
+    \x{2502}
+    \x{2514}\x{2500} lib/ex_json_schema/validator.ex:85:32: ExJsonSchema.Validator.do_validation_errors/4
+
+Generated ex_json_schema app
+==> toml
+Compiling 10 files (.ex)
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 264 \x{2502}   defp handle_token(lexer, original, doc, type, skip, _data, lines) when type in '-_' do
+     \x{2502}                                                                                  ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:264:82
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 371 \x{2502}       {:ok, {type, _skip, _data, _lines}} when type in '-+' ->
+     \x{2502}                                                        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:371:56
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 419 \x{2502}           {:ok, {:alpha, _, <<c::utf8>>, _}} when c in 'eE' ->
+     \x{2502}                                                        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:419:56
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 474 \x{2502}       {:ok, {:alpha, _, <<c::utf8>>, _}} when c in 'eE' ->
+     \x{2502}                                                    ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:474:52
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 514 \x{2502}       {:ok, {sign, _, _, _}} when sign in '-+' and last == ?e ->
+     \x{2502}                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:514:43
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 518 \x{2502}       {:ok, {:alpha, _, <<c::utf8>>, _}} when c in 'eE' and signal == ?. ->
+     \x{2502}                                                    ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:518:52
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 522 \x{2502}       {:ok, {?_, skip, _, lines}} when last not in '_e.' ->
+     \x{2502}                                                    ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:522:52
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 538 \x{2502}       {:ok, {type, skip, data, lines}} when last in 'e.' ->
+     \x{2502}                                                     ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:538:53
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 542 \x{2502}       {:ok, {_type, skip, _data, lines} = token} when last not in '_e.' ->
+     \x{2502}                                                                   ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:542:67
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 682 \x{2502}         {:ok, {sign, _, _, _}} when sign in '-+' ->
+     \x{2502}                                             ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:682:45
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 796 \x{2502}       {:ok, {sign, _, _, _}} when sign in '-+' ->
+     \x{2502}                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:796:43
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 916 \x{2502}         {:ok, {type, skip, _, lines}} when type in '-_' ->
+     \x{2502}                                                    ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:916:52
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 954 \x{2502}               {:ok, {type, _, _, _}} when type in '-_' ->
+     \x{2502}                                                   ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:954:51
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 969 \x{2502}       {:ok, {type, _, _, _}} when type in '-_' ->
+     \x{2502}                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:969:43
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 983 \x{2502}           {:ok, {type, _, _, _}} when type in '-_' ->
+     \x{2502}                                               ~
+     \x{2502}
+     \x{2514}\x{2500} lib/decoder.ex:983:47
+
+Generated toml app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> nodejs
+Compiling 4 files (.ex)
+Generated nodejs app
+==> credo
+Compiling 257 files (.ex)
+Generated credo app
+==> req
+Compiling 18 files (.ex)
+Generated req app
+==> rustler
+Compiling 6 files (.ex)
+Generated rustler app
+==> rustler_precompiled
+Compiling 4 files (.ex)
+Generated rustler_precompiled app
+==> ex_secp256k1
+Compiling 2 files (.ex)
+
+20:11:00.174 [debug] Copying NIF from cache and extracting to /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/_build/dev/lib/ex_secp256k1/priv/native/libex_secp256k1-v0.7.4-nif-2.16-aarch64-apple-darwin.so.tar.gz
+Generated ex_secp256k1 app
+==> ex_keccak
+Compiling 1 file (.ex)
+
+20:11:00.362 [debug] Copying NIF from cache and extracting to /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/_build/dev/lib/ex_keccak/priv/native/libexkeccak-v0.7.6-nif-2.16-aarch64-apple-darwin.so.tar.gz
+Generated ex_keccak app
+==> ex_abi
+Compiling 2 files (.erl)
+Compiling 7 files (.ex)
+Generated ex_abi app
+==> ethereumex
+Compiling 11 files (.ex)
+Generated ethereumex app
+==> ethers
+Compiling 36 files (.ex)
+Generated ethers app
+==> lux
+Compiling 102 files (.ex)
+
+== Compilation error in file lib/lux/beams/discord/agent_discord_behaviors.ex ==
+** (SyntaxError) invalid syntax found on lib/lux/beams/discord/agent_discord_behaviors.ex:22:4:
+    error: unexpected token: "\" (column 4, code point U+005C)
+    \x{2502}
+ 22 \x{2502} end\n
+    \x{2502}    ^
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/beams/discord/agent_discord_behaviors.ex:22:4
+    (elixir 1.18.1) lib/kernel/parallel_compiler.ex:428: anonymous fn/5 in Kernel.ParallelCompiler.spawn_workers/8

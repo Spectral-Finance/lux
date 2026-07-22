@@ -1,0 +1,83 @@
+
+20:11:53.225 [info] Compiling file system watcher for Mac...
+
+20:11:53.532 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> ex_json_schema
+Compiling 39 files (.ex)
+    warning: nil.validate/5 is undefined (module nil is not available or is yet to be defined)
+    \x{2502}
+ 85 \x{2502}         validator -> validator.validate(root, schema, property, data, path)
+    \x{2502}                                ~
+    \x{2502}
+    \x{2514}\x{2500} lib/ex_json_schema/validator.ex:85:32: ExJsonSchema.Validator.do_validation_errors/4
+
+Generated ex_json_schema app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> nodejs
+Compiling 4 files (.ex)
+Generated nodejs app
+==> credo
+Compiling 257 files (.ex)
+Generated credo app
+==> ex_abi
+Compiling 2 files (.erl)
+Compiling 7 files (.ex)
+Generated ex_abi app
+==> req
+Compiling 18 files (.ex)
+Generated req app
+==> ethereumex
+Compiling 11 files (.ex)
+Generated ethereumex app
+==> ethers
+Compiling 36 files (.ex)
+Generated ethers app
+==> lux
+Compiling 94 files (.ex)
+     warning: variable "company_pid" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 260 \x{2502}         company_pid = state.company_pid
+     \x{2502}         ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/company/execution_engine/objective_process.ex:260:9: Lux.Company.ExecutionEngine.ObjectiveProcess.handle_info/2
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+
+20:11:59.031 [debug] Using Lux.Company.DSL in Elixir.Lux.Companies.YouTubePipeline
+
+20:11:59.033 [debug] Before compile hook for Elixir.Lux.Companies.YouTubePipeline
+
+20:11:59.682 [debug] Final company config: %Lux.Company{id: "f8bf9f42-f3bd-4187-bcc2-36cdf3a6ba0a", name: "YouTube Content Creation Pipeline", mission: "Produce high-quality, fully optimized YouTube videos from raw concepts", module: Lux.Companies.YouTubePipeline, ceo: %{id: "b5fc835a-10e9-4e68-928a-e29422079f6f", name: "Content Director", type: :ceo, goal: "Direct the overall video creation and ensure script quality", capabilities: ["editing_suggestions", "content_structuring", "hook_writing", "script_generation"], hub: nil, agent: Lux.Agents.YouTube.ScriptGenerator}, signal_router: nil, agent_hub: nil, roles: [%{id: "ea42bff5-0ce7-4f2f-894b-1cefbafcb70b", name: "Content Tester", type: :member, goal: "A/B test variations to ensure high CTR", capabilities: ["content_repurposing", "variation_generation", "performance_analysis", "ab_testing"], hub: nil, agent: Lux.Agents.YouTube.ContentTester}, %{id: "69a62482-320b-4e4f-8dc7-3e4f55799e0a", name: "Metadata Manager", type: :member, goal: "Maximize SEO and search discovery", capabilities: ["localization", "playlist_organization", "description_writing", "tag_generation", "seo_optimization"], hub: nil, agent: Lux.Agents.YouTube.MetadataManager}, %{id: "247e9d4a-9028-46ec-a05d-0cf898b873b9", name: "Visual Optimizer", type: :member, goal: "Optimize thumbnails and video pacing", capabilities: ["pacing_analysis", "broll_suggestion", "thumbnail_ideation"], hub: nil, agent: Lux.Agents.YouTube.VisualOptimizer}], objectives: [%Lux.Company.Objective{id: "4cf89934-6d25-4b50-9b08-008040c177a5", name: :create_optimized_video, description: "Takes a raw topic and generates a complete, optimized YouTube content package", success_criteria: "Script, visual plan, metadata, and testing plan are all generated and mutually consistent", input_schema: %{required: ["topic", "target_audience"], properties: %{"target_audience" => %{type: "object", description: "Details about the target audience demographics and interests", properties: %{"age_range" => %{type: "string"}, "interests" => %{type: "array", items: %{type: "string"}}}}, "topic" => %{type: "string", description: "The main topic or idea for the YouTube video"}}}, steps: [%{"name" => "Generate the script and hook based on the topic", "required_capabilities" => ["script_generation"]}, %{"name" => "Generate automated editing suggestions", "required_capabilities" => ["editing_suggestions"]}, %{"name" => "Propose visual optimization (thumbnails and b-roll) based on the script", "required_capabilities" => ["thumbnail_ideation"]}, %{"name" => "Generate SEO-optimized metadata", "required_capabilities" => ["seo_optimization"]}, %{"name" => "Organize playlists and generate localized metadata", "required_capabilities" => ["playlist_organization", "localization"]}, %{"name" => "Create an A/B testing plan for the generated assets", "required_capabilities" => ["ab_testing"]}, %{"name" => "Repurpose content for other platforms", "required_capabilities" => ["content_repurposing"]}], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}, tasks: [], error: nil, context: %{}}], metadata: %{}}
+Compiling 3 files (.ex)
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

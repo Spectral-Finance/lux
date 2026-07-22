@@ -1,0 +1,12 @@
+Compiling 8 files (.ex)
+    error: cannot invoke remote function String.starts_with?/2 inside a guard
+    \x{2502}
+ 67 \x{2502}   defp parse_tokens([flag | rest], flags, positional) when String.starts_with?(flag, "-") do
+    \x{2502}                                                                   ^
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/integrations/telegram/command_parser.ex:67:67: Lux.Integrations.Telegram.CommandParser.parse_tokens/3
+
+
+== Compilation error in file lib/lux/integrations/telegram/command_parser.ex ==
+** (CompileError) lib/lux/integrations/telegram/command_parser.ex: cannot compile module Lux.Integrations.Telegram.CommandParser (errors have been logged)
+

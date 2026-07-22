@@ -1,0 +1,11 @@
+Compiling 102 files (.ex)
+
+== Compilation error in file lib/lux/prisms/discord/member/kick_member.ex ==
+** (SyntaxError) invalid syntax found on lib/lux/prisms/discord/member/kick_member.ex:32:4:
+    error: unexpected token: "\" (column 4, code point U+005C)
+    \x{2502}
+ 32 \x{2502} end\n
+    \x{2502}    ^
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/member/kick_member.ex:32:4
+    (elixir 1.18.1) lib/kernel/parallel_compiler.ex:428: anonymous fn/5 in Kernel.ParallelCompiler.spawn_workers/8

@@ -1,0 +1,33 @@
+Compiling 9 files (.ex)
+    warning: variable "deaf" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    \x{2502}
+ 34 \x{2502}     deaf = Map.get(params, :deaf, false)
+    \x{2502}     ~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/voice/join_voice_channel.ex:34:5: Lux.Prisms.Discord.Voice.JoinVoiceChannel.handler/2
+
+    warning: variable "mute" is unused (if the variable is not meant to be used, prefix it with an underscore)
+    \x{2502}
+ 33 \x{2502}     mute = Map.get(params, :mute, false)
+    \x{2502}     ~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/voice/join_voice_channel.ex:33:5: Lux.Prisms.Discord.Voice.JoinVoiceChannel.handler/2
+
+    error: def focus/1 conflicts with defaults from focus/2
+    \x{2502}
+  8 \x{2502}   def focus(params) do
+    \x{2502}       ^
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/discord/analytics/get_guild_activity.ex:8:7: Lux.Lenses.Discord.Analytics.GetGuildActivity.focus/1
+
+    error: def focus/1 conflicts with defaults from focus/2
+    \x{2502}
+  8 \x{2502}   def focus(params) do
+    \x{2502}       ^
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/discord/analytics/get_member_analytics.ex:8:7: Lux.Lenses.Discord.Analytics.GetMemberAnalytics.focus/1
+
+
+== Compilation error in file lib/lux/lenses/discord/analytics/get_guild_activity.ex ==
+** (CompileError) lib/lux/lenses/discord/analytics/get_guild_activity.ex: cannot compile module Lux.Lenses.Discord.Analytics.GetGuildActivity (errors have been logged)
+    lib/lux/lenses/discord/analytics/get_guild_activity.ex:8: (module)

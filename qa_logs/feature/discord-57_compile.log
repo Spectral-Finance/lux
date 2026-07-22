@@ -1,0 +1,248 @@
+Compiling 4 files (.ex)
+     warning: clauses with the same name should be grouped together, "defp format_response/1" was previously defined (lib/lux/prisms/discord/event_handling_prism.ex:141)
+     \x{2502}
+ 151 \x{2502}   defp format_response({:error, reason}), do: {:error, reason}
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:151:8
+
+     warning: clauses with the same name should be grouped together, "defp format_response/1" was previously defined (lib/lux/prisms/discord/moderation_prism.ex:107)
+     \x{2502}
+ 116 \x{2502}   defp format_response({:error, reason}), do: {:error, reason}
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/moderation_prism.ex:116:8
+
+     warning: function get_param/3 is unused
+     \x{2502}
+ 170 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:170:8: Lux.Prisms.Discord.ChannelManagementPrism (module)
+
+     warning: function normalize_keys/1 is unused
+     \x{2502}
+ 166 \x{2502}   defp normalize_keys(params) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:166:8: Lux.Prisms.Discord.MessageManagementPrism (module)
+
+     warning: default values for the optional arguments in get_param/3 are never used
+     \x{2502}
+ 183 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:183:8: Lux.Prisms.Discord.MessageManagementPrism (module)
+
+     warning: function get_param/3 is unused
+     \x{2502}
+ 188 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:188:8: Lux.Prisms.Discord.EventHandlingPrism (module)
+
+     warning: function normalize_keys/1 is unused
+     \x{2502}
+ 141 \x{2502}   defp normalize_keys(params) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/moderation_prism.ex:141:8: Lux.Prisms.Discord.ModerationPrism (module)
+
+     warning: function format_response/1 is unused
+     \x{2502}
+ 107 \x{2502}   defp format_response({:ok, body}) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/moderation_prism.ex:107:8: Lux.Prisms.Discord.ModerationPrism (module)
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :content)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 81 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:81: Lux.Prisms.Discord.MessageManagementPrism.create_message/2
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :guild_id)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 84 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:84: Lux.Prisms.Discord.ChannelManagementPrism.create_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :event_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 116 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:116: Lux.Prisms.Discord.EventHandlingPrism.update_event/2
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :message_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 108 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:108: Lux.Prisms.Discord.MessageManagementPrism.delete_message/2
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :channel_id)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 98 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:98: Lux.Prisms.Discord.ChannelManagementPrism.update_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :event_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 129 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:129: Lux.Prisms.Discord.EventHandlingPrism.delete_event/2
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :channel_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 111 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:111: Lux.Prisms.Discord.ChannelManagementPrism.delete_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :channel_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 124 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:124: Lux.Prisms.Discord.ChannelManagementPrism.get_channel/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     \x{2502}
+ 141 \x{2502}       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     \x{2502}                                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    \x{2502}
+ 17 \x{2502}   @endpoint "https://api.mira.network/v1/chat/completions"
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

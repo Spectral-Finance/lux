@@ -1,0 +1,491 @@
+==> earmark_parser
+Compiling 3 files (.erl)
+Compiling 47 files (.ex)
+Generated earmark_parser app
+
+20:10:04.382 [info] Compiling file system watcher for Mac...
+
+20:10:05.155 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> crontab
+Compiling 7 files (.ex)
+    warning: Application.get_env/3 is discouraged in the module body, use Application.compile_env/3 instead
+    \x{2502}
+ 21 \x{2502}     @max_runs Application.get_env(:crontab, :max_runs, 10_000)
+    \x{2502}                           ~
+    \x{2502}
+    \x{2514}\x{2500} lib/crontab/scheduler.ex:21:27: Crontab.Scheduler (module)
+
+Generated crontab app
+==> lux
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/poolboy/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling poolboy
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> ex_rlp
+Compiling 6 files (.ex)
+Generated ex_rlp app
+==> ex_json_schema
+Compiling 39 files (.ex)
+    warning: nil.validate/5 is undefined (module nil is not available or is yet to be defined)
+    \x{2502}
+ 85 \x{2502}         validator -> validator.validate(root, schema, property, data, path)
+    \x{2502}                                ~
+    \x{2502}
+    \x{2514}\x{2500} lib/ex_json_schema/validator.ex:85:32: ExJsonSchema.Validator.do_validation_errors/4
+
+Generated ex_json_schema app
+==> mime
+Compiling 1 file (.ex)
+Generated mime app
+==> nimble_options
+Compiling 3 files (.ex)
+Generated nimble_options app
+==> nimble_parsec
+Compiling 4 files (.ex)
+Generated nimble_parsec app
+==> bunt
+Compiling 2 files (.ex)
+Generated bunt app
+==> lux
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/unicode_util_compat/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling unicode_util_compat
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/idna/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling idna
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/telemetry/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling telemetry
+==> thousand_island
+Compiling 16 files (.ex)
+Generated thousand_island app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+    warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+    You may run "mix format --migrate" to fix this warning automatically.
+    \x{2502}
+ 21 \x{2502}   defp elixirc_paths(:test), do: ['lib', 'test/support']
+    \x{2502}                                   ~
+    \x{2502}
+    \x{2514}\x{2500} /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/websockex/mix.exs:21:35
+
+    warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+    You may run "mix format --migrate" to fix this warning automatically.
+    \x{2502}
+ 21 \x{2502}   defp elixirc_paths(:test), do: ['lib', 'test/support']
+    \x{2502}                                          ~
+    \x{2502}
+    \x{2514}\x{2500} /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/websockex/mix.exs:21:42
+
+    warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+    You may run "mix format --migrate" to fix this warning automatically.
+    \x{2502}
+ 22 \x{2502}   defp elixirc_paths(_), do: ['lib']
+    \x{2502}                               ~
+    \x{2502}
+    \x{2514}\x{2500} /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/websockex/mix.exs:22:31
+
+==> websockex
+Compiling 6 files (.ex)
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 167 \x{2502}             :error_logger.format('~p: ignoring bad debug options ~p~n', [name, opts])
+     \x{2502}                                  ~
+     \x{2502}
+     \x{2514}\x{2500} lib/websockex/utils.ex:167:34
+
+     warning: ^^^ is deprecated. It is typically used as xor but it has the wrong precedence, use Bitwise.bxor/2 instead
+     \x{2502}
+ 394 \x{2502}       masked = part ^^^ key
+     \x{2502}                     ~
+     \x{2502}
+     \x{2514}\x{2500} lib/websockex/frame.ex:394:21
+
+     warning: ^^^ is deprecated. It is typically used as xor but it has the wrong precedence, use Bitwise.bxor/2 instead
+     \x{2502}
+ 400 \x{2502}     masked = part ^^^ key
+     \x{2502}                   ~
+     \x{2502}
+     \x{2514}\x{2500} lib/websockex/frame.ex:400:19
+
+     warning: single-quoted strings represent charlists. Use ~c"" if you indeed want a charlist or use "" instead.
+     You may run "mix format --migrate" to fix this warning automatically.
+     \x{2502}
+ 503 \x{2502}       {:header, 'Status for WebSockex process #{inspect(self())}'},
+     \x{2502}                 ~
+     \x{2502}
+     \x{2514}\x{2500} lib/websockex.ex:503:17
+
+     warning: :sys.get_debug/3 is deprecated. Incorrectly documented and only for internal use. Can often be replaced with sys:get_log/1
+     \x{2502}
+ 499 \x{2502}     log = :sys.get_debug(:log, debug, [])
+     \x{2502}                ~
+     \x{2502}
+     \x{2514}\x{2500} lib/websockex.ex:499:16: WebSockex.format_status/2
+
+      warning: System.stacktrace/0 is deprecated. Use __STACKTRACE__ instead
+      \x{2502}
+ 1116 \x{2502}       stacktrace = System.stacktrace()
+      \x{2502}                           ~
+      \x{2502}
+      \x{2514}\x{2500} lib/websockex.ex:1116:27: WebSockex.try_callback/3
+
+Generated websockex app
+==> plug_crypto
+Compiling 5 files (.ex)
+Generated plug_crypto app
+==> hpax
+Compiling 4 files (.ex)
+Generated hpax app
+==> lux
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/yamerl/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling yamerl
+==> yaml_elixir
+Compiling 6 files (.ex)
+Generated yaml_elixir app
+==> ssl_verify_fun
+Compiling 7 files (.erl)
+Generated ssl_verify_fun app
+==> nodejs
+Compiling 4 files (.ex)
+Generated nodejs app
+==> credo
+Compiling 251 files (.ex)
+Generated credo app
+==> plug
+Compiling 1 file (.erl)
+Compiling 40 files (.ex)
+Generated plug app
+==> dotenvy
+Compiling 3 files (.ex)
+Generated dotenvy app
+==> makeup
+Compiling 15 files (.ex)
+Generated makeup app
+==> makeup_elixir
+Compiling 6 files (.ex)
+Generated makeup_elixir app
+==> makeup_erlang
+Compiling 4 files (.ex)
+Generated makeup_erlang app
+==> ex_doc
+Compiling 26 files (.ex)
+Generated ex_doc app
+==> styler
+Compiling 14 files (.ex)
+Generated styler app
+==> erlex
+Compiling 2 files (.erl)
+Compiling 1 file (.ex)
+Generated erlex app
+==> dialyxir
+Compiling 67 files (.ex)
+Generated dialyxir app
+==> nimble_pool
+Compiling 2 files (.ex)
+Generated nimble_pool app
+==> castore
+Compiling 1 file (.ex)
+Generated castore app
+==> rustler_precompiled
+Compiling 4 files (.ex)
+Generated rustler_precompiled app
+==> ex_secp256k1
+Compiling 2 files (.ex)
+
+20:10:29.058 [debug] Copying NIF from cache and extracting to /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/_build/dev/lib/ex_secp256k1/priv/native/libex_secp256k1-v0.7.4-nif-2.16-aarch64-apple-darwin.so.tar.gz
+Generated ex_secp256k1 app
+==> ex_keccak
+Compiling 1 file (.ex)
+
+20:10:30.553 [debug] Copying NIF from cache and extracting to /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/_build/dev/lib/ex_keccak/priv/native/libexkeccak-v0.7.6-nif-2.16-aarch64-apple-darwin.so.tar.gz
+Generated ex_keccak app
+==> ex_abi
+Compiling 2 files (.erl)
+Compiling 7 files (.ex)
+Generated ex_abi app
+==> mint
+Compiling 1 file (.erl)
+Compiling 20 files (.ex)
+Generated mint app
+==> finch
+Compiling 14 files (.ex)
+Generated finch app
+==> req
+Compiling 18 files (.ex)
+Generated req app
+==> ethereumex
+Compiling 11 files (.ex)
+Generated ethereumex app
+==> ethers
+Compiling 36 files (.ex)
+Generated ethers app
+==> websock
+Compiling 1 file (.ex)
+Generated websock app
+==> bandit
+Compiling 54 files (.ex)
+Generated bandit app
+==> lux
+===> Failed to restore /Users/ronny/Documents/antigravity/excited-salk/hunted_repos/Spectral-Finance_lux/lux/deps/erlport/_build/prod/lib/.rebar3/rebar_compiler_erl/source.dag file. Discarding it.
+
+===> Analyzing applications...
+===> Compiling erlport
+==> venomous
+Compiling 14 files (.ex)
+Generated venomous app
+==> lux
+Compiling 190 files (.ex)
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     \x{2502}
+ 141 \x{2502}       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     \x{2502}                                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    \x{2502}
+ 17 \x{2502}   @endpoint "https://api.mira.network/v1/chat/completions"
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: clauses with the same name should be grouped together, "defp format_response/1" was previously defined (lib/lux/prisms/discord/moderation_prism.ex:107)
+     \x{2502}
+ 116 \x{2502}   defp format_response({:error, reason}), do: {:error, reason}
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/moderation_prism.ex:116:8
+
+     warning: variable "msg" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 150 \x{2502}       {:error, {429, msg}} when retries > 0 ->
+     \x{2502}                      ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:150:22: Lux.Prisms.Discord.MessageManagementPrism.with_retry/2
+
+     warning: function format_response/1 is unused
+     \x{2502}
+ 107 \x{2502}   defp format_response({:ok, body}) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/moderation_prism.ex:107:8: Lux.Prisms.Discord.ModerationPrism (module)
+
+     warning: default values for the optional arguments in get_param/3 are never used
+     \x{2502}
+ 172 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:172:8: Lux.Prisms.Discord.MessageManagementPrism (module)
+
+     warning: clauses with the same name should be grouped together, "defp format_response/1" was previously defined (lib/lux/prisms/discord/event_handling_prism.ex:141)
+     \x{2502}
+ 151 \x{2502}   defp format_response({:error, reason}), do: {:error, reason}
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:151:8
+
+     warning: function get_param/3 is unused
+     \x{2502}
+ 176 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:176:8: Lux.Prisms.Discord.EventHandlingPrism (module)
+
+     warning: function get_param/3 is unused
+     \x{2502}
+ 158 \x{2502}   defp get_param(params, key, default \\ nil) do
+     \x{2502}        ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:158:8: Lux.Prisms.Discord.ChannelManagementPrism (module)
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :guild_id)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 84 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:84: Lux.Prisms.Discord.ChannelManagementPrism.create_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :event_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 116 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:116: Lux.Prisms.Discord.EventHandlingPrism.update_event/2
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :channel_id)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 98 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:98: Lux.Prisms.Discord.ChannelManagementPrism.update_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :event_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 129 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/event_handling_prism.ex:129: Lux.Prisms.Discord.EventHandlingPrism.delete_event/2
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :channel_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 111 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:111: Lux.Prisms.Discord.ChannelManagementPrism.delete_channel/1
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :channel_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 124 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/channel_management_prism.ex:124: Lux.Prisms.Discord.ChannelManagementPrism.get_channel/1
+
+    warning: the following clause will never match:
+
+        :error
+
+    because it attempts to match on the result of:
+
+        fetch_param(params, :content)
+
+    which has type:
+
+        dynamic({:error, binary()} or {:ok, term()})
+
+    typing violation found at:
+    \x{2502}
+ 81 \x{2502}       :error ->
+    \x{2502}       ~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:81: Lux.Prisms.Discord.MessageManagementPrism.create_message/2
+
+     warning: the following clause will never match:
+
+         :error
+
+     because it attempts to match on the result of:
+
+         fetch_param(params, :message_id)
+
+     which has type:
+
+         dynamic({:error, binary()} or {:ok, term()})
+
+     typing violation found at:
+     \x{2502}
+ 108 \x{2502}       :error ->
+     \x{2502}       ~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/prisms/discord/message_management_prism.ex:108: Lux.Prisms.Discord.MessageManagementPrism.delete_message/2
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

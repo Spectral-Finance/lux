@@ -1,0 +1,89 @@
+
+20:11:45.100 [info] Compiling file system watcher for Mac...
+
+20:11:45.402 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> ex_json_schema
+Compiling 39 files (.ex)
+    warning: nil.validate/5 is undefined (module nil is not available or is yet to be defined)
+    \x{2502}
+ 85 \x{2502}         validator -> validator.validate(root, schema, property, data, path)
+    \x{2502}                                ~
+    \x{2502}
+    \x{2514}\x{2500} lib/ex_json_schema/validator.ex:85:32: ExJsonSchema.Validator.do_validation_errors/4
+
+Generated ex_json_schema app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> nodejs
+Compiling 4 files (.ex)
+Generated nodejs app
+==> credo
+Compiling 251 files (.ex)
+Generated credo app
+==> ex_abi
+Compiling 2 files (.erl)
+Compiling 7 files (.ex)
+Generated ex_abi app
+==> req
+Compiling 18 files (.ex)
+Generated req app
+==> ethereumex
+Compiling 11 files (.ex)
+Generated ethereumex app
+==> ethers
+Compiling 36 files (.ex)
+Generated ethers app
+==> lux
+Compiling 90 files (.ex)
+
+20:11:50.517 [debug] Using Lux.Company.DSL in Elixir.Lux.YouTube.YouTubeIntelligence
+
+20:11:50.518 [debug] Before compile hook for Elixir.Lux.YouTube.YouTubeIntelligence
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+
+20:11:51.270 [debug] Final company config: %Lux.Company{id: "814d1918-9907-4b1c-b6f4-1f7e6f02388b", name: "YouTube Content Intelligence System", mission: "Optimize YouTube content and drive channel growth through intelligent analysis", module: Lux.YouTube.YouTubeIntelligence, ceo: %{id: "7d0d6bb9-0d67-4948-91c7-d3774f6eca52", name: "Strategy Director", type: :ceo, capabilities: ["approve", "plan", "analyze_trending_topics", "recommend_content"], agent: Lux.YouTube.Agents.StrategyAgent, goal: "Oversee channel strategy, recommend content, and analyze trends", hub: nil}, signal_router: nil, agent_hub: nil, roles: [%{id: "8f9f5a24-dfe6-46d0-84e0-f3948f247164", name: "Content Optimizer", type: :member, capabilities: ["predict_posting_time", "generate_description", "optimize_tags", "optimize_title_thumbnail"], agent: Lux.YouTube.Agents.OptimizationAgent, goal: "Optimize content metadata and predict posting times", hub: nil}, %{id: "7b2603fb-1d15-4995-b859-0d15dd38f7c6", name: "Data Analyst", type: :member, capabilities: ["analyze_audience_engagement", "analyze_video_performance"], agent: Lux.YouTube.Agents.AnalyticsAgent, goal: "Analyze video performance and audience engagement", hub: nil}], objectives: [%Lux.Company.Objective{id: "ce2deee6-5208-44e8-a198-5f6a04972046", name: :optimize_content_workflow, description: "Execute a full content optimization workflow for a YouTube video", success_criteria: "Data analyzed, metadata optimized, and recommendations generated for channel growth.", input_schema: %{required: ["topic", "niche", "video_data"], properties: %{"niche" => %{type: "string", description: "The channel's niche"}, "topic" => %{type: "string", description: "The topic of the upcoming video"}, "video_data" => %{type: "array", description: "Recent video performance data", items: %{type: "object", properties: %{"avg_view_duration" => %{type: "number"}, "ctr" => %{type: "number"}, "video_id" => %{type: "string"}, "views" => %{type: "integer"}, "watch_time_hours" => %{type: "number"}}}}}}, steps: ["Analyze past video performance and audience engagement metrics", "Identify trending topics in the channel's niche", "Generate optimized title, tags, description, and thumbnail ideas", "Determine the optimal posting time", "Review and approve final metadata and strategy"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     \x{2502}
+ 141 \x{2502}       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     \x{2502}                                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    \x{2502}
+ 17 \x{2502}   @endpoint "https://api.mira.network/v1/chat/completions"
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

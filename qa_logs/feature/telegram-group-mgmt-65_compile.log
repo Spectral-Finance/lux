@@ -1,0 +1,46 @@
+Compiling 15 files (.ex)
+    warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+      * Lux.Lens.after_focus/1 (function)
+
+    \x{2502}
+ 26 \x{2502}   def before_focus(params) do
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/telegram/get_chat_administrators.ex:26: Lux.Lenses.Telegram.GetChatAdministrators (module)
+
+    warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+      * Lux.Lens.after_focus/1 (function)
+
+    \x{2502}
+ 30 \x{2502}   def before_focus(params) do
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/telegram/get_chat_member.ex:30: Lux.Lenses.Telegram.GetChatMember (module)
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

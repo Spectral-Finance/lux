@@ -1,0 +1,151 @@
+
+20:11:17.793 [info] Compiling file system watcher for Mac...
+
+20:11:18.099 [info] Done.
+==> file_system
+Compiling 7 files (.ex)
+Generated file_system app
+==> decimal
+Compiling 4 files (.ex)
+Generated decimal app
+==> ex_json_schema
+Compiling 39 files (.ex)
+    warning: nil.validate/5 is undefined (module nil is not available or is yet to be defined)
+    \x{2502}
+ 85 \x{2502}         validator -> validator.validate(root, schema, property, data, path)
+    \x{2502}                                ~
+    \x{2502}
+    \x{2514}\x{2500} lib/ex_json_schema/validator.ex:85:32: ExJsonSchema.Validator.do_validation_errors/4
+
+Generated ex_json_schema app
+==> jason
+Compiling 10 files (.ex)
+Generated jason app
+==> nodejs
+Compiling 4 files (.ex)
+Generated nodejs app
+==> credo
+Compiling 257 files (.ex)
+Generated credo app
+==> ex_abi
+Compiling 2 files (.erl)
+Compiling 7 files (.ex)
+Generated ex_abi app
+==> req
+Compiling 18 files (.ex)
+Generated req app
+==> ethereumex
+Compiling 11 files (.ex)
+Generated ethereumex app
+==> ethers
+Compiling 36 files (.ex)
+Generated ethers app
+==> lux
+Compiling 95 files (.ex)
+    warning: def focus/2 has multiple clauses and also declares default values. In such cases, the default values should be defined in a header. Instead of:
+
+        def foo(:first_clause, b \\ :default) do ... end
+        def foo(:second_clause, b) do ... end
+
+    one should write:
+
+        def foo(a, b \\ :default)
+        def foo(:first_clause, b) do ... end
+        def foo(:second_clause, b) do ... end
+
+    \x{2502}
+ 30 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}       ~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/transaction_history_lens.ex:30:7
+
+    warning: def focus/2 has multiple clauses and also declares default values. In such cases, the default values should be defined in a header. Instead of:
+
+        def foo(:first_clause, b \\ :default) do ... end
+        def foo(:second_clause, b) do ... end
+
+    one should write:
+
+        def foo(a, b \\ :default)
+        def foo(:first_clause, b) do ... end
+        def foo(:second_clause, b) do ... end
+
+    \x{2502}
+ 26 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}       ~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/balance_lens.ex:26:7
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+    warning: this clause for focus/2 cannot match because a previous clause at line 7 always matches
+    \x{2502}
+ 30 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}       ~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/transaction_history_lens.ex:30:7
+
+    warning: this clause for focus/2 cannot match because a previous clause at line 7 always matches
+    \x{2502}
+ 26 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}       ~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/balance_lens.ex:26:7
+
+    warning: got "@impl true" for function focus/2 but no behaviour specifies such callback. The known callbacks are:
+
+      * Lux.Lens.after_focus/1 (function)
+
+    \x{2502}
+ 26 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/balance_lens.ex:26: Lux.Lenses.Web3.BalanceLens (module)
+
+    warning: got "@impl true" for function focus/2 but no behaviour specifies such callback. The known callbacks are:
+
+      * Lux.Lens.after_focus/1 (function)
+
+    \x{2502}
+ 30 \x{2502}   def focus(%{address: address} = params, _opts) do
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/lenses/web3/transaction_history_lens.ex:30: Lux.Lenses.Web3.TransactionHistoryLens (module)
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     \x{2502}
+ 141 \x{2502}       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     \x{2502}                                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    \x{2502}
+ 17 \x{2502}   @endpoint "https://api.mira.network/v1/chat/completions"
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option

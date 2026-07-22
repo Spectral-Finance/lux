@@ -1,0 +1,46 @@
+Compiling 5 files (.ex)
+
+20:10:43.580 [debug] Using Lux.Company.DSL in Elixir.Lux.YouTube.YouTubeIntelligence
+
+20:10:43.583 [debug] Before compile hook for Elixir.Lux.YouTube.YouTubeIntelligence
+
+20:10:43.678 [debug] Final company config: %Lux.Company{id: "4197f587-ae76-46ce-adb6-897f899bee59", name: "YouTube Content Intelligence System", mission: "Optimize YouTube content and drive channel growth through intelligent analysis", module: Lux.YouTube.YouTubeIntelligence, ceo: %{id: "1106f23e-33f1-4334-90f6-46c6ce2ef1de", name: "Strategy Director", type: :ceo, capabilities: ["approve", "plan", "analyze_trending_topics", "recommend_content"], agent: Lux.YouTube.Agents.StrategyAgent, goal: "Oversee channel strategy, recommend content, and analyze trends", hub: nil}, signal_router: nil, agent_hub: nil, roles: [%{id: "416267f4-f6b2-4c67-a574-52db32823c86", name: "Content Optimizer", type: :member, capabilities: ["predict_posting_time", "generate_description", "optimize_tags", "optimize_title_thumbnail"], agent: Lux.YouTube.Agents.OptimizationAgent, goal: "Optimize content metadata and predict posting times", hub: nil}, %{id: "f5479a97-4901-449c-9bd0-6f14fb4cfcb7", name: "Data Analyst", type: :member, capabilities: ["analyze_audience_engagement", "analyze_video_performance"], agent: Lux.YouTube.Agents.AnalyticsAgent, goal: "Analyze video performance and audience engagement", hub: nil}], objectives: [%Lux.Company.Objective{id: "eaedd754-c765-430f-a798-f7ae67851430", name: :optimize_content_workflow, description: "Execute a full content optimization workflow for a YouTube video", success_criteria: "Data analyzed, metadata optimized, and recommendations generated for channel growth.", input_schema: %{required: ["topic", "niche", "video_data"], properties: %{"niche" => %{type: "string", description: "The channel's niche"}, "topic" => %{type: "string", description: "The topic of the upcoming video"}, "video_data" => %{type: "array", description: "Recent video performance data", items: %{type: "object", properties: %{"avg_view_duration" => %{type: "number"}, "ctr" => %{type: "number"}, "video_id" => %{type: "string"}, "views" => %{type: "integer"}, "watch_time_hours" => %{type: "number"}}}}}}, steps: ["Analyze past video performance and audience engagement metrics", "Identify trending topics in the channel's niche", "Generate optimized title, tags, description, and thumbnail ideas", "Determine the optimal posting time", "Review and approve final metadata and strategy"], status: :pending, assigned_agents: [], progress: 0, started_at: nil, completed_at: nil, metadata: %{}}], metadata: %{}}
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 105 \x{2502}   def after_focus(%{"data" => %{"topics" => topics}} = response) do
+     \x{2502}                                                        ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:105:56: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: variable "response" is unused (if the variable is not meant to be used, prefix it with an underscore)
+     \x{2502}
+ 112 \x{2502}   def after_focus(%{"error" => error} = response) do
+     \x{2502}                                         ~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_topics.ex:112:41: Lux.Lenses.Allora.GetTopics.after_focus/1
+
+     warning: got "@impl true" for function before_focus/1 but no behaviour specifies such callback. The known callbacks are:
+
+       * Lux.Lens.after_focus/1 (function)
+
+     \x{2502}
+ 107 \x{2502}   def before_focus(%{topic_id: topic_id} = params) do
+     \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/lenses/allora/get_inference.ex:107: Lux.Lenses.Allora.GetInference (module)
+
+     warning: the underscored variable "_config" is used after being set. A leading underscore indicates that the value of the variable should be ignored. If this is intended please rename the variable to remove the underscore
+     \x{2502}
+ 141 \x{2502}       {:ok, decoded} -> handle_response(%{body: decoded}, _config)
+     \x{2502}                                                           ~
+     \x{2502}
+     \x{2514}\x{2500} lib/lux/llm/mira.ex:141:59: Lux.LLM.Mira.handle_response/2
+
+    warning: module attribute @endpoint was set but never used
+    \x{2502}
+ 17 \x{2502}   @endpoint "https://api.mira.network/v1/chat/completions"
+    \x{2502}   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    \x{2502}
+    \x{2514}\x{2500} lib/lux/llm/mira.ex:17: Lux.LLM.Mira (module)
+
+Compilation failed due to warnings while using the --warnings-as-errors option
