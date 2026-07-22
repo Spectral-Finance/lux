@@ -136,13 +136,16 @@ defmodule Lux.Integration.Company.ContentTeamTest do
 
     test "handles agent failures gracefully", %{company_pid: pid} do
       # Start an objective with a topic known to trigger failure
-      {:ok, objective_id} =
+      {:ok, objective} =
         Lux.Company.run_objective(pid, :create_blog_post, %{
           # Special topic that triggers failure
           "topic" => "FAIL_TEST",
           "target_audience" => "developers",
           "tone" => "technical"
         })
+
+      objective_id = objective.payload["id"]
+
 
       # Wait for failure handling
       :timer.sleep(2000)
@@ -152,28 +155,31 @@ defmodule Lux.Integration.Company.ContentTeamTest do
       assert status in [:failed, :in_progress]
 
       if status == :failed do
-        assert status.error != nil
+        {:ok, obj_state} = Lux.Company.get_objective(pid, objective_id)
+        assert obj_state.metadata[:failure_reason] != nil
         # Should have error message
-        assert is_binary(status.error)
+        assert is_binary(obj_state.metadata[:failure_reason])
       end
     end
 
     test "company maintains state across multiple objectives", %{company_pid: pid} do
       # Run first objective
-      {:ok, objective1_id} =
+      {:ok, objective1} =
         Lux.Company.run_objective(pid, :create_blog_post, %{
           "topic" => "First Post",
           "target_audience" => "developers",
           "tone" => "technical"
         })
+      objective1_id = objective1.payload["id"]
 
       # Start second objective while first is running
-      {:ok, objective2_id} =
+      {:ok, objective2} =
         Lux.Company.run_objective(pid, :create_blog_post, %{
           "topic" => "Second Post",
           "target_audience" => "developers",
           "tone" => "technical"
         })
+      objective2_id = objective2.payload["id"]
 
       # Wait for some progress
       :timer.sleep(5000)
