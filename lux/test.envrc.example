@@ -2,3 +2,4 @@
 ALLORA_API_KEY="test-allora-key"
 ALLORA_BASE_URL="https://api.upshot.xyz/v2"
 ALLORA_CHAIN_SLUG="testnet" 
+INTEGRATION_OPENROUTER_API_KEY="test-openrouter-key"

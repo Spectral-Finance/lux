@@ -263,6 +263,32 @@ llm_config = %{
 }
 ```
 
+You can also use `Lux.LLM.OpenRouter` as an OpenAI-compatible multi-model gateway supporting fallback arrays, provider routing preferences, dynamic model slugs, site attribution headers, and usage cost accounting in USD:
+
+```elixir
+open_router_config = %{
+  # API configuration
+  api_key: "<OPENROUTER_API_KEY>",
+  model: Application.get_env(:lux, :open_router_models)[:cheapest],
+  
+  # Advanced OpenRouter features
+  models: ["openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet"], # Automatic fallback list
+  provider: %{order: ["OpenAI", "Anthropic"], allow_fallbacks: true},
+  site_url: "https://your-app.com",
+  site_name: "Your App Name",
+  
+  # Dynamic model slug example
+  # model: "~openai/gpt-latest",
+  
+  temperature: 0.7
+}
+
+# Inspect usage costs in USD:
+# {:ok, signal} = Lux.LLM.OpenRouter.call(prompt, [], open_router_config)
+# summary = Lux.LLM.OpenRouter.cost_summary(signal)
+# IO.puts("Total USD spent: #{summary.total_cost}")
+```
+
 ### Structured Responses
 
 Define schemas to get structured responses from your agent:
