@@ -33,17 +33,17 @@ defmodule Lux.Integrations.Telegram do
   Adds Telegram bot token to the URL.
   Used with Req.
   """
-  @spec add_auth_header(Plug.Conn.t()) :: Plug.Conn.t()
-  def add_auth_header(%Plug.Conn{} = conn) do
+  @spec add_auth_header(Lux.Lens.t()) :: Lux.Lens.t()
+  def add_auth_header(%Lux.Lens{} = lens) do
     token = Lux.Config.telegram_bot_token()
-    path = conn.request_path
+    url = lens.url
     
     # Extract and replace bot token placeholder if needed
-    updated_path = if String.contains?(path, "/bot/"), do: 
-      String.replace(path, "/bot/", "/bot#{token}/"), 
+    updated_url = if String.contains?(url, "/bot/"), do: 
+      String.replace(url, "/bot/", "/bot#{token}/"), 
     else: 
-      path
+      url
       
-    %{conn | request_path: updated_path}
+    %{lens | url: updated_url}
   end
 end 
