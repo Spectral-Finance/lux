@@ -83,7 +83,8 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      {:benchee, "~> 1.0", only: [:dev, :test]}
     ]
   end
 

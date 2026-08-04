@@ -174,5 +174,78 @@ defmodule Lux.Integrations.Telegram.ClientTest do
         assert body == %{"unexpected" => "format"}
       end
     end
+
+    test "returns :missing_token error when token is missing" do
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> nil end] do
+        assert {:error, :missing_token} = Client.request(:get, "/getMe")
+      end
+
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> "" end] do
+        assert {:error, :missing_token} = Client.request(:get, "/getMe")
+      end
+    end
+
+    test "handles 429 rate limiting with eventual success" do
+      api_key = @mock_api_key
+
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        # First request returns 429
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(429, Jason.encode!(%{
+            "ok" => false,
+            "error_code" => 429,
+            "description" => "Too Many Requests: retry after 0",
+            "parameters" => %{"retry_after" => 0}
+          }))
+        end)
+
+        # Second request (retry) returns 200
+        Req.Test.expect(TelegramClientMock, fn conn ->
+          conn
+          |> Plug.Conn.put_resp_content_type("application/json")
+          |> Plug.Conn.send_resp(200, Jason.encode!(%{"ok" => true}))
+        end)
+
+        assert {:ok, %{"ok" => true}} = Client.request(:post, "/sendMessage")
+      end
+    end
+
+    test "handles 429 rate limiting with max retries exceeded terminal error" do
+      api_key = @mock_api_key
+
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        # 1 initial request + 3 retries = 4 requests
+        for _ <- 1..4 do
+          Req.Test.expect(TelegramClientMock, fn conn ->
+            conn
+            |> Plug.Conn.put_resp_content_type("application/json")
+            |> Plug.Conn.send_resp(429, Jason.encode!(%{
+              "ok" => false,
+              "error_code" => 429,
+              "description" => "Too Many Requests: retry after 0"
+            }))
+          end)
+        end
+
+        assert {:error, :rate_limit_exceeded} = Client.request(:post, "/sendMessage")
+      end
+    end
+
+    test "redacts token from error messages on transport failure" do
+      api_key = "secret_bot_token_123"
+
+      with_mock Lux.Config, [:passthrough], [telegram_bot_token: fn -> api_key end] do
+        Req.Test.expect(TelegramClientMock, fn _conn ->
+          raise RuntimeError, "Connection failed to https://api.telegram.org/bot#{api_key}/sendMessage"
+        end)
+
+        assert {:error, exception} = Client.request(:post, "/sendMessage")
+        msg = Exception.message(exception)
+        assert msg =~ "***"
+        refute msg =~ api_key
+      end
+    end
   end
 end

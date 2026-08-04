@@ -49,38 +49,66 @@ defmodule Lux.Integrations.Telegram.Client do
   @spec request(atom(), String.t(), request_opts()) :: {:ok, map()} | {:error, term()}
   def request(method, path, opts \\ %{}) do
     token = opts[:token] || Lux.Config.telegram_bot_token()
-    url = @endpoint <> token <> path
 
-    [
-      method: method,
-      url: url,
-      headers: [
-        {"Content-Type", "application/json"}
-      ],
-      json: opts[:json]
-    ]
-    |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
-    |> maybe_add_plug(opts[:plug])
-    |> Req.new()
-    |> Req.request()
-    |> case do
-      {:ok, %{status: status} = response} when status in 200..299 ->
-        case response.body do
-          %{"ok" => true} = body -> {:ok, body}
-          body -> {:error, body}
+    if is_nil(token) or token == "" do
+      {:error, :missing_token}
+    else
+      url = @endpoint <> token <> path
+
+      req =
+        [
+          method: method,
+          url: url,
+          headers: [
+            {"Content-Type", "application/json"}
+          ],
+          json: opts[:json]
+        ]
+        |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
+        |> maybe_add_plug(opts[:plug])
+        |> Req.new()
+        |> Req.Request.append_error_steps(redact_token: &redact_token_step(&1, token))
+
+      Lux.Integrations.Telegram.Queue.enqueue(fn ->
+        req
+        |> Req.request()
+        |> case do
+          {:ok, %{status: status} = response} when status in 200..299 ->
+            case response.body do
+              %{"ok" => true} = body -> {:ok, body}
+              body -> {:error, body}
+            end
+
+          {:ok, %{status: 401}} ->
+            {:error, :invalid_token}
+
+          {:ok, %{status: 429, body: %{"parameters" => %{"retry_after" => retry_after}}}} ->
+            {:error, {:rate_limited, retry_after}}
+
+          {:ok, %{status: 429, body: %{"description" => desc}}} ->
+            # Fallback if parameters.retry_after is missing
+            {:error, {:rate_limited, desc}}
+
+          {:ok, %{status: status, body: %{"description" => message}}} ->
+            {:error, {status, message}}
+
+          {:ok, %{status: status, body: body}} ->
+            {:error, {status, body}}
+
+          {:error, error} ->
+            {:error, error}
         end
+      end)
+    end
+  end
 
-      {:ok, %{status: 401}} ->
-        {:error, :invalid_token}
-
-      {:ok, %{status: status, body: %{"description" => message}}} ->
-        {:error, {status, message}}
-
-      {:ok, %{status: status, body: body}} ->
-        {:error, {status, body}}
-
-      {:error, error} ->
-        {:error, error}
+  defp redact_token_step({request, exception}, token) do
+    if Exception.message(exception) =~ token do
+      redacted_msg = String.replace(Exception.message(exception), token, "***")
+      # We create a new generic exception with the redacted message
+      {request, RuntimeError.exception(redacted_msg)}
+    else
+      {request, exception}
     end
   end
 

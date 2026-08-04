@@ -75,6 +75,10 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
         allow_sending_without_reply: %{
           type: :boolean,
           description: "Pass True if the message should be sent even if the specified replied-to message is not found"
+        },
+        reply_markup: %{
+          type: :object,
+          description: "Additional interface options. A JSON-serialized object for an inline keyboard, custom reply keyboard, instructions to remove reply keyboard or to force a reply from the user."
         }
       },
       required: ["chat_id", "text"]
@@ -123,7 +127,8 @@ defmodule Lux.Prisms.Telegram.Messages.SendMessage do
       # Build the request body
       request_body = Map.take(params, [:chat_id, :text, :parse_mode, :disable_web_page_preview,
                                 :disable_notification, :protect_content,
-                                :reply_to_message_id, :allow_sending_without_reply])
+                                :reply_to_message_id, :allow_sending_without_reply,
+                                :reply_markup])
 
       # Prepare request options
       request_opts = %{json: request_body}
