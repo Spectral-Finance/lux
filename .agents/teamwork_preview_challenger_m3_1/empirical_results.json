@@ -1,0 +1,82 @@
+[
+  {
+    "name": "Header API Key Resolution",
+    "status": "PASS",
+    "details": "Lux.Config.resolve/1 is invoked on config.api_key"
+  },
+  {
+    "name": "Header Site URL Precedence",
+    "status": "PASS",
+    "details": "http_referer preferred over site_url"
+  },
+  {
+    "name": "Header Site Name Precedence",
+    "status": "PASS",
+    "details": "openrouter_title preferred over site_name"
+  },
+  {
+    "name": "Header Empty String Shadowing Vulnerability",
+    "status": "WARN",
+    "details": "In Elixir, empty string \"\" is truthy. If config has `http_referer: \"\"` and `site_url: \"http://...\"`, `\"\" || site_url` evaluates to `\"\"`, ignoring site_url."
+  },
+  {
+    "name": "Header Type Guarding",
+    "status": "FAIL",
+    "details": "Missing type guards on optional headers"
+  },
+  {
+    "name": "Model Slug Resolution",
+    "status": "PASS",
+    "details": "Lux.Config.resolve(config.model) resolves dynamic tuples/slugs"
+  },
+  {
+    "name": "Default Model Fallback",
+    "status": "PASS",
+    "details": "Config fallback to Application.get_env(:lux, :open_router_models)[:default] or 'openai/gpt-4o-mini'"
+  },
+  {
+    "name": "Explicit Nil Model Edge Case",
+    "status": "WARN",
+    "details": "Map.merge(%{model: default_model}, %{model: nil}) results in config.model == nil, which sends null model to OpenRouter API (causes 400 Bad Request)."
+  },
+  {
+    "name": "Missing Usage Fallback Map",
+    "status": "PASS",
+    "details": "Missing 'usage' key defaults to zeroed token map"
+  },
+  {
+    "name": "JSON Null Usage Key Edge Case",
+    "status": "WARN",
+    "details": "When API response contains `\"usage\": null`, `Map.get(body, \"usage\", default)` returns `nil` instead of default map, populating `metadata.usage` with `nil`."
+  },
+  {
+    "name": "401 Unauthorized Handling",
+    "status": "PASS",
+    "details": "401 status maps to {:error, :invalid_api_key}"
+  },
+  {
+    "name": "Structured & Unstructured HTTP Error Handling",
+    "status": "PASS",
+    "details": "Handles nested %{error => %{message}}, top-level %{error => msg}, and raw status bodies"
+  },
+  {
+    "name": "Network Timeout / Transport Error Handling",
+    "status": "PASS",
+    "details": "{:error, error} caught and formatted by handle_error/1"
+  },
+  {
+    "name": "Tool Execution Dispatcher",
+    "status": "PASS",
+    "details": "execute_tool_calls/1 handles list of tool calls"
+  },
+  {
+    "name": "Missing Tool Module Handling",
+    "status": "PASS",
+    "details": "Catches missing tool module and returns formatted error tuple"
+  },
+  {
+    "name": "Tool Execution Exception Safety",
+    "status": "WARN",
+    "details": "Tool call execution (handler/run/focus) is not wrapped in try/rescue. If a tool raises an unhandled exception or crashes, OpenRouter.call/3 will crash."
+  }
+]

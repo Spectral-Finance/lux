@@ -110,7 +110,7 @@ defmodule Lux.Lens do
       def after_focus(body), do: {:ok, body}
       def before_focus(params), do: params
 
-      defoverridable after_focus: 1, before_focus: 1
+      defoverridable after_focus: 1, before_focus: 1, focus: 2
     end
   end
 

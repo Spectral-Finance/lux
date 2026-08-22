@@ -10,7 +10,8 @@ defmodule Lux.Application do
       {Task.Supervisor, name: Lux.ScheduledTasksSupervisor},
       Lux.NodeJS,
       {Lux.Agent.Supervisor, []},
-      Lux.AgentHub
+      Lux.AgentHub,
+      Lux.Binance.RateLimiter
     ] ++ optional_children()
 
     opts = [strategy: :one_for_one, name: Lux.Supervisor]
