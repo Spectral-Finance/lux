@@ -12,6 +12,15 @@ defmodule LuxAppWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+  end
+
+  pipeline :auth_required do
+    plug LuxAppWeb.Plugs.RequireAuth
+  end
+
+  pipeline :admin_required do
+    plug LuxAppWeb.Plugs.RequireAuth, role: "admin"
   end
 
   scope "/", LuxAppWeb do
@@ -20,18 +29,31 @@ defmodule LuxAppWeb.Router do
     live "/", NodeEditorLive
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", LuxAppWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", LuxAppWeb do
+    pipe_through :api
 
-  # Enable LiveDashboard and Swoosh mailbox preview in development
+    scope "/auth" do
+      get "/nonce", AuthController, :nonce
+      post "/verify", AuthController, :verify
+      post "/logout", AuthController, :logout
+    end
+
+    # Authenticated User API routes
+    scope "/secure" do
+      pipe_through [:auth_required]
+      
+      get "/profile", ProfileController, :show
+    end
+
+    # Authenticated Admin API routes (RBAC Enforcement)
+    scope "/admin" do
+      pipe_through [:admin_required]
+
+      get "/dashboard", AdminController, :index
+    end
+  end
+
   if Application.compile_env(:lux_app, :dev_routes) do
-    # If you want to use the LiveDashboard in production, you should put
-    # it behind authentication and allow only admins to access it.
-    # If your application does not have an admins-only section yet,
-    # you can use Plug.BasicAuth to set up some basic authentication
-    # as long as you are also using SSL (which you should anyway).
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do

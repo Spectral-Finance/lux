@@ -35,3 +35,7 @@ config :phoenix, :plug_init_mode, :runtime
 # Enable helpful, but potentially expensive runtime checks
 config :phoenix_live_view,
   enable_expensive_runtime_checks: true
+
+# Auth Mocks for testing environment
+config :lux_app, :eip1271_verifier, LuxAppWeb.Auth.MockVerifier
+config :lux_app, :token_gater_adapter, LuxAppWeb.Auth.MockTokenGater
