@@ -14,6 +14,7 @@ defmodule LuxApp.Application do
       {Phoenix.PubSub, name: LuxApp.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: LuxApp.Finch},
+      LuxApp.TxManager.GasOracle,
       # Start a worker by calling: LuxApp.Worker.start_link(arg)
       # {LuxApp.Worker, arg},
       # Start to serve requests, typically the last entry

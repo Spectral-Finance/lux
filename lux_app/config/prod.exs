@@ -16,5 +16,8 @@ config :swoosh, local: false
 # Do not print debug messages in production
 config :logger, level: :info
 
+# Production TxManager RPCAdapter contract
+config :lux_app, :rpc_adapter, LuxApp.TxManager.RealRPC
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
