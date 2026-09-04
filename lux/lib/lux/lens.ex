@@ -146,15 +146,23 @@ defmodule Lux.Lens do
           headers: headers,
           after_focus: after_focus
         },
-        _opts
+        opts
       ) do
-    [url: url, headers: headers, max_retries: 2]
+    {override_url, params} = if is_map(params), do: Map.pop(params, :url, url), else: {url, params}
+    {path_params, params} = if is_map(params), do: Map.pop(params, :path_params, []), else: {[], params}
+
+    opts_list = if is_map(opts), do: Map.to_list(opts), else: opts || []
+    {with_after_focus, opts_list} = Keyword.pop(opts_list, :with_after_focus, true)
+    after_focus_fn = if with_after_focus, do: after_focus, else: fn body -> {:ok, body} end
+
+    [url: override_url, headers: headers, path_params: path_params, max_retries: 2]
     |> Keyword.merge(Application.get_env(:lux, :req_options, []))
+    |> Keyword.merge(opts_list)
     |> Req.new()
     |> Req.request([method: method] ++ body_or_params(method, params))
     |> case do
       {:ok, %{status: 200, body: body}} ->
-        after_focus.(body)
+        after_focus_fn.(body)
 
       {:ok, response} ->
         {:error, response.body}
@@ -172,8 +180,22 @@ defmodule Lux.Lens do
   def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_binary(key),
     do: update_headers(lens, [{"Authorization", "Bearer #{key}"}])
 
-  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_function(key, 0),
-    do: update_headers(lens, [{"Authorization", "Bearer #{key.()}"}])
+  def authenticate(%__MODULE__{auth: %{type: :api_key, key: key}} = lens) when is_function(key, 0) do
+    token =
+      try do
+        key.()
+      rescue
+        _ -> nil
+      catch
+        _ -> nil
+      end
+
+    if token && token != "" do
+      update_headers(lens, [{"Authorization", "Bearer #{token}"}])
+    else
+      lens
+    end
+  end
 
   def authenticate(
         %__MODULE__{auth: %{type: :basic, username: username, password: password}} = lens

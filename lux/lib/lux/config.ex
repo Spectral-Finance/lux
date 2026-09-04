@@ -63,6 +63,33 @@ defmodule Lux.Config do
   end
 
   @doc """
+  Gets the Telegram Secret token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec telegram_secret_token() :: api_key()
+  def telegram_secret_token do
+    get_required_key(:api_keys, :telegram_secret)
+  end
+
+  @doc """
+  Gets the Twitter Bearer Token from configuration.
+  Raises if the token is not configured.
+  """
+  @spec twitter_bearer_token() :: api_key()
+  def twitter_bearer_token do
+    get_required_key(:api_keys, :twitter_bearer_token)
+  end
+
+  @doc """
+  Gets the Twitter Client ID from configuration.
+  Raises if the client ID is not configured.
+  """
+  @spec twitter_client_id() :: api_key()
+  def twitter_client_id do
+    get_required_key(:api_keys, :twitter_client_id)
+  end
+
+  @doc """
   Gets the Discord API key from configuration.
   Raises if the key is not configured.
   """

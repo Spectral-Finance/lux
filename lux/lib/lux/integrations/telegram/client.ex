@@ -48,42 +48,93 @@ defmodule Lux.Integrations.Telegram.Client do
   """
   @spec request(atom(), String.t(), request_opts()) :: {:ok, map()} | {:error, term()}
   def request(method, path, opts \\ %{}) do
-    token = opts[:token] || Lux.Config.telegram_bot_token()
-    url = @endpoint <> token <> path
+    opts_list = if is_map(opts), do: Map.to_list(opts), else: opts || []
+    opts_map = Map.new(opts_list)
 
-    [
-      method: method,
-      url: url,
-      headers: [
-        {"Content-Type", "application/json"}
-      ],
-      json: opts[:json]
+    token = opts_map[:token] || Lux.Config.telegram_bot_token()
+    url = @endpoint <> to_string(token) <> path
+
+    middleware_keys = [
+      :sleep_fun,
+      :max_retries,
+      :max_rate_limit_retries,
+      :base_backoff,
+      :max_backoff,
+      :backoff_factor
     ]
-    |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
-    |> maybe_add_plug(opts[:plug])
-    |> Req.new()
-    |> Req.request()
-    |> case do
-      {:ok, %{status: status} = response} when status in 200..299 ->
-        case response.body do
-          %{"ok" => true} = body -> {:ok, body}
-          body -> {:error, body}
-        end
 
-      {:ok, %{status: 401}} ->
-        {:error, :invalid_token}
+    app_env_opts = Keyword.drop(Application.get_env(:lux, __MODULE__, []), middleware_keys)
 
-      {:ok, %{status: status, body: %{"description" => message}}} ->
-        {:error, {status, message}}
+    headers = opts_map[:headers] || [{"Content-Type", "application/json"}]
 
-      {:ok, %{status: status, body: body}} ->
-        {:error, {status, body}}
+    req_opts =
+      [
+        method: method,
+        url: url,
+        headers: headers,
+        retry: false
+      ]
+      |> maybe_add_json(opts_map[:json])
+      |> Keyword.merge(app_env_opts)
+      |> maybe_add_plug(opts_map[:plug])
 
-      {:error, error} ->
-        {:error, error}
+    middleware_opts =
+      Application.get_env(:lux, __MODULE__, [])
+      |> Keyword.merge(opts_list)
+
+    try do
+      req_opts
+      |> Req.new()
+      |> Lux.Telegram.Middleware.RateLimit.attach(middleware_opts)
+      |> Lux.Telegram.Middleware.Retry.attach(middleware_opts)
+      |> Req.request()
+      |> case do
+        {:ok, %{status: status} = response} when status in 200..299 ->
+          case response.body do
+            %{"ok" => true} = body -> {:ok, body}
+            body -> {:error, body}
+          end
+
+        {:ok, %{status: 401}} ->
+          {:error, :invalid_token}
+
+        {:ok, %{status: 429, body: %{"parameters" => %{"retry_after" => _}} = body}} ->
+          {:error, {429, body}}
+
+        {:ok, %{status: 429, body: %{parameters: %{retry_after: _}} = body}} ->
+          {:error, {429, body}}
+
+        {:ok, %{status: status, body: %{"description" => message}}} ->
+          {:error, {status, message}}
+
+        {:ok, %{status: status, body: body}} ->
+          {:error, {status, body}}
+
+        {:error, error} ->
+          {:error, error}
+      end
+    rescue
+      e -> {:error, e}
     end
+  end
+
+  @doc """
+  Downloads a file from Telegram by file_path or file_id.
+  """
+  def download_file(file_path_or_id, opts \\ %{}) do
+    Lux.Telegram.Media.download_file(file_path_or_id, opts)
+  end
+
+  @doc """
+  Gets file info for a given file_id.
+  """
+  def get_file(file_id, opts \\ %{}) do
+    Lux.Telegram.Media.get_file(file_id, opts)
   end
 
   defp maybe_add_plug(options, nil), do: options
   defp maybe_add_plug(options, plug), do: Keyword.put(options, :plug, plug)
+
+  defp maybe_add_json(options, nil), do: options
+  defp maybe_add_json(options, json), do: Keyword.put(options, :json, json)
 end

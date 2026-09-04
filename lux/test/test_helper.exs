@@ -1,4 +1,4 @@
-ExUnit.start(exclude: [:skip, :integration, :unit])
+ExUnit.start(exclude: [:skip, :integration])
 
 defmodule UnitAPICase do
   @moduledoc false
@@ -24,6 +24,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
+    Application.put_env(:lux, Lux.Telegram.Client, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
     :ok
   end

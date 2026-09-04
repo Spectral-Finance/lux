@@ -275,7 +275,7 @@ defmodule Lux.Agent do
 
       def terminate(_reason, _agent), do: :ok
 
-      defoverridable chat: 3
+      defoverridable chat: 3, handle_signal: 2
     end
   end
 

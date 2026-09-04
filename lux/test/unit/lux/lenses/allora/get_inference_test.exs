@@ -20,8 +20,8 @@ defmodule Lux.Lenses.Allora.GetInferenceTest do
     test "successfully fetches inference by topic ID" do
       Req.Test.expect(Lux.Lens, fn conn ->
         assert conn.method == "GET"
-        assert String.contains?(conn.query_string, "allora_topic_id%3D1")
-        assert String.contains?(conn.query_string, "inference_value_type%3Duint256")
+        assert String.contains?(conn.query_string, "allora_topic_id=1")
+        assert String.contains?(conn.query_string, "inference_value_type=uint256")
 
         conn
         |> Plug.Conn.put_resp_content_type("application/json")

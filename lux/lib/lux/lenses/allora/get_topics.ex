@@ -102,14 +102,14 @@ defmodule Lux.Lenses.Allora.GetTopics do
       {:ok, [%{topic_id: 1, topic_name: "BTC/USD", ...}]}
   """
   @impl true
-  def after_focus(%{"data" => %{"topics" => topics}} = response) do
+  def after_focus(%{"data" => %{"topics" => topics}} = _response) do
     Logger.info("Successfully fetched #{length(topics)} topics from Allora API (chain_id: #{Allora.chain_id()})")
 
     transformed_topics = Enum.map(topics, &transform_topic/1)
     {:ok, transformed_topics}
   end
 
-  def after_focus(%{"error" => error} = response) do
+  def after_focus(%{"error" => error} = _response) do
     Logger.error("Failed to fetch topics from Allora API (chain_id: #{Allora.chain_id()}) - Error: #{inspect(error)}")
     {:error, error}
   end

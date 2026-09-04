@@ -53,12 +53,7 @@ defmodule Lux.MixProject do
   defp aliases do
     [
       "test.unit": "test --include unit",
-      "test.integration": "test --include integration",
-      coveralls: "coveralls",
-      "coveralls.detail": "coveralls.detail",
-      "coveralls.post": "coveralls.post",
-      "coveralls.html": "coveralls.html",
-      "coveralls.github": "coveralls.github"
+      "test.integration": "test --include integration"
     ]
   end
 
@@ -90,6 +85,12 @@ defmodule Lux.MixProject do
   def cli do
     [
       preferred_envs: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test,
+        "coveralls.json": :test,
+        "coveralls.github": :test,
         "test.integration": :test,
         "test.unit": :test
       ]
@@ -136,6 +137,7 @@ defmodule Lux.MixProject do
         "guides/prisms.livemd",
         "guides/signals.livemd",
         "guides/lenses.livemd",
+        "guides/telegram.livemd",
         "guides/language_support.md",
         "guides/language_support/python.livemd",
         "guides/language_support/nodejs.livemd",

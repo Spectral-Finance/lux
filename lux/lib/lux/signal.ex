@@ -55,6 +55,8 @@ defmodule Lux.Signal do
       end
 
       def schema_id, do: @schema_module
+
+      defoverridable new: 1, schema_id: 0
     end
   end
 
