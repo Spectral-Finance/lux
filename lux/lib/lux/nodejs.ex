@@ -46,16 +46,28 @@ defmodule Lux.NodeJS do
       iex> Lux.NodeJS.eval("export const main = () => os.getenv('TEST')", env: %{"TEST" => "value"})
       {:ok, "value"}
   """
-  @spec eval(String.t(), eval_options()) :: {:ok, term()} | {:error, String.t()}
+  @spec eval(String.t(), eval_options()) :: {:ok, term()} | {:error, String.t() | :timeout}
   def eval(code, opts \\ []) do
     {variables, opts} = Keyword.pop(opts, :variables, %{})
+    {timeout, _opts} = Keyword.pop(opts, :timeout, 30_000)
+
+    start_time = System.monotonic_time(:millisecond)
 
     code
     |> do_eval(variables, opts, &NodeJS.call/3)
     |> case do
-      {:ok, result} -> {:ok, result}
-      {:error, "Call timed out."} -> {:error, :timeout}
-      {:error, error} -> {:error, error}
+      {:ok, result} ->
+        if timeout != :infinity && System.monotonic_time(:millisecond) - start_time > timeout do
+          {:error, :timeout}
+        else
+          {:ok, result}
+        end
+
+      {:error, "Call timed out."} ->
+        {:error, :timeout}
+
+      {:error, error} ->
+        {:error, error}
     end
   end
 
@@ -64,7 +76,17 @@ defmodule Lux.NodeJS do
   """
   def eval!(code, opts \\ []) do
     {variables, opts} = Keyword.pop(opts, :variables, %{})
-    do_eval(code, variables, opts, &NodeJS.call!/3)
+    {timeout, _opts} = Keyword.pop(opts, :timeout, 30_000)
+
+    start_time = System.monotonic_time(:millisecond)
+
+    result = do_eval(code, variables, opts, &NodeJS.call!/3)
+
+    if timeout != :infinity && System.monotonic_time(:millisecond) - start_time > timeout do
+      raise NodeJS.Error, "Call timed out."
+    else
+      result
+    end
   end
 
   @doc """
@@ -80,7 +102,7 @@ defmodule Lux.NodeJS do
 
   @doc """
   Attempts to import a Node.js package.
-  Currently, it will modify `priv/node/package.json` and `priv/node/package_lock.json` files.
+  Currently, it will modify `priv/node/package.json` and `priv/node/package-lock.json` files.
 
   ## Options
 
