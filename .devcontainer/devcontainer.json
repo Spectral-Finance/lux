@@ -1,3 +1,4 @@
+```json
 {
     "name": "Lux Development Environment",
     "dockerFile": "Dockerfile",
@@ -104,3 +105,4 @@
         "LIVEBOOK_TOKEN_ENABLED": "false"
     }
 }
+```
