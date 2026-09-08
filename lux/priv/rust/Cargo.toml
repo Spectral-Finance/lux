@@ -1,0 +1,15 @@
+[package]
+name = "lux_core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Lux core Rust NIF bindings: FFI, type conversion, and error propagation"
+repository = "https://github.com/Spectral-Finance/lux"
+publish = false
+
+[lib]
+name = "lux_core"
+crate-type = ["cdylib"]
+
+[dependencies]
+rustler = "0.36"

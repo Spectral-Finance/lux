@@ -51,3 +51,9 @@ node_modules/
 
 # Dialyzer
 priv/plts/
+
+# Rust / Rustler
+priv/rust/target/
+priv/native/*.so
+priv/native/*.dll
+priv/native/*.dylib

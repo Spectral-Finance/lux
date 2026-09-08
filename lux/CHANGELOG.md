@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Rust core integration (`Lux.Rust`): NIF crate in `priv/rust`, type conversion, tagged error propagation, and dirty-CPU FFI. See `guides/language_support/rust.livemd`.
+
+# Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),

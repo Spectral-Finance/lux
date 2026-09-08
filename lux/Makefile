@@ -160,6 +160,7 @@ setup-asdf: ## Install asdf plugins and tools
 	@asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git || true
 	@asdf plugin add python https://github.com/danhper/asdf-python.git || true
 	@asdf plugin add poetry https://github.com/asdf-community/asdf-poetry.git || true
+	@asdf plugin add rust https://github.com/asdf-community/asdf-rust.git || true
 	@echo "Installing tools with asdf..."
 	@asdf install
 

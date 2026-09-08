@@ -12,7 +12,7 @@ Lux is a powerful language-agnostic framework for building intelligent, adaptive
 ## Why Lux?
 
 - 🧠 **Self-Improving Agents**: Agents with built-in reflection capabilities (coming soon)
-- 🚀 **Language Agnostic**: Build agents in your favorite programming language
+- 🚀 **Language Agnostic**: Build agents in Elixir, Python, Node.js, and Rust (NIF core in `priv/rust`)
 - 🔄 **Type-Safe Communication**: Structured data flow with schema validation
 - 🤖 **AI-First**: Deep LLM integration with advanced prompting and context management
 - 🔌 **Extensible**: Easy integration with external services and APIs
