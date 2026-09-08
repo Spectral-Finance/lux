@@ -1,0 +1,123 @@
+# Rust Language Support
+
+```elixir
+Mix.install([
+  {:lux, path: "."}
+])
+```
+
+Lux can run Prisms and Beams implemented in Rust. The `lux_core` crate in
+`priv/rust` is compiled as a [Rustler](https://github.com/rusterlium/rustler)
+NIF. Elixir terms are copied into owned Rust values before work starts, so
+handlers never retain BEAM pointers. Failures come back as `{:error, reason}`
+and do not panic across the FFI boundary.
+
+## Why a NIF?
+
+Python and Node adapters already exist. Rust is for work that should:
+
+* stay memory-safe without a GC pause on the BEAM scheduler
+* run CPU-heavy loops on a **dirty CPU scheduler**
+* optionally `await` on a shared Tokio runtime without stalling a normal scheduler
+
+## Check that the NIF loaded
+
+```elixir
+Lux.Rust.available?()
+```
+
+```elixir
+Lux.Rust.version()
+```
+
+Primitive conversion smoke tests:
+
+```elixir
+Lux.Rust.add(40, 2)
+```
+
+```elixir
+Lux.Rust.echo(%{"n" => 1})
+```
+
+```elixir
+Lux.Rust.fib(10)
+```
+
+## Components
+
+Rust Prisms and Beams register at NIF load. Elixir sees them as `%Lux.Prism{}`
+/ `%Lux.Beam{}` whose `handler` is `{:rust, id}`. Lifecycle is explicit:
+
+```
+uninitialized -> ready -> running -> ready | stopped
+```
+
+`run/3` auto-initializes. Stopped components cannot be re-initialized in the
+same VM.
+
+```elixir
+Lux.Rust.Component.list()
+```
+
+```elixir
+{:ok, prism} = Lux.Rust.Component.view("echo")
+prism.handler
+```
+
+```elixir
+Lux.Rust.Component.run("echo", %{"hello" => "world"})
+```
+
+File-style ids resolve to the same component:
+
+```elixir
+Lux.Rust.Component.run("echo.rs", %{"n" => 42})
+```
+
+`Lux.Prism.run/2` dispatches `{:rust, id}` the same way it dispatches Python
+and Node handlers:
+
+```elixir
+{:ok, prism} = Lux.Rust.Component.view("fib")
+Lux.Prism.run(prism, 10)
+```
+
+## Built-in examples
+
+| id | kind | input | output |
+| --- | --- | --- | --- |
+| `echo` | prism | any convertible term | the same term |
+| `hash` | prism | any convertible term | integer |
+| `fib` | prism | integer or `%{"n" => n}` | Fibonacci(n), n <= 92 |
+| `map_get` | prism | `%{"map" => map, "key" => key}` | value |
+| `sleep` | prism (async) | `%{"ms" => n}` | `%{"ok" => true}` |
+| `sequence` | beam | any convertible term | `hash` then `echo` |
+
+Async handlers use a process-wide Tokio runtime. `component_run_async` is a
+dirty CPU NIF so `block_on` cannot stall a normal scheduler.
+
+```elixir
+Lux.Rust.async_available?()
+```
+
+```elixir
+if Lux.Rust.async_available?() do
+  Lux.Rust.Component.run_async("sleep", %{"ms" => 10})
+end
+```
+
+## Safety constraints
+
+* No `unwrap` / `expect` / `panic!` on the NIF boundary.
+* Integers use checked arithmetic; overflow is `{:error, {:runtime, _}}`.
+* Unsupported BEAM terms (PIDs, refs, functions) fail conversion instead of
+  being stored as raw pointers.
+* Dirty CPU for Fibonacci, component `run`, and async `block_on`.
+
+## Adding a component
+
+Implement `Component` in `priv/rust/src/builtins.rs` (or a new module),
+register it from `component::init_registry`, and call
+`Lux.Rust.Component.run("your_id", input)` from Elixir. See
+`examples/rust_components.exs`.

@@ -3,3 +3,4 @@ erlang 27.2
 python 3.12.3
 nodejs 22.13.0
 poetry 2.0.1
+rust 1.83.0

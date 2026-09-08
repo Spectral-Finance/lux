@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Rust core integration (`Lux.Rust`): NIF crate in `priv/rust`, type conversion, tagged error propagation, and dirty-CPU FFI. See `guides/language_support/rust.livemd`.
+- Rust Prisms and Beams (`Lux.Rust.Component`): register native handlers, convert them to `%Lux.Prism{}` / `%Lux.Beam{}` with `handler: {:rust, id}`, and run them through an explicit lifecycle (uninitialized → ready → running → ready | stopped). Async handlers use a shared Tokio runtime. See issue #103.
+
 ## [0.4.0] - 2025-02-20
 
 ### Added

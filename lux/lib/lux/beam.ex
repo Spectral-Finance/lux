@@ -292,6 +292,56 @@ defmodule Lux.Beam do
     }
   end
 
+  @doc """
+  Loads a Rust-defined Beam by file path (`"sequence.rs"`) or registered id.
+  """
+  def view(path) when is_binary(path) do
+    view(path, Path.extname(path))
+  end
+
+  def view(path, ".rs") do
+    case Lux.Rust.Component.view(Path.basename(path, ".rs")) do
+      {:ok, %__MODULE__{} = beam} -> beam
+      {:ok, other} -> other
+      {:error, reason} -> raise "Failed to load rust beam: #{inspect(reason)}"
+    end
+  end
+
+  def view(path, _ext) when is_binary(path) do
+    {:error, "Unsupported beam file: #{path}"}
+  end
+
+  @doc """
+  Runs a Beam struct or a Rust beam id / `"*.rs"` path.
+
+  Elixir beams with a step definition go through `Lux.Beam.Runner`.
+  Rust beams (empty definition, module under `Lux.Rust.Components`)
+  dispatch to `Lux.Rust.Component.run/3`.
+  """
+  def run(beam_or_path, input, opts \\ [])
+
+  def run(%__MODULE__{} = beam, input, opts) do
+    if rust_beam?(beam) do
+      Lux.Rust.Component.run(beam.id, input, opts || %{})
+    else
+      Lux.Beam.Runner.run(beam, input, opts)
+    end
+  end
+
+  def run(path, input, opts) when is_binary(path) do
+    if Path.extname(path) == ".rs" do
+      Lux.Rust.Component.run(Path.basename(path, ".rs"), input, opts || %{})
+    else
+      {:error, "Unsupported beam file: #{path}"}
+    end
+  end
+
+  defp rust_beam?(%__MODULE__{module_name: name}) when is_binary(name) do
+    String.starts_with?(name, "Lux.Rust.Components.")
+  end
+
+  defp rust_beam?(_), do: false
+
   # DSL Macros
   defmacro step(id, module, params, opts \\ []) do
     quote do

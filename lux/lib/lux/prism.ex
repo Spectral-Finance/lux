@@ -150,6 +150,17 @@ defmodule Lux.Prism do
     end
   end
 
+  def view(path, ".rs") do
+    case Lux.Rust.Component.view(Path.basename(path, ".rs")) do
+      {:ok, prism} ->
+        define_module_if_not_exists(prism, path)
+        prism
+
+      {:error, reason} ->
+        raise "Failed to load rust prism: #{inspect(reason)}"
+    end
+  end
+
   def view(path, _ext) do
     {:error, "Unsupported prism file: #{path}"}
   end
@@ -162,6 +173,10 @@ defmodule Lux.Prism do
 
   def run(%__MODULE__{handler: handler}, input, context) when is_function(handler) do
     handler.(input, context)
+  end
+
+  def run(%__MODULE__{handler: {:rust, id}}, input, context) do
+    Lux.Rust.Component.run(id, input, context || %{})
   end
 
   def run(%__MODULE__{handler: {:python, path}}, input, context) do
@@ -180,6 +195,14 @@ defmodule Lux.Prism do
         __lux_function_args__: [input, context]
       }
     )
+  end
+
+  def run(path, ".rs", input, context) do
+    Lux.Rust.Component.run(Path.basename(path, ".rs"), input, context || %{})
+  end
+
+  def run(path, _ext, _input, _context) when is_binary(path) do
+    {:error, "Unsupported prism file: #{path}"}
   end
 
   @optional_callbacks []
@@ -227,6 +250,45 @@ defmodule Lux.Prism do
                   __lux_function_args__: [input, context]
                 }
               )
+            end
+
+            def run(input, context \\ nil) do
+              Lux.Prism.run(__MODULE__, input, context)
+            end
+          end,
+          Macro.Env.location(__ENV__)
+        )
+
+        :ok
+    end
+  end
+
+  defp define_module_if_not_exists(%__MODULE__{module_name: name, handler: {:rust, id}}, _path) do
+    module_name = name |> List.wrap() |> Module.concat()
+
+    case Code.ensure_loaded(module_name) do
+      {:module, defined_module} ->
+        if not Lux.prism?(defined_module) do
+          Logger.warning(
+            "Module #{module_name} already exists but is not a prism. Skipping module creation."
+          )
+        end
+
+        :ok
+
+      {:error, :nofile} ->
+        Module.create(
+          module_name,
+          quote do
+            def view do
+              case Lux.Rust.Component.view(unquote(id)) do
+                {:ok, prism} -> prism
+                {:error, reason} -> raise "Failed to load rust prism: #{inspect(reason)}"
+              end
+            end
+
+            def handler(input, context) do
+              Lux.Rust.Component.run(unquote(id), input, context || %{})
             end
 
             def run(input, context \\ nil) do
