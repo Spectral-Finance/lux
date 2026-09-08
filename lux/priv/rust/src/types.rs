@@ -32,20 +32,21 @@ impl Converted {
         match term.get_type() {
             TermType::Atom => decode_atom(term),
             TermType::Binary => decode_binary(term),
-            TermType::EmptyList => Ok(Converted::List(Vec::new())),
             TermType::List => decode_list(term),
             TermType::Map => decode_map(term),
             TermType::Tuple => decode_tuple(term),
+            TermType::Integer => decode_number(term),
+            TermType::Float => decode_number(term),
             TermType::Pid => Ok(Converted::Pid),
             other => {
-                // rustler 0.35+ uses Integer/Float; older builds used Number.
-                // Try numeric decode first so both layouts work.
+                // rustler <0.35 used Number / EmptyList; keep a fallback.
                 let label = format!("{other:?}");
-                if label.contains("Integer")
-                    || label.contains("Float")
-                    || label.contains("Number")
+                if label.contains("Number") || label.contains("Integer") || label.contains("Float")
                 {
                     decode_number(term)
+                } else if label.contains("EmptyList") || term.decode::<Vec<Term>>().map(|v| v.is_empty()).unwrap_or(false)
+                {
+                    Ok(Converted::List(Vec::new()))
                 } else {
                     Ok(Converted::Other(label.to_lowercase()))
                 }
