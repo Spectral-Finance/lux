@@ -3,7 +3,7 @@ name = "lux_core"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "Lux core Rust NIF bindings: FFI, type conversion, and error propagation"
+description = "Lux core Rust NIF bindings: FFI, type conversion, error propagation, and component traits"
 repository = "https://github.com/Spectral-Finance/lux"
 publish = false
 
@@ -13,3 +13,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.36"
+tokio = { version = "1", default-features = false, features = ["rt-multi-thread", "time", "macros"] }

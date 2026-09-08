@@ -34,7 +34,7 @@ Rust is available as a memory-safe NIF (`Lux.Rust`) compiled from `priv/rust`:
 - Dirty-CPU NIFs for compute-intensive work
 - Access to the Rust crate ecosystem from `priv/rust/Cargo.toml`
 
-> 🔥 **Coming Soon**: Define Prisms, Beams, and other Lux components entirely in Rust (see issue #103).
+You can also define Prisms and Beams in Rust. Register a handler in `priv/rust/src/builtins.rs`, then call `Lux.Rust.Component.view/1` / `Lux.Prism.run/2`. See [Rust integration](language_support/rust.livemd) and issue #103.
 
 ## Future Language Support
 

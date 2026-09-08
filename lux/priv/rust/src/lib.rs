@@ -4,9 +4,13 @@
 //! Failures are returned as `{:error, reason}` terms; they do not panic
 //! across the FFI boundary or take down the BEAM.
 
+mod async_rt;
+mod builtins;
+mod component;
 mod error;
 mod types;
 
+use component::{encode_lifecycle, encode_list, encode_view, nif_result};
 use error::{atoms, LuxError};
 use rustler::{Encoder, Env, Term};
 use types::Converted;
@@ -14,6 +18,7 @@ use types::Converted;
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 fn load(_env: Env, _info: Term) -> bool {
+    component::init_registry();
     true
 }
 
@@ -23,6 +28,18 @@ fn ok<'a>(env: Env<'a>, value: impl Encoder) -> Term<'a> {
 
 fn err<'a>(env: Env<'a>, error: LuxError) -> Term<'a> {
     (atoms::error(), error.reason_tuple(env)).encode(env)
+}
+
+fn decode_id(term: Term<'_>) -> Result<String, LuxError> {
+    match Converted::from_term(term) {
+        Ok(Converted::String(s) | Converted::Atom(s)) => Ok(s),
+        Ok(other) => Err(LuxError::type_error("string or atom id", other.type_name())),
+        Err(_) => Err(LuxError::conversion("failed to decode component id")),
+    }
+}
+
+fn decode_converted(term: Term<'_>) -> Result<Converted, LuxError> {
+    Converted::from_term(term).map_err(|_| LuxError::conversion("failed to decode term"))
 }
 
 #[rustler::nif]
@@ -107,6 +124,88 @@ fn fib(env: Env, n: u64) -> Term {
 #[rustler::nif]
 fn wrap_ok<'a>(env: Env<'a>, term: Term<'a>) -> Term<'a> {
     ok(env, term)
+}
+
+/// List registered Rust Prisms and Beams.
+#[rustler::nif]
+fn component_list(env: Env) -> Term {
+    ok(env, encode_list(env))
+}
+
+/// Return a `%Lux.Prism{}` / `%Lux.Beam{}` view for a registered component.
+#[rustler::nif]
+fn component_view<'a>(env: Env<'a>, id: Term<'a>) -> Term<'a> {
+    match decode_id(id).and_then(|id| encode_view(env, &id)) {
+        Ok(view) => ok(env, view),
+        Err(e) => err(env, e),
+    }
+}
+
+/// Transition a component `uninitialized -> ready`.
+#[rustler::nif]
+fn component_init<'a>(env: Env<'a>, id: Term<'a>) -> Term<'a> {
+    match decode_id(id).and_then(|id| component::init_component(&id)) {
+        Ok(life) => ok(env, encode_lifecycle(env, life)),
+        Err(e) => err(env, e),
+    }
+}
+
+/// Transition a component to `stopped`.
+#[rustler::nif]
+fn component_shutdown<'a>(env: Env<'a>, id: Term<'a>) -> Term<'a> {
+    match decode_id(id).and_then(|id| component::shutdown_component(&id)) {
+        Ok(life) => ok(env, encode_lifecycle(env, life)),
+        Err(e) => err(env, e),
+    }
+}
+
+/// Return the current lifecycle status of a component.
+#[rustler::nif]
+fn component_status<'a>(env: Env<'a>, id: Term<'a>) -> Term<'a> {
+    match decode_id(id).and_then(|id| component::status_component(&id)) {
+        Ok(life) => ok(env, encode_lifecycle(env, life)),
+        Err(e) => err(env, e),
+    }
+}
+
+/// Run a registered Prism or Beam synchronously on a dirty CPU scheduler.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn component_run<'a>(env: Env<'a>, id: Term<'a>, input: Term<'a>, context: Term<'a>) -> Term<'a> {
+    let result = (|| {
+        let id = decode_id(id)?;
+        let input = decode_converted(input)?;
+        let context = decode_converted(context)?;
+        let out = component::run_registered(&id, input, context)?;
+        out.to_term(env)
+            .map_err(|_| LuxError::conversion("failed to encode component result"))
+    })();
+    nif_result(env, result)
+}
+
+/// Run a registered Prism through its async handler (Tokio runtime).
+/// Dirty-CPU so `block_on` does not stall a normal scheduler.
+#[rustler::nif(schedule = "DirtyCpu")]
+fn component_run_async<'a>(
+    env: Env<'a>,
+    id: Term<'a>,
+    input: Term<'a>,
+    context: Term<'a>,
+) -> Term<'a> {
+    let result = (|| {
+        let id = decode_id(id)?;
+        let input = decode_converted(input)?;
+        let context = decode_converted(context)?;
+        let out = component::run_registered_async(&id, input, context)?;
+        out.to_term(env)
+            .map_err(|_| LuxError::conversion("failed to encode component result"))
+    })();
+    nif_result(env, result)
+}
+
+/// Whether the shared Tokio runtime is available.
+#[rustler::nif]
+fn async_available(env: Env) -> Term {
+    async_rt::available().encode(env)
 }
 
 rustler::init!("Elixir.Lux.Rust.Native", load = load);

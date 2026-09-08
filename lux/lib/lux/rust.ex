@@ -7,6 +7,16 @@ defmodule Lux.Rust do
   are converted to owned Rust values, operated on, and encoded back. Failures
   are returned as `{:error, reason}` and never panic across the FFI boundary.
 
+  ## Components
+
+  Rust Prisms and Beams implement native traits and are registered at NIF
+  load. Elixir sees them as `%Lux.Prism{}` / `%Lux.Beam{}` structs whose
+  `handler` is `{:rust, id}`. Lifecycle is explicit:
+
+      uninitialized -> ready -> running -> ready | stopped
+
+  See `Lux.Rust.Component` for view/run/init/shutdown.
+
   ## Examples
 
       iex> Lux.Rust.available?()
@@ -139,9 +149,22 @@ defmodule Lux.Rust do
     end
   end
 
-  defp wrap(fun) do
+  @doc """
+  Returns whether the shared Tokio runtime used by async components is up.
+  """
+  @spec async_available?() :: boolean()
+  def async_available? do
+    Native.async_available() == true
+  rescue
+    _ -> false
+  catch
+    _, _ -> false
+  end
+
+  def wrap(fun) do
     case fun.() do
       {:error, reason} -> {:error, reason}
+      {:ok, value} -> {:ok, value}
       value -> {:ok, value}
     end
   rescue
@@ -170,4 +193,12 @@ defmodule Lux.Rust.Native do
   def type_error, do: :erlang.nif_error(:nif_not_loaded)
   def fib(_n), do: :erlang.nif_error(:nif_not_loaded)
   def wrap_ok(_term), do: :erlang.nif_error(:nif_not_loaded)
+  def component_list, do: :erlang.nif_error(:nif_not_loaded)
+  def component_view(_id), do: :erlang.nif_error(:nif_not_loaded)
+  def component_init(_id), do: :erlang.nif_error(:nif_not_loaded)
+  def component_shutdown(_id), do: :erlang.nif_error(:nif_not_loaded)
+  def component_status(_id), do: :erlang.nif_error(:nif_not_loaded)
+  def component_run(_id, _input, _ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def component_run_async(_id, _input, _ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def async_available, do: :erlang.nif_error(:nif_not_loaded)
 end

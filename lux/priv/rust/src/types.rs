@@ -1,243 +1,174 @@
-//! Bidirectional conversion between Elixir terms and owned Rust values.
+//! Owned conversions between Elixir terms and Rust values.
 //!
-//! Conversion never retains pointers into the BEAM heap. Every decoded value
-//! is copied into an owned `Converted` tree so it is safe to hold across NIF
-//! calls or move onto a dirty scheduler.
+//! Terms are copied into `Converted` so NIFs never retain BEAM pointers
+//! after returning to the scheduler.
 
-use crate::error::{atoms, LuxError};
-use rustler::types::atom::Atom;
+use rustler::types::map::MapIterator;
 use rustler::types::tuple;
-use rustler::{Binary, Decoder, Encoder, Env, ListIterator, MapIterator, NifResult, Term, TermType};
+use rustler::{Encoder, Env, Term, TermType};
+use std::collections::BTreeMap;
 
-/// Owned Rust view of an Elixir term.
+use crate::error::LuxError;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Converted {
     Nil,
-    Boolean(bool),
+    Bool(bool),
     Integer(i64),
     Float(f64),
     Atom(String),
     String(String),
     Binary(Vec<u8>),
     List(Vec<Converted>),
-    Map(Vec<(Converted, Converted)>),
     Tuple(Vec<Converted>),
-    Pid,
-    Other(String),
+    Map(BTreeMap<String, Converted>),
 }
 
 impl Converted {
-    /// Decode any Elixir term into an owned Rust value.
-    pub fn from_term(term: Term<'_>) -> NifResult<Self> {
+    pub fn from_term(term: Term<'_>) -> Result<Self, rustler::Error> {
         match term.get_type() {
-            TermType::Atom => decode_atom(term),
-            TermType::Binary => decode_binary(term),
-            TermType::List => decode_list(term),
-            TermType::Map => decode_map(term),
-            TermType::Tuple => decode_tuple(term),
-            TermType::Integer => decode_number(term),
-            TermType::Float => decode_number(term),
-            TermType::Pid => Ok(Converted::Pid),
-            other => {
-                // rustler <0.35 used Number / EmptyList; keep a fallback.
-                let label = format!("{other:?}");
-                if label.contains("Number") || label.contains("Integer") || label.contains("Float")
-                {
-                    decode_number(term)
-                } else if label.contains("EmptyList") || term.decode::<Vec<Term>>().map(|v| v.is_empty()).unwrap_or(false)
-                {
-                    Ok(Converted::List(Vec::new()))
+            TermType::Atom => {
+                if term.is_atom() {
+                    if let Ok(b) = term.decode::<bool>() {
+                        return Ok(Converted::Bool(b));
+                    }
+                    let name = term.atom_to_string().unwrap_or_else(|_| "nil".into());
+                    if name == "nil" {
+                        Ok(Converted::Nil)
+                    } else {
+                        Ok(Converted::Atom(name))
+                    }
                 } else {
-                    Ok(Converted::Other(label.to_lowercase()))
+                    Ok(Converted::Nil)
                 }
             }
+            TermType::Integer => {
+                let n: i64 = term.decode()?;
+                Ok(Converted::Integer(n))
+            }
+            TermType::Float => {
+                let n: f64 = term.decode()?;
+                Ok(Converted::Float(n))
+            }
+            TermType::Binary => {
+                if let Ok(s) = term.decode::<String>() {
+                    Ok(Converted::String(s))
+                } else {
+                    let bin: rustler::Binary = term.decode()?;
+                    Ok(Converted::Binary(bin.as_slice().to_vec()))
+                }
+            }
+            TermType::List => {
+                let list: Vec<Term> = term.decode()?;
+                let items = list
+                    .into_iter()
+                    .map(Converted::from_term)
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok(Converted::List(items))
+            }
+            TermType::Map => {
+                let mut map = BTreeMap::new();
+                if let Some(iter) = MapIterator::new(term) {
+                    for (k, v) in iter {
+                        let key = match Converted::from_term(k)? {
+                            Converted::Atom(s) | Converted::String(s) => s,
+                            Converted::Integer(n) => n.to_string(),
+                            other => other.type_name().to_string(),
+                        };
+                        map.insert(key, Converted::from_term(v)?);
+                    }
+                }
+                Ok(Converted::Map(map))
+            }
+            TermType::Tuple => {
+                let terms = tuple::get_tuple(term)?;
+                let items = terms
+                    .into_iter()
+                    .map(Converted::from_term)
+                    .collect::<Result<Vec<_>, _>>()?;
+                Ok(Converted::Tuple(items))
+            }
+            other => Err(rustler::Error::Term(Box::new(format!(
+                "unsupported term type: {other:?}"
+            )))),
         }
     }
 
-    /// Encode back to an Elixir term of the original shape (round-trip).
-    pub fn to_term<'a>(&self, env: Env<'a>) -> NifResult<Term<'a>> {
-        match self {
-            Converted::Nil => Ok(atoms::nil().encode(env)),
-            Converted::Boolean(v) => Ok(v.encode(env)),
-            Converted::Integer(v) => Ok(v.encode(env)),
-            Converted::Float(v) => Ok(v.encode(env)),
-            Converted::Atom(name) => {
-                let atom = Atom::from_str(env, name).map_err(|_| {
-                    rustler::Error::from(LuxError::conversion(format!(
-                        "atom name `{name}` is not valid UTF-8 for an atom"
-                    )))
-                })?;
-                Ok(atom.encode(env))
+    pub fn to_term<'a>(&self, env: Env<'a>) -> Result<Term<'a>, rustler::Error> {
+        Ok(match self {
+            Converted::Nil => rustler::types::atom::nil().encode(env),
+            Converted::Bool(b) => b.encode(env),
+            Converted::Integer(n) => n.encode(env),
+            Converted::Float(n) => n.encode(env),
+            Converted::Atom(s) => {
+                rustler::Atom::from_str(env, s)?.encode(env)
             }
-            Converted::String(v) => Ok(v.encode(env)),
-            Converted::Binary(bytes) => {
-                let mut bin = rustler::OwnedBinary::new(bytes.len()).ok_or_else(|| {
-                    rustler::Error::from(LuxError::runtime(
-                        "failed to allocate owned binary for encoding",
-                    ))
-                })?;
-                bin.as_mut_slice().copy_from_slice(bytes);
-                Ok(bin.release(env).encode(env))
+            Converted::String(s) => s.encode(env),
+            Converted::Binary(b) => {
+                let mut owned = rustler::OwnedBinary::new(b.len())
+                    .ok_or_else(|| rustler::Error::Term(Box::new("binary alloc failed")))?;
+                owned.as_mut_slice().copy_from_slice(b);
+                owned.release(env).encode(env)
             }
             Converted::List(items) => {
-                let encoded: NifResult<Vec<Term<'a>>> =
-                    items.iter().map(|item| item.to_term(env)).collect();
-                Ok(encoded?.encode(env))
-            }
-            Converted::Map(pairs) => {
-                let mut map = rustler::Term::map_new(env);
-                for (k, v) in pairs {
-                    map = map
-                        .map_put(k.to_term(env)?, v.to_term(env)?)
-                        .map_err(|_| {
-                            rustler::Error::from(LuxError::conversion(
-                                "failed to insert map pair",
-                            ))
-                        })?;
-                }
-                Ok(map)
+                let terms: Result<Vec<_>, _> = items.iter().map(|i| i.to_term(env)).collect();
+                terms?.encode(env)
             }
             Converted::Tuple(items) => {
-                let encoded: NifResult<Vec<Term<'a>>> =
-                    items.iter().map(|item| item.to_term(env)).collect();
-                Ok(tuple::make_tuple(env, &encoded?))
+                let terms: Result<Vec<_>, _> = items.iter().map(|i| i.to_term(env)).collect();
+                let terms = terms?;
+                tuple::make_tuple(env, &terms)
             }
-            Converted::Pid => Err(LuxError::conversion("cannot re-encode a pid from Rust").into()),
-            Converted::Other(kind) => {
-                Err(LuxError::conversion(format!("cannot re-encode term of type {kind}")).into())
+            Converted::Map(map) => {
+                let mut term = rustler::types::map::map_new(env);
+                for (k, v) in map {
+                    term = term.map_put(k.encode(env), v.to_term(env)?)?;
+                }
+                term
             }
-        }
+        })
+    }
+
+    pub fn describe<'a>(&self, env: Env<'a>) -> Result<Term<'a>, rustler::Error> {
+        let mut m = rustler::types::map::map_new(env);
+        m = m.map_put("type".encode(env), self.type_name().encode(env))?;
+        m = m.map_put("value".encode(env), self.to_term(env)?)?;
+        Ok(m)
     }
 
     pub fn type_name(&self) -> &'static str {
         match self {
             Converted::Nil => "nil",
-            Converted::Boolean(_) => "boolean",
+            Converted::Bool(_) => "boolean",
             Converted::Integer(_) => "integer",
             Converted::Float(_) => "float",
             Converted::Atom(_) => "atom",
             Converted::String(_) => "string",
             Converted::Binary(_) => "binary",
             Converted::List(_) => "list",
-            Converted::Map(_) => "map",
             Converted::Tuple(_) => "tuple",
-            Converted::Pid => "pid",
-            Converted::Other(_) => "other",
+            Converted::Map(_) => "map",
         }
     }
 
-    /// Tagged description: `%{"type" => "integer", "value" => 42}`.
-    pub fn describe<'a>(&self, env: Env<'a>) -> NifResult<Term<'a>> {
-        let mut map = Term::map_new(env);
-        map = map
-            .map_put("type".encode(env), self.type_name().encode(env))
-            .map_err(|_| rustler::Error::from(LuxError::runtime("failed to build description")))?;
+    pub fn as_i64(&self) -> Result<i64, LuxError> {
+        match self {
+            Converted::Integer(n) => Ok(*n),
+            other => Err(LuxError::type_error("integer", other.type_name())),
+        }
+    }
 
-        let value = match self {
-            Converted::Nil => atoms::nil().encode(env),
-            Converted::Boolean(v) => v.encode(env),
-            Converted::Integer(v) => v.encode(env),
-            Converted::Float(v) => v.encode(env),
-            Converted::Atom(v) => v.encode(env),
-            Converted::String(v) => v.encode(env),
-            Converted::Binary(v) => v.len().encode(env),
-            Converted::List(v) => v.len().encode(env),
-            Converted::Map(v) => v.len().encode(env),
-            Converted::Tuple(v) => v.len().encode(env),
-            Converted::Pid => atoms::pid().encode(env),
-            Converted::Other(kind) => kind.encode(env),
-        };
+    pub fn as_map(&self) -> Result<&BTreeMap<String, Converted>, LuxError> {
+        match self {
+            Converted::Map(m) => Ok(m),
+            other => Err(LuxError::type_error("map", other.type_name())),
+        }
+    }
 
-        map = map
-            .map_put("value".encode(env), value)
-            .map_err(|_| rustler::Error::from(LuxError::runtime("failed to build description")))?;
-        Ok(map)
+    pub fn map_get(&self, key: &str) -> Result<&Converted, LuxError> {
+        self.as_map()?
+            .get(key)
+            .ok_or_else(|| LuxError::runtime(format!("missing key {key}")))
     }
 }
 
-fn decode_atom(term: Term<'_>) -> NifResult<Converted> {
-    if term.decode::<bool>().is_ok() {
-        let value: bool = term.decode()?;
-        return Ok(Converted::Boolean(value));
-    }
-
-    let atom = Atom::from_term(term)?;
-    let name = atom
-        .to_term(term.get_env())
-        .atom_to_string()
-        .map_err(|_| rustler::Error::from(LuxError::conversion("atom is not valid UTF-8")))?;
-
-    if name == "nil" {
-        Ok(Converted::Nil)
-    } else {
-        Ok(Converted::Atom(name))
-    }
-}
-
-fn decode_number(term: Term<'_>) -> NifResult<Converted> {
-    if let Ok(v) = i64::decode(term) {
-        return Ok(Converted::Integer(v));
-    }
-    if let Ok(v) = f64::decode(term) {
-        return Ok(Converted::Float(v));
-    }
-    Err(LuxError::type_error("integer or float", "number").into())
-}
-
-fn decode_binary(term: Term<'_>) -> NifResult<Converted> {
-    let binary = Binary::from_term(term).map_err(|_| {
-        rustler::Error::from(LuxError::type_error("binary", term_type_name(term)))
-    })?;
-    let bytes = binary.as_slice().to_vec();
-    match String::from_utf8(bytes.clone()) {
-        Ok(s) => Ok(Converted::String(s)),
-        Err(_) => Ok(Converted::Binary(bytes)),
-    }
-}
-
-fn decode_list(term: Term<'_>) -> NifResult<Converted> {
-    let iter: ListIterator = term.decode()?;
-    let mut items = Vec::new();
-    for item in iter {
-        items.push(Converted::from_term(item)?);
-    }
-    Ok(Converted::List(items))
-}
-
-fn decode_map(term: Term<'_>) -> NifResult<Converted> {
-    let iter = MapIterator::new(term).ok_or_else(|| {
-        rustler::Error::from(LuxError::type_error("map", term_type_name(term)))
-    })?;
-    let mut pairs = Vec::new();
-    for (k, v) in iter {
-        pairs.push((Converted::from_term(k)?, Converted::from_term(v)?));
-    }
-    Ok(Converted::Map(pairs))
-}
-
-fn decode_tuple(term: Term<'_>) -> NifResult<Converted> {
-    let elements = tuple::get_tuple(term).map_err(|_| {
-        rustler::Error::from(LuxError::type_error("tuple", term_type_name(term)))
-    })?;
-    let mut items = Vec::with_capacity(elements.len());
-    for item in elements {
-        items.push(Converted::from_term(item)?);
-    }
-    Ok(Converted::Tuple(items))
-}
-
-fn term_type_name(term: Term<'_>) -> String {
-    format!("{:?}", term.get_type()).to_lowercase()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Converted;
-
-    #[test]
-    fn type_names() {
-        assert_eq!(Converted::Integer(1).type_name(), "integer");
-        assert_eq!(Converted::Nil.type_name(), "nil");
-        assert_eq!(Converted::List(vec![]).type_name(), "list");
-    }
-}
