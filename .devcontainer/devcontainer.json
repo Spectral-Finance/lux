@@ -6,13 +6,23 @@
         "ghcr.io/devcontainers/features/github-cli:1": {},
         "ghcr.io/devcontainers/features/sshd:1": {
             "version": "latest"
-        }
+        },
+        "ghcr.io/devcontainers/features/python:1": {
+            "version": "3.11"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "18"
+        },
+        "ghcr.io/devcontainers/features/docker:1": {},
+        "ghcr.io/devcontainers/features/docker-compose:1": {}
     },
     "forwardPorts": [
-        4000,  // LuxApp Phoenix server
-        4001,  // Livebook
-        8080,  // Additional port for services
-        8081   // Additional port for services
+        4000,
+        4001,
+        8080,
+        8081,
+        5000,
+        8000
     ],
     "portsAttributes": {
         "4000": {
@@ -22,49 +32,46 @@
         "4001": {
             "label": "Livebook",
             "onAutoForward": "notify"
+        },
+        "5000": {
+            "label": "API Server",
+            "onAutoForward": "notify"
+        },
+        "8000": {
+            "label": "Web UI",
+            "onAutoForward": "notify"
         }
     },
     "customizations": {
         "vscode": {
             "extensions": [
-                // Elixir & Phoenix
                 "jakebecker.elixir-ls",
                 "phoenixframework.phoenix",
                 "phoenixframework.phoenix-liveview-snippets",
                 "pgourlain.erlang",
                 "valentin.beamdasm",
-
-                // Python
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-python.debugpy",
-
-                // JavaScript/TypeScript
                 "dbaeumer.vscode-eslint",
                 "esbenp.prettier-vscode",
                 "graphql.vscode-graphql",
                 "graphql.vscode-graphql-syntax",
-
-                // Git & GitHub
                 "github.copilot",
                 "github.vscode-github-actions",
                 "github.vscode-pull-request-github",
                 "eamodio.gitlens",
-
-                // Database
                 "ckolkman.vscode-postgres",
-
-                // Docker
                 "ms-azuretools.vscode-docker",
-
-                // General Development
                 "irongeek.vscode-env",
                 "oderwat.indent-rainbow",
                 "yzhang.markdown-all-in-one",
                 "ms-vsliveshare.vsliveshare",
-
-                // New additions
-                "ms-vscode.vscode-typescript-tdd"
+                "ms-vscode.vscode-typescript-tdd",
+                "ms-python.black-formatter",
+                "ms-python.isort",
+                "ms-python.flake8",
+                "ms-python.mypy-type-checker"
             ],
             "settings": {
                 "elixirLS.suggestSpecs": true,
@@ -95,12 +102,14 @@
             }
         }
     },
-    "postCreateCommand": "chmod +x scripts/welcome.sh && chmod +x scripts/configure-codespace-gpg.sh && ./scripts/configure-codespace-gpg.sh",
+    "postCreateCommand": "chmod +x scripts/welcome.sh && chmod +x scripts/configure-codespace-gpg.sh && ./scripts/configure-codespace-gpg.sh && sudo apt-get update && sudo apt-get install -y ffmpeg && pip install -r requirements.txt && npm install",
     "postStartCommand": "echo 'source ${containerWorkspaceFolder}/scripts/welcome.sh' >> ~/.bashrc",
     "remoteUser": "vscode",
     "remoteEnv": {
         "MIX_ENV": "dev",
         "LIVEBOOK_PORT": "4001",
-        "LIVEBOOK_TOKEN_ENABLED": "false"
+        "LIVEBOOK_TOKEN_ENABLED": "false",
+        "OPENAI_API_KEY": "",
+        "YOUTUBE_API_KEY": ""
     }
 }
