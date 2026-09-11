@@ -80,7 +80,7 @@ defmodule Lux.Agent.Companies.SignalHandler do
   ]
 
   defmacro __using__(_opts) do
-    quote location: :keep do
+    quote do
       @behaviour Lux.Agent.Companies.SignalHandler
 
       @signal_handler_functions {TaskSignal, {__MODULE__, :handle_task_signal}}

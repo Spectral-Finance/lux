@@ -3,10 +3,11 @@ defmodule Lux.LLM.OpenAI do
   OpenAI LLM implementation that supports passing Beams, Prisms, and Lenses as tools.
   """
 
-  @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
+  alias Lux.LLM.ModelConfig
   alias Lux.LLM.ResponseSignal
   alias Lux.Prism
 
@@ -15,6 +16,42 @@ defmodule Lux.LLM.OpenAI do
   require Logger
 
   @endpoint "https://api.openai.com/v1/chat/completions"
+
+  @impl Lux.LLM.Provider
+  def id, do: :openai
+
+  @impl Lux.LLM.Provider
+  def models do
+    [
+      %ModelConfig{
+        id: "gpt-4o",
+        name: "GPT-4o",
+        provider_id: :openai,
+        cost_per_1k_prompt_tokens: 0.0025,
+        cost_per_1k_completion_tokens: 0.010,
+        capabilities: [:tools, :json_schema, :vision],
+        context_window: 128_000
+      },
+      %ModelConfig{
+        id: "gpt-4o-mini",
+        name: "GPT-4o Mini",
+        provider_id: :openai,
+        cost_per_1k_prompt_tokens: 0.00015,
+        cost_per_1k_completion_tokens: 0.0006,
+        capabilities: [:tools, :json_schema, :vision],
+        context_window: 128_000
+      },
+      %ModelConfig{
+        id: "gpt-4",
+        name: "GPT-4",
+        provider_id: :openai,
+        cost_per_1k_prompt_tokens: 0.03,
+        cost_per_1k_completion_tokens: 0.06,
+        capabilities: [:tools],
+        context_window: 8192
+      }
+    ]
+  end
 
   defmodule Config do
     @moduledoc """
@@ -57,19 +94,9 @@ defmodule Lux.LLM.OpenAI do
               messages: []
   end
 
-  @impl true
+  @impl Lux.LLM.Provider
   def call(prompt, tools, config) do
-    config =
-      struct(
-        Config,
-        Map.merge(
-          %{
-            model: Application.get_env(:lux, :open_ai_models)[:default],
-            api_key: Application.get_env(:lux, :api_keys)[:openai]
-          },
-          config
-        )
-      )
+    config = normalize_config(config)
 
     messages = config.messages ++ build_messages(prompt)
     tools_config = build_tools_config(tools)
@@ -86,7 +113,7 @@ defmodule Lux.LLM.OpenAI do
       |> maybe_add_response_format(config)
 
     [
-      url: @endpoint,
+      url: Lux.Config.resolve(config.endpoint || @endpoint),
       json: body,
       headers: [
         {"Authorization", "Bearer #{Lux.Config.resolve(config.api_key)}"},
@@ -96,20 +123,38 @@ defmodule Lux.LLM.OpenAI do
     |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
     |> Req.new()
     |> Req.post()
-    |> case do
-      {:ok, %{status: 200} = response} ->
-        handle_response(response, config)
-
-      {:ok, %{status: 401}} ->
-        {:error, :invalid_api_key}
-
-      {:ok, %{status: status, body: %{"error" => %{"message" => message}}}} ->
-        {:error, {status, message}}
-
-      {:error, error} ->
-        handle_error(error)
-    end
+    |> handle_req_response(config)
   end
+
+  defp normalize_config(config) do
+    opts_map =
+      case config do
+        %_{} -> Map.from_struct(config)
+        %{} -> config
+        list when is_list(list) -> Enum.into(list, %{})
+        _ -> %{}
+      end
+
+    struct(
+      Config,
+      Map.merge(
+        %{
+          model: Application.get_env(:lux, :open_ai_models)[:default] || "gpt-4",
+          api_key: Application.get_env(:lux, :api_keys)[:openai]
+        },
+        opts_map
+      )
+    )
+  end
+
+  defp handle_req_response({:ok, %{status: 200} = response}, config), do: handle_response(response, config)
+  defp handle_req_response({:ok, %{status: 401}}, _config), do: {:error, :invalid_api_key}
+
+  defp handle_req_response({:ok, %{status: status, body: %{"error" => %{"message" => message}}}}, _config) do
+    {:error, {status, message}}
+  end
+
+  defp handle_req_response({:error, error}, _config), do: handle_error(error)
 
   defp build_messages(prompt) do
     [%{role: "user", content: prompt}]

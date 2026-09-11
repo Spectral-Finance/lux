@@ -9,6 +9,11 @@ config :lux, :open_ai_models,
 config :lux, :together_ai_models,
   default: "mistralai/Mistral-7B-Instruct-v0.2"
 
+config :lux, :open_router_models,
+  cheapest: "openai/gpt-4o-mini",
+  default: "openai/gpt-4o-mini",
+  smartest: "anthropic/claude-3.5-sonnet"
+
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
   perpetual_workers: 2,

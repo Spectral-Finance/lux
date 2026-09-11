@@ -18,6 +18,14 @@ defmodule Lux.Config do
     end
   end
 
+  def resolve({:env, var}) when is_binary(var) do
+    System.get_env(var)
+  end
+
+  def resolve({:system, var}) when is_binary(var) do
+    System.get_env(var)
+  end
+
   def resolve(value) do
     value
   end

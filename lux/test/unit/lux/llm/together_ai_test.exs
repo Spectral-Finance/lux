@@ -317,5 +317,37 @@ defmodule Lux.LLM.TogetherAITest do
 
       assert {:ok, _} = TogetherAI.call("test prompt", [], config)
     end
+
+    test "respects dynamic custom endpoint in config" do
+      custom_url = "http://localhost:4000/together/custom/v1/chat/completions"
+
+      config = %{
+        api_key: "test_key",
+        model: "mistral-7b-instruct",
+        endpoint: custom_url
+      }
+
+      Req.Test.expect(TogetherAI, fn conn ->
+        assert conn.scheme == :http
+        assert conn.host == "localhost"
+        assert conn.port == 4000
+        assert conn.request_path == "/together/custom/v1/chat/completions"
+
+        Req.Test.json(conn, %{
+          "model" => "mistral-7b-instruct",
+          "choices" => [
+            %{
+              "message" => %{
+                "content" => ~s({"result": "together custom endpoint ok"})
+              },
+              "finish_reason" => "stop"
+            }
+          ]
+        })
+      end)
+
+      assert {:ok, %Signal{payload: %{content: %{"result" => "together custom endpoint ok"}}}} =
+               TogetherAI.call("test prompt", [], config)
+    end
   end
 end

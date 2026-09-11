@@ -43,9 +43,9 @@ defmodule Lux.LLM.AnthropicTest do
           model: "claude-3-opus-20240229"
         })
 
-      assert {:ok, response} = result
-      assert response.content == "This is a test response from Claude."
-      assert response.finish_reason == "end_turn"
+      assert {:ok, signal} = result
+      assert signal.payload.content == %{"text" => "This is a test response from Claude."} or signal.payload.content == "This is a test response from Claude."
+      assert signal.payload.finish_reason == "end_turn"
     end
 
     test "handles API error" do
@@ -137,11 +137,11 @@ defmodule Lux.LLM.AnthropicTest do
           model: "claude-3-opus-20240229"
         })
 
-      assert {:ok, response} = result
-      assert length(response.tool_calls) == 1
-      [tool_call] = response.tool_calls
-      assert tool_call.name == "test_tool"
-      assert tool_call.params == %{"param1" => "value1", "param2" => "value2"}
+      assert {:ok, signal} = result
+      assert length(signal.payload.tool_calls) == 1
+      [tool_call] = signal.payload.tool_calls
+      assert tool_call["function"]["name"] == "test_tool"
+      assert tool_call["function"]["arguments"] == %{"param1" => "value1", "param2" => "value2"}
     end
   end
 end

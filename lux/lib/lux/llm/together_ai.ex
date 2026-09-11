@@ -3,10 +3,11 @@ defmodule Lux.LLM.TogetherAI do
     Together AI LLM implementation that supports passing Beams, Prisms, and Lenses as tools.
     """
 
-    @behaviour Lux.LLM
+    @behaviour Lux.LLM.Provider
 
     alias Lux.Beam
     alias Lux.Lens
+    alias Lux.LLM.ModelConfig
     alias Lux.LLM.ResponseSignal
     alias Lux.Prism
 
@@ -15,6 +16,33 @@ defmodule Lux.LLM.TogetherAI do
     require Logger
 
     @endpoint "https://api.together.xyz/v1/chat/completions"
+
+    @impl Lux.LLM.Provider
+    def id, do: :together
+
+    @impl Lux.LLM.Provider
+    def models do
+      [
+        %ModelConfig{
+          id: "mistral-7b-instruct",
+          name: "Mistral 7B Instruct",
+          provider_id: :together,
+          cost_per_1k_prompt_tokens: 0.0002,
+          cost_per_1k_completion_tokens: 0.0002,
+          capabilities: [:tools],
+          context_window: 32_000
+        },
+        %ModelConfig{
+          id: "llama-3.1-70b-instruct",
+          name: "Llama 3.1 70B Instruct",
+          provider_id: :together,
+          cost_per_1k_prompt_tokens: 0.0009,
+          cost_per_1k_completion_tokens: 0.0009,
+          capabilities: [:tools],
+          context_window: 128_000
+        }
+      ]
+    end
 
     defmodule Config do
       @moduledoc """
@@ -47,38 +75,59 @@ defmodule Lux.LLM.TogetherAI do
                 messages: []
     end
 
-    @impl true
+    @impl Lux.LLM.Provider
     def call(prompt, tools, config) do
-      config =
-        struct(
-          Config,
-          Map.merge(
-            %{
-              model: Application.get_env(:lux, :together_ai_models)[:default],
-              api_key: Application.get_env(:lux, :api_keys)[:together]
-            },
-            config
-          )
-        )
+      config = normalize_config(config)
+      body = build_request_body(config, prompt, tools)
 
+      config
+      |> build_req_opts(body)
+      |> Req.new()
+      |> Req.post()
+      |> handle_req_response(config)
+    end
+
+    defp normalize_config(config) do
+      opts_map =
+        case config do
+          %_{} -> Map.from_struct(config)
+          %{} -> config
+          list when is_list(list) -> Enum.into(list, %{})
+          _ -> %{}
+        end
+
+      struct(
+        Config,
+        Map.merge(
+          %{
+            model: Application.get_env(:lux, :together_ai_models)[:default] || "mistral-7b-instruct",
+            api_key: Application.get_env(:lux, :api_keys)[:together]
+          },
+          opts_map
+        )
+      )
+    end
+
+    defp build_request_body(config, prompt, tools) do
       messages = config.messages ++ build_messages(prompt)
       tools_config = build_tools_config(tools)
 
-      body =
-        %{
-          model: Lux.Config.resolve(config.model),
-          messages: messages,
-          temperature: config.temperature,
-          top_p: config.top_p,
-          top_k: config.top_k,
-          max_tokens: config.max_tokens,
-          repetition_penalty: config.repetition_penalty,
-          stop: config.stop
-        }
-        |> maybe_add_tools(tools_config)
+      %{
+        model: Lux.Config.resolve(config.model),
+        messages: messages,
+        temperature: config.temperature,
+        top_p: config.top_p,
+        top_k: config.top_k,
+        max_tokens: config.max_tokens,
+        repetition_penalty: config.repetition_penalty,
+        stop: config.stop
+      }
+      |> maybe_add_tools(tools_config)
+    end
 
+    defp build_req_opts(config, body) do
       [
-        url: @endpoint,
+        url: Lux.Config.resolve(config.endpoint || @endpoint),
         json: body,
         headers: [
           {"Authorization", "Bearer #{Lux.Config.resolve(config.api_key)}"},
@@ -86,21 +135,22 @@ defmodule Lux.LLM.TogetherAI do
         ]
       ]
       |> Keyword.merge(Application.get_env(:lux, __MODULE__, []))
-      |> Req.new()
-      |> Req.post()
-      |> case do
-        {:ok, %{status: 200} = response} ->
-          handle_response(response, config)
+    end
 
-        {:ok, %{status: 401}} ->
-          {:error, :invalid_api_key}
+    defp handle_req_response({:ok, %{status: 200} = response}, config) do
+      handle_response(response, config)
+    end
 
-        {:ok, %{status: status, body: %{"error" => message}}} ->
-          {:error, {status, message}}
+    defp handle_req_response({:ok, %{status: 401}}, _config) do
+      {:error, :invalid_api_key}
+    end
 
-        {:error, error} ->
-          handle_error(error)
-      end
+    defp handle_req_response({:ok, %{status: status, body: %{"error" => message}}}, _config) do
+      {:error, {status, message}}
+    end
+
+    defp handle_req_response({:error, error}, _config) do
+      handle_error(error)
     end
 
     defp build_messages(prompt) do

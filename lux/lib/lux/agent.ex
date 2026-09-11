@@ -210,8 +210,8 @@ defmodule Lux.Agent do
 
       def get_state(pid), do: :sys.get_state(pid)
 
-      defp get_name(%{name: name}) when is_binary(name), do: String.to_atom(name)
       defp get_name(%{name: nil}), do: __MODULE__
+      defp get_name(%{name: name}) when is_binary(name), do: String.to_atom(name)
       defp get_name(%{name: name}) when is_atom(name), do: name
 
       def send_message(pid, message, opts \\ []) do
@@ -442,6 +442,10 @@ defmodule Lux.Agent do
 
   # to handle when the Task.Supervisor.async_nolink process is down without bringing down the agent
   def __handle_info__({:DOWN, _ref, :process, _pid, :normal}, agent) do
+    {:noreply, agent}
+  end
+
+  def __handle_info__(_msg, agent) do
     {:noreply, agent}
   end
 

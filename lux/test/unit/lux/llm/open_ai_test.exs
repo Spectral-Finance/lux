@@ -242,5 +242,37 @@ defmodule Lux.LLM.OpenAITest do
                 metadata: _
               }} = OpenAI.call("test prompt", [TestPrism], config)
     end
+
+    test "respects dynamic custom endpoint in config (AC3)" do
+      custom_url = "http://localhost:4000/custom/v1/chat/completions"
+
+      config = %{
+        api_key: "test_key",
+        model: "gpt-4o",
+        endpoint: custom_url
+      }
+
+      Req.Test.expect(OpenAI, fn conn ->
+        assert conn.scheme == :http
+        assert conn.host == "localhost"
+        assert conn.port == 4000
+        assert conn.request_path == "/custom/v1/chat/completions"
+
+        Req.Test.json(conn, %{
+          "model" => "gpt-4o",
+          "choices" => [
+            %{
+              "message" => %{
+                "content" => ~s({"result": "custom endpoint ok"})
+              },
+              "finish_reason" => "stop"
+            }
+          ]
+        })
+      end)
+
+      assert {:ok, %Signal{payload: %{content: %{"result" => "custom endpoint ok"}}}} =
+               OpenAI.call("test prompt", [], config)
+    end
   end
 end
