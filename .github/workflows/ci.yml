@@ -10,12 +10,6 @@ on:
       - 'test.envrc'
   pull_request:
     branches: [main]
-    paths:
-      - '.github/**'
-      - '.tool-versions'
-      - 'dev.envrc'
-      - 'test.envrc'
-  workflow_dispatch:
 
 jobs:
   lux:
