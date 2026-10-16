@@ -4,6 +4,7 @@ defmodule Lux.LLM.TogetherAI do
     """
 
     @behaviour Lux.LLM
+    @behaviour Lux.LLM.Provider
 
     alias Lux.Beam
     alias Lux.Lens
@@ -45,6 +46,30 @@ defmodule Lux.LLM.TogetherAI do
                 stop: [],
                 user: nil,
                 messages: []
+    end
+
+    @impl Lux.LLM.Provider
+    def meta do
+      %{
+        name: :together_ai,
+        supports_tools: true,
+        models: [
+          %{
+            id: "mistral-7b-instruct",
+            input_cost_per_mtok: 0.2,
+            output_cost_per_mtok: 0.2,
+            max_context: 32_768,
+            capabilities: [:tools]
+          },
+          %{
+            id: "meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            input_cost_per_mtok: 3.5,
+            output_cost_per_mtok: 3.5,
+            max_context: 128_000,
+            capabilities: [:tools]
+          }
+        ]
+      }
     end
 
     @impl true

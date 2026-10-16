@@ -4,6 +4,7 @@ defmodule Lux.LLM.OpenAI do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -55,6 +56,37 @@ defmodule Lux.LLM.OpenAI do
               tool_choice: nil,
               user: nil,
               messages: []
+  end
+
+  @impl Lux.LLM.Provider
+  def meta do
+    %{
+      name: :open_ai,
+      supports_tools: true,
+      models: [
+        %{
+          id: "gpt-4o",
+          input_cost_per_mtok: 2.5,
+          output_cost_per_mtok: 10.0,
+          max_context: 128_000,
+          capabilities: [:tools, :json_mode, :streaming]
+        },
+        %{
+          id: "gpt-4o-mini",
+          input_cost_per_mtok: 0.15,
+          output_cost_per_mtok: 0.6,
+          max_context: 128_000,
+          capabilities: [:tools, :json_mode, :streaming]
+        },
+        %{
+          id: "gpt-4",
+          input_cost_per_mtok: 30.0,
+          output_cost_per_mtok: 60.0,
+          max_context: 8_192,
+          capabilities: [:tools, :json_mode]
+        }
+      ]
+    }
   end
 
   @impl true

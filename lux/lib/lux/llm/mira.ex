@@ -4,6 +4,7 @@ defmodule Lux.LLM.Mira do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -37,6 +38,23 @@ defmodule Lux.LLM.Mira do
               max_tokens: nil,
               stream: false,
               messages: []
+  end
+
+  @impl Lux.LLM.Provider
+  def meta do
+    %{
+      name: :mira,
+      supports_tools: true,
+      models: [
+        %{
+          id: "llama-3.1-8b-instruct",
+          input_cost_per_mtok: 0.0,
+          output_cost_per_mtok: 0.0,
+          max_context: 128_000,
+          capabilities: [:tools]
+        }
+      ]
+    }
   end
 
   @impl true

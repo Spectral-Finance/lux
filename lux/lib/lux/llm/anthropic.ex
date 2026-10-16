@@ -5,6 +5,7 @@ defmodule Lux.LLM.Anthropic do
   """
 
   @behaviour Lux.LLM
+  @behaviour Lux.LLM.Provider
 
   alias Lux.Beam
   alias Lux.Lens
@@ -49,6 +50,37 @@ defmodule Lux.LLM.Anthropic do
               messages: [],
               token_cache_enabled: true,
               load_balancing_enabled: true
+  end
+
+  @impl Lux.LLM.Provider
+  def meta do
+    %{
+      name: :anthropic,
+      supports_tools: true,
+      models: [
+        %{
+          id: "claude-3-opus-20240229",
+          input_cost_per_mtok: 15.0,
+          output_cost_per_mtok: 75.0,
+          max_context: 200_000,
+          capabilities: [:tools, :json_mode]
+        },
+        %{
+          id: "claude-3-sonnet-20240229",
+          input_cost_per_mtok: 3.0,
+          output_cost_per_mtok: 15.0,
+          max_context: 200_000,
+          capabilities: [:tools, :json_mode]
+        },
+        %{
+          id: "claude-3-haiku-20240307",
+          input_cost_per_mtok: 0.25,
+          output_cost_per_mtok: 1.25,
+          max_context: 200_000,
+          capabilities: [:tools]
+        }
+      ]
+    }
   end
 
   @impl true
