@@ -19,9 +19,17 @@ defmodule Lux.Application do
 
   defp optional_children do
     if Application.get_env(:lux, :env) == :test do
+      # the LLM provider layer is started per-test by its unit tests
       [RateLimiter]
     else
-      []
+      [
+        Lux.LLM.Registry,
+        Lux.LLM.Cost,
+        Lux.LLM.Stats,
+        Lux.LLM.CircuitBreaker,
+        # register providers configured under config :lux, Lux.LLM.Gateway, :register
+        {Task, fn -> Lux.LLM.Gateway.register_configured_providers() end}
+      ]
     end
   end
 end
