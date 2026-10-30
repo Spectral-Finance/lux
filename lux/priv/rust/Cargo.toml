@@ -1,0 +1,14 @@
+[package]
+name = "lux_rust_bridge"
+version = "0.1.0"
+edition = "2021"
+authors = ["Spectral Labs <support@spectral.finance>"]
+description = "Core Rust bridge and runtime integration for the Lux Agent Framework"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
