@@ -1,0 +1,27 @@
+{
+  "channel": {
+    "channel_id": "UC_sample_channel",
+    "title": "Sample Tech Channel",
+    "subscriber_count": 128400,
+    "video_count": 340,
+    "view_count": 15820000,
+    "comment_count": 84200,
+    "country": "US",
+    "created_at": "2019-03-12T00:00:00Z",
+    "fetched_at": "2026-11-02T00:00:00Z"
+  },
+  "videos": [
+    {"video_id": "v1", "title": "How to build a homelab in 2026", "published_at": "2026-10-01T10:00:00Z", "view_count": 482000, "like_count": 34000, "comment_count": 2100, "duration_seconds": 1080, "category_id": "28", "tags": ["homelab", "docker"]},
+    {"video_id": "v2", "title": "Docker Compose for beginners", "published_at": "2026-09-18T09:00:00Z", "view_count": 315000, "like_count": 21000, "comment_count": 1500, "duration_seconds": 900, "category_id": "28", "tags": ["docker"]},
+    {"video_id": "v3", "title": "Kubernetes vs Docker Swarm", "published_at": "2026-08-30T08:00:00Z", "view_count": 256000, "like_count": 18000, "comment_count": 1300, "duration_seconds": 1250, "category_id": "28", "tags": ["kubernetes"]},
+    {"video_id": "v4", "title": "Proxmox full walkthrough", "published_at": "2026-08-11T11:00:00Z", "view_count": 198000, "like_count": 15000, "comment_count": 1100, "duration_seconds": 1500, "category_id": "28", "tags": ["proxmox"]},
+    {"video_id": "v5", "title": "Self-hosted AI stack", "published_at": "2026-07-22T07:00:00Z", "view_count": 145000, "like_count": 12000, "comment_count": 980, "duration_seconds": 800, "category_id": "28", "tags": ["ai", "self-hosted"]},
+    {"video_id": "v6", "title": "Traefik reverse proxy guide", "published_at": "2026-07-01T06:00:00Z", "view_count": 120000, "like_count": 9800, "comment_count": 720, "duration_seconds": 600, "category_id": "28", "tags": ["traefik"]},
+    {"video_id": "v7", "title": "My 2026 homelab tour", "published_at": "2026-06-10T12:00:00Z", "view_count": 98000, "like_count": 8600, "comment_count": 640, "duration_seconds": 700, "category_id": "28", "tags": ["homelab"]}
+  ],
+  "comments": [
+    {"comment_id": "c1", "video_id": "v1", "author": "viewer_a", "text": "Great video, subscribed!", "like_count": 120, "published_at": "2026-10-02T00:00:00Z"},
+    {"comment_id": "c2", "video_id": "v1", "author": "viewer_b", "text": "Please make a part 2 about networking.", "like_count": 45, "published_at": "2026-10-03T00:00:00Z"},
+    {"comment_id": "c3", "video_id": "v2", "author": "viewer_c", "text": "Finally a clear tutorial.", "like_count": 80, "published_at": "2026-09-19T00:00:00Z"}
+  ]
+}
