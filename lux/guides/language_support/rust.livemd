@@ -1,0 +1,34 @@
+# Rust Language Support
+
+```elixir
+Mix.install([
+  {:lux, path: Path.join(__DIR__, "../..")}
+])
+```
+
+## Overview
+
+Lux provides native Rust support for high-throughput computational kernels, cryptographic routines, and vector operations.
+
+## Basic Usage
+
+```elixir
+require Lux.Rust
+import Lux.Rust
+
+# Execute native function
+{:ok, result} = Lux.Rust.call("math.fibonacci", %{"n" => 20})
+IO.puts("Fibonacci(20) = #{result}")
+```
+
+## Using the `~RS` Sigil
+
+```elixir
+rust variables: %{x: 40, y: 2} do
+  ~RS"""
+  pub fn main(args: Map) -> i64 {
+      args["x"] + args["y"]
+  }
+  """
+end
+```
