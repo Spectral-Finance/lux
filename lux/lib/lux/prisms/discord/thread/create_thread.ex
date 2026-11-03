@@ -1,41 +1,6 @@
 defmodule Lux.Prisms.Discord.Thread.CreateThread do
   @moduledoc """
   A prism for creating threads in a Discord channel.
-
-  This prism provides a simple interface for creating Discord threads with:
-  - Required parameters (channel_id, name)
-  - Optional parameters (message_id, auto_archive_duration, rate_limit_per_user)
-  - Direct Discord API error propagation
-  - Simple success/failure response structure
-
-  ## Examples
-      # Create a thread from a message
-      iex> CreateThread.handler(%{
-      ...>   channel_id: "123456789",
-      ...>   message_id: "987654321",
-      ...>   name: "Discussion Thread",
-      ...>   auto_archive_duration: 60
-      ...> }, %{name: "Agent"})
-      {:ok, %{
-        created: true,
-        thread_id: "111111111111111111",
-        name: "Discussion Thread",
-        channel_id: "123456789"
-      }}
-
-      # Create a thread without a message
-      iex> CreateThread.handler(%{
-      ...>   channel_id: "123456789",
-      ...>   name: "General Discussion",
-      ...>   auto_archive_duration: 1440,
-      ...>   rate_limit_per_user: 10
-      ...> }, %{name: "Agent"})
-      {:ok, %{
-        created: true,
-        thread_id: "111111111111111111",
-        name: "General Discussion",
-        channel_id: "123456789"
-      }}
   """
 
   use Lux.Prism,
@@ -102,12 +67,6 @@ defmodule Lux.Prisms.Discord.Thread.CreateThread do
   alias Lux.Integrations.Discord.Client
   require Logger
 
-  @doc """
-  Handles the request to create a thread in a Discord channel.
-
-  Returns {:ok, %{created: true, thread_id: id, name: name, channel_id: channel_id}} on success.
-  Returns {:error, reason} on failure.
-  """
   def handler(params, agent) do
     with {:ok, channel_id} <- validate_param(params, :channel_id),
          {:ok, name} <- validate_param(params, :name),
@@ -116,15 +75,13 @@ defmodule Lux.Prisms.Discord.Thread.CreateThread do
          {:ok, rate_limit_per_user} <- validate_optional_param(params, :rate_limit_per_user, 0) do
 
       agent_name = agent[:name] || "Unknown Agent"
-      thread_type = if message_id, do: "from message #{message_id}", else: "without message"
-      Logger.info("Agent #{agent_name} creating thread #{thread_type} in channel #{channel_id}")
+      Logger.info("Agent #{agent_name} creating thread in channel #{channel_id}")
 
       request_path = build_request_path(channel_id, message_id)
       request_body = build_request_body(name, auto_archive_duration, rate_limit_per_user)
 
       case Client.request(:post, request_path, %{json: request_body}) do
         {:ok, %{"id" => thread_id}} ->
-          Logger.info("Successfully created thread #{thread_id} in channel #{channel_id}")
           {:ok, %{created: true, thread_id: thread_id, name: name, channel_id: channel_id}}
         error ->
           Logger.error("Failed to create thread in channel #{channel_id}: #{inspect(error)}")
