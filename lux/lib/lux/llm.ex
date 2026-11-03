@@ -1,7 +1,12 @@
 defmodule Lux.LLM do
   @moduledoc """
-  A module for interacting with LLMs. Defines the behaviours for LLMs and provides a default implementation.
+  Universal LLM interface for Lux.
+  Defines the behaviour for LLM adapters and delegates provider registry,
+  automatic model selection, intelligent fallback, caching, and cost/performance
+  telemetry to `Lux.LLM.Provider`.
   """
+
+  alias Lux.LLM.Provider
 
   defmodule Response do
     @moduledoc """
@@ -25,9 +30,17 @@ defmodule Lux.LLM do
   @type tools :: [Lux.Prism.t() | Lux.Beam.t() | Lux.Lens.t()]
   @type options :: map() | keyword()
 
-  @callback call(prompt(), tools(), options()) :: {:ok, Response.t()} | {:error, String.t()}
+  @callback call(prompt(), tools(), options()) :: {:ok, term()} | {:error, term()}
 
   @default_module Application.compile_env(:lux, [Lux.LLM, :default_module], Lux.LLM.OpenAI)
 
   defdelegate call(prompt, tools, options), to: @default_module
+  defdelegate call_with_fallback(prompt, tools \\ [], options \\ %{}), to: Provider
+  defdelegate select_provider(criteria \\ %{}), to: Provider
+  defdelegate register_provider(id, spec), to: Provider
+  defdelegate get_provider(id), to: Provider
+  defdelegate list_providers(), to: Provider
+  defdelegate get_metrics(), to: Provider
+  defdelegate reset_metrics(), to: Provider
+  defdelegate clear_cache(), to: Provider
 end
