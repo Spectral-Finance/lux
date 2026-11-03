@@ -19,6 +19,7 @@ if config_env() in [:dev, :test] do
     mira: env!("MIRA_API_KEY", :string!, "missing mira"),
     together: env!("TOGETHER_API_KEY", :string!, "missing together"),
     anthropic: env!("ANTHROPIC_API_KEY", :string!, "missing anthropic"),
+    openrouter: env!("OPENROUTER_API_KEY", :string!, "missing openrouter"),
     openweather: env!("OPENWEATHER_API_KEY", :string!, "missing open weather"),
     transpose: env!("TRANSPOSE_API_KEY", :string!, "missing transpose"),
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
@@ -27,6 +28,7 @@ if config_env() in [:dev, :test] do
     telegram_bot: env!("TELEGRAM_BOT_TOKEN", :string!, required: false),
     integration_openai: env!("INTEGRATION_OPENAI_API_KEY", :string!, "missing open ai"),
     integration_anthropic: env!("INTEGRATION_ANTHROPIC_API_KEY", :string!, "missing anthropic"),
+    integration_openrouter: env!("INTEGRATION_OPENROUTER_API_KEY", :string!, "missing openrouter"),
     integration_openweather: env!("INTEGRATION_OPENWEATHER_API_KEY", :string!, "missing open weather"),
     integration_transpose: env!("INTEGRATION_TRANSPOSE_API_KEY", :string!, "missing transpose"),
     integration_discord: env!("INTEGRATION_DISCORD_API_KEY", :string!, "missing discord"),
@@ -42,6 +44,9 @@ if config_env() in [:dev, :test] do
     hyperliquid_private_key: env!("HYPERLIQUID_PRIVATE_KEY", :string!),
     hyperliquid_address: env!("HYPERLIQUID_ADDRESS", :string!, required: false),
     hyperliquid_api_url: env!("HYPERLIQUID_API_URL", :string!)
+
+  config :lux, :ollama,
+    endpoint: env!("OLLAMA_ENDPOINT", :string!, "http://localhost:11434")
 
   config :ethers,
     default_signer: Ethers.Signer.Local,
