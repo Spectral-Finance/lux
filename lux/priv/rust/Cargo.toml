@@ -1,0 +1,21 @@
+[package]
+name = "lux_rust"
+version = "0.1.0"
+edition = "2021"
+authors = ["Spectral Finance <dev@spectral.finance>", "Lux Team"]
+description = "Core Rust runtime and FFI type conversion bridge for the Lux agent framework"
+license = "MIT OR Apache-2.0"
+
+[lib]
+name = "lux_rust"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+anyhow = "1.0"
+
+[features]
+default = []
+nif = []
