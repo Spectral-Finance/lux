@@ -6,20 +6,6 @@ defmodule Lux.Prisms.Discord.Channels.CreateChannel do
   - Required parameters (guild_id, name, type)
   - Direct Discord API error propagation
   - Simple success/failure response structure
-
-  ## Examples
-      iex> CreateChannel.handler(%{
-      ...>   guild_id: "123456789",
-      ...>   name: "general",
-      ...>   type: 0
-      ...> }, %{name: "Agent"})
-      {:ok, %{
-        created: true,
-        channel_id: "111111111111111111",
-        name: "general",
-        type: 0,
-        guild_id: "123456789"
-      }}
   """
 
   use Lux.Prism,
@@ -78,12 +64,6 @@ defmodule Lux.Prisms.Discord.Channels.CreateChannel do
   alias Lux.Integrations.Discord.Client
   require Logger
 
-  @doc """
-  Handles the request to create a channel in a Discord guild.
-
-  Returns {:ok, %{created: true, channel_id: id, name: name, type: type, guild_id: guild_id}} on success.
-  Returns {:error, {status, message}} on failure.
-  """
   def handler(params, agent) do
     with {:ok, guild_id} <- validate_param(params, :guild_id),
          {:ok, name} <- validate_param(params, :name),
