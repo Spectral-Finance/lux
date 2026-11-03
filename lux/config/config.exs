@@ -9,6 +9,26 @@ config :lux, :open_ai_models,
 config :lux, :together_ai_models,
   default: "mistralai/Mistral-7B-Instruct-v0.2"
 
+config :lux, :openrouter_models,
+  default: "anthropic/claude-3.5-sonnet",
+  cheapest: "meta-llama/llama-3.1-8b-instruct:free",
+  smartest: "anthropic/claude-3.5-sonnet",
+  fastest: "google/gemini-2.0-flash",
+  balanced: "openai/gpt-4o-mini"
+
+config :lux, :ollama_models,
+  default: "llama3.2",
+  coder: "qwen2.5-coder:7b",
+  fast: "llama3.2:1b"
+
+config :lux, :ollama,
+  endpoint: "http://localhost:11434"
+
+config :lux, :perplexity_models,
+  default: "sonar-pro",
+  fast: "sonar",
+  reasoning: "sonar-reasoning-pro"
+
 config :venomous, :snake_manager, %{
   snake_ttl_minutes: 10,
   perpetual_workers: 2,
