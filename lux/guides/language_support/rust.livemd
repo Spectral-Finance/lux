@@ -1,0 +1,95 @@
+# Rust Type System and Serialization
+
+Lux ships a pure-Elixir type system for exchanging structured data with Rust.
+It models the Elixir <-> Rust boundary on top of the same JSON-shaped wire
+format that Rust's [`serde`](https://serde.rs) ecosystem produces, so Elixir and
+Rust can share `struct`/`enum` definitions and round-trip complex values without
+a native build step.
+
+The public entry point is `Lux.Rust.Types`.
+
+## Supported type mappings
+
+| Rust type            | Elixir representation                          |
+| -------------------- | ---------------------------------------------- |
+| `bool`               | boolean                                        |
+| `i8`..`i128`, `u8`..`u128` | integer (range validated)                |
+| `f32`/`f64`          | float                                          |
+| `String`/`&str`      | binary (UTF-8 validated)                       |
+| `char`               | single code point binary                       |
+| `Option<T>`          | `nil` or the wrapped value                     |
+| `Vec<T>`/slices      | list                                           |
+| `(A, B)`             | tuple (encoded as a JSON array)                |
+| `HashMap<K, V>`      | map with string keys                           |
+| `struct`             | map or Elixir struct (`__struct__` dropped)    |
+| `enum`               | atom (unit variant) or `{variant, payload}`    |
+
+## Encoding and decoding
+
+```elixir
+iex> alias Lux.Rust.Types
+iex> Types.encode(%{x: 1.0, y: 2.0}, {:struct, [x: :f64, y: :f64]})
+{:ok, %{"x" => 1.0, "y" => 2.0}}
+
+iex> alias Lux.Rust.Types
+iex> Types.decode(%{"Ok" => 7}, {:enum, [ok: :i64, err: :string]})
+{:ok, {:ok, 7}}
+```
+
+All functions return `{:ok, value}` or `{:error, reason}` where `reason` is a
+typed tuple such as `{:integer_out_of_range, 300}` or `{:missing_field, :y}`.
+
+## Custom type definitions
+
+Named types bundle a Rust name with the shape needed to serialize and generate
+code:
+
+```elixir
+iex> alias Lux.Rust.Types
+iex> point = Types.define("Point", {:struct, [x: :f64, y: :f64]})
+iex> Types.encode(%{x: 1.0, y: 2.0}, point)
+{:ok, %{"x" => 1.0, "y" => 2.0}}
+iex> Types.rust_type(point)
+{:ok, "Point"}
+```
+
+## Generating Rust source
+
+`Lux.Rust.Types.SchemaGenerator` emits idiomatic Rust definitions annotated with
+`#[derive(Serialize, Deserialize)]`:
+
+```elixir
+iex> alias Lux.Rust.Types
+iex> Types.generate({:enum, [red: :unit, green: :unit, custom: {:tuple, [:u8, :u8, :u8]}]}, name: "Color")
+{:ok,
+ "#[derive(Serialize, Deserialize)]\npub enum Color {\n    Red,\n    Green,\n    Custom((u8, u8, u8)),\n}"}
+```
+
+## Complex conversions
+
+Nested structs, enums, options, vectors, tuples and maps compose freely:
+
+```elixir
+iex> alias Lux.Rust.Types
+iex> type = {:struct,
+...>   id: :u64,
+...>   tags: {:vec, :string},
+...>   location: {:option, {:tuple, [:f64, :f64]}},
+...>   metadata: {:map, :string, :string}
+...> }
+iex> value = %{id: 1, tags: ["a", "b"], location: {51.5, -0.1}, metadata: %{"k" => "v"}}
+iex> Types.encode(value, type)
+{:ok,
+ %{
+   "id" => 1,
+   "location" => [51.5, -0.1],
+   "metadata" => %{"k" => "v"},
+   "tags" => ["a", "b"]
+ }}
+```
+
+## Serialization safety
+
+Decoding never interns untrusted wire strings into atoms. Object keys are
+preserved as strings, and only enum variants that are explicitly declared in a
+type specification are lowered to atoms.
