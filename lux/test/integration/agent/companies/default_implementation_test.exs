@@ -76,7 +76,6 @@ defmodule Lux.Integration.Agent.Companies.DefaultImplementationTest do
       assert Map.has_key?(result, "search")
       assert Map.has_key?(result, "summary")
       assert result["search"]["found"] == true
-      # Fix the expected values to match actual tool implementations
       assert result["search"]["matches"] == [
                """
                The quick brown fox jumps over the lazy dog.
@@ -99,7 +98,6 @@ defmodule Lux.Integration.Agent.Companies.DefaultImplementationTest do
       assert response.payload["result"]["success"] == false
     end
 
-    # Clean up after tests
     setup %{agent: agent} do
       on_exit(fn ->
         if Process.alive?(agent) do

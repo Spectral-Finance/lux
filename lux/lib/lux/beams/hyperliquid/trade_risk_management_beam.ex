@@ -126,12 +126,17 @@ defmodule Lux.Beams.Hyperliquid.TradeRiskManagementBeam do
   Determines if the trade should be executed based on risk metrics
   """
   def should_execute?(ctx) do
-    metrics = ctx.steps.risk_assessment.result
+    metrics = ctx.steps.risk_assessment.result || %{}
 
-    # Define risk thresholds
-    metrics["position_size_ratio"] <= 0.2 and
-      metrics["leverage"] <= 5.0 and
-      metrics["portfolio_concentration"] <= 0.4 and
-      metrics["liquidation_risk"] <= 0.1
+    # Define rigorous risk thresholds with fault-tolerant parsing
+    position_size_ratio = Map.get(metrics, "position_size_ratio", 0.0)
+    leverage = Map.get(metrics, "leverage", 0.0)
+    portfolio_concentration = Map.get(metrics, "portfolio_concentration", 0.0)
+    liquidation_risk = Map.get(metrics, "liquidation_risk", 0.0)
+
+    position_size_ratio <= 0.2 and
+      leverage <= 5.0 and
+      portfolio_concentration <= 0.4 and
+      liquidation_risk <= 0.1
   end
 end
