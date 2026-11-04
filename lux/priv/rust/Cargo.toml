@@ -1,0 +1,19 @@
+[package]
+name = "lux_native_components"
+version = "0.1.0"
+edition = "2021"
+description = "Native Rust component traits and async runtime bridge for Lux Prisms and Beams"
+
+[lib]
+name = "lux_native_components"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.36", features = ["rt-multi-thread", "macros", "sync"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
