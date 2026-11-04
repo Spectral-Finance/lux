@@ -145,6 +145,19 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism do
   require Lux.Python
 
   def handler(input, _ctx) do
+    cond do
+      not valid_order_size?(input["sz"]) ->
+        {:error, "Order size must be a positive number"}
+
+      not valid_limit_price?(input["limit_px"]) ->
+        {:error, "Limit price must be a positive number"}
+
+      true ->
+        execute_with_auth(input)
+    end
+  end
+
+  defp execute_with_auth(input) do
     with {:ok, private_key} <- get_private_key(),
          {:ok, address} <- {:ok, Config.hyperliquid_account_address()},
          {:ok, api_url} <- {:ok, Config.hyperliquid_api_url()},
@@ -171,7 +184,14 @@ defmodule Lux.Prisms.Hyperliquid.HyperliquidExecuteOrderPrism do
     {:ok, Config.hyperliquid_account_key()}
   rescue
     RuntimeError -> {:error, :missing_private_key}
+    ArgumentError -> {:error, :missing_private_key}
   end
+
+  defp valid_order_size?(sz) when is_number(sz), do: sz > 0
+  defp valid_order_size?(_), do: false
+
+  defp valid_limit_price?(px) when is_number(px), do: px > 0
+  defp valid_limit_price?(_), do: false
 
   defp execute_order(private_key, address, api_url, params) do
     python_result =

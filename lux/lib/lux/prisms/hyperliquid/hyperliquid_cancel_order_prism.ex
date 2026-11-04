@@ -72,6 +72,14 @@ defmodule Lux.Prisms.HyperliquidCancelOrderPrism do
   require Lux.Python
 
   def handler(input, _ctx) do
+    if valid_order_id?(input["order_id"]) do
+      execute_with_auth(input)
+    else
+      {:error, "Order ID must be a positive integer"}
+    end
+  end
+
+  defp execute_with_auth(input) do
     with {:ok, private_key} <- get_private_key(),
          {:ok, address} <- {:ok, Config.hyperliquid_account_address()},
          {:ok, api_url} <- {:ok, Config.hyperliquid_api_url()},
@@ -98,7 +106,11 @@ defmodule Lux.Prisms.HyperliquidCancelOrderPrism do
     {:ok, Config.hyperliquid_account_key()}
   rescue
     RuntimeError -> {:error, :missing_private_key}
+    ArgumentError -> {:error, :missing_private_key}
   end
+
+  defp valid_order_id?(id) when is_integer(id), do: id > 0
+  defp valid_order_id?(_), do: false
 
   defp cancel_order(private_key, address, api_url, params) do
     python_result =

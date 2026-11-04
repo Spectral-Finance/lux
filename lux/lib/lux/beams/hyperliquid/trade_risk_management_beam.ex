@@ -124,12 +124,16 @@ defmodule Lux.Beams.Hyperliquid.TradeRiskManagementBeam do
 
   @doc """
   Determines if the trade should be executed based on risk metrics
+
+  Returns false when the risk assessment result is missing or malformed so the
+  beam never crashes on an unexpected context shape.
   """
   def should_execute?(ctx) do
-    metrics = ctx.steps.risk_assessment.result
+    metrics = get_in(ctx, [:steps, :risk_assessment, :result])
 
-    # Define risk thresholds
-    metrics["position_size_ratio"] <= 0.2 and
+    is_map(metrics) and
+      # Define risk thresholds
+      metrics["position_size_ratio"] <= 0.2 and
       metrics["leverage"] <= 5.0 and
       metrics["portfolio_concentration"] <= 0.4 and
       metrics["liquidation_risk"] <= 0.1
