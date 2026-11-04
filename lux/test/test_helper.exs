@@ -5,6 +5,7 @@ defmodule UnitAPICase do
   use ExUnit.CaseTemplate
 
   alias Lux.Integrations.Discord.Client, as: DiscordClient
+  alias Lux.Integrations.PancakeSwap.Client, as: PancakeSwapClient
   alias Lux.Integrations.Telegram.Client, as: TelegramClient
   alias Lux.Lenses.Etherscan
   alias Lux.LLM.Anthropic
@@ -23,6 +24,7 @@ defmodule UnitAPICase do
     Application.put_env(:lux, Etherscan, plug: {Req.Test, Etherscan})
     Application.put_env(:lux, Anthropic, plug: {Req.Test, Anthropic})
     Application.put_env(:lux, DiscordClient, plug: {Req.Test, DiscordClientMock})
+    Application.put_env(:lux, PancakeSwapClient, plug: {Req.Test, PancakeSwapClientMock})
     Application.put_env(:lux, TelegramClient, plug: {Req.Test, TelegramClientMock})
     Application.put_env(:lux, TogetherAI, plug: {Req.Test, TogetherAI})
     :ok
