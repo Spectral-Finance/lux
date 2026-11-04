@@ -1,33 +1,43 @@
 defmodule Lux.LLM do
   @moduledoc """
-  A module for interacting with LLMs. Defines the behaviours for LLMs and provides a default implementation.
+  Universal LLM provider abstraction layer.
   """
 
-  defmodule Response do
-    @moduledoc """
-      A response from an LLM.
-    """
-
-    @type t :: %__MODULE__{
-            content: String.t() | nil,
-            tool_calls: [%{type: String.t(), name: String.t(), params: map()}],
-            finish_reason: String.t() | nil,
-            structured_output: map() | nil
-          }
-
-    defstruct content: nil,
-              tool_calls: [],
-              finish_reason: nil,
-              structured_output: nil
+  defmodule Provider do
+    @callback chat(messages :: list(), opts :: map()) :: {:ok, map()} | {:error, term()}
+    @callback name() :: atom()
   end
 
-  @type prompt :: String.t()
-  @type tools :: [Lux.Prism.t() | Lux.Beam.t() | Lux.Lens.t()]
-  @type options :: map() | keyword()
+  def chat(messages, opts \\ %{}) do
+    Lux.LLM.Client.chat(messages, opts)
+  end
+end
 
-  @callback call(prompt(), tools(), options()) :: {:ok, Response.t()} | {:error, String.t()}
+defmodule Lux.LLM.Client do
+  require Logger
 
-  @default_module Application.compile_env(:lux, [Lux.LLM, :default_module], Lux.LLM.OpenAI)
+  def chat(messages, opts) do
+    providers = Lux.LLM.Registry.get_providers()
+    try_providers(providers, messages, opts)
+  end
 
-  defdelegate call(prompt, tools, options), to: @default_module
+  defp try_providers([], _messages, _opts), do: {:error, :no_providers_available}
+  defp try_providers([provider | rest], messages, opts) do
+    case provider.chat(messages, opts) do
+      {:ok, response} -> {:ok, response}
+      {:error, reason} ->
+        Logger.warning("LLM Provider #{provider.name()} failed: #{inspect(reason)}. Falling back...")
+        try_providers(rest, messages, opts)
+    end
+  end
+end
+
+defmodule Lux.LLM.Registry do
+  use Agent
+
+  def start_link(_), do: Agent.start_link(fn -> [] end, name: __MODULE__)
+
+  def register(provider), do: Agent.update(__MODULE__, &[provider | &1])
+
+  def get_providers, do: Agent.get(__MODULE__, & &1)
 end
