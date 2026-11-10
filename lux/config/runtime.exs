@@ -19,6 +19,7 @@ if config_env() in [:dev, :test] do
     mira: env!("MIRA_API_KEY", :string!, "missing mira"),
     together: env!("TOGETHER_API_KEY", :string!, "missing together"),
     anthropic: env!("ANTHROPIC_API_KEY", :string!, "missing anthropic"),
+    perplexity: env!("PERPLEXITY_API_KEY", :string!, required: false),
     openweather: env!("OPENWEATHER_API_KEY", :string!, "missing open weather"),
     transpose: env!("TRANSPOSE_API_KEY", :string!, "missing transpose"),
     discord: env!("DISCORD_API_KEY", :string!, "missing discord"),
