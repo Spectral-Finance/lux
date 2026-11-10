@@ -86,4 +86,4 @@ Want to add support for a new language? Check our [Contributing Guide](contribut
 4. Document the integration
 5. Submit a pull request
 
-For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux). 
+For detailed examples and up-to-date documentation, visit [hexdocs.pm/lux](https://hexdocs.pm/lux).
