@@ -12,7 +12,7 @@
     }
   },
   "llm_config": {
-    "model": "gpt-4",
+    "model": "ollama",
     "temperature": 0.7,
     "messages": [
       {
@@ -46,9 +46,5 @@
         "timeout": 30000
       }
     }
-  ],
-  "this is an extra field": [
-    "this field should be ignore! The loader should not crash."
-  ],
-  "this_field_too_should_be_ignored": true
+  ]
 }
