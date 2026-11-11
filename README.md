@@ -101,6 +101,7 @@ Lux provides first-class support for multiple programming languages:
 Check out these examples to see Lux in action:
 
 - [Trading System](lux/guides/trading_system.livemd): A complete crypto trading system
+- [Gas and Transaction Management](lux/guides/transaction_management.md): Fee prediction, simulation, batching and private submission
 - [Content Creation](lux/guides/running_a_company.livemd): Multi-agent content creation pipeline
 - [Research Assistant](lux/guides/multi_agent_collaboration.livemd): Collaborative research system
 
