@@ -1,0 +1,17 @@
+[package]
+name = "lux_core_nif"
+version = "0.5.0"
+edition = "2021"
+description = "Core Rust runtime integration and memory-safe FFI bindings for Lux"
+license = "MIT"
+
+[lib]
+name = "lux_core_nif"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rustler = "0.34.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
