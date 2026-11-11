@@ -1,0 +1,66 @@
+name: Gas transaction management
+
+on:
+  pull_request:
+    paths:
+      - 'lux/lib/lux/web3/**'
+      - 'lux/lib/lux/prisms/web3/**'
+      - 'lux/test/unit/lux/web3/**'
+      - 'lux/test/integration/web3/**'
+      - 'lux/test/fixtures/web3/**'
+      - 'lux/mix.*'
+      - '.github/workflows/gas-transactions.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'lux/lib/lux/web3/**'
+      - 'lux/lib/lux/prisms/web3/**'
+      - 'lux/test/unit/lux/web3/**'
+      - 'lux/test/integration/web3/**'
+      - 'lux/test/fixtures/web3/**'
+      - 'lux/mix.*'
+      - '.github/workflows/gas-transactions.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  local-evm:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: lux
+    env:
+      MIX_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: '27.2'
+          elixir-version: '1.18.4'
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.9.0
+      - name: Fetch dependencies
+        run: mix deps.get
+      - name: Check formatting
+        run: >-
+          mix format --check-formatted
+          lib/lux/web3/gas.ex lib/lux/web3/rpc.ex
+          lib/lux/web3/transaction_batch.ex lib/lux/web3/transaction_manager.ex
+          lib/lux/prisms/web3/transaction_manager_prism.ex
+          test/unit/lux/web3/gas_test.exs test/unit/lux/web3/transaction_manager_test.exs
+          test/integration/web3/transaction_management_test.exs mix.exs
+      - name: Check changed Elixir modules
+        run: >-
+          mix credo --strict
+          lib/lux/web3/gas.ex lib/lux/web3/rpc.ex
+          lib/lux/web3/transaction_batch.ex lib/lux/web3/transaction_manager.ex
+          lib/lux/prisms/web3/transaction_manager_prism.ex
+          test/unit/lux/web3/gas_test.exs test/unit/lux/web3/transaction_manager_test.exs
+          test/integration/web3/transaction_management_test.exs
+      - name: Unit tests
+        run: mix test.unit --no-start test/unit/lux/web3/gas_test.exs test/unit/lux/web3/transaction_manager_test.exs
+      - name: Local EVM integration tests
+        run: mix test --no-start --include integration test/integration/web3/transaction_management_test.exs
