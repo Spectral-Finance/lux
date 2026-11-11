@@ -22,3 +22,14 @@ config :venomous, :snake_manager, %{
     python_executable: "python3"
   ]
 }
+
+config :lux, :ollama_models,
+  default: "llama3.2",
+  smart: "llama3.1:70b",
+  fast: "llama3.2:3b",
+  embedding: "nomic-embed-text"
+
+config :lux, :ollama_config,
+  endpoint: "http://localhost:11434",
+  keep_alive: "5m",
+  num_ctx: 4096
