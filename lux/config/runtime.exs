@@ -69,3 +69,13 @@ if config_env() == :test do
       ]
     }
 end
+
+config :lux, :ollama_models,
+  default: System.get_env("OLLAMA_DEFAULT_MODEL", "llama3.2"),
+  smart: System.get_env("OLLAMA_SMART_MODEL", "llama3.1:70b"),
+  fast: System.get_env("OLLAMA_FAST_MODEL", "llama3.2:3b"),
+  embedding: System.get_env("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+
+config :lux, :ollama_config,
+  endpoint: System.get_env("OLLAMA_ENDPOINT", "http://localhost:11434"),
+  keep_alive: System.get_env("OLLAMA_KEEP_ALIVE", "5m")
