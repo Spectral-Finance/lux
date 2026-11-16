@@ -30,12 +30,36 @@ defmodule Lux.Integrations.Telegram do
   }
 
   @doc """
-  Adds Telegram bot token to the URL.
-  Used with Req.
+  Adds Telegram bot token to the Lens URL or Plug.Conn request path.
   """
+  @spec add_auth_header(Lux.Lens.t()) :: Lux.Lens.t()
+  def add_auth_header(%Lux.Lens{} = lens) do
+    token =
+      try do
+        Lux.Config.telegram_bot_token()
+      rescue
+        _ -> System.get_env("TELEGRAM_BOT_TOKEN") || ""
+      end
+
+    updated_url =
+      if String.contains?(lens.url, "/bot/") do
+        String.replace(lens.url, "/bot/", "/bot#{token}/")
+      else
+        lens.url
+      end
+
+    %{lens | url: updated_url}
+  end
+
   @spec add_auth_header(Plug.Conn.t()) :: Plug.Conn.t()
   def add_auth_header(%Plug.Conn{} = conn) do
-    token = Lux.Config.telegram_bot_token()
+    token =
+      try do
+        Lux.Config.telegram_bot_token()
+      rescue
+        _ -> System.get_env("TELEGRAM_BOT_TOKEN") || ""
+      end
+
     path = conn.request_path
     
     # Extract and replace bot token placeholder if needed
