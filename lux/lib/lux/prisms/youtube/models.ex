@@ -104,7 +104,7 @@ defmodule Lux.Prisms.YouTube.Models do
       Enum.reduce(0..(n - 1), {:ok, m}, fn col, {:ok, acc} ->
         # find pivot
         {pivot_row, _} =
-          Enum.reduce((col..(n - 1)), {col, 0.0}, fn r, {_, best} ->
+          Enum.reduce(col..(n - 1), {col, 0.0}, fn r, {_, best} ->
             val = abs(Enum.at(Enum.at(acc, r), col))
 
             if val > best, do: {r, val}, else: {r, best}
@@ -597,7 +597,10 @@ defmodule Lux.Prisms.YouTube.Models do
 
   defp pstdev(list) do
     m = mean(list)
-    variance = list |> Enum.reduce(0.0, fn x, acc -> acc + (x - m) * (x - m) end) |> Kernel./(length(list))
+
+    variance =
+      list |> Enum.reduce(0.0, fn x, acc -> acc + (x - m) * (x - m) end) |> Kernel./(length(list))
+
     :math.sqrt(variance)
   end
 end

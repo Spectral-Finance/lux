@@ -19,8 +19,15 @@ defmodule Lux.Prisms.YouTube.OptimizeTitleTest do
   end
 
   test "keyword front-loading boosts score" do
-    {:ok, front} = OptimizeTitle.handler(%{title: "Elixir tips for beginners in 2026", keyword: "elixir"}, %{})
-    {:ok, mid} = OptimizeTitle.handler(%{title: "Learn about elixir and more stuff here", keyword: "elixir"}, %{})
+    {:ok, front} =
+      OptimizeTitle.handler(%{title: "Elixir tips for beginners in 2026", keyword: "elixir"}, %{})
+
+    {:ok, mid} =
+      OptimizeTitle.handler(
+        %{title: "Learn about elixir and more stuff here", keyword: "elixir"},
+        %{}
+      )
+
     assert front.components.keyword == 100.0
     assert mid.components.keyword == 75.0
     assert front.score > mid.score

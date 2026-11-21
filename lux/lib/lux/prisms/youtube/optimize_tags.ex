@@ -99,7 +99,15 @@ defmodule Lux.Prisms.YouTube.OptimizeTags do
 
     phrases =
       if kw != "" do
-        [kw, "#{kw} tutorial", "#{kw} tips", "how to #{kw}", "#{kw} 2026", "best #{kw}", "#{kw} guide"]
+        [
+          kw,
+          "#{kw} tutorial",
+          "#{kw} tips",
+          "how to #{kw}",
+          "#{kw} 2026",
+          "best #{kw}",
+          "#{kw} guide"
+        ]
       else
         []
       end

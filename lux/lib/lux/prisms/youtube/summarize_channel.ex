@@ -94,7 +94,7 @@ defmodule Lux.Prisms.YouTube.SummarizeChannel do
     case Map.get(map, key, 0) do
       n when is_integer(n) -> n
       n when is_float(n) -> trunc(n)
-      s when is_binary(s) -> (Integer.parse(s) |> elem_or_zero())
+      s when is_binary(s) -> Integer.parse(s) |> elem_or_zero()
       _ -> 0
     end
   end
@@ -102,7 +102,7 @@ defmodule Lux.Prisms.YouTube.SummarizeChannel do
   defp num_field(map, key) do
     case Map.get(map, key, 0.0) do
       n when is_number(n) -> n
-      s when is_binary(s) -> (Float.parse(s) |> elem_or_zero())
+      s when is_binary(s) -> Float.parse(s) |> elem_or_zero()
       _ -> 0.0
     end
   end

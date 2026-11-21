@@ -168,7 +168,7 @@ defmodule Lux.Prisms.YouTube.OptimizeTitle do
   end
 
   defp score_caps(title) do
-    letters = title |> String.graphemes() |> Enum.filter(&(letter?(&1)))
+    letters = title |> String.graphemes() |> Enum.filter(&letter?(&1))
     caps = Enum.count(letters, &uppercase_letter?(&1))
 
     if letters == [] do
@@ -193,7 +193,8 @@ defmodule Lux.Prisms.YouTube.OptimizeTitle do
 
     candidates =
       if not Regex.match?(~r/\d/, base) do
-        candidates ++ ["#{base}: 7 Tips That Work", "7 #{String.capitalize(kw)} Tips You Need in 2026"]
+        candidates ++
+          ["#{base}: 7 Tips That Work", "7 #{String.capitalize(kw)} Tips You Need in 2026"]
       else
         candidates
       end

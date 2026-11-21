@@ -8,16 +8,62 @@ defmodule Lux.Prisms.YouTube.Util do
   """
 
   @stopwords MapSet.new([
-    "the", "a", "an", "and", "or", "but", "of", "to", "in", "on", "for",
-    "with", "is", "are", "was", "were", "be", "this", "that", "it", "as",
-    "at", "by", "from", "your", "you", "how", "what", "why", "i"
-  ])
+               "the",
+               "a",
+               "an",
+               "and",
+               "or",
+               "but",
+               "of",
+               "to",
+               "in",
+               "on",
+               "for",
+               "with",
+               "is",
+               "are",
+               "was",
+               "were",
+               "be",
+               "this",
+               "that",
+               "it",
+               "as",
+               "at",
+               "by",
+               "from",
+               "your",
+               "you",
+               "how",
+               "what",
+               "why",
+               "i"
+             ])
 
   @power_words MapSet.new([
-    "free", "new", "best", "top", "ultimate", "secret", "proven", "fast",
-    "easy", "complete", "guide", "how", "tips", "tricks", "review", "vs",
-    "insane", "powerful", "simple", "instant", "exclusive", "revealed"
-  ])
+                 "free",
+                 "new",
+                 "best",
+                 "top",
+                 "ultimate",
+                 "secret",
+                 "proven",
+                 "fast",
+                 "easy",
+                 "complete",
+                 "guide",
+                 "how",
+                 "tips",
+                 "tricks",
+                 "review",
+                 "vs",
+                 "insane",
+                 "powerful",
+                 "simple",
+                 "instant",
+                 "exclusive",
+                 "revealed"
+               ])
 
   @doc "Lowercase word tokens (letters/digits/apostrophes)."
   def tokenize(text) when is_binary(text) do
@@ -117,7 +163,7 @@ defmodule Lux.Prisms.YouTube.Util do
 
   def pstdev(list) when is_list(list) do
     m = mean(list)
-    variance = list |> Enum.map(&(:math.pow(&1 - m, 2))) |> Enum.sum() |> Kernel./(length(list))
+    variance = list |> Enum.map(&:math.pow(&1 - m, 2)) |> Enum.sum() |> Kernel./(length(list))
     :math.sqrt(variance)
   end
 
