@@ -22,7 +22,11 @@ defmodule Lux.Prisms.Discord.Moderation.BanMember do
       type: :object,
       properties: %{
         guild_id: %{type: :string, description: "The ID of the guild", pattern: "^[0-9]{17,20}$"},
-        user_id: %{type: :string, description: "The ID of the member to ban", pattern: "^[0-9]{17,20}$"},
+        user_id: %{
+          type: :string,
+          description: "The ID of the member to ban",
+          pattern: "^[0-9]{17,20}$"
+        },
         delete_message_seconds: %{
           type: :integer,
           description: "Seconds of recent messages to delete (0-604800)",

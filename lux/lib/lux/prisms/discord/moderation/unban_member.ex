@@ -21,7 +21,11 @@ defmodule Lux.Prisms.Discord.Moderation.UnbanMember do
       type: :object,
       properties: %{
         guild_id: %{type: :string, description: "The ID of the guild", pattern: "^[0-9]{17,20}$"},
-        user_id: %{type: :string, description: "The ID of the user to unban", pattern: "^[0-9]{17,20}$"},
+        user_id: %{
+          type: :string,
+          description: "The ID of the user to unban",
+          pattern: "^[0-9]{17,20}$"
+        },
         reason: %{type: :string, description: "Optional audit-log reason"}
       },
       required: ["guild_id", "user_id"]
