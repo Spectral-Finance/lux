@@ -445,6 +445,175 @@ def test_lux_handler_contract():
 
 
 # --------------------------------------------------------------------------- #
+# Spec-mandated classes (spec lines 293-303)
+# --------------------------------------------------------------------------- #
+def test_comment_management_list_and_moderation():
+    from youtube_community_prisms import CommentManagementPrism
+    t = FakeTransport([
+        (200, {}, b'{"items":[{"id":"t1"},{"id":"t2"}]}'),  # list threads
+        (200, {}, b"{}"),                                    # set status
+    ])
+    p = CommentManagementPrism(_http(t))
+    listed = p.list_comment_threads(video_id="v1")
+    assert listed["items"][0]["id"] == "t1"
+    res = p.approve_comment("c1")
+    assert res["moderationStatus"] == "published"
+    # invalid status rejected
+    try:
+        p.set_moderation_status("c1", "bogus")
+        assert False, "expected ValidationError"
+    except Exception as e:
+        assert "validation" in str(e).lower() or "status" in str(e).lower()
+
+
+def test_comment_management_post_and_delete():
+    from youtube_community_prisms import CommentManagementPrism
+    t = FakeTransport([
+        (200, {}, b'{"id":"newthread"}'),  # post comment
+        (200, {}, b"{}"),                  # delete
+    ])
+    p = CommentManagementPrism(_http(t))
+    posted = p.post_comment("v1", "Great video!")
+    assert posted["id"] == "newthread"
+    deleted = p.delete_comment("c1")
+    assert deleted["deleted"] is True
+    # empty text rejected
+    try:
+        p.post_comment("v1", "   ")
+        assert False
+    except Exception:
+        pass
+
+
+def test_response_generation_generate_and_post():
+    from youtube_community_prisms import ResponseGenerationPrism
+    t = FakeTransport([(200, {}, b'{"id":"r1"}')])
+    p = ResponseGenerationPrism(_http(t), creator_name="TeamA")
+    r = p.generate_reply("How do I set up the API key?")
+    assert r["intent"] == "question"
+    assert "question" in r["reply"].lower()
+    # batch
+    batch = p.generate_replies(["Love it!", "This is terrible"])
+    assert len(batch) == 2
+    # auto reply posts
+    out = p.auto_reply("c1", "Thanks so much!")
+    assert out["posted"]["id"] == "r1"
+    assert "suggestion" in out
+
+
+def test_sentiment_analysis_prism():
+    from youtube_community_prisms import SentimentAnalysisPrism
+    p = SentimentAnalysisPrism(_http(FakeTransport()))
+    assert p.analyze_text("absolutely amazing and helpful")["label"] == "positive"
+    assert p.analyze_text("terrible boring waste")["label"] == "negative"
+    batch = p.analyze_batch(["good great", "bad awful", "the table"])
+    assert batch["count"] == 3
+    assert batch["counts"]["positive"] >= 1
+    assert batch["counts"]["negative"] >= 1
+    # thread analysis
+    thread = {"snippet": {"topLevelComment": {"id": "c9", "snippet": {
+        "textDisplay": "love this"}}}}
+    r = p.analyze_thread(thread)
+    assert r["comment_id"] == "c9"
+    assert r["label"] == "positive"
+
+
+def test_spam_moderation_prism():
+    from youtube_community_prisms import SpamModerationPrism
+    t = FakeTransport([
+        (200, {}, b"{}"),  # hold
+        (200, {}, b"{}"),  # approve
+    ])
+    p = SpamModerationPrism(_http(t), spam_threshold=0.5)
+    assert p.is_spam("BUY NOW!!! click here https://spam.example.com make money")
+    assert not p.is_spam("Great tutorial, thanks for explaining this clearly.")
+    held = p.moderate("c1", "BUY NOW!!! click here https://spam.example.com make money")
+    assert held["decision"] == "held"
+    approved = p.moderate("c2", "Great tutorial, thanks")
+    assert approved["decision"] == "approved"
+
+
+def test_community_post_scheduler():
+    from youtube_community_prisms import CommunityPostSchedulerPrism
+    p = CommunityPostSchedulerPrism(_http(FakeTransport()))
+    post = p.schedule_post("ch1", "Hello world", scheduled_for=1000.0)
+    assert post["status"] == "scheduled"
+    assert p.queue_depth("ch1") == 1
+    # process due posts
+    published = p.process_due_posts(now=2000.0)
+    assert len(published) == 1
+    assert published[0]["status"] == "published"
+    assert p.queue_depth("ch1") == 0
+    # cancel
+    p2 = CommunityPostSchedulerPrism(_http(FakeTransport()))
+    post2 = p2.schedule_post("ch1", "Later", scheduled_for=9999.0)
+    cancelled = p2.cancel_post(post2["id"])
+    assert cancelled["status"] == "cancelled"
+
+
+def test_engagement_campaign_prism():
+    from youtube_community_prisms import EngagementCampaignPrism
+    p = EngagementCampaignPrism(_http(FakeTransport()))
+    camp = p.create_campaign("Spring Launch", "ch1", goals={"signups": 100})
+    assert camp["status"] == "active"
+    p.record_metric(camp["id"], "signups", 10)
+    p.record_metric(camp["id"], "signups", 20)
+    report = p.campaign_report(camp["id"])
+    assert report["metrics"]["signups"]["count"] == 2
+    assert report["metrics"]["signups"]["sum"] == 30
+    assert report["metrics"]["signups"]["avg"] == 15
+    closed = p.close_campaign(camp["id"])
+    assert closed["status"] == "closed"
+    assert len(p.list_campaigns(channel_id="ch1")) == 1
+
+
+def test_comment_threads_lens():
+    from youtube_community_prisms import CommentThreadsLens
+    t = FakeTransport([
+        (200, {}, b'{"items":[{"id":"t1","snippet":{"videoId":"v1",'
+                    b'"topLevelComment":{"id":"c1","snippet":{'
+                    b'"authorDisplayName":"alice","textDisplay":"nice",'
+                    b'"likeCount":5}}}}]}'),
+    ])
+    lens = CommentThreadsLens(_http(t))
+    rows = lens.get(video_id="v1")
+    assert len(rows) == 1
+    assert rows[0]["comment_id"] == "c1"
+    assert rows[0]["author"] == "alice"
+    assert rows[0]["like_count"] == 5
+
+
+def test_community_management_beam_triage():
+    from youtube_community_prisms import CommunityManagementBeam
+    # one clean comment, one spam comment
+    t = FakeTransport([
+        (200, {}, b'{"items":['
+                    b'{"id":"t1","snippet":{"videoId":"v1","topLevelComment":'
+                    b'{"id":"c1","snippet":{"textDisplay":"great video love it"}}}},'
+                    b'{"id":"t2","snippet":{"videoId":"v1","topLevelComment":'
+                    b'{"id":"c2","snippet":{"textDisplay":"BUY NOW!!! '
+                    b'click here https://spam.example.com make money"}}}}]}'),
+        (200, {}, b"{}"),  # approve c1
+        (200, {}, b"{}"),  # hold c2
+    ])
+    beam = CommunityManagementBeam(_http(t))
+    report = beam.triage_threads(video_id="v1")
+    assert report["total"] == 2
+    assert report["counts"]["approved"] == 1
+    assert report["counts"]["held"] == 1
+    assert report["counts"]["spam"] == 1
+
+
+def test_beam_handler_dispatch():
+    from youtube_community_prisms import CommunityManagementBeam
+    beam = CommunityManagementBeam(_http(FakeTransport()))
+    ok = beam.handler("triage_threads", {"video_id": "v1"})
+    assert ok["ok"] is True
+    bad = beam.handler("does_not_exist", {})
+    assert bad["ok"] is False
+
+
+# --------------------------------------------------------------------------- #
 # stdlib-only fallback runner
 # --------------------------------------------------------------------------- #
 def _run_all():

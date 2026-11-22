@@ -12,6 +12,8 @@ mirrors the Elixir `use Lux.Prism` handler contract
 
 ## Prism classes
 
+### Primary prisms
+
 | Prism | Responsibility |
 |-------|----------------|
 | `CommunityPostPrism` | Community post scheduling, publishing, queue/due processing, cancellation |
@@ -19,6 +21,22 @@ mirrors the Elixir `use Lux.Prism` handler contract
 | `LiveChatPrism` | Live chat listing, spam moderation/deletion, user bans, slow-mode, chat log |
 | `MemberManagementPrism` | Subscriber/member interaction tracking, fan segmentation, interaction patterns |
 | `AnalyticsPrism` | Engagement analytics, sentiment aggregation, campaign management, reporting |
+
+### Spec-mandated class names (issue #70 "Required class names & file paths")
+
+The issue's acceptance criteria name the exact classes the lux monorepo expects.
+These are provided in `community.py` and re-exported from the package root:
+
+| Class | Responsibility |
+|-------|----------------|
+| `CommentManagementPrism` | `commentThreads`/`comments` read + moderation (list/get/post/update/delete, setModerationStatus) |
+| `ResponseGenerationPrism` | Automated reply generation (single + batch) and posting via `comments.insert` |
+| `SentimentAnalysisPrism` | Sentiment scoring over text, comments, threads, and batches |
+| `SpamModerationPrism` | Spam detection + threshold-based moderation (hold/approve/reject) |
+| `CommunityPostSchedulerPrism` | Community post scheduling, queue, due-processing, cancellation |
+| `EngagementCampaignPrism` | Engagement campaign create/track/report/close |
+| `CommentThreadsLens` | Read lens over `commentThreads.list` with normalisation |
+| `CommunityManagementBeam` | Orchestration beam: end-to-end triage (fetch → analyse → moderate) |
 
 Every prism shares one infrastructure core (`core.py`) providing:
 

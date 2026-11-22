@@ -7,8 +7,14 @@ Public API
 ----------
     from youtube_community_prisms import (
         YouTubeHTTP, RateLimiter, EventEmitter,
+        # original five prisms
         CommunityPostPrism, CommentModerationPrism, LiveChatPrism,
         MemberManagementPrism, AnalyticsPrism,
+        # spec-mandated class names (spec lines 293-303)
+        CommentManagementPrism, ResponseGenerationPrism,
+        SentimentAnalysisPrism, SpamModerationPrism,
+        CommunityPostSchedulerPrism, EngagementCampaignPrism,
+        CommentThreadsLens, CommunityManagementBeam,
         analyze_sentiment, detect_spam, generate_response,
     )
 
@@ -22,6 +28,16 @@ from .analysis import (
     detect_spam,
     generate_response,
     score_to_label,
+)
+from .community import (
+    CommentManagementPrism,
+    CommentThreadsLens,
+    CommunityManagementBeam,
+    CommunityPostSchedulerPrism,
+    EngagementCampaignPrism,
+    ResponseGenerationPrism,
+    SentimentAnalysisPrism,
+    SpamModerationPrism,
 )
 from .core import (
     AuthenticationError,
@@ -46,7 +62,7 @@ from .prisms import (
     MemberManagementPrism,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = [
     # errors
@@ -64,12 +80,21 @@ __all__ = [
     "YouTubeHTTP",
     "InMemoryPersistence",
     "JsonFilePersistence",
-    # prisms
+    # original five prisms
     "CommunityPostPrism",
     "CommentModerationPrism",
     "LiveChatPrism",
     "MemberManagementPrism",
     "AnalyticsPrism",
+    # spec-mandated class names (spec lines 293-303)
+    "CommentManagementPrism",
+    "ResponseGenerationPrism",
+    "SentimentAnalysisPrism",
+    "SpamModerationPrism",
+    "CommunityPostSchedulerPrism",
+    "EngagementCampaignPrism",
+    "CommentThreadsLens",
+    "CommunityManagementBeam",
     # analysis
     "analyze_sentiment",
     "detect_spam",
