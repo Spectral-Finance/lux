@@ -37,7 +37,8 @@ defmodule Lux.Prisms.YouTube.PlaylistItems do
         count: %{type: :integer, description: "Number of entries"},
         entries: %{
           type: :array,
-          description: "Ordered entries: %{video_id, title, position, published_at, channel_title}"
+          description:
+            "Ordered entries: %{video_id, title, position, published_at, channel_title}"
         },
         first_position: %{type: :integer, description: "Position of the first entry (0 if empty)"},
         last_position: %{type: :integer, description: "Position of the last entry (0 if empty)"}

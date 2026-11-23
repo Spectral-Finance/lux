@@ -37,10 +37,14 @@ defmodule Lux.Prisms.YouTube.SearchResults do
       type: :object,
       properties: %{
         count: %{type: :integer, description: "Number of normalised results"},
-        by_kind: %{type: :object, description: "Count of results per kind (video/channel/playlist)"},
+        by_kind: %{
+          type: :object,
+          description: "Count of results per kind (video/channel/playlist)"
+        },
         results: %{
           type: :array,
-          description: "Normalised hits: %{kind, id, title, description, published_at, channel_title}"
+          description:
+            "Normalised hits: %{kind, id, title, description, published_at, channel_title}"
         }
       },
       required: ["count", "results"]

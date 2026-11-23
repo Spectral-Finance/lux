@@ -35,7 +35,8 @@ defmodule Lux.Prisms.YouTube.ChannelStats do
         },
         statistics: %{
           type: :object,
-          description: "channels.list statistics (subscriberCount, viewCount, videoCount as strings)"
+          description:
+            "channels.list statistics (subscriberCount, viewCount, videoCount as strings)"
         },
         contentDetails: %{
           type: :object,
