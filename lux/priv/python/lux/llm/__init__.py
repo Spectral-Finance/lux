@@ -48,6 +48,7 @@ from lux.llm.selection import ModelSelector, ModelSpec
 from lux.llm.monitoring import CostTracker, MetricsCollector
 from lux.llm.cache import SimpleCache
 from lux.llm.config import LLMConfig, load_config
+from lux.llm.client import LLMClient
 
 __all__ = [
     "LLMProvider",
@@ -76,6 +77,7 @@ __all__ = [
     "SimpleCache",
     "LLMConfig",
     "load_config",
+    "LLMClient",
 ]
 
 __version__ = "0.1.0"

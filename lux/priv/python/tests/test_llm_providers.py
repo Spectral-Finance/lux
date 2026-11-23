@@ -6,6 +6,8 @@ are required.
 """
 from __future__ import annotations
 
+import json
+
 import pytest
 
 from lux.llm import (
@@ -21,6 +23,7 @@ from lux.llm import (
     ProviderError,
     ProviderRegistry,
     RateLimitError,
+    RetryableError,
     Role,
     SimpleCache,
     Usage,
@@ -453,3 +456,186 @@ def test_cache_eviction():
         cache.set(f"k{i}", CompletionResponse(text=str(i), model="m", provider="p"))
     assert cache.get("k0") is None  # evicted (oldest)
     assert cache.get("k2") is not None
+
+# --------------------------------------------------------------------------- #
+# HTTP transport: status -> exception mapping (no network)
+# --------------------------------------------------------------------------- #
+def _fake_http_error(status, payload):
+    import io
+    import urllib.error
+
+    body = json.dumps(payload).encode("utf-8")
+    return urllib.error.HTTPError(
+        url="http://x", code=status, msg="err", hdrs=None, fp=io.BytesIO(body)
+    )
+
+
+def test_http_post_maps_401_to_auth_error(monkeypatch):
+    import urllib.request
+
+    from lux.llm import http_utils as hu
+
+    def boom(req, timeout=60.0):
+        raise _fake_http_error(401, {"error": {"message": "bad key"}})
+
+    monkeypatch.setattr(hu.urllib.request, "urlopen", boom)
+    with pytest.raises(AuthError) as ei:
+        hu.http_post("http://x", {}, {})
+    assert ei.value.status_code == 401
+
+
+def test_http_post_maps_429_to_rate_limit(monkeypatch):
+    import urllib.request
+
+    from lux.llm import http_utils as hu
+
+    def boom(req, timeout=60.0):
+        raise _fake_http_error(429, {"error": {"message": "slow"}})
+
+    monkeypatch.setattr(hu.urllib.request, "urlopen", boom)
+    with pytest.raises(RateLimitError):
+        hu.http_post("http://x", {}, {})
+
+
+def test_http_post_maps_503_to_retryable(monkeypatch):
+    import urllib.request
+
+    from lux.llm import http_utils as hu
+
+    def boom(req, timeout=60.0):
+        raise _fake_http_error(503, {"error": {"message": "down"}})
+
+    monkeypatch.setattr(hu.urllib.request, "urlopen", boom)
+    with pytest.raises(RetryableError):
+        hu.http_post("http://x", {}, {})
+
+
+def test_http_post_urlerror_is_retryable(monkeypatch):
+    import urllib.error
+    import urllib.request
+
+    from lux.llm import http_utils as hu
+
+    def boom(req, timeout=60.0):
+        raise urllib.error.URLError("no route")
+
+    monkeypatch.setattr(hu.urllib.request, "urlopen", boom)
+    with pytest.raises(RetryableError):
+        hu.http_post("http://x", {}, {})
+
+
+def test_iter_sse_json_skips_done_and_bad():
+    from lux.llm.http_utils import iter_sse_json
+
+    lines = iter(['{"a":1}', "[DONE]", "not-json", '{"b":2}'])
+    out = list(iter_sse_json(lines))
+    assert out == [{"a": 1}]  # stops at [DONE]
+
+
+# --------------------------------------------------------------------------- #
+# Retry exhaustion
+# --------------------------------------------------------------------------- #
+def test_retry_exhaustion_raises(monkeypatch):
+    calls = {"n": 0}
+
+    def always_fail(url, body, headers=None, *, timeout=60.0, provider="base"):
+        calls["n"] += 1
+        raise RetryableError("still down", provider="openai")
+
+    monkeypatch.setattr(http_utils, "http_post", always_fail)
+    monkeypatch.setattr("time.sleep", lambda *_: None)
+    provider = OpenAIProvider(model="gpt-4o-mini", api_key="sk", max_retries=2)
+    with pytest.raises(RetryableError):
+        provider.complete([Message.user("Hi")])
+    assert calls["n"] == 3  # 1 initial + 2 retries
+
+
+# --------------------------------------------------------------------------- #
+# High-level LLMClient orchestration
+# --------------------------------------------------------------------------- #
+class _EchoProvider:
+    name = "echo"
+
+    def __init__(self):
+        self.model = "echo-1"
+        self.base_url = ""
+
+    def complete(self, messages, **params):
+        from lux.llm.base import CompletionResponse
+
+        last = messages[-1].content if messages else ""
+        return CompletionResponse(
+            text=f"echo: {last}",
+            model=self.model,
+            provider=self.name,
+            usage=Usage(prompt_tokens=2, completion_tokens=2),
+            finish_reason="stop",
+        )
+
+    def stream(self, messages, **params):
+        from lux.llm.base import StreamChunk
+
+        last = messages[-1].content if messages else ""
+        for w in f"echo: {last}".split():
+            yield StreamChunk(text=w + " ", model=self.model, provider=self.name)
+        yield StreamChunk(text="", model=self.model, provider=self.name, finish_reason="stop", done=True)
+
+
+def test_client_complete_and_cache():
+    from lux.llm import LLMClient, SimpleCache
+
+    client = LLMClient(registry=ProviderRegistry(LLMConfig()), cache=SimpleCache(max_size=8))
+    client.registry.register("echo", lambda cfg, **kw: _EchoProvider())
+    r1 = client.complete([Message.user("hi there")], provider="echo")
+    r2 = client.complete([Message.user("hi there")], provider="echo")
+    assert r1.text == "echo: hi there"
+    assert r1 is r2  # second call served from cache
+    assert r1.latency_ms >= 0.0
+
+
+def test_client_records_cost_and_metrics():
+    from lux.llm import LLMClient
+
+    client = LLMClient(registry=ProviderRegistry(LLMConfig()))
+    client.registry.register("echo", lambda cfg, **kw: _EchoProvider())
+    client.complete([Message.user("accounting")], provider="echo")
+    summary = client.summary()
+    assert summary["cost"]["requests"] == 1
+    assert summary["metrics"]["count"] == 1
+
+
+def test_client_stream():
+    from lux.llm import LLMClient
+
+    client = LLMClient(registry=ProviderRegistry(LLMConfig()))
+    client.registry.register("echo", lambda cfg, **kw: _EchoProvider())
+    chunks = list(client.stream([Message.user("stream it")], provider="echo"))
+    assert "".join(c.text for c in chunks).strip() == "echo: stream it"
+    assert chunks[-1].done is True
+
+
+def test_client_with_explicit_providers_falls_over():
+    from lux.llm import LLMClient
+
+    class _Boom:
+        name = "boom"
+        model = "b"
+        base_url = ""
+
+        def complete(self, messages, **params):
+            raise RateLimitError("down", provider="boom")
+
+        def stream(self, messages, **params):
+            raise RateLimitError("down", provider="boom")
+
+    client = LLMClient(providers=[_Boom(), _EchoProvider()])
+    resp = client.complete([Message.user("failover")])
+    assert resp.provider == "echo"
+
+
+def test_client_select_delegates():
+    from lux.llm import LLMClient
+
+    client = LLMClient(registry=ProviderRegistry(LLMConfig()))
+    spec = client.select(provider="openai", optimize_for="cost")
+    assert spec.name == "gpt-4o-mini"
