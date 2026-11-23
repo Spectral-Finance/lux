@@ -1,0 +1,33 @@
+[package]
+name = "lux_rust"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.77"
+description = "Rust core NIFs for the Lux framework (Elixir <-> Rust FFI)"
+license = "MIT"
+repository = "https://github.com/Spectral-Finance/lux"
+authors = ["Lux Contributors"]
+
+# The crate is built as a `cdylib` so it can be loaded as a NIF shared object
+# by the BEAM via Rustler. A `rlib` is also produced so the crate can be
+# unit-tested with `cargo test` and reused as a plain Rust library.
+[lib]
+name = "lux_rust"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+rustler = "0.38.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[features]
+default = []
+
+# Release profile tuned for a NIF: small, fast, with debug symbols stripped
+# from the shipped artifact but kept available for profiling.
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "unwind"
+strip = "debuginfo"

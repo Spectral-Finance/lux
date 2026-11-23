@@ -1,0 +1,14 @@
+# Cargo workspace for the Lux Rust core.
+#
+# The Rust core lives in `lux/priv/rust` (see that crate's Cargo.toml). This
+# virtual workspace manifest lets `cargo build` / `cargo test` be run from the
+# repository root, e.g.:
+#
+#     cargo test          # run the Rust core unit tests
+#     cargo build --release
+#
+# The Elixir side loads the compiled `cdylib` as a Rustler NIF via `Lux.Rust`
+# (see `lux/lib/lux/rust.ex`) and builds it with `mix rust.build`.
+[workspace]
+resolver = "2"
+members = ["lux/priv/rust"]
