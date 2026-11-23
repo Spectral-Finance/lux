@@ -126,17 +126,25 @@ defmodule Lux.Rust do
 
   @doc "Computes the factorial of `n`."
   @spec factorial(integer()) :: {:ok, integer()} | {:error, rust_error()}
-  def factorial(_n), do: {:error, :nif_not_loaded}
+  def factorial(_n), do: {:error, nif_not_loaded_error()}
 
   @doc "Parses a string into an integer."
   @spec parse_int(String.t()) :: {:ok, integer()} | {:error, rust_error()}
-  def parse_int(_input), do: {:error, :nif_not_loaded}
+  def parse_int(_input), do: {:error, nif_not_loaded_error()}
 
   @doc "Reads a required integer key from a map."
   @spec map_get_int(map(), String.t()) :: {:ok, integer()} | {:error, rust_error()}
-  def map_get_int(_map, _key), do: {:error, :nif_not_loaded}
+  def map_get_int(_map, _key), do: {:error, nif_not_loaded_error()}
 
   @doc "Runs a compute-heavy operation guarded by `catch_unwind`."
   @spec safe_compute(boolean()) :: {:ok, integer()} | {:error, rust_error()}
-  def safe_compute(_should_panic), do: {:error, :nif_not_loaded}
+  def safe_compute(_should_panic), do: {:error, nif_not_loaded_error()}
+
+  # A structured error matching the `rust_error()` type, returned by the
+  # fallible stubs when the native library has not been compiled. Using a
+  # properly-typed map (rather than a bare atom) keeps the stubs consistent
+  # with the success-path return shape and avoids gradual-typing warnings.
+  defp nif_not_loaded_error do
+    %{kind: :nif_not_loaded, message: "The Lux Rust NIF is not loaded; run `mix rust.build`."}
+  end
 end
