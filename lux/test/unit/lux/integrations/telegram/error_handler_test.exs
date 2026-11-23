@@ -98,14 +98,14 @@ defmodule Lux.Integrations.Telegram.ErrorHandlerTest do
 
   describe "backoff_delay/3" do
     test "calculates exponential backoff" do
-      assert 1000 = ErrorHandler.backoff_delay(0, 1000, 60000)
-      assert 2000 = ErrorHandler.backoff_delay(1, 1000, 60000)
-      assert 4000 = ErrorHandler.backoff_delay(2, 1000, 60000)
-      assert 8000 = ErrorHandler.backoff_delay(3, 1000, 60000)
+      assert 1000 = ErrorHandler.backoff_delay(0, 1000, 60_000)
+      assert 2000 = ErrorHandler.backoff_delay(1, 1000, 60_000)
+      assert 4000 = ErrorHandler.backoff_delay(2, 1000, 60_000)
+      assert 8000 = ErrorHandler.backoff_delay(3, 1000, 60_000)
     end
 
     test "caps at max_delay" do
-      assert 60000 = ErrorHandler.backoff_delay(10, 1000, 60000)
+      assert 60_000 = ErrorHandler.backoff_delay(10, 1000, 60_000)
     end
   end
 
