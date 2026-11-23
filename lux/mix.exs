@@ -83,7 +83,10 @@ defmodule Lux.MixProject do
       {:mock, "~> 0.3.0", only: [:test]},
       {:stream_data, "~> 1.0", only: [:test]},
       {:styler, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:excoveralls, "~> 0.18", only: :test}
+      {:excoveralls, "~> 0.18", only: :test},
+      # Native Rust core (NIF bridge). Optional at runtime: Lux.Rust falls back
+      # to pure-Elixir stubs when the library has not been compiled.
+      {:rustler, "~> 0.38.0", optional: true}
     ]
   end
 
@@ -115,6 +118,9 @@ defmodule Lux.MixProject do
         "priv/python/*.py",
         "priv/python/*.toml",
         "priv/python/README.md",
+        "priv/rust/Cargo.toml",
+        "priv/rust/src/*.rs",
+        "priv/rust/README.md",
         "priv/node/*.json",
         "priv/node/*.mjs",
         ".formatter.exs",

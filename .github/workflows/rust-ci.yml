@@ -1,0 +1,113 @@
+name: Rust Core CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lux/priv/rust/**'
+      - 'lux/lib/lux/rust.ex'
+      - 'lux/lib/mix/tasks/rust/**'
+      - 'lux/test/integration/rust_test.exs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/rust-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lux/priv/rust/**'
+      - 'lux/lib/lux/rust.ex'
+      - 'lux/lib/mix/tasks/rust/**'
+      - 'lux/test/integration/rust_test.exs'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/rust-ci.yml'
+
+jobs:
+  rust:
+    name: Build and Test Rust Core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            lux/priv/rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('lux/priv/rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Check formatting
+        run: cargo fmt --manifest-path lux/priv/rust/Cargo.toml -- --check
+
+      - name: Clippy
+        run: cargo clippy --manifest-path lux/priv/rust/Cargo.toml -- -D warnings
+
+      - name: Run Rust unit tests
+        run: cargo test --manifest-path lux/priv/rust/Cargo.toml
+
+      - name: Build release cdylib
+        run: cargo build --release --manifest-path lux/priv/rust/Cargo.toml
+
+  elixir-integration:
+    name: Elixir Integration Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lux
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: 'OTP-27.2'
+          elixir-version: 'v1.18.1-otp-27'
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Mix deps
+        uses: actions/cache@v4
+        with:
+          path: lux/deps
+          key: ${{ runner.os }}-mix-deps-lux-${{ hashFiles('lux/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-deps-lux-
+
+      - name: Cache Mix build
+        uses: actions/cache@v4
+        with:
+          path: lux/_build
+          key: ${{ runner.os }}-mix-build-lux-${{ hashFiles('lux/mix.lock', 'lux/lib/**/*.ex', 'lux/test/**/*.ex') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-build-lux-${{ hashFiles('lux/mix.lock') }}
+            ${{ runner.os }}-mix-build-lux-
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            lux/priv/rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('lux/priv/rust/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install Mix dependencies
+        run: mix deps.get
+
+      - name: Build Rust core
+        run: mix rust.build
+
+      - name: Run Rust integration tests
+        run: mix test --include integration test/integration/rust_test.exs

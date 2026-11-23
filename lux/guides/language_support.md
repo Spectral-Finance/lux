@@ -26,12 +26,23 @@ Node.js integration allows you to leverage the vast JavaScript ecosystem:
 
 ## Future Language Support
 
-### Rust Integration (Coming Soon)
-Native Rust integration is under development, which will provide:
-- High-performance components for compute-intensive tasks
-- Direct FFI integration for optimal performance
-- Access to Rust's rich ecosystem
-- Memory-safe interop with Elixir
+### Rust Integration
+[Learn more about Rust integration](rust.md)
+
+Native Rust integration lets you run high-performance, memory-safe code inside
+your Lux agents via [Rustler](https://hexdocs.pm/rustler) NIFs:
+- Write compute-intensive components in Rust under `priv/rust`
+- Call them from Elixir through the `Lux.Rust` API with `{:ok, _} | {:error, _}` contracts
+- Structured error propagation (`%{kind:, message:, detail:}`) and panic safety
+- Zero-copy binary handling and idiomatic type conversion at the BEAM boundary
+
+Build the native core with `mix rust.build` and call it directly:
+
+```elixir
+Lux.Rust.add(2, 3)        #=> 5
+Lux.Rust.factorial(5)     #=> {:ok, 120}
+Lux.Rust.factorial(-1)    #=> {:error, %{kind: :invalid_argument, ...}}
+```
 
 ### Custom Language Integration
 Want to add support for your favorite language? Lux provides a Language Integration Protocol that allows you to:
